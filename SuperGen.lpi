@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="11"/>
+    <PathDelim Value="\"/>
+    <General>
+      <Flags>
+        <MainUnitHasCreateFormStatements Value="False"/>
+        <MainUnitHasTitleStatement Value="False"/>
+        <MainUnitHasScaledStatement Value="False"/>
+      </Flags>
+      <SessionStorage Value="InProjectDir"/>
+      <MainUnit Value="0"/>
+      <Title Value="SuperGen"/>
+      <UseAppBundle Value="False"/>
+      <ResourceType Value="res"/>
+    </General>
+    <BuildModes Count="1">
+      <Item1 Name="Default" Default="True"/>
+    </BuildModes>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+    <RunParams>
+      <FormatVersion Value="2"/>
+      <Modes Count="0"/>
+    </RunParams>
+    <RequiredPackages Count="1">
+      <Item1>
+        <PackageName Value="LazUtils"/>
+      </Item1>
+    </RequiredPackages>
+    <Units Count="14">
+      <Unit0>
+        <Filename Value="SuperGen.lpr"/>
+        <IsPartOfProject Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="Utils\filehandlingutils.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="FileHandlingUtils"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="Globals\constantsglobals.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ConstantsGlobals"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="Globals\variablesglobals.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="VariablesGlobals"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="Globals\typesglobals.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TypesGlobals"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="Classes\genfileclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="GenFileClass"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="Classes\templateclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TemplateClass"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="Classes\parserclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ParserClass"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="Functions\booleansfunctions.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="BooleansFunctions"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="Functions\datetimefunctions.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="DateTimeFunctions"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="Functions\stringsfunctions.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="StringsFunctions"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="Classes\workclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="WorkClass"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="Functions\listfunctions.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ListFunctions"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="Classes\genfilesetclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="GenFileSetClass"/>
+      </Unit13>
+    </Units>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="11"/>
+    <PathDelim Value="\"/>
+    <Target>
+      <Filename Value="UltraGen"/>
+    </Target>
+    <SearchPaths>
+      <IncludeFiles Value="$(ProjOutDir)"/>
+      <OtherUnitFiles Value="Classes;Utils;Globals;Functions"/>
+      <UnitOutputDirectory Value="lib\i386-win32"/>
+    </SearchPaths>
+    <Linking>
+      <Options>
+        <PassLinkerOptions Value="True"/>
+        <LinkerOptions Value="-FcUTF8"/>
+      </Options>
+    </Linking>
+  </CompilerOptions>
+  <Debugging>
+    <Exceptions Count="5">
+      <Item1>
+        <Name Value="EAbort"/>
+      </Item1>
+      <Item2>
+        <Name Value="ECodetoolError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EFOpenError"/>
+      </Item3>
+      <Item4>
+        <Name Value="EConvertError"/>
+      </Item4>
+      <Item5>
+        <Name Value="EStringListError"/>
+      </Item5>
+    </Exceptions>
+  </Debugging>
+</CONFIG>
