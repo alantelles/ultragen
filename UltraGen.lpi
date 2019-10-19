@@ -11,7 +11,7 @@
       </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
-      <Title Value="SuperGen"/>
+      <Title Value="UltraGen"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
     </General>
@@ -33,7 +33,7 @@
     </RequiredPackages>
     <Units Count="14">
       <Unit0>
-        <Filename Value="SuperGen.lpr"/>
+        <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
       <Unit1>
