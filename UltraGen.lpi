@@ -35,6 +35,7 @@
       <Unit0>
         <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="SuperGen"/>
       </Unit0>
       <Unit1>
         <Filename Value="Utils\filehandlingutils.pas"/>

@@ -46,6 +46,7 @@ type
     function CallExternal(ExtPath: string; var Params: TStringList): string;
     function InsertTemplate(ATempName, AgenName: string): string;
     function InsertTemplate(ATempName: string): string;
+    function PrintPlainText(AFileName:string): string;
   end;
 
 implementation
@@ -379,6 +380,22 @@ begin
   Result := Return;
 end;
 
+function TTempParser.PrintPlainText(AFileName:string): string;
+var
+  TextLoad:TStringList;
+  Return:string='';
+begin
+  AFileName := Trim(AFileName);
+  if FileExists(AFileName) then
+  begin
+     TextLoad := TStringList.Create;
+     Textload.LoadFromFile(AFileName);
+     Return := Copy(TextLoad.Text,1,Length(TextLoad.Text)-2);
+     TextLoad.Free;
+  end;
+  Result := Return;
+end;
+
 function TTempParser.InsertTemplate(ATempName, AGenName: string): string;
 var
   Return, Line: string;
@@ -611,6 +628,26 @@ begin
 
       Return := FTemplate.GenFileSet.GenFiles[i].GenFile.FullName;
     end
+    else if (AFuncName = 'genPath') and (Params.Count = 2) then
+    begin
+      try
+        i := StrToInt(Params[0]);
+      except
+        i := FTemplate.GenFileSet.IndexOf(Params[0]);
+      end;
+
+      Return := GetFilePath(FTemplate.GenFileSet.GenFiles[i].GenFile.FullName,(StrToInt(Params[1])*(-1)));
+    end
+    else if (AFuncName = 'genRelativePath') and (Params.Count = 2) then
+    begin
+      try
+        i := StrToInt(Params[0]);
+      except
+        i := FTemplate.GenFileSet.IndexOf(Params[0]);
+      end;
+
+      Return := GetFileRelative(FTemplate.GenFileSet.GenFiles[i].GenFile.FullName,(StrToInt(Params[1])*(-1)));
+    end
 
     { Interaction manipulations }
     else if (AFuncName = 'insert') and (Params.Count = 2) then
@@ -622,6 +659,8 @@ begin
     end
     else if (AFuncName = 'section') and (Params.Count = 1) then
       Return := PrintSection(Params[0])
+    else if (AFuncName = 'text') and (Params.Count = 1) then
+      Return := PrintPlainText(Params[0])
 
     { Booleans Functions }
     else if (AFuncName = 'booleanToInt') and (Params.Count = 1) then

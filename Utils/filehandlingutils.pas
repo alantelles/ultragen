@@ -11,10 +11,12 @@ uses
 
 function GetFileName(AFileName:string; WithExt:boolean=True; NewExt:string=''):string;
 function GetFilePath (AFileName:string; ALevel: integer=-1; FullPathReturn:boolean=True):string;
+function GetFileRelative(AFileName:string; ALevel: integer=-1; FullPathReturn: boolean=True):string;
 procedure CreateDirTree(APath: string);
 function RemoveLastBackslash(AStr:string):string;
 
 implementation
+uses StringsFunctions;
 
 function RemoveLastBackslash(AStr:string):string;
 var
@@ -65,6 +67,34 @@ begin
   for Temp in ADelim do
   begin
     Part := Part + Temp + DirectorySeparator;
+    if not FullPathReturn then
+      Ret := Temp
+    else
+      Ret := Part;
+    if i >= Limit then
+      Break;
+    Inc(i);
+  end;
+  ADelim.Free;
+  Result := RemoveLastBackslash(Ret);
+end;
+
+function GetFileRelative (AFileName:string; ALevel: integer=-1; FullPathReturn:boolean=True):string;
+var
+  ADelim:TStringList;
+  Part: String = '';
+  Temp, Ret: string;
+  Limit, i, j: integer;
+begin
+  ADelim := TStringList.Create;
+  ADelim.Delimiter := DirectorySeparator;
+  ADelim.StrictDelimiter := True;
+  ADelim.DelimitedText := AFileName;
+  Limit := (ADelim.Count-1) + ALevel;
+  i:=0;
+  for j:=limit to ADelim.Count-1 do
+  begin
+    Part := Part + ADelim[j] + DirectorySeparator;
     if not FullPathReturn then
       Ret := Temp
     else

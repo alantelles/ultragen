@@ -162,5 +162,10 @@ begin
   AuxGens.Free;
   AuxGroup.Free;
   AuxTemp.Free;
+  for i:=1 to ParamCount do
+  begin
+    if ParamStr(i) = '-debug' then
+      readln;
+  end;
 end.
 
