@@ -1,0 +1,12 @@
+page-title;UltraGen | Desktop/Web multipurpose template engine
+title;{{ 'Hello, UltraGen!' }}
+subtitle;Know your next template engine!
+body;<p>UltraGen is a ultra lightweight and simple template engine for use in web and desktop environment</p>
+<p>UltraGen born as MetaGen, a GUI program used in "Estúdios Globo" to solve a problem of bunch of different XML text files that needed to be generated from the same sources.</p>
+<blockquote class='blockquote'>
+    <p class='mb-0'>Initially with a few features MetaGen grew and I felt a need to expand their capabilities to a point the actual version could not go anymore. So I rewrote, or better saying, wrote a fully new template engine based on the good syntax obtained, but with a lot of more functions and possibilities. One of them, use the UltraGen as a web template engine.</p>
+    <footer class='blockquote-footer'>Alan Telles, UltraGen creator</footer>
+</blockquote>
+<p>Initially MetaGen (stands for Metadata Generator) was only capable of convert files and persist them in the system. UltraGen features the <b>"live"</b> mode for use in websites</p>
+<p>Explore all the possibilities of UltraGen and support us on GitHub!</p>
+<p><b>UltraGen</b> is proudly written in <a target\='_blank' href\='http://lazarus-ide.org'>Lazarus/Free Pascal</a></p>

@@ -13,10 +13,20 @@ function LeftZeros(ANumber:string; Zeros:integer): string;
 function Slice(AStr:string; StrStart, StrEnd:integer):string;
 function StrToMD5(AStr:string):string;
 function SuperHash(AStr:string):string;
-
+function Concat(var Params:TStringList):string;
 procedure ReverseList(var AList:TstringList);
 
 implementation
+
+function Concat(var Params:TStringList):string;
+var
+  Temp:string;
+  Return:string='';
+begin
+  for Temp in Params do
+    Return := Return+Temp;
+  Result := Return;
+end;
 
 function StrToMD5(AStr:string):string;
 begin

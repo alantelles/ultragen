@@ -1,0 +1,16 @@
+<p class='minor'>UltraGen uses a inline-token syntax to setup the parts where you want to insert some data from a source. The syntax is very simple: just put a "{{" to start a piece and a "}}"</p>
+<pre>
+    <code class="html"> 
+    &lt;-- Simple example -->
+    &lt;div class='{{ userField }}'>
+        &lt;p>Your name: {{ name }}&lt;/p>
+        &lt;p>Ninckname: {{ lower(username) }}&lt;p>
+        &lt;p>Birthplace: {{ @remoteBirthPlace }}&lt;p>
+    &lt;/div>
+    </code></pre>
+<div class='card'>
+    <div class='card-body'>
+    <h4>Note:</h4>    
+    <p>You can use another symbol but must follow the pattern "two symbols". If you want to use "<" to open and ">" to close, in the template you must write "<<" and ">>".</p>
+    </div>
+</div>

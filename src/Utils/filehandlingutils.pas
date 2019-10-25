@@ -14,9 +14,22 @@ function GetFilePath (AFileName:string; ALevel: integer=-1; FullPathReturn:boole
 function GetFileRelative(AFileName:string; ALevel: integer=-1; FullPathReturn: boolean=True):string;
 procedure CreateDirTree(APath: string);
 function RemoveLastBackslash(AStr:string):string;
+function PrintFileIfExists(AName,Ifnot, IfYes:string):string;
 
 implementation
 uses StringsFunctions;
+
+function PrintFileIfExists(AName,IfNot,IfYes:string):string;
+var
+  Return,Aux:string;
+begin
+  Return := AName;
+  if FileExists(AName) then
+    Return := IfYes
+  else
+    Return := Ifnot;
+  Result := Return;
+end;
 
 function RemoveLastBackslash(AStr:string):string;
 var

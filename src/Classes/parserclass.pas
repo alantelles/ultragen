@@ -253,7 +253,7 @@ begin
   for i := 1 to length(Line) do
   begin
     k := Line[i];
-    if (Line[i] = ESCAPER) and (not EscapeNext) then
+    if (Line[i] = ESCAPER) and (not EscapeNext) and (not StrOpen) then
     begin
       EscapeNext := V;
       continue;
@@ -562,7 +562,7 @@ begin
   for i := 1 to Length(AList) do
   begin
     z := AList[i];
-    if (AList[i] = ESCAPER) and (not Escaping) then
+    if (AList[i] = ESCAPER) and (not Escaping) and (not StrOpen) then
     begin
       Escaping := True;
     end;
@@ -583,7 +583,7 @@ begin
       begin
         if (FuncLevel = 0) and (not StrOpen) then
         begin
-          ArgsAsList.Add(Part);
+          ArgsAsList.Add(Trim(Part));
           Part := '';
           Continue;
         end;
@@ -606,6 +606,8 @@ var
   i: integer;
 begin
   AFuncName := Trim(AFuncName);
+  //if exists a default
+  //the value must be inserted at position
   if (Pos(ATTR_ACCESSOR, AFuncName) = 0) and (Pos(EXT_FUNC_SEP, AFuncName) = 0) then
   begin
     { Template attributes }
@@ -649,6 +651,7 @@ begin
       Return := GetFileRelative(FTemplate.GenFileSet.GenFiles[i].GenFile.FullName,(StrToInt(Params[1])*(-1)));
     end
 
+
     { Interaction manipulations }
     else if (AFuncName = 'insert') and (Params.Count = 2) then
       Return := InsertTemplate(Params[0], Params[1])
@@ -661,6 +664,12 @@ begin
       Return := PrintSection(Params[0])
     else if (AFuncName = 'text') and (Params.Count = 1) then
       Return := PrintPlainText(Params[0])
+    else if (AFuncName = 'file') and (Params.Count = 1) then
+      Return := FileHandlingUtils.PrintFileIfExists(Params[0],'',Params[0])
+    else if (AFuncName = 'file') and (Params.Count = 2) then
+      Return := FileHandlingUtils.PrintFileIfExists(Params[0],Params[1],Params[0])
+    else if (AFuncName = 'file') and (PArams.Count = 3) then
+      Return := FileHandlingUtils.PrintFileIfExists(Params[0],Params[1],Params[2])
 
     { Booleans Functions }
     else if (AFuncName = 'booleanToInt') and (Params.Count = 1) then
@@ -706,6 +715,8 @@ begin
     end
 
     { String Manipulation }
+    else if (AFuncName = 'concat') then
+      Return := StringsFunctions.Concat(Params)
     else if (AFuncName = 'lower') and (Params.Count = 1) then
       Return := AnsiLowerCase(Params[0])
     else if (AFuncName = 'upper') and (Params.Count = 1) then
@@ -828,6 +839,7 @@ var
   Unary: boolean;
   AOpt, AOver, ATarget, AKey: string;
   PosAs, i, Times: integer;
+  Params:TStringList;
 begin
   for Line in FTemplate.TempLines do
   begin
@@ -888,10 +900,10 @@ begin
             Value := Copy(FTemplate.TempLines[i], Pos(
               OVER_ASSOC, FTemplate.TempLines[i]) + Length(OVER_ASSOC),
               Length(FTemplate.TempLines[i]));
-            Value := ParseLine(Value).Value;
+            //Value := ParseLine(Value).Value;
             Unary := False;
             if not FTemplate.SetPredefined(Key, Value) then
-              FTemplate.SetVariable(Key, Value);
+              FTemplate.SetVariable(Key, Value, True);
           end
           else
           begin

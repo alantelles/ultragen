@@ -28,6 +28,14 @@ type
     RenderBlank: boolean;
   end;
 
+  TDefaultParam = record
+    FuncName:string;
+    ParamPos:integer;
+    DefValue:string;
+  end;
+
+  TDefaultParamArray = array of TDefaultParam;
+
   TForLevel = record
     Times: integer;
     GoToLine: integer;
@@ -88,12 +96,12 @@ type
     function Load(ATempList: TStringList; ATempName: string): TTemplate;
     function Save: TTemplate;
     function GetVariable(AVarName: string): string;
-    function SetVariable(AKey, AValue: string): TTemplate;
+    function SetVariable(AKey, AValue: string; Parse:boolean=False): TTemplate;
     function DropVariable(AKey: string): TTemplate;
     function GetImportedValue(AnAlias, AKey: string): string;
-    function ImportGenFile(AValue: string): TTemplate;
+    function ImportGenFile(var Params:TStringList): TTemplate;
     procedure ExtendTemplate(ATemplate: string; Parent: string = '');
-    procedure IncludeTemplate(ATempName: string);
+    procedure IncludeTemplate(var Params:TStringList);
     function ParseTemplate(var AGen: TGenFileSet): TTemplate;
     function ParseTemplate(var AGen: TGenFileSet; var OutputParsed: TStringList): TTemplate;
     function ParseTemplate(var AGen: TGenFile): TTemplate;
@@ -101,17 +109,16 @@ type
     function GetWild(ASearch, AnAlias, ADefault: string): string;
     procedure Print;
     procedure PrintParsed;
-    procedure ForPrepare(AValue: string);
+    procedure ForPrepare(var Params:TstringList);
     function EvalFilter: boolean;
     function EvalBypass: boolean;
-    procedure ExplodeStr(AValue: string);
+    procedure ExplodeStr(var Params:TStringList);
     procedure Clear;
     procedure EndFor;
-    procedure IfPrepare(AValue: string; IfNot: boolean);
+    procedure IfPrepare(AValue:string; IfNot: boolean);
     procedure ElseDecision;
     procedure EndIf;
-    procedure LoadSection(AValue: string);
-    procedure ListFiles(AValue: string);
+    procedure ListFiles(var Params:TStringList);
     destructor Destroy; override;
   end;
 
@@ -152,25 +159,19 @@ begin
   end;
 end;
 
-procedure TTemplate.IncludeTemplate(ATempName: string);
+procedure TTemplate.IncludeTemplate(var Params:TStringList);
 var
   ATemp: TTemplate;
   APair: TKVPair;
-  Params: TStringList;
-  AParser: TTempParser;
   IncName, TempAlias, ALine: string;
   i: integer;
   Dump: TGenFile;
 begin
-  Params := TStringList.Create;
-  AParser := TTempParser.Create(Self);
-  AParser.ParseParams(ATempName, Params);
   IncName := Params[0];
   if (Params.Count > 1) and (Params[1] <> '') then
     TempAlias := Params[1]
   else
     TempAlias := GetFileName(GetFileName(IncName, False), False);
-  AParser.Free;
   ATemp := TTemplate.Create(IncName, FExpLocation);
   ATemp.ParseTemplate(FGenFileSet);
   for ALine in ATemp.ParsedLines do
@@ -185,22 +186,18 @@ begin
   Result := GetFileName(GetFileName(FFullName, False), False);
 end;
 
-procedure TTemplate.ExplodeStr(AValue: string);
+procedure TTemplate.ExplodeStr(var Params:TStringList);
 var
-  Explode, Params: TStringList;
-  AParser: TTempParser;
+  Explode: TStringList;
   i: integer;
 begin
-  Params := TStringList.Create;
-  AParser := TTempParser.Create(Self);
-  AParser.ParseParams(AValue, Params);
   Explode := TStringList.Create;
   Explode.StrictDelimiter := True;
   if Params.Count > 2 then
     Explode.Delimiter := Params[2][1]
   else
     Explode.Delimiter := PARAM_SEP;
-  Explode.DelimitedText := AParser.ParseToken(Params[0]);
+  Explode.DelimitedText := Params[0];
   if Params.Count = 4 then
   begin
     if Params[3] = ASC then
@@ -216,12 +213,10 @@ begin
     for i := 0 to Explode.Count - 1 do
       SetVariable(Params[1] + '[' + IntToStr(i) + ']', Explode[i]);
   end;
-  AParser.Free;
   Explode.Free;
-  Params.Free;
 end;
 
-procedure TTemplate.ListFiles(AValue: string);
+procedure TTemplate.ListFiles(var Params:TStringList);
 var
   APath: string;
   AVarName: string;
@@ -229,19 +224,15 @@ var
   LookSub: boolean;
   ADelimiter: string;
   Output: string;
-  Files, Params: TStringList;
+  Files: TStringList;
   AParser: TTempParser;
   Sort: boolean = False;
 begin
-  Params := TStringList.Create;
-  AParser := TTempParser.Create(Self);
-  AParser.ParseParams(AValue, Params);
-
   AFilter := '';
   LookSub := False;
   ADelimiter := FILES_SECURE_SEP;
 
-  APath := AParser.ParseToken(Params[0]);
+  APath := Params[0];
   AVarName := Params[1];
   if Params.Count > 2 then
     AFilter := Params[2];
@@ -265,8 +256,6 @@ begin
   end;
   Output := ReplaceStr(Files.Text, sLineBreak, ADelimiter);
   SetVariable(AVarName, Copy(Output, 1, Length(Output) - 1));
-  Files.Free;              
-  AParser.Free;
 end;
 
 procedure TTemplate.ExtendTemplate(ATemplate: string; Parent: string = '');
@@ -333,28 +322,13 @@ begin
   Temp.Free;
 end;
 
-procedure TTemplate.LoadSection(AValue: string);
-var
-  ASection: TStringList;
-  AName: string;
-begin
-  writeLn('yet being implemented');
 
-end;
-
-procedure TTemplate.ForPrepare(AValue: string);
+procedure TTemplate.ForPrepare(var Params:TStringList);
 var
-  Params, Values: TStringList;
-  AParser: TTempParser;
+  Values: TStringList;
   ParamAsStr, Iterated: string;
   len, i: integer;
 begin
-  ParamAsStr := Copy(AValue, Pos(OVER_ASSOC, AValue) + 1, Length(AValue));
-  ParamAsStr := Trim(ParamAsStr);
-  AParser := TTempParser.Create(self);
-  Params := TStringList.Create;
-  AParser.ParseParams(ParamAsStr, Params);
-
   FForLevel := FForLevel + 1;
   SetLength(FForLoops, FForLevel+1);
   FForLoops[FForLevel].ControlVar := Params[1];
@@ -366,7 +340,7 @@ begin
   else
     FForLoops[FForLevel].List.Delimiter := Params[2][1];
   FForLoops[FForLevel].List.StrictDelimiter := True;
-  Iterated := AParser.ParseToken(Params[0]);
+  Iterated := Params[0];
   FForLoops[FForLevel].List.DelimitedText := Iterated;
   if Params.Count = 4 then
   begin
@@ -401,8 +375,6 @@ begin
     SetVariable(FControlVar+'.i',IntToStr(Values.Count - FForTimes));
   end;
   FForGoto := FLineNumber + 1;}
-  Params.Free;
-  AParser.Free;
 end;
 
 procedure TTemplate.EndFor;
@@ -429,22 +401,17 @@ begin
   end;
 end;
 
-function TTemplate.ImportGenFile(AValue: string): TTemplate;
+function TTemplate.ImportGenFile(var Params:TStringList): TTemplate;
 var
   GenName: string;
   DefValue: string;
   GenAlias: string;
   GenSep: string;
-  Params: TStringList;
-  AParser: TTempParser;
   i: integer;
 begin
-  Params := TStringList.Create;
-  AParser := TTempParser.Create(Self);
-  AParser.ParseParams(AValue, Params);
-  GenName := AParser.ParseToken(Params[0]);
+  GenName := Params[0];
   DefValue := DEF_IF_NOT;
-  GenAlias := AParser.ParseToken(ReplaceStr(ReplaceStr(GetFileName(Params[0], False), '.', ''), '-', ''));
+  GenAlias := ReplaceStr(ReplaceStr(GetFileName(Params[0], False), '.', ''), '-', '');
   GenSep := GEN_SEP;
   if Params.Count > 1 then
     GenAlias := Params[1];
@@ -452,8 +419,6 @@ begin
     DefValue := Params[2];
   if Params.Count = 4 then
     GenSep := Params[3];
-  AParser.Free;
-  Params.Free;
   FGenImport := TGenFile.Create;
   FGenImport.IfNotFound := DefValue;
   FGenImport.GenSeparator := GenSep;
@@ -466,13 +431,12 @@ begin
   Result := Self;
 end;
 
-procedure TTemplate.IfPrepare(AValue: string; IfNot: boolean);
+procedure TTemplate.IfPrepare(AValue:string; IfNot: boolean);
 var
   Value: string;
   IsElse, IsEndIf: boolean;
 begin
-  Value := Trim(Copy(AValue, Pos(OVER_ASSOC, AValue) + 1, Length(AValue)));
-  if ((Length(Value) = 0) and (not IfNot)) or ((Length(Value) > 0) and (IfNot)) then
+  if ((Length(AValue) = 0) and (not IfNot)) or ((Length(AValue) > 0) and (IfNot)) then
     FSkip := True
   else
     FSkip := False;
@@ -614,36 +578,47 @@ end;
 function TTemplate.SetPredefined(AKey, AValue: string): boolean;
 var
   Return: boolean = True;
+  AParser:TTempParser;
+  Params:TStringList;
+  i:integer;
 begin
+  Params := TSTringList.Create;
+  AParser := TTempParser.Create(Self);
+  AParser.ParseParams(AValue, Params);
+  if Params.Count > 0 then
+  begin
+    for i:=0 to Params.Count-1 do
+      Params[i] := AParser.ParseToken(Params[i]);
+  end;
   AKey := Trim(AKey);
   case (AKey) of
-    'outFileName': FOverrides.OutFileName := AValue;
-    'copyTo': FOverrides.CopyTo.Add(RemoveLastBackslash(AValue));
-    'exportTo': FExpLocation := AValue;
-    'extension': FOverrides.Extension := AValue;
+    'outFileName': FOverrides.OutFileName := Params[0];
+    'copyTo': FOverrides.CopyTo.Add(RemoveLastBackslash(Params[0]));
+    'exportTo': FExpLocation := Params[0];
+    'extension': FOverrides.Extension := Params[0];
     'overwrite': FOverrides.Overwrite := True;
     'exportAtRoot': FOverrides.ExpAtRoot := True;
-    'import': ImportGenFile(AValue);
-    'include': IncludeTemplate(AValue);
-    'for': ForPrepare(AValue);
+    'import': ImportGenFile(Params);
+    'include': IncludeTemplate(Params);
+    'for': ForPrepare(Params);
     'endfor': EndFor;
-    'if': IfPrepare(AValue, False);
-    'ifNot': IfPrepare(AValue, True);
+    'if': IfPrepare(Params[0], False);
+    'ifNot': IfPrepare(Params[0], True);
     'else': ElseDecision;
     'endif': EndIf;
-    'section': LoadSection(AValue);
-    'explode': ExplodeStr(AValue);
+    'explode': ExplodeStr(Params);
     'tokenEnclosers':
     begin
-      FTokenOpen := AValue[1];
-      FTokenClose := Avalue[2];
+      FTokenOpen := Params[0][1];
+      FTokenClose := Params[0][2];
     end;
-    'drop': DropVariable(AValue);
-    'listFiles': ListFiles(AValue);
+    'drop': DropVariable(Params[0]);
+    'listFiles': ListFiles(Params);
     'renderBlank': FOverrides.RenderBlank := True;
     else
       Return := False;
   end;
+  PArams.Free;
   Result := Return;
 end;
 
@@ -757,10 +732,14 @@ begin
   Result := Ret;
 end;
 
-function TTemplate.SetVariable(AKey, AValue: string): TTemplate;
+function TTemplate.SetVariable(AKey, AValue: string; Parse:boolean=False): TTemplate;
 var
   i: integer;
+  AParser:TTempParser;
 begin
+  AParser := TTempParser.Create(Self);
+  if Parse then
+    AValue := AParser.ParseToken(AValue);
   if Length(FVariables) > 0 then
   begin
     for i in [0..Length(FVariables) - 1] do
@@ -776,6 +755,7 @@ begin
   SetLength(FVariables, Length(FVariables) + 1);
   FVariables[Length(FVariables) - 1].Key := AKey;
   FVariables[Length(FVariables) - 1].Value := AValue;
+  AParser.Free;
   Result := Self;
 end;
 
