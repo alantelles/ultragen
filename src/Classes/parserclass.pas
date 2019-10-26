@@ -27,6 +27,7 @@ type
     function ParseToken(AToken: string): string;
     function ParseTemplate(var OutputParsedLines: TStringList): TTempParser;
     function IsFunction(AToken: string): boolean;
+    function IsReserved(AToken: string): boolean;
     function IsVari(AToken: string): boolean;
     function IsLiteralString(AToken: string): boolean;
     function IsTimeStr(AToken: string): boolean;
@@ -82,6 +83,22 @@ end;
 function TTempParser.IsFromParent(AToken: string): boolean;
 begin
   Result := Pos('PARENT.@', AToken) = 1;
+end;
+
+function TTempParser.IsReserved(AToken:string): boolean;
+var
+  s:string;
+  Return:boolean=False;
+begin
+  for s in RESERVED_WORDS do
+  begin
+    if s = AToken then
+    begin
+      Return := True;
+      Break
+    end;
+  end;
+  Result := Return;
 end;
 
 function TTempParser.IsFunction(AToken: string): boolean;
@@ -361,7 +378,9 @@ begin
   Temp := Trim(AToken);
   if Length(Temp) > 0 then
   begin
-    if IsNumber(AToken) then
+    if IsReserved(AToken) then
+      Return := AToken
+    else if IsNumber(AToken) then
       Return := AToken
     else if IsTimeStr(AToken) then
       Return := GetTimeStr(AToken)
@@ -448,12 +467,13 @@ var
   GenVar: TParseResult;
   Return, GenDef, GenKey, TokenLiteral, ImportName, aaa: string;
   IsANumber, IsFromGen, IsAFunction, IsAVari, FirstIsFromGen, IsLiteral,
-  IsTime, IsImportedVal, IsFromAGenSet, IsAlias: boolean;
+  IsTime, IsImportedVal, IsFromAGenSet, IsAlias, IsAReserved: boolean;
   Params: TStringList;
   i, DotPos: integer;
 begin
   if IsFromParent(AToken) then
     AToken := ReplaceStr(AToken, 'PARENT.@', '@');
+  IsAReserved := IsReserved(AToken);
   IsAlias := IsAnAlias(AToken);
   IsTime := IsTimeStr(AToken);
   IsAFunction := IsFunction(AToken);
@@ -464,7 +484,7 @@ begin
   IsImportedVal := IsImported(AToken) and (not IsLiteral);
   IsFromGen := (not IsAFunction) and (not IsAVari) and (not IsLiteral) and
     (not IsTime) and (not IsANumber) and (not IsImportedVal) and
-    (not IsAlias) and (not IsFromAGenSet);
+    (not IsAlias) and (not IsFromAGenSet) and (not IsAReserved);
   if IsFromGen then
   begin
     AToken := Trim(AToken);
@@ -537,7 +557,7 @@ begin
     Return := ParseFunction(GenKey, Params);
     Params.Free;
   end
-  else if IsLiteral then
+  else if IsLiteral or IsAReserved then
     Return := GetLiteral(AToken)
   else if IsTime then
     Return := GetTimeStr(AToken)
@@ -650,6 +670,10 @@ begin
 
       Return := GetFileRelative(FTemplate.GenFileSet.GenFiles[i].GenFile.FullName,(StrToInt(Params[1])*(-1)));
     end
+    else if (AFuncName = 'fileName') and (Params.Count = 1) then
+      Return := GetFileName(Params[0])
+    else if (AFuncName = 'fileName') and (Params.Count = 2) then
+      Return := GetFileName(Params[0],StrToBoolean(Params[1]))
 
 
     { Interaction manipulations }
@@ -740,6 +764,8 @@ begin
       Return := StringsFunctions.StrToMD5(Params[0])
     else if (AFuncName = 'superHash') and (Params.Count = 1) then
       Return := StringsFunctions.SuperHash(Params[0])
+    else if (AFuncName = 'indexOf') and (Params.Count = 2) then
+      Return := IntToStr(Pos(Params[0],Params[1]))
     else if ExternalExists(AFuncName) then
       Return := CallExternal(PROCESSORS_FOLDER + DirectorySeparator + AFuncName, Params)
     else
@@ -921,7 +947,9 @@ begin
       else
       begin
         if (FTemplate.RenderBlank) then
+        begin
           OutputParsedLines.Add(ParseLine(FTemplate.TempLines[i]).Value);
+        end;
       end;
       if not FTemplate.Rewind then
         i := i + 1;

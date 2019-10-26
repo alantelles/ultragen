@@ -11,6 +11,70 @@
 <div class='card'>
     <div class='card-body'>
     <h4>Note:</h4>    
-    <p>You can use another symbol but must follow the pattern "two symbols". If you want to use "<" to open and ">" to close, in the template you must write "<<" and ">>".</p>
+    <p>You can use another symbol but must follow the pattern "two symbols". If you want to use "<" to open and ">" to close, in the template you must write "<<" and ">>". It's particularly useful if you want to generate dynamic CSS. The symbols to open and close tokens are changed at template or at configuration file</p>
     </div>
 </div>
+<pre>
+    <code class="html"> 
+    .my-class {
+        background-color: << bg-color >>;
+        font-family: << font-declarations >>;
+    }
+    </code></pre>
+<h3 class='post-title'>Printable sources</h3>
+<p class='minor'>Data can be printed by three ways</p>
+<ul>
+    <li>GEN sources</li>
+    <li>Variables</li>
+    <li>Functions</li>
+</ul>
+<h5 class='post-title'>GEN sources</h5>
+<p class='minor'>GEN stands for Generic Enlistment Notation. It's a type of file with a simple specification with the purpose to be as simple as possible to be constructed and parsed. It consists of multiple key-value pairs linked bay a separator (default is "=", but can be changed), typically one per line. Multiple lines are accepted also. The parser run the lines and every line after a separator is considered as a multiline value from the last found key. Let's see some example, assuming the character '=' as separator:</p>
+<pre>
+    <code class='html'>
+        akey=a value of a key 
+        anotherKey=another value to another key
+        aMulti=this key will have
+        a multiline value since no separator is found yet
+    </code></pre>
+    <div class='card'>
+        <div class='card-body'>
+        <h4>Note:</h4>    
+        <p>You can change the separator in the application call. The parameters to call the application will be explained later.</p>
+        </div>
+    </div>
+<h5 class='post-title'>Variables</h5>
+<p class='minor'>Variables are a particular case of <b>overrides</b>, a concept that will be explained later. Beyond the data came from GEN sources, you can declare arbitrary strings to use along the template. Variables (as same as overrides) are declared using a "@" before its name. A point of attention: "@" must be the first character in the line. The syntax is as follows:</p>
+<pre>
+    <code class='html'>
+        @aVari:'some value'
+        &lt;p>{{ @aVari }}&lt;/p>
+        # prints &lt;p>'some value'&lt;/p>
+    </code></pre>
+<p class='minor'>Variables will be better explained when we talk about <i>overrides</i>.</p>
+<h5 class='post-title'>Functions</h5>
+<p class='minor'>UltraGen has some built-in functions to help you manipulate strings to print them the way you need. And also some funtions to print dates and files from filesystem. The syntax is:</p>
+<pre>
+    <code class='html'>
+        {{ upper('a lowercase will turn upper') }}
+        #prints A LOWERCASE WILL TURN UPPER
+    </code></pre>
+
+<h3 class='post-title'>Let's mix everything?</h3>
+<pre><code class='html'>
+            aName=It's a gen source
+            description=This is my very first UltraGen try
+        </code></pre>
+<pre><code class='html'>
+        &lt;!-- the template below... -->
+        @title:upper(aName)
+        &lt;h2>{{ @title }}&lt;/h2>
+        &lt;p>{{ description }}&lt;/p>
+        &lt;small>posted on {{ date(NOW) }}&lt;/small>
+    </code></pre><pre><code class='html'>
+        &lt;!-- ...brings the follows -->
+        &lt;h2>IT'S A GEN SOURCE&lt;/h2>
+        &lt;p>This is my very first UltraGen try&lt;/p>
+        &lt;small>posted on 2019-10-26 13:06:20.223&lt;/small>
+    </code></pre>
+    <p class='minor'>We'll talk more in detail about the features of UltraGen, as also explore all the built-in functions and overrides.</p>

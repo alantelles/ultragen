@@ -24,6 +24,7 @@ var
   TIME_STR:array of string;
   EXT_ACCEPTED:array[0..3] of string;
   PREDEF_OVERR:array[0..5] of string;
+  RESERVED_WORDS: array [0..9] of string;
 implementation
 begin
   SetLength(TIME_STR,3);
@@ -42,6 +43,16 @@ begin
   PREDEF_OVERR[3] := 'overwrite';
   PREDEF_OVERR[4] := 'import';
   PREDEF_OVERR[5] := 'include';
+
+  RESERVED_WORDS[0] := 'TRUE';
+  RESERVED_WORDS[1] := 'FALSE';
+  RESERVED_WORDS[2] := 'CONTAINS';
+  RESERVED_WORDS[3] := 'EMPTY';
+  RESERVED_WORDS[4] := 'EQ';
+  RESERVED_WORDS[6] := 'GT';
+  RESERVED_WORDS[7] := 'LT';
+  RESERVED_WORDS[8] := 'GEQ';
+  RESERVED_WORDS[9] := 'LEQ';
 
 end.
 

@@ -205,7 +205,7 @@ div.card {
 .post-title {
     border-bottom: solid 1px #8d8d8d;
     padding-bottom: 10px;
-    margin-top: -28px;
+    margin-top: 0px;
 }
 .sitename {
     color:#8a2222;

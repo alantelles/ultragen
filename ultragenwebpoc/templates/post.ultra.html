@@ -1,8 +1,8 @@
 @exportAtRoot
-@extend:templates\\base.ultra.html
+@extend:templates/base.ultra.html
 @section:content
 <h1 class='post-title'>{{ title }}</h1>
-@if:link
+@ifNot:EMPTY,link
 {{ text(replace('.gen','.html',genPath(0))) }}
 @else
 {{ body }}

@@ -11,7 +11,7 @@
                 @for:@sblinks,'sb','|'
                 @import:@sb,'linkGen'
                 <li>
-                    @ifNot:linkGen.'sub'
+                    @if:EMPTY,linkGen.'sub'
                     <a href="/{{ linkGen.'link' }}">{{ linkGen.'text' }}</a>
                     @else
                     <a href="#{{ linkGen.'link' }}Submenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">{{ linkGen.'text' }}</a>

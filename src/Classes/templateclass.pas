@@ -5,7 +5,7 @@ unit TemplateClass;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, DateUtils, StrUtils,
+  Classes, SysUtils, FileUtil, DateUtils, StrUtils, Process,
 
   { Globals }
   TypesGlobals, VariablesGlobals, ConstantsGlobals,
@@ -102,6 +102,7 @@ type
     function ImportGenFile(var Params:TStringList): TTemplate;
     procedure ExtendTemplate(ATemplate: string; Parent: string = '');
     procedure IncludeTemplate(var Params:TStringList);
+    procedure Execute(var Params:TStringList);
     function ParseTemplate(var AGen: TGenFileSet): TTemplate;
     function ParseTemplate(var AGen: TGenFileSet; var OutputParsed: TStringList): TTemplate;
     function ParseTemplate(var AGen: TGenFile): TTemplate;
@@ -115,7 +116,7 @@ type
     procedure ExplodeStr(var Params:TStringList);
     procedure Clear;
     procedure EndFor;
-    procedure IfPrepare(AValue:string; IfNot: boolean);
+    procedure IfPrepare(var Params:TStringList; IfNot: boolean);
     procedure ElseDecision;
     procedure EndIf;
     procedure ListFiles(var Params:TStringList);
@@ -157,6 +158,27 @@ begin
     FFullName := ExpandFileName(ATempName);
     Load(FFullName);
   end;
+end;
+
+procedure TTemplate.Execute(var Params:TStringList);
+var
+  AProcess:TProcess;
+  i:integer;
+begin
+  AProcess := TProcess.Create(nil);
+  if not FileExists(Params[0]) then
+  begin
+    WriteLn('Process not found');
+    Exit;
+  end;
+  AProcess.Executable := Params[0];
+  AProcess.Options := AProcess.Options+[poWaitOnExit];
+  if Params.Count > 1 then
+  begin
+    for i:=1 to Params.Count-1 do
+      AProcess.Parameters.Add(Params[i]);
+  end;
+  AProcess.Execute;
 end;
 
 procedure TTemplate.IncludeTemplate(var Params:TStringList);
@@ -361,20 +383,6 @@ begin
       FForLoops[FForLevel].List.Count - FForLoops[FForLevel].Times));
   end;
   Rewind := False;
-  // @for 5
-  {if FForTimes = 0 then
-  begin
-    FForTimes := Values.Count;
-    FRewind := False;
-    SetVariable(FControlVar,Values[0]);
-    SetVariable(FControlVar+'.i','0');
-  end
-  else
-  begin
-    SetVariable(FControlVar,Values[Values.Count - FForTimes]);
-    SetVariable(FControlVar+'.i',IntToStr(Values.Count - FForTimes));
-  end;
-  FForGoto := FLineNumber + 1;}
 end;
 
 procedure TTemplate.EndFor;
@@ -383,7 +391,7 @@ begin
   FForLoops[FForLevel].Times := FForLoops[FForLevel].Times - 1;
   FRewind := True;
 
-  if FForLoops[FForLevel].Times = 0 then
+  if FForLoops[FForLevel].Times <= 0 then
   begin
     DropVariable(FForLoops[FForLevel].ControlVar);
     DropVariable(FForLoops[FForLevel].ControlVar + '.i');
@@ -431,15 +439,27 @@ begin
   Result := Self;
 end;
 
-procedure TTemplate.IfPrepare(AValue:string; IfNot: boolean);
+procedure TTemplate.IfPrepare(var Params:TStringList; IfNot: boolean);
 var
-  Value: string;
-  IsElse, IsEndIf: boolean;
+  a,b,c: string;
+  Logic: boolean;
+  d:integer;
+
 begin
-  if ((Length(AValue) = 0) and (not IfNot)) or ((Length(AValue) > 0) and (IfNot)) then
-    FSkip := True
+  a := Params[0];
+  b := Params[1];
+  if a = 'EMPTY' then
+    Logic := Length(Params[1]) = 0
+  else if b = 'CONTAINS' then
+  begin
+    c := Params[2];
+    d := Pos(c,a);
+    Logic := d > 0;
+  end;
+  if (Logic and (not IfNot)) or ((not Logic) and IfNot) then
+    FSkip := False
   else
-    FSkip := False;
+    FSkip := True;
 end;
 
 procedure TTemplate.ElseDecision;
@@ -581,6 +601,7 @@ var
   AParser:TTempParser;
   Params:TStringList;
   i:integer;
+  a:string;
 begin
   Params := TSTringList.Create;
   AParser := TTempParser.Create(Self);
@@ -588,7 +609,10 @@ begin
   if Params.Count > 0 then
   begin
     for i:=0 to Params.Count-1 do
-      Params[i] := AParser.ParseToken(Params[i]);
+    begin
+      a := AParser.ParseToken(Params[i]);
+      Params[i] := a;
+    end;
   end;
   AKey := Trim(AKey);
   case (AKey) of
@@ -602,8 +626,8 @@ begin
     'include': IncludeTemplate(Params);
     'for': ForPrepare(Params);
     'endfor': EndFor;
-    'if': IfPrepare(Params[0], False);
-    'ifNot': IfPrepare(Params[0], True);
+    'if': IfPrepare(Params, False);
+    'ifNot': IfPrepare(Params, True);
     'else': ElseDecision;
     'endif': EndIf;
     'explode': ExplodeStr(Params);
@@ -612,6 +636,7 @@ begin
       FTokenOpen := Params[0][1];
       FTokenClose := Params[0][2];
     end;
+    'execute':Execute(Params);
     'drop': DropVariable(Params[0]);
     'listFiles': ListFiles(Params);
     'renderBlank': FOverrides.RenderBlank := True;
