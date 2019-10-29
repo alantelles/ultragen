@@ -131,6 +131,8 @@ type
     procedure ElseDecision;
     procedure EndIf;
     procedure ListFiles(var Params:TStringList);
+    procedure Move(var Params:TStringList);
+    procedure TempFileCopy(var Params:TStringList);
     destructor Destroy; override;
   end;
 
@@ -192,6 +194,35 @@ begin
   ATemplate.ParseTemplate(AGenSet);
   ATemplate.Save;
   ATemplate.Free;
+end;
+
+procedure TTemplate.Move(var Params:TStringList);
+var
+  ANewName:string;
+begin
+  if FileExists(Params[0]) then
+  begin
+    ANewName := GetFileName(Params[0]);
+    CreateDirTree(Params[1]);
+    if Params.Count = 3 then
+      ANewName := Params[2];
+    CreateDirTree(Params[1]+DirectorySeparator+ANewName);
+    RenameFile(Params[0],RemoveLastBackslash(Params[1])+DirectorySeparator+ANewName);
+  end;
+end;
+procedure TTemplate.TempFileCopy(var Params:TStringList);
+var
+  ANewName:string;
+begin
+  if FileExists(Params[0]) then
+  begin
+    ANewName := GetFileName(Params[0]);
+    CreateDirTree(Params[1]);
+    if Params.Count = 3 then
+      ANewName := Params[2];
+    CreateDirTree(Params[1]+DirectorySeparator+ANewName);
+    CopyFile(Params[0],RemoveLastBackslash(Params[1])+DirectorySeparator+ANewName);
+  end;
 end;
 
 procedure TTemplate.Execute(var Params:TStringList);
@@ -787,6 +818,8 @@ begin
     'drop': DropVariable(Params[0]);
     'loadText' : LoadText(Params);
     'listFiles': ListFiles(Params);
+    'move' : Move(Params);
+    'copy' : TempFileCopy(Params);
     'renderBlank': FOverrides.RenderBlank := True;
     else
       Return := False;
