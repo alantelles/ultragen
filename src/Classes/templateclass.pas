@@ -47,6 +47,7 @@ type
 type
   TTemplate = class
   private
+    FScriptMode, FCommentBlock: boolean;
     FFullName, FOutFilePath: string;
     FTokenOpen, FTokenClose: string;
     FVariables: array of TKVPair;
@@ -84,6 +85,8 @@ type
     property GenTime: TDateTime read FGenTime;
     property ExportLocation: string read FExpLocation write FExpLocation;
     property OutFilePath: string read FOutFilePath;
+    property ScriptMode:boolean read FScriptMode write FScriptMode;
+    property CommentBlock:boolean read FCommentBlock write FCommentBlock;
     property Imported: TStringList read FImported write FImported;
     property Filters: TStringList read FOverrides.Filters write FOverrides.Filters;
     property Bypasses: TStringList read FOverrides.Bypasses write FOverrides.Bypasses;
@@ -137,6 +140,7 @@ begin
   FOverrides.Filters.NameValueSeparator := OVER_PARAM;
   FOverrides.Bypasses := TStringList.Create;
   FOverrides.Bypasses.NameValueSeparator := OVER_PARAM;
+  FCommentBlock := False;
 
   if (Length(AExpLocation) > 0) and (AExpLocation[Length(AExpLocation)] =
     DirectorySeparator) then
