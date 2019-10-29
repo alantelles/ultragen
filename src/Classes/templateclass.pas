@@ -221,7 +221,7 @@ begin
     if Params.Count = 3 then
       ANewName := Params[2];
     CreateDirTree(Params[1]+DirectorySeparator+ANewName);
-    CopyFile(Params[0],RemoveLastBackslash(Params[1])+DirectorySeparator+ANewName);
+    CopyFile(Params[0],RemoveLastBackslash(Params[1])+DirectorySeparator+ANewName,[cffOverwriteFile,cffPreserveTime]);
   end;
 end;
 

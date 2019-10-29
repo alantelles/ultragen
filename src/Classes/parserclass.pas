@@ -938,7 +938,7 @@ begin
         begin
           PosAssoc := Pos(OVER_ASSOC, LineTrim);
           PosVarAssoc := Pos(VAR_ASSOC, LineTrim);
-          if PosAssoc > 0 then
+          if (PosAssoc > 0) and ((PosAssoc < PosVarAssoc) or (PosVarAssoc = 0)) then
           begin
             if FTemplate.ScriptMode then
               Key := Copy(LineTrim, 1, PosAssoc -
