@@ -900,6 +900,18 @@ begin
         i := i + 1;
         Continue;
       end;
+      if Trim(FTemplate.TempLines[i]) = SCRIPT_MODE_ENTER then
+      begin
+        FTemplate.ScriptMode := True;
+        i := i + 1;
+        continue;
+      end;
+      if Trim(FTemplate.TempLines[i]) = SCRIPT_MODE_EXIT then
+      begin
+        FTemplate.ScriptMode := False;
+        i := i + 1;
+        continue;
+      end;
       if FTemplate.Rewind then
       begin
         //i := FTemplate.ForGoto - 1;
@@ -919,14 +931,18 @@ begin
           i := i + 1;
           continue;
         end;
-        if Copy(LineTrim, 1, Length(OVER_STATE)) = OVER_STATE then
+        if (Copy(LineTrim, 1, Length(OVER_STATE)) = OVER_STATE) or (FTemplate.ScriptMode) then
         begin
           PosAssoc := Pos(OVER_ASSOC, LineTrim);
           PosVarAssoc := Pos(VAR_ASSOC, LineTrim);
           if PosAssoc > 0 then
           begin
-            Key := Copy(LineTrim, Length(OVER_STATE) + 1, PosAssoc -
-              Length(OVER_ASSOC) - 1);
+            if FTemplate.ScriptMode then
+              Key := Copy(LineTrim, 1, PosAssoc -
+                Length(OVER_ASSOC))
+            else
+              Key := Copy(LineTrim, Length(OVER_STATE) + 1, PosAssoc -
+                Length(OVER_ASSOC) - 1);
             Value := Copy(FTemplate.TempLines[i], Pos(
               OVER_ASSOC, FTemplate.TempLines[i]) + Length(OVER_ASSOC),
               Length(FTemplate.TempLines[i]));
@@ -936,8 +952,12 @@ begin
           end
           else if PosVarAssoc > 0 then
           begin
-            Key := Copy(LineTrim, Length(OVER_STATE) + 1, PosVarAssoc -
-              Length(OVER_ASSOC) - 1);
+            if FTemplate.ScriptMode then
+              Key := Copy(LineTrim, 1, PosVarAssoc -
+                Length(VAR_ASSOC))
+            else
+              Key := Copy(LineTrim, Length(OVER_STATE) + 1, PosVarAssoc -
+                Length(VAR_ASSOC) - 1);
             Value := Copy(FTemplate.TempLines[i], Pos(
               VAR_ASSOC, FTemplate.TempLines[i]) + Length(VAR_ASSOC),
               Length(FTemplate.TempLines[i]));
@@ -945,13 +965,16 @@ begin
           end
           else
           begin
-            Key := Copy(LineTrim, Length(OVER_STATE) + 1,
-              Length(FTemplate.TempLines[i]));
+            if FTemplate.ScriptMode then
+              Key := Copy(LineTrim, 1,
+                Length(FTemplate.TempLines[i]))
+            else
+              Key := Copy(LineTrim, Length(OVER_STATE) + 1,
+                Length(FTemplate.TempLines[i]));
             Value := '';
             Unary := True;
             FTemplate.SetPredefined(Key, Value);
           end;
-
         end
         else
           OutputParsedLines.Add(ParseLine(FTemplate.TempLines[i]).Value);

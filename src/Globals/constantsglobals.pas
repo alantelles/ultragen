@@ -26,6 +26,8 @@ const
   AS_STRING = True;
   FLOW_EXT = 'uflow';
   GEN_FILES_CALL_SEP = '|';
+  SCRIPT_MODE_ENTER = '@{';
+  SCRIPT_MODE_EXIT = '}';
 
   { calling modes }
   SET_GROUP = '+';

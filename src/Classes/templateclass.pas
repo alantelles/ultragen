@@ -141,6 +141,7 @@ begin
   FOverrides.Bypasses := TStringList.Create;
   FOverrides.Bypasses.NameValueSeparator := OVER_PARAM;
   FCommentBlock := False;
+  FScriptMode := False;
 
   if (Length(AExpLocation) > 0) and (AExpLocation[Length(AExpLocation)] =
     DirectorySeparator) then
