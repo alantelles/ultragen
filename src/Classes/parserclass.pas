@@ -861,7 +861,7 @@ end;
 function TTempParser.ParseTemplate(var OutputParsedLines: TStringList): TTempParser;
 var
   Key, Value, Line, LineTrim, Temp: string;
-  PosAssoc: integer;
+  PosAssoc, PosVarAssoc: integer;
   Unary: boolean;
   AOpt, AOver, ATarget, AKey: string;
   PosAs, i, Times: integer;
@@ -919,6 +919,7 @@ begin
         if Copy(LineTrim, 1, Length(OVER_STATE)) = OVER_STATE then
         begin
           PosAssoc := Pos(OVER_ASSOC, LineTrim);
+          PosVarAssoc := Pos(VAR_ASSOC, LineTrim);
           if PosAssoc > 0 then
           begin
             Key := Copy(LineTrim, Length(OVER_STATE) + 1, PosAssoc -
@@ -926,10 +927,18 @@ begin
             Value := Copy(FTemplate.TempLines[i], Pos(
               OVER_ASSOC, FTemplate.TempLines[i]) + Length(OVER_ASSOC),
               Length(FTemplate.TempLines[i]));
+            FTemplate.SetPredefined(Key, Value);
             //Value := ParseLine(Value).Value;
             Unary := False;
-            if not FTemplate.SetPredefined(Key, Value) then
-              FTemplate.SetVariable(Key, Value, True);
+          end
+          else if PosVarAssoc > 0 then
+          begin
+            Key := Copy(LineTrim, Length(OVER_STATE) + 1, PosVarAssoc -
+              Length(OVER_ASSOC) - 1);
+            Value := Copy(FTemplate.TempLines[i], Pos(
+              VAR_ASSOC, FTemplate.TempLines[i]) + Length(VAR_ASSOC),
+              Length(FTemplate.TempLines[i]));
+            FTemplate.SetVariable(Key, Value,True);
           end
           else
           begin

@@ -12,6 +12,7 @@ var
   TOKEN_CLOSE:string = '}';
   GEN_SEP:char = '=';
   OVER_STATE:string = '@';
+  VAR_ASSOC:string = '=';
   OVER_ASSOC:string = ':';
   OVER_PARAM:char = '|';
   FILES_SECURE_SEP:string = '|';
