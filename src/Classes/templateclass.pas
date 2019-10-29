@@ -41,6 +41,9 @@ type
     GoToLine: integer;
     ControlVar: string;
     List: TStringList;
+    PauseTime:integer;
+    Infinite:boolean;
+    Limit:integer;
   end;
   TForRecursion = array of TForLevel;
 
@@ -97,7 +100,9 @@ type
     function SetPredefined(AKey, AValue: string): boolean;
     function Load(ATempName: string): TTemplate;
     function Load(ATempList: TStringList; ATempName: string): TTemplate;
+    procedure LoadText(var Params:TStringList);
     function Save: TTemplate;
+    procedure ProcessTemplate(var Params:TStringList);
     function GetVariable(AVarName: string): string;
     function SetVariable(AKey, AValue: string; Parse:boolean=False): TTemplate;
     function DropVariable(AKey: string): TTemplate;
@@ -112,13 +117,16 @@ type
     function ParseTemplate(var AGen: TGenFile; var OutputParsed: TStringList): TTemplate;
     function GetWild(ASearch, AnAlias, ADefault: string): string;
     procedure Print;
+    procedure PrintLine(var Params:TStringList; Tee:boolean=False);
     procedure PrintParsed;
-    procedure ForPrepare(var Params:TstringList);
+    procedure ForPrepare(var Params:TstringList; ForLoop:boolean = True);
+    procedure EndFor;
+    procedure LoopPrepare(var Params:TstringList; ForLoop:boolean = True);
+    procedure EndLoop;
     function EvalFilter: boolean;
     function EvalBypass: boolean;
     procedure ExplodeStr(var Params:TStringList);
     procedure Clear;
-    procedure EndFor;
     procedure IfPrepare(var Params:TStringList; IfNot: boolean);
     procedure ElseDecision;
     procedure EndIf;
@@ -164,6 +172,27 @@ begin
     Load(FFullName);
   end;
 end;
+procedure TTemplate.ProcessTemplate(var Params:TStringList);
+var
+  ATemplate:TTemplate;
+  AGenSet:TGenFileSet;
+  TempPath:string;
+  i:integer;
+begin
+  TempPath := Params[0];
+  ATemplate := TTemplate.Create(TempPath);
+  AGenSet := TGenFileSet.Create;
+  if Params[1] <> '' then
+    AGenSet.Add(Params[1]);
+  if Params.Count > 2 then
+  begin
+    for i:=2 to Params.Count-1 do
+      ATemplate.SetVariable('param['+IntToStr(i-2)+']',Params[i]);
+  end;
+  ATemplate.ParseTemplate(AGenSet);
+  ATemplate.Save;
+  ATemplate.Free;
+end;
 
 procedure TTemplate.Execute(var Params:TStringList);
 var
@@ -184,6 +213,18 @@ begin
       AProcess.Parameters.Add(Params[i]);
   end;
   AProcess.Execute;
+end;
+
+procedure TTemplate.PrintLine(var Params:TStringList; Tee:boolean=False);
+var
+  Return:string='';
+  P:string;
+begin
+  for P in Params do
+    Return := Return + P;
+  if Tee then
+    FParsed.Add(Return);
+  WriteLn(Return);
 end;
 
 procedure TTemplate.IncludeTemplate(var Params:TStringList);
@@ -250,14 +291,14 @@ var
   AFilter: string;
   LookSub: boolean;
   ADelimiter: string;
-  Output: string;
   Files: TStringList;
   AParser: TTempParser;
   Sort: boolean = False;
+  i:integer;
 begin
   AFilter := '';
   LookSub := False;
-  ADelimiter := FILES_SECURE_SEP;
+  //ADelimiter := FILES_SECURE_SEP;
 
   APath := Params[0];
   AVarName := Params[1];
@@ -265,10 +306,6 @@ begin
     AFilter := Params[2];
   if Params.Count > 3 then
     LookSub := StrToBoolean(Params[3]);
-  if Params.Count > 5 then
-    ADelimiter := Params[5];
-
-  Params.Free;
   Files := TStringList.Create;
   FindAllFiles(Files, APath, AFilter, LookSub);
   if Params.Count > 4 then
@@ -281,8 +318,31 @@ begin
       ReverseList(Files);
     end;
   end;
-  Output := ReplaceStr(Files.Text, sLineBreak, ADelimiter);
-  SetVariable(AVarName, Copy(Output, 1, Length(Output) - 1));
+  SetVariable(AVarName, Files.Text);
+  if Files.Count > 0 then
+  begin
+    for i:=0 to Files.Count - 1 do
+      SetVariable(AVarName+'['+IntToStr(i)+']',Files[i]);
+  end;
+end;
+
+procedure TTemplate.LoadText(var Params:TStringList);
+var
+  AText:TStringList;
+  i:integer;
+begin
+  AText := TStringList.Create;
+  if FileExists(Params[0]) then
+  begin
+    AText.LoadFromFile(Params[0]);
+    if AText.Count > 0 then
+    begin
+      SetVariable(Params[1],AText.Text);
+      for i:=0 to AText.Count-1 do
+        SetVariable(Params[1]+'['+IntToStr(i)+']',AText[i]);
+    end;
+  end;
+  AText.Free;
 end;
 
 procedure TTemplate.ExtendTemplate(ATemplate: string; Parent: string = '');
@@ -350,7 +410,7 @@ begin
 end;
 
 
-procedure TTemplate.ForPrepare(var Params:TStringList);
+procedure TTemplate.ForPrepare(var Params:TStringList;ForLoop:boolean = True);
 var
   Values: TStringList;
   ParamAsStr, Iterated: string;
@@ -363,12 +423,26 @@ begin
 
   FForLoops[FForLevel].List := TStringList.Create;
   if Params.Count < 3 then
-    FForLoops[FForLevel].List.Delimiter := PARAM_SEP
+  begin
+    FForLoops[FForLevel].List.Delimiter := PARAM_SEP;
+    FForLoops[FForLevel].List.StrictDelimiter := True;
+    FForLoops[FForLevel].List.DelimitedText := Params[0]
+  end
   else
-    FForLoops[FForLevel].List.Delimiter := Params[2][1];
-  FForLoops[FForLevel].List.StrictDelimiter := True;
-  Iterated := Params[0];
-  FForLoops[FForLevel].List.DelimitedText := Iterated;
+  begin
+    if Params[2] <> LINE_BREAK then
+    begin
+      FForLoops[FForLevel].List.Delimiter := Params[2][1];
+      FForLoops[FForLevel].List.StrictDelimiter := True;
+      Iterated := Params[0];
+      FForLoops[FForLevel].List.DelimitedText := Iterated
+    end
+    else
+    begin
+      FForLoops[FForLevel].List.Text := Params[0]
+    end;
+  end;
+
   if Params.Count = 4 then
   begin
     if Params[3] = ASC then
@@ -411,6 +485,69 @@ begin
       FForLoops[FForLevel].List[FForLoops[FForLevel].List.Count - FForLoops[FForLevel].Times]);
     SetVariable(FForLoops[FForLevel].ControlVar + '.i', IntToStr(
       FForLoops[FForLevel].List.Count - FForLoops[FForLevel].Times));
+  end;
+end;
+
+procedure TTemplate.LoopPrepare(var Params:TStringList;ForLoop:boolean = True);
+var
+  Values: TStringList;
+  ParamAsStr, Iterated: string;
+  len, i,Times, Pause: integer;
+begin
+  //loop:[times],[control var],[pause (ms)]
+  //loop:30,500,'i'
+  //loop:0,'i',500 (infinite loop)
+  FForLoops[FForLevel].ControlVar := '';
+  Times := StrToInt(Params[0]);
+  FForLevel := FForLevel + 1;
+  SetLength(FForLoops, FForLevel+1);
+  FForLoops[FForLevel].PauseTime := 0;
+  if Times  = 0 then
+    FForLoops[FForLevel].Infinite := True;
+  if Params.Count = 2 then
+  begin
+    try
+      Pause := StrToInt(Params[1]);
+      FForLoops[FForLevel].PauseTime := Pause;
+    except
+      FForLoops[FForLevel].ControlVar := Params[1];
+    end;
+  end;
+  if Params.Count = 3 then
+  begin
+    Pause := StrToInt(Params[1]);
+    FForLoops[FForLevel].PauseTime := Pause;
+    FForLoops[FForLevel].ControlVar := Params[2];
+  end;
+  FForLoops[FForLevel].GoToLine := FLineNumber + 2;
+  FForLoops[FForLevel].Limit := Times;
+  FForLoops[FForLevel].Times := 0;
+  if FForLoops[FForLevel].ControlVar <> '' then
+  begin
+    SetVariable(FForLoops[FForLevel].ControlVar, IntToStr(FForLoops[FForLevel].Times));
+  end;
+  Rewind := False;
+end;
+
+procedure TTemplate.EndLoop;
+begin
+  FForLoops[FForLevel].Times := FForLoops[FForLevel].Times + 1;
+  if FForLoops[FForLevel].Infinite then
+    FForLoops[FForLevel].Limit := FForLoops[FForLevel].Limit+FForLoops[FForLevel].Times + 1;
+  FRewind := True;
+  if FForLoops[FForLevel].PauseTime > 0 then
+    Sleep(FForLoops[FForLevel].PauseTime);
+  if FForLoops[FForLevel].Times = (FForLoops[FForLevel].Limit) then
+  begin
+    DropVariable(FForLoops[FForLevel].ControlVar);
+    FRewind := False;
+    FForLevel := FForLevel - 1;
+    SetLength(FForLoops, FForLevel + 1);
+  end
+  else
+  begin
+    if FForLoops[FForLevel].ControlVar <> '' then
+      SetVariable(FForLoops[FForLevel].ControlVar , IntToStr(FForLoops[FForLevel].Times));
   end;
 end;
 
@@ -630,12 +767,17 @@ begin
     'import': ImportGenFile(Params);
     'include': IncludeTemplate(Params);
     'for': ForPrepare(Params);
-    'endfor': EndFor;
+    'endFor': EndFor;
+    'loop' : LoopPrepare(Params);
+    'endLoop' : EndLoop;
     'if': IfPrepare(Params, False);
     'ifNot': IfPrepare(Params, True);
     'else': ElseDecision;
-    'endif': EndIf;
+    'endIf': EndIf;
     'explode': ExplodeStr(Params);
+    'print' : PrintLine(Params);
+    'tee' : PrintLine(Params, True);
+    'processTemplate' : ProcessTemplate(Params);
     'tokenEnclosers':
     begin
       FTokenOpen := Params[0][1];
@@ -643,6 +785,7 @@ begin
     end;
     'execute':Execute(Params);
     'drop': DropVariable(Params[0]);
+    'loadText' : LoadText(Params);
     'listFiles': ListFiles(Params);
     'renderBlank': FOverrides.RenderBlank := True;
     else

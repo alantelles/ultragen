@@ -25,13 +25,15 @@ var
   TIME_STR:array of string;
   EXT_ACCEPTED:array[0..3] of string;
   PREDEF_OVERR:array[0..5] of string;
-  RESERVED_WORDS: array [0..9] of string;
+  RESERVED_WORDS: array [0..11] of string;
+  LOOP_FUNCTION:string = 'LOOP';
+  LINE_BREAK:string = 'LINE';
+
 implementation
 begin
-  SetLength(TIME_STR,3);
+  SetLength(TIME_STR,2);
   TIME_STR[0] := 'NOW';
   TIME_STR[1] := 'GEN';
-  TIME_STR[2] := 'LINE';
 
   EXT_ACCEPTED[0] := '';
   EXT_ACCEPTED[1] := '.exe';
@@ -54,6 +56,9 @@ begin
   RESERVED_WORDS[7] := 'LT';
   RESERVED_WORDS[8] := 'GEQ';
   RESERVED_WORDS[9] := 'LEQ';
+  RESERVED_WORDS[10] := LOOP_FUNCTION;
+  RESERVED_WORDS[11] := LINE_BREAK;
+
 
 end.
 

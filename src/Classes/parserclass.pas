@@ -5,7 +5,7 @@ unit ParserClass;
 interface
 
 uses
-  Classes, SysUtils, StrUtils, DateUtils, Process,
+  Classes, SysUtils, StrUtils, DateUtils, Process, LazUTF8,
 
   { Globals }
   TypesGlobals, VariablesGlobals, ConstantsGlobals,
@@ -721,7 +721,7 @@ begin
 
     { ListFunctions }
     else if (AFuncName = 'count') and (Params.Count = 1) then
-      Return := ListFunctions.PrintCount(Params[0], PARAM_SEP)
+      Return := ListFunctions.PrintCount(Params[0], LINE_BREAK)
     else if (AFuncName = 'count') and (Params.Count = 2) then
       Return := ListFunctions.PrintCount(Params[0], Params[1])
     else if (AFuncName = 'range') and (Params.Count = 1) then
@@ -759,7 +759,10 @@ begin
     else if (AFuncName = 'leftZeros') and (Params.Count = 2) then
       Return := StringsFunctions.LeftZeros(Params[0], StrToInt(Params[1]))
     else if (AFuncName = 'reverse') and (Params.Count = 1) then
-      Return := ReverseString(Params[0])
+    begin
+      for i := UTF8Length(Params[0]) downto 1 do
+        Return := Return + UTF8Copy(Params[0], i, 1);
+    end
     else if (AFuncName = 'md5') and (Params.Count = 1) then
       Return := StringsFunctions.StrToMD5(Params[0])
     else if (AFuncName = 'superHash') and (Params.Count = 1) then
