@@ -341,8 +341,6 @@ begin
   StrDate := '';
   if AToken = 'NOW' then
     StrDate := FormatDateTime(DATE_INTERCHANGE_FORMAT, Now)
-  else if AToken = 'LINE' then
-    StrDate := FormatDateTime(DATE_INTERCHANGE_FORMAT, FLineTime)
   else if AToken = 'GEN' then
     StrDate := FormatDateTime(DATE_INTERCHANGE_FORMAT, FTemplate.GenTime)
   else
@@ -872,18 +870,42 @@ var
 begin
   for Line in FTemplate.TempLines do
   begin
+    if Trim(Line) = SCRIPT_MODE_ENTER then
+    begin
+      FTemplate.ScriptMode := True;
+      continue;
+    end;
+    if Trim(Line) = SCRIPT_MODE_EXIT then
+    begin
+      FTemplate.ScriptMode := False;
+      continue;
+    end;
     LineTrim := Trim(Line);
     PosAs := Pos(OVER_ASSOC, LineTrim);
     if (PosAs > 0) then
     begin
       AOpt := Copy(LineTrim, 1, PosAs);
-      if AOpt = (OVER_STATE + 'filter' + OVER_ASSOC) then
+      if not FTemplate.ScriptMode then
       begin
-        FTemplate.Filters.Add(Copy(LineTrim, Length(AOpt) + 1, Length(LineTrim)));
+        if AOpt = (OVER_STATE + 'filter' + OVER_ASSOC) then
+        begin
+          FTemplate.Filters.Add(Copy(LineTrim, Length(AOpt) + 1, Length(LineTrim)));
+        end
+        else if AOpt = (OVER_STATE + 'bypass' + OVER_ASSOC) then
+        begin
+          FTemplate.Bypasses.Add(Copy(LineTrim, Length(AOpt) + 1, Length(LineTrim)));
+        end;
       end
-      else if AOpt = (OVER_STATE + 'bypass' + OVER_ASSOC) then
+      else if FTemplate.ScriptMode then
       begin
-        FTemplate.Bypasses.Add(Copy(LineTrim, Length(AOpt) + 1, Length(LineTrim)));
+        if AOpt = ('filter' + OVER_ASSOC) then
+        begin
+          FTemplate.Filters.Add(Copy(LineTrim, Length(AOpt) + 1, Length(LineTrim)));
+        end
+        else if AOpt = ('bypass' + OVER_ASSOC) then
+        begin
+          FTemplate.Bypasses.Add(Copy(LineTrim, Length(AOpt) + 1, Length(LineTrim)));
+        end;
       end;
     end;
   end;
@@ -894,9 +916,11 @@ begin
     i := 0;
     while (i < FTemplate.TempLines.Count) do
     begin
-      if Trim(FTemplate.TempLines[i]) = OVER_STATE + 'else' then
+      if (not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = OVER_STATE + 'else')) or
+         (FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = 'else')) then
         FTemplate.Skip := not FTemplate.Skip
-      else if Trim(FTemplate.TempLines[i]) = OVER_STATE + 'endif' then
+      else if (not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = OVER_STATE + 'endIf')) or
+         (FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = 'endIf')) then
         FTemplate.Skip := False;
       if FTemplate.Skip then
       begin

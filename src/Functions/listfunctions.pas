@@ -36,14 +36,18 @@ var
 begin
   AList := TStringList.Create;
   if ADelim = LINE_BREAK then
-    AList.Text := AListStr
+  begin
+    AList.Text := AListStr;
+    Return := AList.Count;
+  end
   else
   begin
     AList.Delimiter := ADelim[1];
     AList.StrictDelimiter := True;
     AList.DelimitedText := AListStr;
+    Return := AList.Count;
   end;
-  Return := AList.Count;
+
   AList.Free;
   Result := IntToStr(Return);
 end;

@@ -5,7 +5,7 @@ unit TemplateClass;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, DateUtils, StrUtils, Process,
+  Classes, SysUtils, FileUtil, DateUtils, StrUtils, Process, crt,
 
   { Globals }
   TypesGlobals, VariablesGlobals, ConstantsGlobals,
@@ -310,7 +310,7 @@ begin
   if Explode.Count > 0 then
   begin
     for i := 0 to Explode.Count - 1 do
-      SetVariable(Params[1] + '[' + IntToStr(i) + ']', Explode[i]);
+      SetVariable(Params[1] + '[' + IntToStr(i) + ']', Trim(Explode[i]));
   end;
   Explode.Free;
 end;
@@ -349,7 +349,8 @@ begin
       ReverseList(Files);
     end;
   end;
-  SetVariable(AVarName, Files.Text);
+
+  SetVariable(AVarName, Copy(Files.Text,1,Length(Files.Text)-2));
   if Files.Count > 0 then
   begin
     for i:=0 to Files.Count - 1 do
@@ -528,10 +529,11 @@ begin
   //loop:[times],[control var],[pause (ms)]
   //loop:30,500,'i'
   //loop:0,'i',500 (infinite loop)
-  FForLoops[FForLevel].ControlVar := '';
+
   Times := StrToInt(Params[0]);
   FForLevel := FForLevel + 1;
   SetLength(FForLoops, FForLevel+1);
+  FForLoops[FForLevel].ControlVar := '';
   FForLoops[FForLevel].PauseTime := 0;
   if Times  = 0 then
     FForLoops[FForLevel].Infinite := True;
@@ -623,11 +625,16 @@ begin
   b := Params[1];
   if a = 'EMPTY' then
     Logic := Length(Params[1]) = 0
-  else if b = 'CONTAINS' then
+  else if a = 'CONTAINS' then
   begin
     c := Params[2];
     d := Pos(c,a);
     Logic := d > 0;
+  end
+  else if a = 'GT' then
+  begin
+    c := Params[2];
+    Logic := StrToInt(Params[1]) > StrToInt(Params[2])
   end;
   if (Logic and (not IfNot)) or ((not Logic) and IfNot) then
     FSkip := False
@@ -809,6 +816,7 @@ begin
     'print' : PrintLine(Params);
     'tee' : PrintLine(Params, True);
     'processTemplate' : ProcessTemplate(Params);
+    'clear' : clrscr;
     'tokenEnclosers':
     begin
       FTokenOpen := Params[0][1];
