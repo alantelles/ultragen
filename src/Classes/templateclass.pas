@@ -133,6 +133,7 @@ type
     procedure ListFiles(var Params:TStringList);
     procedure Move(var Params:TStringList);
     procedure TempFileCopy(var Params:TStringList);
+    procedure DoPause(var Params:TStringList);
     destructor Destroy; override;
   end;
 
@@ -829,21 +830,33 @@ begin
     'move' : Move(Params);
     'copy' : TempFileCopy(Params);
     'renderBlank': FOverrides.RenderBlank := True;
-    'pause' :
-    begin
-      if Params[0] = '' then
-        ReadLn
-      else
-      begin
-        i :=  StrToInt(Params[0]);
-        Sleep(i);
-      end;
-    end
+    'pause' : DoPause(Params);
+
     else
       Return := False;
   end;
   PArams.Free;
   Result := Return;
+end;
+procedure TTemplate.DoPause(var Params:TStringList);
+var i:longint;
+begin
+  if Params[0] = '' then
+    ReadLn
+  else
+  begin
+    i :=  StrToInt(Params[0]);
+    if Params.Count = 2 then
+    begin
+      if Params[1] = 'h' then
+        i := i*1000*60*60
+      else if Params[1] = 'm' then
+        i := i*1000*60
+      else if Params[1] = 's' then
+        i := i*1000;
+    end;
+    Sleep(i);
+  end;
 end;
 
 procedure TTemplate.Print;
