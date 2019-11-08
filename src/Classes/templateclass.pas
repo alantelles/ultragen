@@ -829,7 +829,16 @@ begin
     'move' : Move(Params);
     'copy' : TempFileCopy(Params);
     'renderBlank': FOverrides.RenderBlank := True;
-    'pause' : ReadLn;
+    'pause' :
+    begin
+      if Params[0] = '' then
+        ReadLn
+      else
+      begin
+        i :=  StrToInt(Params[0]);
+        Sleep(i);
+      end;
+    end
     else
       Return := False;
   end;
