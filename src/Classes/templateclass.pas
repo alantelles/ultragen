@@ -211,6 +211,7 @@ end;
 procedure TTemplate.Move(var Params:TStringList);
 var
   ANewName:string;
+  DestFile:string;
 begin
   if FileExists(Params[0]) then
   begin
@@ -218,7 +219,10 @@ begin
     CreateDirTree(Params[1]);
     if Params.Count = 3 then
       ANewName := Params[2];
-    CreateDirTree(Params[1]+DirectorySeparator+ANewName);
+    DestFile := Params[1]+DirectorySeparator+ANewName;
+    CreateDirTree(DestFile);
+    if FileExists(DestFile) then
+      DeleteFile(DestFile);
     RenameFile(Params[0],RemoveLastBackslash(Params[1])+DirectorySeparator+ANewName);
   end;
 end;
