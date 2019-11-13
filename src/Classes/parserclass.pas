@@ -47,7 +47,8 @@ type
     function CallExternal(ExtPath: string; var Params: TStringList): string;
     function InsertTemplate(ATempName, AgenName: string): string;
     function InsertTemplate(ATempName: string): string;
-    function PrintPlainText(AFileName:string): string;
+    function InsertTemplate(var Params:TStringList): string;
+    function PrintPlainText(AFileName: string): string;
   end;
 
 implementation
@@ -85,17 +86,17 @@ begin
   Result := Pos('PARENT.@', AToken) = 1;
 end;
 
-function TTempParser.IsReserved(AToken:string): boolean;
+function TTempParser.IsReserved(AToken: string): boolean;
 var
-  s:string;
-  Return:boolean=False;
+  s: string;
+  Return: boolean = False;
 begin
   for s in RESERVED_WORDS do
   begin
     if s = AToken then
     begin
       Return := True;
-      Break
+      Break;
     end;
   end;
   Result := Return;
@@ -397,18 +398,18 @@ begin
   Result := Return;
 end;
 
-function TTempParser.PrintPlainText(AFileName:string): string;
+function TTempParser.PrintPlainText(AFileName: string): string;
 var
-  TextLoad:TStringList;
-  Return:string='';
+  TextLoad: TStringList;
+  Return: string = '';
 begin
   AFileName := Trim(AFileName);
   if FileExists(AFileName) then
   begin
-     TextLoad := TStringList.Create;
-     Textload.LoadFromFile(AFileName);
-     Return := Copy(TextLoad.Text,1,Length(TextLoad.Text)-2);
-     TextLoad.Free;
+    TextLoad := TStringList.Create;
+    Textload.LoadFromFile(AFileName);
+    Return := Copy(TextLoad.Text, 1, Length(TextLoad.Text) - 2);
+    TextLoad.Free;
   end;
   Result := Return;
 end;
@@ -423,6 +424,36 @@ begin
   AGen := TGenFileSet.Create;
   AGen.Add(AGenName);
   ATemp := TTemplate.Create(ATempName);
+  ATemp.ParseTemplate(AGen);
+  for Line in ATemp.ParsedLines do
+  begin
+    if ATemp.ParsedLines.IndexOf(Line) = 0 then
+      Return := Return + Line + sLineBreak
+    else
+      Return := Return + RepeatStr(' ', FTokenPos) + Line + sLineBreak;
+  end;
+  ATemp.Free;
+  AGen.Free;
+  Return := Copy(Return, 1, Length(Return) - 2);
+  Result := Return;
+end;
+
+function TTempParser.InsertTemplate(var Params:TStringList): string;
+var
+  Return, Line: string;
+  AGen: TGenFileSet;
+  ATemp: TTemplate;
+  i:integer;
+begin
+  Return := '';
+  ATemp := TTemplate.Create(Params[0]);
+  for i:=2 to Params.Count-1 do
+  begin
+    ATemp.SetVariable('param['+IntToStr(i-2)+']',Params[i]);     {back}
+  end;
+  AGen := TGenFileSet.Create;
+  if Params[1] <> '' then
+    AGen.Add(Params[1]);
   ATemp.ParseTemplate(AGen);
   for Line in ATemp.ParsedLines do
   begin
@@ -541,7 +572,7 @@ begin
   begin
     GenKey := Trim(Copy(AToken, 1, Pos(PARAM_OPEN, AToken) - 1));
     GenDef := Copy(AToken, Pos(PARAM_OPEN, AToken) + 1,
-      (RPos(PARAM_CLOSE, AToken) - Pos(PARAM_OPEN, AToken))-1);
+      (RPos(PARAM_CLOSE, AToken) - Pos(PARAM_OPEN, AToken)) - 1);
     Params := TStringList.Create;
     if Length(GenDef) > 0 then
     begin
@@ -656,7 +687,8 @@ begin
         i := FTemplate.GenFileSet.IndexOf(Params[0]);
       end;
 
-      Return := GetFilePath(FTemplate.GenFileSet.GenFiles[i].GenFile.FullName,(StrToInt(Params[1])*(-1)));
+      Return := GetFilePath(FTemplate.GenFileSet.GenFiles[i].GenFile.FullName,
+        (StrToInt(Params[1]) * (-1)));
     end
     else if (AFuncName = 'genRelativePath') and (Params.Count = 2) then
     begin
@@ -666,12 +698,13 @@ begin
         i := FTemplate.GenFileSet.IndexOf(Params[0]);
       end;
 
-      Return := GetFileRelative(FTemplate.GenFileSet.GenFiles[i].GenFile.FullName,(StrToInt(Params[1])*(-1)));
+      Return := GetFileRelative(FTemplate.GenFileSet.GenFiles[i].GenFile.FullName,
+        (StrToInt(Params[1]) * (-1)));
     end
     else if (AFuncName = 'fileName') and (Params.Count = 1) then
       Return := GetFileName(Params[0])
     else if (AFuncName = 'fileName') and (Params.Count = 2) then
-      Return := GetFileName(Params[0],StrToBoolean(Params[1]))
+      Return := GetFileName(Params[0], StrToBoolean(Params[1]))
 
 
     { Interaction manipulations }
@@ -682,16 +715,18 @@ begin
       a := Params[0];
       Return := InsertTemplate(Params[0]);
     end
+    else if (AFuncName = 'insert') and (Params.Count > 2) then
+      Return := InsertTemplate(Params)
     else if (AFuncName = 'section') and (Params.Count = 1) then
       Return := PrintSection(Params[0])
     else if (AFuncName = 'text') and (Params.Count = 1) then
       Return := PrintPlainText(Params[0])
     else if (AFuncName = 'file') and (Params.Count = 1) then
-      Return := FileHandlingUtils.PrintFileIfExists(Params[0],'',Params[0])
+      Return := FileHandlingUtils.PrintFileIfExists(Params[0], '', Params[0])
     else if (AFuncName = 'file') and (Params.Count = 2) then
-      Return := FileHandlingUtils.PrintFileIfExists(Params[0],Params[1],Params[0])
+      Return := FileHandlingUtils.PrintFileIfExists(Params[0], Params[1], Params[0])
     else if (AFuncName = 'file') and (PArams.Count = 3) then
-      Return := FileHandlingUtils.PrintFileIfExists(Params[0],Params[1],Params[2])
+      Return := FileHandlingUtils.PrintFileIfExists(Params[0], Params[1], Params[2])
 
     { Booleans Functions }
     else if (AFuncName = 'booleanToInt') and (Params.Count = 1) then
@@ -706,6 +741,9 @@ begin
       Return := BooleansFunctions.BooleanToStr(Params[0], Params[1], Params[2])
 
     { DateTime Functions }
+    else if (AFuncName = 'date') and (Params.Count = 0) then
+      Return := DateTimeFunctions.PrintDate(DATE_INTERCHANGE_FORMAT,
+        FormatDateTime(DATE_INTERCHANGE_FORMAT, Now))
     else if (AFuncName = 'date') and (Params.Count = 1) then
       Return := DateTimeFunctions.PrintDate(Params[0],
         FormatDateTime(DATE_INTERCHANGE_FORMAT, Now))
@@ -766,7 +804,7 @@ begin
     else if (AFuncName = 'superHash') and (Params.Count = 1) then
       Return := StringsFunctions.SuperHash(Params[0])
     else if (AFuncName = 'indexOf') and (Params.Count = 2) then
-      Return := IntToStr(Pos(Params[0],Params[1]))
+      Return := IntToStr(Pos(Params[0], Params[1]))
     else if ExternalExists(AFuncName) then
       Return := CallExternal(PROCESSORS_FOLDER + DirectorySeparator + AFuncName, Params)
     else
@@ -866,7 +904,7 @@ var
   Unary: boolean;
   AOpt, AOver, ATarget, AKey: string;
   PosAs, i, Times: integer;
-  Params:TStringList;
+  Params: TStringList;
 begin
   for Line in FTemplate.TempLines do
   begin
@@ -916,12 +954,17 @@ begin
     i := 0;
     while (i < FTemplate.TempLines.Count) do
     begin
-      if (not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = OVER_STATE + 'else')) or
-         (FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = 'else')) then
+      if (not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) =
+        OVER_STATE + 'else')) or (FTemplate.ScriptMode and
+        (Trim(FTemplate.TempLines[i]) = 'else')) then
         FTemplate.Skip := not FTemplate.Skip
-      else if (not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = OVER_STATE + 'endIf')) or
-         (FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = 'endIf')) then
+      else if ((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = OVER_STATE + 'endIf')) or
+        (FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = 'endIf'))) or
+        (((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = OVER_STATE + 'end')) or (FTemplate.ScriptMode and
+        (Trim(FTemplate.TempLines[i]) = 'end'))) and (FTemplate.LoopType = IFDEV)) then
+      begin
         FTemplate.Skip := False;
+      end;
       if FTemplate.Skip then
       begin
         i := i + 1;
@@ -951,22 +994,22 @@ begin
       if Length(LineTrim) > 0 then
       begin
         if (Copy(LineTrim, 1, Length(COMMENT_TOKEN)) = COMMENT_TOKEN) or
-           (LineTrim = RepeatStr(COMMENT_TOKEN,3)) or (FTemplate.CommentBlock) then
+          (LineTrim = RepeatStr(COMMENT_TOKEN, 3)) or (FTemplate.CommentBlock) then
         begin
-          if LineTrim = RepeatStr(COMMENT_TOKEN,3) then
+          if LineTrim = RepeatStr(COMMENT_TOKEN, 3) then
             FTemplate.CommentBlock := not FTemplate.CommentBlock;
           i := i + 1;
           continue;
         end;
-        if (Copy(LineTrim, 1, Length(OVER_STATE)) = OVER_STATE) or (FTemplate.ScriptMode) then
+        if (Copy(LineTrim, 1, Length(OVER_STATE)) = OVER_STATE) or
+          (FTemplate.ScriptMode) then
         begin
           PosAssoc := Pos(OVER_ASSOC, LineTrim);
           PosVarAssoc := Pos(VAR_ASSOC, LineTrim);
           if (PosAssoc > 0) and ((PosAssoc < PosVarAssoc) or (PosVarAssoc = 0)) then
           begin
             if FTemplate.ScriptMode then
-              Key := Copy(LineTrim, 1, PosAssoc -
-                Length(OVER_ASSOC))
+              Key := Copy(LineTrim, 1, PosAssoc - Length(OVER_ASSOC))
             else
               Key := Copy(LineTrim, Length(OVER_STATE) + 1, PosAssoc -
                 Length(OVER_ASSOC) - 1);
@@ -980,21 +1023,19 @@ begin
           else if PosVarAssoc > 0 then
           begin
             if FTemplate.ScriptMode then
-              Key := Copy(LineTrim, 1, PosVarAssoc -
-                Length(VAR_ASSOC))
+              Key := Copy(LineTrim, 1, PosVarAssoc - Length(VAR_ASSOC))
             else
               Key := Copy(LineTrim, Length(OVER_STATE) + 1, PosVarAssoc -
                 Length(VAR_ASSOC) - 1);
             Value := Copy(FTemplate.TempLines[i], Pos(
               VAR_ASSOC, FTemplate.TempLines[i]) + Length(VAR_ASSOC),
               Length(FTemplate.TempLines[i]));
-            FTemplate.SetVariable(Key, Value,True);
+            FTemplate.SetVariable(Key, Value, True);
           end
           else
           begin
             if FTemplate.ScriptMode then
-              Key := Copy(LineTrim, 1,
-                Length(FTemplate.TempLines[i]))
+              Key := Copy(LineTrim, 1, Length(FTemplate.TempLines[i]))
             else
               Key := Copy(LineTrim, Length(OVER_STATE) + 1,
                 Length(FTemplate.TempLines[i]));

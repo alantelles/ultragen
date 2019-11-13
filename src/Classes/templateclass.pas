@@ -16,6 +16,12 @@ uses
   { Classes }
   GenFileClass, GenFileSetClass;
 
+const
+  FORDEV = 'FORDEV';
+  LOOPDEV = 'LOOPDEV';
+  IFDEV = 'IFDEV';
+  NODEV = 'NODEV';
+
 type
   TOverrides = record
     OutFileName: string;
@@ -67,10 +73,13 @@ type
     FForLevel: integer;
     FForLoops: TForRecursion;
     FRewind, FSkip: boolean;
+    FLoopTypeLast,FLoopType:string;
   public
     constructor Create(ATempName: string = ''; AExpLocation: string = '.');
     property RenderBlank: boolean read FOverrides.RenderBlank
       write FOverrides.RenderBlank;
+    property LoopTypeLast:string read FLoopTypeLast write FLoopTypeLast;
+    property LoopType:string read FLoopType write FLoopType;
     property ForLoops: TForRecursion read FForloops write FForLoops;
     property TokenOpen: string read FTokenOpen write FTokenOpen;
     property TokenClose: string read FTokenClose write FTokenClose;
@@ -145,6 +154,8 @@ uses FileHandlingUtils,
 
 constructor TTemplate.Create(ATempName: string = ''; AExpLocation: string = '.');
 begin
+  FLoopType := NODEV;
+  FLoopTypeLast := NODEV;
   FOverrides.Overwrite := False;
   FOverrides.CopyTo := TStringList.Create;
   FOverrides.Filters := TStringList.Create;
@@ -246,6 +257,7 @@ begin
   end;
   AProcess.Execute;
 end;
+
 
 procedure TTemplate.PrintLine(var Params:TStringList; Tee:boolean=False);
 var
@@ -449,6 +461,8 @@ var
   ParamAsStr, Iterated: string;
   len, i: integer;
 begin
+  FLoopTypeLast := FLoopType;
+  FLoopType := FORDEV;
   FForLevel := FForLevel + 1;
   SetLength(FForLoops, FForLevel+1);
   FForLoops[FForLevel].ControlVar := Params[1];
@@ -499,6 +513,7 @@ end;
 
 procedure TTemplate.EndFor;
 begin
+  FLoopType := NODEV;
   //FForTimes := FForTimes - 1;
   FForLoops[FForLevel].Times := FForLoops[FForLevel].Times - 1;
   FRewind := True;
@@ -530,7 +545,8 @@ begin
   //loop:[times],[control var],[pause (ms)]
   //loop:30,500,'i'
   //loop:0,'i',500 (infinite loop)
-
+  FLoopTypeLast := FLoopType;
+  FLoopType := LOOPDEV;
   Times := StrToInt(Params[0]);
   FForLevel := FForLevel + 1;
   SetLength(FForLoops, FForLevel+1);
@@ -565,6 +581,7 @@ end;
 
 procedure TTemplate.EndLoop;
 begin
+  FLoopType := NODEV;
   FForLoops[FForLevel].Times := FForLoops[FForLevel].Times + 1;
   if FForLoops[FForLevel].Infinite then
     FForLoops[FForLevel].Limit := FForLoops[FForLevel].Limit+FForLoops[FForLevel].Times + 1;
@@ -622,6 +639,8 @@ var
   d:integer;
 
 begin
+  FLoopTypeLast := FLoopType;
+  FLoopType := IFDEV;
   a := Params[0];
   b := Params[1];
   if a = 'EMPTY' then
@@ -650,6 +669,7 @@ end;
 
 procedure TTemplate.EndIf;
 begin
+
   //FSkip := False;
 end;
 
