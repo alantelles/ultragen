@@ -707,6 +707,7 @@ begin
       Return := GetFileName(Params[0], StrToBoolean(Params[1]))
 
 
+
     { Interaction manipulations }
     else if (AFuncName = 'insert') and (Params.Count = 2) then
       Return := InsertTemplate(Params[0], Params[1])

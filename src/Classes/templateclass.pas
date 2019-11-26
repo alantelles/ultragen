@@ -1,11 +1,22 @@
 unit TemplateClass;
 
 {$mode objfpc}{$H+}
+{$codepage cp1252}
 
 interface
 
 uses
-  Classes, SysUtils, FileUtil, DateUtils, StrUtils, Process, crt,
+   LazUTF8,Classes, SysUtils, FileUtil, DateUtils, StrUtils, Process, crt,
+  {$IFDEF UNIX}
+    {$IFDEF UseCThreads}
+    cthreads,
+    {$ENDIF}
+  {Widestring manager needed for widestring support}
+  cwstring,
+  {$ENDIF}
+  {$IFDEF WINDOWS}
+  Windows, {for setconsoleoutputcp}
+  {$ENDIF}
 
   { Globals }
   TypesGlobals, VariablesGlobals, ConstantsGlobals,
@@ -222,7 +233,7 @@ begin
     DestFile := Params[1]+DirectorySeparator+ANewName;
     CreateDirTree(DestFile);
     if FileExists(DestFile) then
-      DeleteFile(DestFile);
+      SysUtils.DeleteFile(DestFile);
     RenameFile(Params[0],RemoveLastBackslash(Params[1])+DirectorySeparator+ANewName);
   end;
 end;
@@ -237,7 +248,7 @@ begin
     if Params.Count = 3 then
       ANewName := Params[2];
     CreateDirTree(Params[1]+DirectorySeparator+ANewName);
-    CopyFile(Params[0],RemoveLastBackslash(Params[1])+DirectorySeparator+ANewName,[cffOverwriteFile,cffPreserveTime]);
+    FileUtil.CopyFile(Params[0],RemoveLastBackslash(Params[1])+DirectorySeparator+ANewName,[cffOverwriteFile,cffPreserveTime]);
   end;
 end;
 
@@ -793,7 +804,7 @@ begin
         FullOutFilePath := Temp + DirectorySeparator + FOverrides.OutFileName +
           FOverrides.Extension;
         CreateDirTree(FullOutFilePath);
-        CopyFile(FOutFilePath, FullOutFilePath);
+        Fileutil.CopyFile(FOutFilePath, FullOutFilePath);
       until FileExists(FullOutFilePath) or (Tries > MAX_TRIES);
     end;
   end;
@@ -897,8 +908,7 @@ var
 begin
   for Line in FParsed do
   begin
-    S := ReplaceStr(Line, 'ú', '&uacute;');
-    WriteLn(ReplaceStr(S, '\=', '='));
+    WriteLn(Line);
   end;
 end;
 
