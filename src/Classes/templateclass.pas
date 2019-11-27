@@ -896,7 +896,7 @@ begin
       FTokenOpen := Params[0][1];
       FTokenClose := Params[0][2];
     end;
-    'input' : InputValue(Params[0]);
+    //'input' : InputValue(Params[0]);
     'execute':Execute(Params);
     'drop': DropVariable(Params[0]);
     'loadText' : LoadText(Params);

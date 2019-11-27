@@ -1017,7 +1017,7 @@ begin
             Value := Copy(FTemplate.TempLines[i], Pos(
               OVER_ASSOC, FTemplate.TempLines[i]) + Length(OVER_ASSOC),
               Length(FTemplate.TempLines[i]));
-            FTemplate.SetPredefined(Key, Value);
+            FTemplate.SetPredefined(Trim(Key), Trim(Value));
             //Value := ParseLine(Value).Value;
             Unary := False;
           end
@@ -1031,7 +1031,7 @@ begin
             Value := Copy(FTemplate.TempLines[i], Pos(
               VAR_ASSOC, FTemplate.TempLines[i]) + Length(VAR_ASSOC),
               Length(FTemplate.TempLines[i]));
-            FTemplate.SetVariable(Key, Value, True);
+            FTemplate.SetVariable(Trim(Key), Trim(Value), True);
           end
           else
           begin
@@ -1042,7 +1042,7 @@ begin
                 Length(FTemplate.TempLines[i]));
             Value := '';
             Unary := True;
-            FTemplate.SetPredefined(Key, Value);
+            FTemplate.SetPredefined(Trim(Key), Trim(Value));
           end;
         end
         else
