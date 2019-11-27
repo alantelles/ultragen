@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, StrUtils, md5;
 
 function ReplaceStrExtended(var AList:TStringList):string;
-function RepeatStr(AText: string; ACount: Integer): string;
+function RepeatStr(AText: string; ACount: Integer; AJoiner:string=''): string;
 function LeftZeros(ANumber:string; Zeros:integer): string;
 function Slice(AStr:string; StrStart, StrEnd:integer):string;
 function StrToMD5(AStr:string):string;
@@ -99,7 +99,7 @@ begin
   Result := Return;
 end;
 
-function RepeatStr(AText: string; ACount: Integer): string;
+function RepeatStr(AText: string; ACount: Integer; AJoiner:string=''): string;
 var
     i:integer;
     Ret:string='';
@@ -108,7 +108,9 @@ begin
        Result:=Ret;
     for i:=1 to ACount do
     begin
-        Ret:=Ret+AText;
+      Ret:=Ret+AText;
+      if i < ACount then
+        Ret := Ret+AJoiner;
     end;
     Result:=Ret;
 end;

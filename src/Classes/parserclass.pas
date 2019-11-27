@@ -793,6 +793,8 @@ begin
       Return := StringsFunctions.ReplaceStrExtended(Params)
     else if (AFuncName = 'repeat') and (Params.Count = 2) then
       Return := StringsFunctions.RepeatStr(Params[0], StrToInt(Params[1]))
+    else if (AFuncName = 'repeat') and (Params.Count = 3) then
+      Return := StringsFunctions.RepeatStr(Params[0], StrToInt(Params[1]),Params[2])
     else if (AFuncName = 'leftZeros') and (Params.Count = 2) then
       Return := StringsFunctions.LeftZeros(Params[0], StrToInt(Params[1]))
     else if (AFuncName = 'reverse') and (Params.Count = 1) then
