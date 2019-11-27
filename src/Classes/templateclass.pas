@@ -85,10 +85,12 @@ type
     FForLoops: TForRecursion;
     FRewind, FSkip: boolean;
     FLoopTypeLast,FLoopType:string;
+    FForSkip:boolean;
   public
     constructor Create(ATempName: string = ''; AExpLocation: string = '.');
     property RenderBlank: boolean read FOverrides.RenderBlank
       write FOverrides.RenderBlank;
+    property ForSkip:boolean read FForSkip write FForSkip;
     property LoopTypeLast:string read FLoopTypeLast write FLoopTypeLast;
     property LoopType:string read FLoopType write FLoopType;
     property ForLoops: TForRecursion read FForloops write FForLoops;
@@ -140,6 +142,8 @@ type
     procedure PrintLine(var Params:TStringList; Tee:boolean=False);
     procedure PrintParsed;
     procedure ForPrepare(var Params:TstringList; ForLoop:boolean = True);
+    procedure BreakFor;
+    procedure ContinueFor;
     procedure EndFor;
     procedure LoopPrepare(var Params:TstringList; ForLoop:boolean = True);
     procedure EndLoop;
@@ -587,6 +591,18 @@ begin
     SetVariable(FForLoops[FForLevel].ControlVar + '.i', IntToStr(
       FForLoops[FForLevel].List.Count - FForLoops[FForLevel].Times));
   end;
+  FForSkip := False;
+end;
+
+procedure TTemplate.BreakFor;
+begin
+  FForLoops[FForLevel].Times := 0;
+  FForSkip := True;
+end;
+
+procedure TTemplate.ContinueFor;
+begin
+  FForSkip := True;
 end;
 
 procedure TTemplate.LoopPrepare(var Params:TStringList;ForLoop:boolean = True);
@@ -703,6 +719,10 @@ begin
     c := Params[2];
     d := Pos(c,a);
     Logic := d > 0;
+  end
+  else if a = 'EQ' then
+  begin
+    Logic := StrToInt(Params[1]) = StrToInt(Params[2])
   end
   else if a = 'GT' then
   begin
@@ -880,6 +900,8 @@ begin
     'include': IncludeTemplate(Params);
     'for': ForPrepare(Params);
     'endFor': EndFor;
+    'break' : BreakFor;
+    'continue' : ContinueFor;
     'loop' : LoopPrepare(Params);
     'endLoop' : EndLoop;
     'if': IfPrepare(Params, False);

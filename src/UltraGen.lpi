@@ -115,6 +115,11 @@
       <OtherUnitFiles Value="Classes;Utils;Globals;Functions"/>
       <UnitOutputDirectory Value="lib\i386-win32"/>
     </SearchPaths>
+    <CodeGeneration>
+      <Optimizations>
+        <OptimizationLevel Value="0"/>
+      </Optimizations>
+    </CodeGeneration>
     <Linking>
       <Options>
         <PassLinkerOptions Value="True"/>

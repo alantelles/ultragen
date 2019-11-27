@@ -957,6 +957,7 @@ begin
     i := 0;
     while (i < FTemplate.TempLines.Count) do
     begin
+
       if (not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) =
         OVER_STATE + 'else')) or (FTemplate.ScriptMode and
         (Trim(FTemplate.TempLines[i]) = 'else')) then
@@ -967,8 +968,15 @@ begin
         (Trim(FTemplate.TempLines[i]) = 'end'))) and (FTemplate.LoopType = IFDEV)) then
       begin
         FTemplate.Skip := False;
+      end
+      else if ((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = OVER_STATE + 'endFor')) or
+        (FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = 'endFor'))) or
+        (((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = OVER_STATE + 'end')) or (FTemplate.ScriptMode and
+        (Trim(FTemplate.TempLines[i]) = 'end'))) and (FTemplate.LoopType = IFDEV)) then
+      begin
+        FTemplate.ForSkip := False;
       end;
-      if FTemplate.Skip then
+      if FTemplate.Skip or FTemplate.ForSkip then
       begin
         i := i + 1;
         Continue;
