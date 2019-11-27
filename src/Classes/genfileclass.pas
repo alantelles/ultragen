@@ -221,6 +221,8 @@ begin
   if AName = '' then
     OutFile := FFullName
   else
+    if Pos(DirectorySeparator,AName) = 0 then
+      AName := '.'+DirectorySeparator+AName;
     OutFile := AName;
   try
     CreateDirTree(GetFilePath(OutFile));

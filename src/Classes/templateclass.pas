@@ -154,6 +154,10 @@ type
     procedure Move(var Params:TStringList);
     procedure TempFileCopy(var Params:TStringList);
     procedure DoPause(var Params:TStringList);
+    //Gen file handling
+    procedure SetGenValue(var Params:TStringList);
+    procedure SaveGen(var Params:TStringList);
+    // end gen file handling
     destructor Destroy; override;
   end;
 
@@ -237,6 +241,40 @@ begin
     RenameFile(Params[0],RemoveLastBackslash(Params[1])+DirectorySeparator+ANewName);
   end;
 end;
+procedure TTemplate.SetGenValue(var Params:TStringList);
+var
+  GenAlias, AKey, AValue, FullGenName:string;
+  AGen:TGenFile;
+  i:integer;
+begin
+  GenAlias := Params[0];
+  AKey := Params[1];
+  AValue := Params[2];
+  try
+    i := StrToInt(GenAlias);
+  except
+    i := FGenFileSet.IndexOf(GenAlias);
+  end;
+  GenFileSet.GenFiles[i].GenFile.SetValue(AKey,AValue);
+end;
+
+procedure TTemplate.SaveGen(var Params:TStringList);
+var
+  GenAlias:string;
+  i:integer;
+begin
+  GenAlias := Params[0];
+  try StrToInt(GenAlias);
+    i := StrToInt(GenAlias);
+  except
+    i := FGenFileSet.IndexOf(GenAlias);
+  end;
+  if Params.Count = 1 then
+    GenFileSet.GenFiles[i].GenFile.Save
+  else if Params.Count = 2 then
+    GenFileSet.GenFiles[i].GenFile.Save(Params[1]);
+end;
+
 procedure TTemplate.TempFileCopy(var Params:TStringList);
 var
   ANewName:string;
@@ -716,8 +754,8 @@ begin
         SectionLines := TStringList.Create;
         FSections.AddObject(Part, SectionLines);
       end
-      else if (Pos(OVER_STATE + 'endsection', Trim(Line)) = 1) and
-        (Length(Trim(Line)) = Length(OVER_STATE + 'endsection')) then
+      else if (Pos(OVER_STATE + 'endSection', Trim(Line)) = 1) and
+        (Length(Trim(Line)) = Length(OVER_STATE + 'endSection')) then
         SectionOpen := False
       else if SectionOpen then
         TStringList(FSections.Objects[FSections.IndexOf(Part)]).Add(Line)
@@ -757,8 +795,8 @@ begin
         SectionLines := TStringList.Create;
         FSections.AddObject(Part, SectionLines);
       end
-      else if (Pos(OVER_STATE + 'endsection', Trim(Line)) = 1) and
-        (Length(Trim(Line)) = Length(OVER_STATE + 'endsection')) then
+      else if (Pos(OVER_STATE + 'endSection', Trim(Line)) = 1) and
+        (Length(Trim(Line)) = Length(OVER_STATE + 'endSection')) then
         SectionOpen := False
       else if SectionOpen then
         TStringList(FSections.Objects[FSections.IndexOf(Part)]).Add(Line)
@@ -858,6 +896,7 @@ begin
       FTokenOpen := Params[0][1];
       FTokenClose := Params[0][2];
     end;
+    'input' : InputValue(Params[0]);
     'execute':Execute(Params);
     'drop': DropVariable(Params[0]);
     'loadText' : LoadText(Params);
@@ -866,7 +905,8 @@ begin
     'copy' : TempFileCopy(Params);
     'renderBlank': FOverrides.RenderBlank := True;
     'pause' : DoPause(Params);
-
+    'setValue' : SetGenValue(Params);
+    'saveGen' : SaveGen(Params);
     else
       Return := False;
   end;
