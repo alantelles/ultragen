@@ -133,6 +133,7 @@ type
     procedure ExtendTemplate(ATemplate: string; Parent: string = '');
     procedure IncludeTemplate(var Params:TStringList);
     procedure Execute(var Params:TStringList);
+    procedure InputValue(var Params:TStringList;DoParse:boolean);
     function ParseTemplate(var AGen: TGenFileSet): TTemplate;
     function ParseTemplate(var AGen: TGenFileSet; var OutputParsed: TStringList): TTemplate;
     function ParseTemplate(var AGen: TGenFile): TTemplate;
@@ -245,6 +246,17 @@ begin
     RenameFile(Params[0],RemoveLastBackslash(Params[1])+DirectorySeparator+ANewName);
   end;
 end;
+
+procedure TTemplate.InputValue(var Params:TStringList; DoParse:boolean);
+var
+  AValue:string;
+begin
+  if Params.Count = 2 then
+     Write(Params[1]+' ');
+  ReadLn(AValue);
+  SetVariable(Params[0],AValue,DoParse);
+end;
+
 procedure TTemplate.SetGenValue(var Params:TStringList);
 var
   GenAlias, AKey, AValue, FullGenName:string;
@@ -918,7 +930,8 @@ begin
       FTokenOpen := Params[0][1];
       FTokenClose := Params[0][2];
     end;
-    //'input' : InputValue(Params[0]);
+    'input' : InputValue(Params,False);
+    'parsedInput':InputValue(Params,True);
     'execute':Execute(Params);
     'drop': DropVariable(Params[0]);
     'loadText' : LoadText(Params);
