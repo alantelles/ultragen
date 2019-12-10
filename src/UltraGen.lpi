@@ -51,6 +51,7 @@
       <Unit4>
         <Filename Value="Classes/templateclass.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="TemplateClass"/>
       </Unit4>
       <Unit5>
         <Filename Value="Classes/workclass.pas"/>
@@ -95,11 +96,11 @@
   <CompilerOptions>
     <Version Value="11"/>
     <Target>
-      <Filename Value="UltraGen"/>
+      <Filename Value="ultragen"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="/home/alantelles/development/lazarus/ultragen/src/Classes;/home/alantelles/development/lazarus/ultragen/src/Functions;/home/alantelles/development/lazarus/ultragen/src/Globals;/home/alantelles/development/lazarus/ultragen/src/Utils"/>
+      <OtherUnitFiles Value="Classes/;Functions/;Globals/;Utils/"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
   </CompilerOptions>

@@ -690,7 +690,16 @@ begin
       Return := GetFilePath(FTemplate.GenFileSet.GenFiles[i].GenFile.FullName,
         (StrToInt(Params[1]) * (-1)));
     end
-    else if (AFuncName = 'genRelativePath') and (Params.Count = 2) then
+    else if (AFuncName = 'genName') and (Params.Count = 1) then
+    begin
+      try
+        i := StrToInt(Params[0]);
+      except
+        i := FTemplate.GenFileSet.IndexOf(Params[0]);
+      end;
+      Return := GetFileName(FTemplate.GenFileSet.GenFiles[i].GenFile.FullName,False);
+		end
+		else if (AFuncName = 'genRelativePath') and (Params.Count = 2) then
     begin
       try
         i := StrToInt(Params[0]);
