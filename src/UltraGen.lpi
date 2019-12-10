@@ -30,7 +30,7 @@
         <PackageName Value="LazUtils"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="15">
+    <Units Count="14">
       <Unit0>
         <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -44,54 +44,52 @@
         <IsPartOfProject Value="True"/>
       </Unit2>
       <Unit3>
-        <Filename Value="Classes/mapsclass.pas"/>
+        <Filename Value="Classes/parserclass.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="ParserClass"/>
       </Unit3>
       <Unit4>
-        <Filename Value="Classes/parserclass.pas"/>
+        <Filename Value="Classes/templateclass.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit4>
       <Unit5>
-        <Filename Value="Classes/templateclass.pas"/>
+        <Filename Value="Classes/workclass.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit5>
       <Unit6>
-        <Filename Value="Classes/workclass.pas"/>
+        <Filename Value="Functions/booleansfunctions.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit6>
       <Unit7>
-        <Filename Value="Functions/booleansfunctions.pas"/>
+        <Filename Value="Functions/datetimefunctions.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="DateTimeFunctions"/>
       </Unit7>
       <Unit8>
-        <Filename Value="Functions/datetimefunctions.pas"/>
+        <Filename Value="Functions/listfunctions.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit8>
       <Unit9>
-        <Filename Value="Functions/listfunctions.pas"/>
+        <Filename Value="Functions/stringsfunctions.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit9>
       <Unit10>
-        <Filename Value="Functions/stringsfunctions.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit10>
-      <Unit11>
         <Filename Value="Globals/constantsglobals.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ConstantsGlobals"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="Globals/typesglobals.pas"/>
+        <IsPartOfProject Value="True"/>
       </Unit11>
       <Unit12>
-        <Filename Value="Globals/typesglobals.pas"/>
+        <Filename Value="Globals/variablesglobals.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit12>
       <Unit13>
-        <Filename Value="Globals/variablesglobals.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit13>
-      <Unit14>
         <Filename Value="Utils/filehandlingutils.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit14>
+      </Unit13>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

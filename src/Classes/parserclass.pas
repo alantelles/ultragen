@@ -755,6 +755,8 @@ begin
         FormatDateTime(DATE_INTERCHANGE_FORMAT, Now))
     else if (AFuncName = 'dateMs') and (Params.Count = 1) then
       Return := DateTimeFunctions.PrintDateMs(GetTimeStr(Params[0]))
+    else if (AFuncName = 'dateMs') and (Params.Count = 2) then
+      Return := DateTimeFunctions.PrintDateMs(GetTimeStr(Params[0]),StrToFloat(Params[1]))
 
     { ListFunctions }
     else if (AFuncName = 'count') and (Params.Count = 1) then

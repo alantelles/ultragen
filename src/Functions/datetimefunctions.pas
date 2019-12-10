@@ -11,7 +11,7 @@ uses
   ConstantsGlobals;
 
 function PrintDate(AFormat,ADateTime:String):string;
-function PrintDateMs(ADateTime:string):string;
+function PrintDateMs(ADateTime:string;TimeZone:real=0):string;
 
 implementation
 
@@ -20,12 +20,12 @@ begin
   Result := FormatDateTime(AFormat,ScanDateTime(DATE_INTERCHANGE_FORMAT,ADateTime));
 end;
 
-function PrintDateMs(ADateTime:String):string;
+function PrintDateMs(ADateTime:String;TimeZone:real=0):string;
 var
   ADateConv:TDateTime;
 begin
   ADateConv := ScanDateTime(DATE_INTERCHANGE_FORMAT,ADateTime);
-  Result := IntToStr(DateTimeToUnix(ADateConv) * 1000) + FormatDateTime('zzz',ADateConv);
+  Result := FloatToStr(DateTimeToUnix(ADateConv) + (3600 * TimeZone)) + FormatDateTime('zzz',ADateConv);
 end;
 
 //
