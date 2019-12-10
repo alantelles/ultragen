@@ -85,6 +85,7 @@ begin
   else if IsGenPathCall then
   begin
     //-genpath gens -templates "teste.ultra.txt|teste2.ultra.txt" -sub -default thomas
+    //dummy
     AuxGens.Clear;
     LookSub := False;
     ADefault := DEF_IF_NOT;
