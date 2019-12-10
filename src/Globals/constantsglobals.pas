@@ -39,8 +39,8 @@ const
   LOOK_SUB_FLAG = '-sub';
   PARAM_SET_DEFAULT = '-default';
 
-  LIVE_CALL = '--live';
-  LIVE_CALL_S = '-l';
+  LIVE_CALL = '--persist';
+  LIVE_CALL_S = '-p';
   GEN_AS_STRING = '--string';
   GEN_AS_STRING_S = '-s';
   SEPARATOR_CHANGE = ' -separator:';

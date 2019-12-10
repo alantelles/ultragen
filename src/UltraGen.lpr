@@ -1,4 +1,4 @@
-program SuperGen;
+program UltraGen;
 
 {$mode objfpc}{$H+}
 
@@ -42,30 +42,34 @@ begin
   //calling modes
   //a set of gens example
   //ultragen -set src1.gen|src2.gen -templates teste.ultra.txt|teste2.ultra.txt
-  UltraFlowCall := False;
-  if (ParamStr(1) = GENSET_CALL) or (ParamStr(1) = '-templates') then
+  //new call
+  //ultragen [template name] [genmode] [genpath]
+  Live := True;
+  if (ParamStr(2) = GENSET_CALL) then
     IsGenSetCall := True
-  else if (ParamStr(1) = GENPATH_CALL) then
+  else if (ParamStr(2) = GENPATH_CALL) then
     IsGenPathCall := True;
+
   if (ParamStr(ParamCount) = LIVE_CALL) or (ParamStr(ParamCount) = LIVE_CALL_S) then
-    Live := True;
+    Live := False;
 
   if IsGenSetCall then
   begin
-    if ParamStr(1) = GENSET_CALL then
+    if ParamStr(2) = GENSET_CALL then
     begin
       //-gens "f1.gen+g1.gen" -templates teste.ultra.html -l
       //-gens "f1.gen+g1.gen|f2.gen+g2.gen" -templates teste.ultra.txt
       //-gens "f1.gen+g1.gen|f2.gen+g2.gen" -templates "t1.ultra.txt|t2.ultra.txt" -default "a string"
-      AuxGens.DelimitedText := ParamStr(2);
+      //[template] [genmode] [genlist] [def] [str def]
+      AuxGens.DelimitedText := ParamStr(3);
       //f1+g1
       //f2+g2
-      AuxTemp.DelimitedText := ParamStr(4);
+      AuxTemp.DelimitedText := ParamStr(1);
       ADefault := DEF_IF_NOT;
-      if ParamCount > 5 then
+      if ParamCount > 3 then
       begin
-        if ParamStr(5) = PARAM_SET_DEFAULT then
-          ADefault := ParamStr(6);
+        if ParamStr(4) = PARAM_SET_DEFAULT then
+          ADefault := ParamStr(5);
       end;
       for iterA in AuxGens do
       begin
@@ -76,16 +80,6 @@ begin
         AWork.DoWork(GENSET_TEMPLATE,AuxGroup,AuxTemp,ADefault);
         AWork.Free;
       end;
-    end
-    else if ParamStr(1) = TEMPSET_CALL then
-    begin
-      AuxGens.Clear;
-      AuxGens.DelimitedText := '';
-      AuxTemp.DelimitedText := ParamStr(2);
-      AWork := TWork.Create(AuxGens);
-      AWork.Live := Live;
-      AWork.DoWork(GENSET_TEMPLATE,AuxGens,AuxTemp,ADefault);
-      AWork.Free;
     end;
   end
   else if IsGenPathCall then
@@ -114,49 +108,20 @@ begin
       AWork.DoWork(GENSET_TEMPLATE,AuxGroup,AuxTemp,ADefault);
       AWork.Free;
     end;
-  end;
-
-
-  if UltraflowCall then
+  end
+  else
   begin
-    GenPath := ParamStr(1);
-    UFlow := ParamStr(2);
-    FlowLines := TStringList.Create;
-    FlowLines.LoadFromFile(UFlow);
-    if SrcIsPath then
-    begin
-      if ParamCount = 3 then
-        AWork := TWork.Create(GenPath,ParamStr(3))
-      else
-        AWork := TWork.Create(GenPath,'.');
-    end
-    else
-    begin
-      if ParamCount = 3 then
-        AWork := TWork.Create(True,GenPath,ParamStr(3))
-      else
-        AWork := TWork.Create(True,GenPath,'.');
-    end;
-    try
-      if FileExists (UFlow) then
-      begin
-        FlowLines.LoadFromFile(UFlow);
-        for iter in FlowLines do
-        begin
-          if (Length(Trim(iter)) > 0) and (Trim(iter)[1]<>'#') then
-          begin
-            AWork.SetWork(iter);
-          end;
-        end
-      end
-      else
-        WriteLn('Ultraflow file not found.');
-    except
-      WriteLn('Some error occurred');
-    end;
-    FlowLines.Free;
+    AuxGens.Clear;
+    AuxGens.DelimitedText := '';
+    AuxTemp.DelimitedText := ParamStr(1);
+    AWork := TWork.Create(AuxGens);
+    AWork.Live := Live;
+    AWork.DoWork(GENSET_TEMPLATE,AuxGens,AuxTemp,ADefault);
     AWork.Free;
   end;
+
+
+
   if not Live then
     WriteLn('UltraGen processed files in: ',FormatDateTime('ss.zzz',Now-Start));
   AuxGens.Free;

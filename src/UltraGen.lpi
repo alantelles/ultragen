@@ -2,7 +2,6 @@
 <CONFIG>
   <ProjectOptions>
     <Version Value="11"/>
-    <PathDelim Value="\"/>
     <General>
       <Flags>
         <MainUnitHasCreateFormStatements Value="False"/>
@@ -31,104 +30,83 @@
         <PackageName Value="LazUtils"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="14">
+    <Units Count="15">
       <Unit0>
         <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="SuperGen"/>
       </Unit0>
       <Unit1>
-        <Filename Value="Utils\filehandlingutils.pas"/>
+        <Filename Value="Classes/genfileclass.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="FileHandlingUtils"/>
       </Unit1>
       <Unit2>
-        <Filename Value="Globals\constantsglobals.pas"/>
+        <Filename Value="Classes/genfilesetclass.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ConstantsGlobals"/>
       </Unit2>
       <Unit3>
-        <Filename Value="Globals\variablesglobals.pas"/>
+        <Filename Value="Classes/mapsclass.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="VariablesGlobals"/>
       </Unit3>
       <Unit4>
-        <Filename Value="Globals\typesglobals.pas"/>
+        <Filename Value="Classes/parserclass.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="TypesGlobals"/>
       </Unit4>
       <Unit5>
-        <Filename Value="Classes\genfileclass.pas"/>
+        <Filename Value="Classes/templateclass.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="GenFileClass"/>
       </Unit5>
       <Unit6>
-        <Filename Value="Classes\templateclass.pas"/>
+        <Filename Value="Classes/workclass.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="TemplateClass"/>
       </Unit6>
       <Unit7>
-        <Filename Value="Classes\parserclass.pas"/>
+        <Filename Value="Functions/booleansfunctions.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ParserClass"/>
       </Unit7>
       <Unit8>
-        <Filename Value="Functions\booleansfunctions.pas"/>
+        <Filename Value="Functions/datetimefunctions.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="BooleansFunctions"/>
       </Unit8>
       <Unit9>
-        <Filename Value="Functions\datetimefunctions.pas"/>
+        <Filename Value="Functions/listfunctions.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="DateTimeFunctions"/>
       </Unit9>
       <Unit10>
-        <Filename Value="Functions\stringsfunctions.pas"/>
+        <Filename Value="Functions/stringsfunctions.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="StringsFunctions"/>
       </Unit10>
       <Unit11>
-        <Filename Value="Classes\workclass.pas"/>
+        <Filename Value="Globals/constantsglobals.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="WorkClass"/>
+        <UnitName Value="ConstantsGlobals"/>
       </Unit11>
       <Unit12>
-        <Filename Value="Functions\listfunctions.pas"/>
+        <Filename Value="Globals/typesglobals.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ListFunctions"/>
       </Unit12>
       <Unit13>
-        <Filename Value="Classes\genfilesetclass.pas"/>
+        <Filename Value="Globals/variablesglobals.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="GenFileSetClass"/>
       </Unit13>
+      <Unit14>
+        <Filename Value="Utils/filehandlingutils.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit14>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="11"/>
-    <PathDelim Value="\"/>
     <Target>
       <Filename Value="UltraGen"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="Classes;Utils;Globals;Functions"/>
-      <UnitOutputDirectory Value="lib\i386-win32"/>
+      <OtherUnitFiles Value="/home/alantelles/development/lazarus/ultragen/src/Classes;/home/alantelles/development/lazarus/ultragen/src/Functions;/home/alantelles/development/lazarus/ultragen/src/Globals;/home/alantelles/development/lazarus/ultragen/src/Utils"/>
+      <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
-    <CodeGeneration>
-      <Optimizations>
-        <OptimizationLevel Value="0"/>
-      </Optimizations>
-    </CodeGeneration>
-    <Linking>
-      <Options>
-        <PassLinkerOptions Value="True"/>
-        <LinkerOptions Value="-FcUTF8"/>
-      </Options>
-    </Linking>
   </CompilerOptions>
   <Debugging>
-    <Exceptions Count="5">
+    <Exceptions Count="3">
       <Item1>
         <Name Value="EAbort"/>
       </Item1>
@@ -138,12 +116,6 @@
       <Item3>
         <Name Value="EFOpenError"/>
       </Item3>
-      <Item4>
-        <Name Value="EConvertError"/>
-      </Item4>
-      <Item5>
-        <Name Value="EStringListError"/>
-      </Item5>
     </Exceptions>
   </Debugging>
 </CONFIG>
