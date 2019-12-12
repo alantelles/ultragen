@@ -729,7 +729,7 @@ begin
   else if a = 'CONTAINS' then
   begin
     c := Params[2];
-    d := Pos(c,a);
+    d := Pos(c,Params[1]);
     Logic := d > 0;
   end
   else if a = 'EQ' then
@@ -931,6 +931,7 @@ begin
       FTokenClose := Params[0][2];
     end;
     'input' : InputValue(Params,False);
+    'live' : FCanSave := False;
     'parsedInput':InputValue(Params,True);
     'execute':Execute(Params);
     'drop': DropVariable(Params[0]);

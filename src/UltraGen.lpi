@@ -100,7 +100,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="Classes/;Functions/;Globals/;Utils/"/>
+      <OtherUnitFiles Value="Classes;Functions;Globals;Utils"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
   </CompilerOptions>
