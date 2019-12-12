@@ -10,7 +10,7 @@ uses
     { you can add units after this }
 
     { Classes }
-     WorkClass,
+     WorkClass, WebServerClass,
 
     { Globals }
     TypesGlobals, VariablesGlobals, ConstantsGlobals,
@@ -27,6 +27,7 @@ var
   AWork:TWork;
   UltraFlowCall, Unique, LookSub, SrcIsPath, Live, AsString, IsGenSetCall, IsGenpathCall:boolean;
   i:integer;
+  Server:TUltraGenServer;
 begin
   Start := now;
   randomize;
@@ -44,8 +45,18 @@ begin
   //ultragen -set src1.gen|src2.gen -templates teste.ultra.txt|teste2.ultra.txt
   //new call
   //ultragen [template name] [genmode] [genpath]
+  if (ParamStr(1) = '--serve') then
+  begin
+    if (ParamCount = 3) then
+      Server := TUltraGenServer.Create(StrToInt(ParamStr(3)), ParamStr(2))
+    else if (ParamCount = 2) then
+      Server := TUltraGenServer.Create(2020, ParamStr(2));
+    Server.RunServer;
+	end;
   Live := True;
-  if (ParamStr(2) = GENSET_CALL) then
+
+
+	if (ParamStr(2) = GENSET_CALL) then
     IsGenSetCall := True
   else if (ParamStr(2) = GENPATH_CALL) then
     IsGenPathCall := True;
