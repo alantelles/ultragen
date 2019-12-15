@@ -220,11 +220,12 @@ begin
     Temp.Add(APair.Key+FGenSep+APair.Value);
   if AName = '' then
     OutFile := FFullName
-  else
-    if Pos(DirectorySeparator,AName) = 0 then
-      AName := '.'+DirectorySeparator+AName;
+  else if Pos(DirectorySeparator,AName) = 0 then
+  begin
+    AName := '.'+DirectorySeparator+AName;
     OutFile := AName;
-  try
+	end;
+	try
     CreateDirTree(GetFilePath(OutFile));
     Temp.SaveToFile(OutFile);
     Temp.Free;

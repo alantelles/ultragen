@@ -782,8 +782,7 @@ begin
       Return := FTemplate.GetWild(Params[0], Params[1], Params[2])
     else if (AFuncName = 'match') and (Params.Count = 2) then
     begin
-      a := TGenFile(FTemplate.Imported.Objects[FTemplate.Imported.IndexOf(Params[1])]).IfNotFound;
-      Return := FTemplate.GetWild(Params[0], Params[1], a);
+      Return := FTemplate.GetWild(Params[0], Params[1]);
     end
 
     { String Manipulation }

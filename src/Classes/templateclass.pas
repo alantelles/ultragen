@@ -124,7 +124,7 @@ type
     function Load(ATempList: TStringList; ATempName: string): TTemplate;
     procedure LoadText(var Params:TStringList);
     function Save: TTemplate;
-    procedure ProcessTemplate(var Params:TStringList);
+    procedure ProcessTemplate(var Params:TStringList; DoPrint:boolean=False);
     function GetVariable(AVarName: string): string;
     function SetVariable(AKey, AValue: string; Parse:boolean=False): TTemplate;
     function DropVariable(AKey: string): TTemplate;
@@ -139,6 +139,7 @@ type
     function ParseTemplate(var AGen: TGenFile): TTemplate;
     function ParseTemplate(var AGen: TGenFile; var OutputParsed: TStringList): TTemplate;
     function GetWild(ASearch, AnAlias, ADefault: string): string;
+    function GetWild(ASearch, AnAlias: string): string;
     procedure Print;
     procedure PrintLine(var Params:TStringList; Tee:boolean=False);
     procedure PrintParsed;
@@ -162,6 +163,7 @@ type
     //Gen file handling
     procedure SetGenValue(var Params:TStringList);
     procedure SaveGen(var Params:TStringList);
+    procedure CreateGen(var Params:TStringList);
     // end gen file handling
     destructor Destroy; override;
   end;
@@ -206,7 +208,23 @@ begin
     Load(FFullName);
   end;
 end;
-procedure TTemplate.ProcessTemplate(var Params:TStringList);
+
+procedure TTemplate.CreateGen(var Params:TStringList);
+var
+  AGenFile: TGenFile;
+  //Params[0] = Alias
+begin
+  AGenFile := TGenFile.Create;
+  if Params.Count = 2 then
+  begin
+    AGenFile.FullName := Params[1];
+    if FileExists(Params[1]) then
+      AGenFile.Load(Params[1]);
+	end;
+  FGenFileSet.Add(AGenFile,Params[0]);
+end;
+
+procedure TTemplate.ProcessTemplate(var Params:TStringList; DoPrint:boolean=False);
 var
   ATemplate:TTemplate;
   AGenSet:TGenFileSet;
@@ -224,7 +242,10 @@ begin
       ATemplate.SetVariable('param['+IntToStr(i-2)+']',Params[i]);
   end;
   ATemplate.ParseTemplate(AGenSet);
-  ATemplate.Save;
+  if DoPrint then
+    ATemplate.PrintParsed
+  else
+    ATemplate.Save;
   ATemplate.Free;
 end;
 
@@ -271,7 +292,7 @@ begin
   except
     i := FGenFileSet.IndexOf(GenAlias);
   end;
-  GenFileSet.GenFiles[i].GenFile.SetValue(AKey,AValue);
+  FGenFileSet.GenFiles[i].GenFile.SetValue(AKey,AValue);
 end;
 
 procedure TTemplate.SaveGen(var Params:TStringList);
@@ -286,9 +307,9 @@ begin
     i := FGenFileSet.IndexOf(GenAlias);
   end;
   if Params.Count = 1 then
-    GenFileSet.GenFiles[i].GenFile.Save
+    FGenFileSet.GenFiles[i].GenFile.Save
   else if Params.Count = 2 then
-    GenFileSet.GenFiles[i].GenFile.Save(Params[1]);
+    FGenFileSet.GenFiles[i].GenFile.Save(Params[1]);
 end;
 
 procedure TTemplate.TempFileCopy(var Params:TStringList);
@@ -924,6 +945,7 @@ begin
     'print' : PrintLine(Params);
     'tee' : PrintLine(Params, True);
     'processTemplate' : ProcessTemplate(Params);
+    'printTemplate' : ProcessTemplate(Params, True);
     'clear' : clrscr;
     'tokenEnclosers':
     begin
@@ -941,8 +963,11 @@ begin
     'copy' : TempFileCopy(Params);
     'renderBlank': FOverrides.RenderBlank := True;
     'pause' : DoPause(Params);
+    // Gen operations
     'setValue' : SetGenValue(Params);
     'saveGen' : SaveGen(Params);
+    'createGen' : CreateGen(Params);
+    // End of Gen operations
     else
       Return := False;
   end;
@@ -1021,6 +1046,21 @@ begin
   Result := Return;
 end;
 
+function TTemplate.GetWild(ASearch, AnAlias: string): string;
+var
+  i:integer;
+  ADefault: string='';
+begin
+  try
+    i := StrToInt(AnAlias);
+  except
+    i := FGenFileSet.IndexOf(AnAlias);
+  end;
+  if i > -1 then
+    ADefault := FGenFileSet.GenFiles[i].GenFile.IfNotFound;
+  Result := GetWild(ASearch, AnAlias, ADefault);
+end;
+
 function TTemplate.GetWild(ASearch, AnAlias, ADefault: string): string;
 var
   Jump, i, j: integer;
@@ -1028,54 +1068,51 @@ var
   Temp, Right, AWild, Ret: string;
   WildLeft, WildRight, Match: boolean;
 begin
-  if FImported.Count > 0 then
+  Ret := ADefault;
+  try
+    i := StrToInt(AnAlias);
+  except
+    i := FGenFileSet.IndexOf(AnAlias);
+  end;
+  if i > -1 then
   begin
-    for i := 0 to FImported.Count - 1 do
+    Pairs := FGenFileSet.GenFiles[i].GenFile.Pairs;
+    if Length(Pairs) > 0 then
     begin
-      if FImported[i] = AnAlias then
+      for j := 0 to Length(Pairs) - 1 do
       begin
-        Pairs := TGenFile(FImported.Objects[i]).Pairs;
-        if Length(Pairs) > 0 then
-        begin
-          for j := 0 to Length(Pairs) - 1 do
-          begin
-            Right := Pairs[j].Key;
-            Match := True;
-            repeat
-              Jump := Pos('*', Right);
-              if Jump = 1 then
-                Jump := Pos('*', Copy(Right, 2, Length(Right))) + 1;
-              if (Jump = 1) or (Jump = 0) then
-                Jump := Length(Right);
-              Temp := Copy(Right, 1, Jump);
-              Right := Copy(Right, Length(Temp), Length(Right));
-              WildLeft := Pos('*', Temp) = 1;
-              WildRight := RPos('*', Temp) = Length(Temp);
-              AWild := ReplaceStr(Temp, '*', '');
-              if WildLeft and WildRight then
-                Match := Pos(AWild, ASearch) > 0
-              else if WildRight then
-                Match := Pos(AWild, ASearch) = 1
-              else if WildLeft then
-                Match := Pos(AWild, ASearch) = (Length(ASearch) - Length(AWild)) + 1
-              else
-                Match := (ASearch = AWild);
-              if not Match then
-                break;
-            until Length(Right) = 1;
-            if Match then
-            begin
-              Ret := Pairs[j].Value;
-              Break;
-            end;
-          end;
+        Right := Pairs[j].Key;
+        Match := True;
+        repeat
+          Jump := Pos('*', Right);
+          if Jump = 1 then
+            Jump := Pos('*', Copy(Right, 2, Length(Right))) + 1;
+          if (Jump = 1) or (Jump = 0) then
+            Jump := Length(Right);
+          Temp := Copy(Right, 1, Jump);
+          Right := Copy(Right, Length(Temp), Length(Right));
+          WildLeft := Pos('*', Temp) = 1;
+          WildRight := RPos('*', Temp) = Length(Temp);
+          AWild := ReplaceStr(Temp, '*', '');
+          if WildLeft and WildRight then
+            Match := Pos(AWild, ASearch) > 0
+          else if WildRight then
+            Match := Pos(AWild, ASearch) = 1
+          else if WildLeft then
+            Match := Pos(AWild, ASearch) = (Length(ASearch) - Length(AWild)) + 1
+          else
+            Match := (ASearch = AWild);
           if not Match then
-            Ret := ADefault;
+            break;
+        until Length(Right) = 1;
+        if Match then
+        begin
+          Ret := Pairs[j].Value;
+          Break;
         end;
       end;
-
     end;
-  end;
+	end;
   Result := Ret;
 end;
 

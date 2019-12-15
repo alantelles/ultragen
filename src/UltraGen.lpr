@@ -45,12 +45,14 @@ begin
   //ultragen -set src1.gen|src2.gen -templates teste.ultra.txt|teste2.ultra.txt
   //new call
   //ultragen [template name] [genmode] [genpath]
+
+  // server mode
+  //--serve app.gen port
   if (ParamStr(1) = '--serve') then
   begin
-    if (ParamCount = 3) then
-      Server := TUltraGenServer.Create(StrToInt(ParamStr(3)), ParamStr(2))
-    else if (ParamCount = 2) then
-      Server := TUltraGenServer.Create(2020, ParamStr(2));
+    IsGenSetCall := False;
+    IsGenPathCall := False;
+    Server := TUltraGenServer.Create(2020, ParamStr(2));
     Server.RunServer;
 	end;
   Live := True;

@@ -37,6 +37,7 @@ type
       procedure Add(AGenFile:string);
       procedure Add(AGenFile, ASeparator:string);
       procedure Add(AGenFile, ASeparator, ADefault:string);
+      procedure Add(var AGenFile:TGenFile; AnAlias:string);
       procedure SetDefault(AValue:String);
       function GetValue(AKey:string):TParseResult;
       function GetValue(AKey,ADefault:string):TParseResult;
@@ -215,6 +216,16 @@ begin
   AGenObj.Load(AGenFile);
   FGenFiles[len].GenFile := AGenObj;
   FGenFiles[len].GenAlias := AGenObj.OnlyName;
+end;
+
+procedure TGenFileSet.Add(var AGenFile: TGenFile; AnAlias:string);
+var
+  len: integer;
+begin
+  len := Length(FGenFiles);
+  SetLength(FGenFiles, len+1);
+  FGenFiles[len].GenFile := AGenFile;
+  FGenFiles[len].GenAlias := AnAlias;
 end;
 
 destructor TGenFileSet.Destroy;

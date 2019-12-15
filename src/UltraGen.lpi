@@ -38,10 +38,12 @@
       <Unit1>
         <Filename Value="Classes/genfileclass.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="GenFileClass"/>
       </Unit1>
       <Unit2>
         <Filename Value="Classes/genfilesetclass.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="GenFileSetClass"/>
       </Unit2>
       <Unit3>
         <Filename Value="Classes/parserclass.pas"/>
