@@ -29,13 +29,10 @@ type
     property Port: word read FPort write FPort;
     property Server: TFPHTTPServer read FServer write FServer;
     property Handler: TFPCustomFileModule read FHandler write FHandler;
+    property Redir:string read FRedir write FRedir;
     constructor Create(APort: word; AnApp: string = 'index.ultra');
-    procedure ExecuteAction(Sender: TObject;var ARequest: TFPHTTPConnectionRequest;var AResponse: TFPHTTPConnectionResponse);
-    procedure SimplePost(ALocation: string);
+    procedure ExecuteAction(ARequest: TRequest; AResponse: TResponse);
     procedure RunServer;
-    procedure ReloadRoutes;
-    procedure RegisterRoutes;
-    procedure Redirect(APath: string);
   end;
 
 implementation
@@ -65,62 +62,34 @@ begin
       RegisterFileLocation(APair.Key, APair.Value);
     end;
   end;
-  //HTTPRouter.RegisterRoute('*', @ExecuteAction);
+  HTTPRouter.RegisterRoute('*', @ExecuteAction);
 
-end;
-
-procedure TUltraGenServer.Redirect(APath: string);
-begin
-
-end;
-
-procedure TUltraGenServer.ReloadRoutes;
-var
-  RoutesAge: int64;
-begin
-end;
-
-procedure TUltraGenServer.SimplePost(ALocation: string);
-
-begin
-
-
-end;
-
-procedure TUltraGenServer.RegisterRoutes;
-begin
-  //TODO
 end;
 
 procedure TUltraGenServer.RunServer;
 begin
   WriteLn('Running server at port: ', FPort);
-  FServer := TFPHTTPServer.Create(nil);
-  FServer.Port := FPort;
-  FServer.OnRequest := @ExecuteAction;
-  FServer.Active := True;
-  //Application.Title := 'UltraGen server';
-  //Application.Port := FPort;
-  //Application.Initialize;
-  //Application.Run;
+  Application.Title := 'UltraGen server';
+  Application.Port := FPort;
+  Application.Initialize;
+  Application.Run;
 
 end;
 
-procedure TUltraGenServer.ExecuteAction(Sender: TObject;var ARequest: TFPHTTPConnectionRequest;var AResponse: TFPHTTPConnectionResponse);
+procedure TUltraGenServer.ExecuteAction(ARequest: TRequest;AResponse: TResponse);
 var
 
   ATemplate: TTemplate;
   AGenSet: TGenFileSet;
   AGenReq, AConfig: TGenFile;
-  RouterParam: string = 'r';
-  DumpTemplate: string;
+  DumpTemplate, Route: string;
   i: integer;
 begin
   writeln('Requesting: ', ARequest.URI, '. Return code: ', AResponse.Code,
     ' ', AResponse.CodeText);
   if FRedir <> '' then
   begin
-    AResponse.SendRedirect(FRedir);
+    AResponse.SendRedirect('http://localhost:2020'+FRedir);
     FRedir := '';
   end;
   AGenSet := TGenFileSet.Create;
@@ -141,7 +110,12 @@ begin
       AGenReq.SetValue('_post:' + ARequest.ContentFields.Names[i],
         ARequest.ContentFields.ValueFromIndex[i]);
   end;
-
+  i := Pos('?',ARequest.URI);
+  if i > 0 then
+    Route := Copy(ARequest.URI,1,i-1)
+  else
+    Route := ARequest.URI;
+  AGenReq.SetValue('_route', Route);
   AGenReq.SetValue('_method', ARequest.Method);
   AGenSet.Add(AGenReq, 'requestGen');
   AGenSet.Add(AConfig, 'appGen');

@@ -149,7 +149,7 @@ type
     function GetWild(ASearch, AnAlias: string): string;
     function RouteMatch(ASearch, AnAlias:String; ADefault: string=''): string;
     procedure Print;
-    procedure PrintLine(var Params:TStringList; Tee:boolean=False);
+    procedure PrintLine(var Params:TStringList; ToConsole, ToOutput:boolean);
     procedure ParseAbort(var Params:TStringList);
     procedure PrintParsed;
     procedure ForPrepare(var Params:TstringList; ForLoop:boolean = True);
@@ -220,9 +220,11 @@ begin
 end;
 
 procedure TTemplate.RedirectTo(var Params:TstringList);
+var
+  AStr: string;
 begin
-  FServer.Redir := Params[0];
-  FServer.Handler.;
+  AStr := '<script>window.location.replace("'+Params[0]+'")</script>';
+  FParsed.Add(AStr);
 end;
 
 procedure TTemplate.CreateGen(var Params:TStringList);
@@ -376,16 +378,17 @@ begin
 end;
 
 
-procedure TTemplate.PrintLine(var Params:TStringList; Tee:boolean=False);
+procedure TTemplate.PrintLine(var Params:TStringList; ToConsole, ToOutput:boolean);
 var
   Return:string='';
   P:string;
 begin
   for P in Params do
     Return := Return + P;
-  if Tee then
+  if ToOutput then
     FParsed.Add(Return);
-  WriteLn(Return);
+  if ToConsole then
+    WriteLn(Return);
 end;
 
 procedure TTemplate.IncludeTemplate(var Params:TStringList);
@@ -969,8 +972,9 @@ begin
     'else': ElseDecision;
     'endIf': EndIf;
     'explode': ExplodeStr(Params);
-    'print' : PrintLine(Params);
-    'tee' : PrintLine(Params, True);
+    'print' : PrintLine(Params, True, False);
+    'tee' : PrintLine(Params, True, True);
+    'livePrint' : PrintLine(Params, False, True);
     'processTemplate' : ProcessTemplate(Params);
     'printTemplate' : ProcessTemplate(Params, True);
     'clear' : clrscr;
