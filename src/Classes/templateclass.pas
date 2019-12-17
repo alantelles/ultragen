@@ -19,13 +19,13 @@ uses
   {$ENDIF}
 
   { Globals }
-  TypesGlobals, VariablesGlobals, ConstantsGlobals,
+  WebServerClass, TypesGlobals, VariablesGlobals, ConstantsGlobals,
 
   { Utils }
   BooleansFunctions,
 
   { Classes }
-  GenFileClass, GenFileSetClass;
+  GenFileClass,  GenFileSetClass;
 
 const
   FORDEV = 'FORDEV';
@@ -64,9 +64,11 @@ type
   end;
   TForRecursion = array of TForLevel;
 
+
 type
   TTemplate = class
   private
+    FServer: TUltraGenServer;
     FScriptMode, FCommentBlock: boolean;
     FFullName, FOutFilePath: string;
     FTokenOpen, FTokenClose: string;
@@ -86,10 +88,13 @@ type
     FRewind, FSkip: boolean;
     FLoopTypeLast,FLoopType:string;
     FForSkip:boolean;
+    FAbort: boolean;
   public
     constructor Create(ATempName: string = ''; AExpLocation: string = '.');
     property RenderBlank: boolean read FOverrides.RenderBlank
       write FOverrides.RenderBlank;
+    property DoAbort:boolean read FAbort write FAbort;
+    property Server:TUltraGenServer read FServer write FServer;
     property ForSkip:boolean read FForSkip write FForSkip;
     property LoopTypeLast:string read FLoopTypeLast write FLoopTypeLast;
     property LoopType:string read FLoopType write FLoopType;
@@ -118,6 +123,8 @@ type
     property Variables: TDict read FVariables write FVariables;
     property Sections: TStringList read FSections write FSections;
     property ForLevel: integer read FForLevel write FForLevel;
+
+
     function Name: string;
     function SetPredefined(AKey, AValue: string): boolean;
     function Load(ATempName: string): TTemplate;
@@ -140,8 +147,10 @@ type
     function ParseTemplate(var AGen: TGenFile; var OutputParsed: TStringList): TTemplate;
     function GetWild(ASearch, AnAlias, ADefault: string): string;
     function GetWild(ASearch, AnAlias: string): string;
+    function RouteMatch(ASearch, AnAlias:String; ADefault: string=''): string;
     procedure Print;
     procedure PrintLine(var Params:TStringList; Tee:boolean=False);
+    procedure ParseAbort(var Params:TStringList);
     procedure PrintParsed;
     procedure ForPrepare(var Params:TstringList; ForLoop:boolean = True);
     procedure BreakFor;
@@ -165,6 +174,7 @@ type
     procedure SaveGen(var Params:TStringList);
     procedure CreateGen(var Params:TStringList);
     // end gen file handling
+    procedure RedirectTo(var Params:TstringList);
     destructor Destroy; override;
   end;
 
@@ -209,6 +219,12 @@ begin
   end;
 end;
 
+procedure TTemplate.RedirectTo(var Params:TstringList);
+begin
+  FServer.Redir := Params[0];
+  FServer.Handler.;
+end;
+
 procedure TTemplate.CreateGen(var Params:TStringList);
 var
   AGenFile: TGenFile;
@@ -222,6 +238,17 @@ begin
       AGenFile.Load(Params[1]);
 	end;
   FGenFileSet.Add(AGenFile,Params[0]);
+end;
+
+procedure TTemplate.ParseAbort(var Params:TStringList);
+var
+  msg: string;
+begin
+  msg := Params.Text;
+  msg := Copy(msg,1,Length(msg)-2);
+  WriteLn(msg);
+  FParsed.Add(msg);
+  FAbort := True;
 end;
 
 procedure TTemplate.ProcessTemplate(var Params:TStringList; DoPrint:boolean=False);
@@ -433,7 +460,7 @@ begin
   AFilter := '';
   LookSub := False;
   //ADelimiter := FILES_SECURE_SEP;
-
+  //listFiles:path,vari,filter,sub,order
   APath := Params[0];
   AVarName := Params[1];
   if Params.Count > 2 then
@@ -968,12 +995,17 @@ begin
     'saveGen' : SaveGen(Params);
     'createGen' : CreateGen(Params);
     // End of Gen operations
+    'abort' : ParseAbort(Params);
+    'goTo' : RedirectTo(Params);
     else
       Return := False;
   end;
   PArams.Free;
   Result := Return;
 end;
+
+
+
 procedure TTemplate.DoPause(var Params:TStringList);
 var i:longint;
 begin
@@ -1059,6 +1091,82 @@ begin
   if i > -1 then
     ADefault := FGenFileSet.GenFiles[i].GenFile.IfNotFound;
   Result := GetWild(ASearch, AnAlias, ADefault);
+end;
+
+function TTemplate.RouteMatch(ASearch, AnAlias:String ; ADefault: string=''): string;
+var
+  i, j:integer;
+  Exp, Inp: TStringList;
+  APair: TKVPair;
+  Match: boolean = False;
+  Return: string;
+begin
+  // :int - for match with integers
+  // :str - for match with strings
+  // :any - for any word
+  // :bool - for match with "true" or "false" (:str will not match it. true and false will be treated as reserved words)
+  // :strbool - match any strings and does not treat true and false as reserved words
+  try
+    i := StrToInt(AnAlias);
+  except
+    i := FGenFileSet.IndexOf(AnAlias);
+  end;
+  Return := ADefault;
+  if i > -1 then
+  begin
+    Inp := TStringList.Create;
+    Inp.Delimiter := '/';
+    Inp.StrictDelimiter := True;
+    Inp.DelimitedText := ASearch;
+    Exp := TStringList.Create;
+    Exp.Delimiter := '/';
+    Exp.StrictDelimiter := True;
+    for APair in FGenFileSet.GenFiles[i].GenFile.Pairs do
+    begin
+      Exp.DelimitedText := APair.Key;
+      if Exp.Count = Inp.Count then
+      begin
+        for j := 0 to Exp.Count - 1 do
+        begin
+          Match := False;
+          if Exp[j] = Inp[j] then
+          begin
+            Match := True;
+          end
+          else if Exp[j] = ':int' then
+          begin
+            try
+              StrToInt(Inp[j]);
+              Match := True
+            except
+              Match := False;
+            end;
+          end
+          else if Exp[j] = ':str' then
+          begin
+            try
+              StrToInt(Inp[j]);
+              Match := False
+            except
+              Match := True;
+            end;
+          end
+          else if Exp[j] = ':any' then
+            Match := True;
+          if Match = False then
+            break;
+        end;
+      end;
+      if Match = True then
+      begin
+        Return := APair.Value;
+        break;
+      end;
+    end;
+    Exp.Free;
+    Inp.Free;
+    Result := Return;
+  end;
 end;
 
 function TTemplate.GetWild(ASearch, AnAlias, ADefault: string): string;

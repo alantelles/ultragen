@@ -58,7 +58,8 @@ uses
   BooleansFunctions,
   FileHandlingUtils,
   StringsFunctions,
-  ListFunctions;
+  ListFunctions,
+  MathFunctions;
 
 constructor TTempParser.Create(var ATemplate: TTemplate);
 begin
@@ -652,7 +653,7 @@ function TTempParser.ParseFunction(AFuncName: string; var Params: TStringList): 
 var
   Return, a, b: string;
   ExtName, ExtPath: string;
-  i: integer;
+  i,m,n: integer;
 begin
   AFuncName := Trim(AFuncName);
   //if exists a default
@@ -715,7 +716,17 @@ begin
     else if (AFuncName = 'fileName') and (Params.Count = 2) then
       Return := GetFileName(Params[0], StrToBoolean(Params[1]))
 
-
+    { Math functions }
+    else if (AFuncName = 'sum') and (Params.Count = 2) then
+    begin
+      try
+        m := StrToInt(Params[0]);
+        n := StrToInt(Params[1]);
+        Return := IntToStr(MathFunctions.sum(m,n));
+      except
+        Return := ''
+      end;
+    end
 
     { Interaction manipulations }
     else if (AFuncName = 'insert') and (Params.Count = 2) then
@@ -783,6 +794,14 @@ begin
     else if (AFuncName = 'match') and (Params.Count = 2) then
     begin
       Return := FTemplate.GetWild(Params[0], Params[1]);
+    end
+    else if (AFuncName = 'routeMatch') and (Params.Count = 2) then
+    begin
+      Return := FTemplate.RouteMatch(Params[0],Params[1]);
+    end
+    else if (AFuncName = 'routeMatch') and (Params.Count = 3) then
+    begin
+      Return := FTemplate.RouteMatch(Params[0],Params[1], Params[2]);
     end
 
     { String Manipulation }
@@ -967,7 +986,8 @@ begin
     i := 0;
     while (i < FTemplate.TempLines.Count) do
     begin
-
+      if FTemplate.DoAbort then
+        break;
       if (not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) =
         OVER_STATE + 'else')) or (FTemplate.ScriptMode and
         (Trim(FTemplate.TempLines[i]) = 'else')) then

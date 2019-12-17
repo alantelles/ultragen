@@ -16,7 +16,7 @@ uses
     TypesGlobals, VariablesGlobals, ConstantsGlobals,
 
     { Utils }
-    FileHandlingUtils
+    FileHandlingUtils, WebModule
     ;
 
 
