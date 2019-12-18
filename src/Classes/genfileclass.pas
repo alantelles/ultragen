@@ -34,6 +34,7 @@ type
     function GetValue(AKey:string):TParseResult;
     function GetValue(AKey:string; AIfNotFound:string):TParseResult;
     procedure SetValue(AKey, AValue:string);
+    procedure DropKey(AKey:string);
     procedure Append(AKey,AValue:string);
     procedure Prepend(AKey,AValue:string);
     procedure Print;
@@ -207,6 +208,23 @@ begin
   SetLength(FPairs,Length(FPairs)+1);
   FPairs[Length(FPairs)-1].Key := AKey;
   FPairs[Length(FPairs)-1].Value := ReplaceStr(AValue,'\n',sLineBreak);
+end;
+
+procedure TGenFile.DropKey(AKey:string);
+var
+  i:integer;
+  Aux:TKVPair;
+begin
+  if Length(FPairs) > 0 then
+    for i in [0..Length(FPairs)-1] do
+    begin
+      if Trim(AKey) = FPairs[i].Key then
+      begin
+        FPairs[i] := FPairs[Length(FPairs)-1];
+        SetLength(FPairs,Length(FPairs)-1);
+        Exit;
+      end;
+    end;
 end;
 
 function TGenFile.Save(AName:string=''):boolean;

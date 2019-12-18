@@ -68,7 +68,6 @@ type
 type
   TTemplate = class
   private
-    FServer: TUltraGenServer;
     FScriptMode, FCommentBlock: boolean;
     FFullName, FOutFilePath: string;
     FTokenOpen, FTokenClose: string;
@@ -94,7 +93,6 @@ type
     property RenderBlank: boolean read FOverrides.RenderBlank
       write FOverrides.RenderBlank;
     property DoAbort:boolean read FAbort write FAbort;
-    property Server:TUltraGenServer read FServer write FServer;
     property ForSkip:boolean read FForSkip write FForSkip;
     property LoopTypeLast:string read FLoopTypeLast write FLoopTypeLast;
     property LoopType:string read FLoopType write FLoopType;
@@ -174,7 +172,13 @@ type
     procedure SaveGen(var Params:TStringList);
     procedure CreateGen(var Params:TStringList);
     // end gen file handling
+    //Web module procedures
     procedure RedirectTo(var Params:TstringList);
+    procedure DestroySession(var Params:TStringList);
+    procedure SetSessionVar(var Params:TStringList);
+    procedure DropSessionVar(var Params:TStringList);
+    //end web procedures
+
     destructor Destroy; override;
   end;
 
@@ -182,7 +186,8 @@ implementation
 
 uses FileHandlingUtils,
   ParserClass,
-  StringsFunctions;
+  StringsFunctions,
+  fphttpclient, fpopenssl, openssl;
 
 constructor TTemplate.Create(ATempName: string = ''; AExpLocation: string = '.');
 begin
@@ -217,6 +222,38 @@ begin
     FFullName := ExpandFileName(ATempName);
     Load(FFullName);
   end;
+end;
+
+
+procedure TTemplate.DestroySession(var Params:TStringList);
+begin
+
+end;
+
+procedure TTemplate.SetSessionVar(var Params:TStringList);
+var
+  AGenFile:TGenFile;
+  SessionFile:string;
+begin
+  SessionFile := Params[0];
+  AGenFile := TGenFile.Create;
+  AGenFile.Load(SessionFile);
+  AGenFile.SetValue(Params[1],Params[2]);
+  AGenFile.Save;
+  AGenFile.Free;
+end;
+
+procedure TTemplate.DropSessionVar(var Params:TStringList);
+var
+  AGenFile:TGenFile;
+  SessionFile:string;
+begin
+  SessionFile := Params[0];
+  AGenFile := TGenFile.Create;
+  AGenFile.Load(SessionFile);
+  AGenFile.DropKey(Params[1]);
+  AGenFile.Save;
+  AGenFile.Free;
 end;
 
 procedure TTemplate.RedirectTo(var Params:TstringList);
@@ -1001,6 +1038,8 @@ begin
     // End of Gen operations
     'abort' : ParseAbort(Params);
     'goTo' : RedirectTo(Params);
+    'setSessionVar' : SetSessionVar(Params);
+    'dropSessionKey' : DropSessionVar(Params);
     else
       Return := False;
   end;

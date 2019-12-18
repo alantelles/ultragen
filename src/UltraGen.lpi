@@ -30,7 +30,7 @@
         <PackageName Value="LazUtils"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="17">
+    <Units Count="16">
       <Unit0>
         <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -76,6 +76,7 @@
       <Unit9>
         <Filename Value="Functions/stringsfunctions.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="StringsFunctions"/>
       </Unit9>
       <Unit10>
         <Filename Value="Globals/constantsglobals.pas"/>
@@ -105,14 +106,6 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="MathFunctions"/>
       </Unit15>
-      <Unit16>
-        <Filename Value="Classes/webmodule.pas"/>
-        <IsPartOfProject Value="True"/>
-        <ComponentName Value="FPWebModule1"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="DataModule"/>
-        <UnitName Value="WebModule"/>
-      </Unit16>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -127,7 +120,7 @@
     </SearchPaths>
   </CompilerOptions>
   <Debugging>
-    <Exceptions Count="3">
+    <Exceptions Count="5">
       <Item1>
         <Name Value="EAbort"/>
       </Item1>
@@ -137,6 +130,12 @@
       <Item3>
         <Name Value="EFOpenError"/>
       </Item3>
+      <Item4>
+        <Name Value="EConvertError"/>
+      </Item4>
+      <Item5>
+        <Name Value="EHTTPServer"/>
+      </Item5>
     </Exceptions>
   </Debugging>
 </CONFIG>
