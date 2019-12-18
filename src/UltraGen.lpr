@@ -3,9 +3,9 @@ program UltraGen;
 {$mode objfpc}{$H+}
 
 uses
-    {$IFDEF UNIX}{$IFDEF UseCThreads}
+    {$IFDEF UNIX}
     cthreads,
-    {$ENDIF}{$ENDIF}
+    {$ENDIF}
     Classes, sysutils, StrUtils, LazUTF8, FileUtil, Process,
     { you can add units after this }
 
@@ -46,12 +46,22 @@ begin
   //ultragen [template name] [genmode] [genpath]
 
   // server mode
-  //--serve app.gen port
+  //--serve appName mode port
   if (ParamStr(1) = '--serve') then
   begin
     IsGenSetCall := False;
     IsGenPathCall := False;
-    Server := TUltraGenServer.Create(2020, ParamStr(2));
+    if ParamCount = 2 then
+    //-- serve appName mode
+      Server := TUltraGenServer.Create(2020, ParamStr(2), '--dev')
+    else if ParamCount = 3 then
+    //-- serve appName mode
+      Server := TUltraGenServer.Create(StrToInt(ParamStr(3)), ParamStr(2), '--dev')
+    else if ParamCount = 4 then
+      if ParamStr(4) = '--prod' then
+        Server := TUltraGenServer.Create(StrToInt(ParamStr(3)), ParamStr(2), '--prod')
+      else
+        Server := TUltraGenServer.Create(StrToInt(ParamStr(3)), ParamStr(2), '--dev');
     Server.RunServer;
 	end;
   Live := True;

@@ -242,7 +242,9 @@ begin
   begin
     AName := '.'+DirectorySeparator+AName;
     OutFile := AName;
-	end;
+	end
+  else
+    OutFile := AName;
 	try
     CreateDirTree(GetFilePath(OutFile));
     Temp.SaveToFile(OutFile);

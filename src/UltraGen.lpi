@@ -30,7 +30,7 @@
         <PackageName Value="LazUtils"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="16">
+    <Units Count="17">
       <Unit0>
         <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -106,6 +106,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="MathFunctions"/>
       </Unit15>
+      <Unit16>
+        <Filename Value="Classes/webtemplateclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="WebTemplateClass"/>
+      </Unit16>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -120,7 +125,7 @@
     </SearchPaths>
   </CompilerOptions>
   <Debugging>
-    <Exceptions Count="5">
+    <Exceptions Count="6">
       <Item1>
         <Name Value="EAbort"/>
       </Item1>
@@ -136,6 +141,9 @@
       <Item5>
         <Name Value="EHTTPServer"/>
       </Item5>
+      <Item6>
+        <Name Value="RunError(216)"/>
+      </Item6>
     </Exceptions>
   </Debugging>
 </CONFIG>

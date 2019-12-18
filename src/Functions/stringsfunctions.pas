@@ -15,8 +15,21 @@ function StrToMD5(AStr:string):string;
 function SuperHash(AStr:string):string;
 function Concat(var Params:TStringList):string;
 procedure ReverseList(var AList:TstringList);
+function DropLastLineBreak(s:string):string;
 
 implementation
+
+function DropLastLineBreak(s:string):string;
+var
+  last2, ret:string;
+begin
+  last2 := Copy(s,Length(s)-2,2);
+  if (Length(s) > 1) and (last2 = #13#10) then
+    ret := Copy(s,1,Length(s)-2)
+  else if (Length(s) > 0) then
+    ret := Copy(s,1,Length(s)-1);
+  Result := ret;
+end;
 
 function Concat(var Params:TStringList):string;
 var

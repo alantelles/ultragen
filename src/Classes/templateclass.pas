@@ -171,6 +171,7 @@ type
     procedure SetGenValue(var Params:TStringList);
     procedure SaveGen(var Params:TStringList);
     procedure CreateGen(var Params:TStringList);
+    procedure UnloadGen(var Params:TStringList);
     // end gen file handling
     //Web module procedures
     procedure RedirectTo(var Params:TstringList);
@@ -279,12 +280,20 @@ begin
   FGenFileSet.Add(AGenFile,Params[0]);
 end;
 
+procedure TTemplate.UnloadGen(var Params:TStringList);
+var
+  AnAlias:string;
+begin
+  AnAlias := Params[0];
+  FGenFileSet.Drop(AnAlias);
+end;
+
 procedure TTemplate.ParseAbort(var Params:TStringList);
 var
   msg: string;
 begin
   msg := Params.Text;
-  msg := Copy(msg,1,Length(msg)-2);
+  msg := Copy(msg,1,Length(msg)-1);
   WriteLn(msg);
   FParsed.Add(msg);
   FAbort := True;
@@ -363,7 +372,7 @@ end;
 
 procedure TTemplate.SaveGen(var Params:TStringList);
 var
-  GenAlias:string;
+  GenAlias, a:string;
   i:integer;
 begin
   GenAlias := Params[0];
@@ -372,6 +381,7 @@ begin
   except
     i := FGenFileSet.IndexOf(GenAlias);
   end;
+  a := Params[1];
   if Params.Count = 1 then
     FGenFileSet.GenFiles[i].GenFile.Save
   else if Params.Count = 2 then
@@ -520,7 +530,8 @@ begin
     end;
   end;
 
-  SetVariable(AVarName, Copy(Files.Text,1,Length(Files.Text)-2));
+  //SetVariable(AVarName, Copy(Files.Text,1,Length(Files.Text)-2));
+  SetVariable(AVarName, DropLastLineBreak(Files.Text));
   if Files.Count > 0 then
   begin
     for i:=0 to Files.Count - 1 do
@@ -617,6 +628,7 @@ var
   Values: TStringList;
   ParamAsStr, Iterated: string;
   len, i: integer;
+  EmptyList:boolean;
 begin
   FLoopTypeLast := FLoopType;
   FLoopType := FORDEV;
@@ -639,11 +651,17 @@ begin
       FForLoops[FForLevel].List.Delimiter := Params[2][1];
       FForLoops[FForLevel].List.StrictDelimiter := True;
       Iterated := Params[0];
-      FForLoops[FForLevel].List.DelimitedText := Iterated
+      FForLoops[FForLevel].List.DelimitedText := Iterated;
+
     end
     else
     begin
-      FForLoops[FForLevel].List.Text := Params[0]
+      //Params[0] := DropLastLineBreak(Params[0]);
+      //Params[0] := ReplaceStr(#13#10,#10,Params[0]);
+      FForLoops[FForLevel].List.Delimiter := #10;
+      FForLoops[FForLevel].List.StrictDelimiter := True;
+      FForLoops[FForLevel].List.DelimitedText := Params[0];
+
     end;
   end;
 
@@ -657,15 +675,21 @@ begin
       ReverseList(FForLoops[FForLevel].List);
     end;
   end;
-  FForLoops[FForLevel].Times := FForLoops[FForLevel].List.Count;
-  if FForLoops[FForLevel].List.Count > 0 then
+
+  if (FForLoops[FForLevel].List.Count > 0) then
   begin
+    FForLoops[FForLevel].Times := FForLoops[FForLevel].List.Count;
     SetVariable(FForLoops[FForLevel].ControlVar,
       FForLoops[FForLevel].List[FForLoops[FForLevel].List.Count - FForLoops[FForLevel].Times]);
     SetVariable(FForLoops[FForLevel].ControlVar + '.i', IntToStr(
       FForLoops[FForLevel].List.Count - FForLoops[FForLevel].Times));
-  end;
-  Rewind := False;
+  end
+  else
+  begin
+    FForLoops[FForLevel].Times := 0;
+    FForSkip := True;
+	end;
+	Rewind := False;
 end;
 
 procedure TTemplate.EndFor;
@@ -1035,6 +1059,7 @@ begin
     'setValue' : SetGenValue(Params);
     'saveGen' : SaveGen(Params);
     'createGen' : CreateGen(Params);
+    'unloadGen' : UnloadGen(Params);
     // End of Gen operations
     'abort' : ParseAbort(Params);
     'goTo' : RedirectTo(Params);
