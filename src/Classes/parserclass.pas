@@ -15,12 +15,13 @@ uses
 
 type
   TTempParser = class
-  private
+  protected
     FTemplate: TTemplate;
     FLineTime: TDateTime;
     FTokenPos: integer;
   public
     constructor Create(var ATemplate: TTemplate);
+    property Template: TTemplate read FTemplate write FTemplate;
     property LineTime: TDateTime read FLineTime;
     class function IsInToken(Line, Test: string): boolean; static;
     function ParseLine(Line: string): TParseResult;

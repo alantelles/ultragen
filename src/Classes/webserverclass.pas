@@ -37,7 +37,7 @@ type
 implementation
 
 uses
-  WebTemplateClass,
+  TemplateClass,
   FileHandlingUtils,
   StringsFunctions, DateUtils;
 
@@ -99,7 +99,7 @@ end;
 procedure TUltraGenServer.ExecuteAction(ARequest: TRequest;AResponse: TResponse);
 var
   C: TCookie;
-  ATemplate: TWebTemplate;
+  ATemplate: TTemplate;
   AGenSet: TGenFileSet;
   AGenReq, AConfig, ASession: TGenFile;
   DumpTemplate, Route: string;
@@ -182,7 +182,8 @@ begin
 
   AGenSet.Add(AConfig, 'appGen');
   AGenSet.Add(AGenReq, 'requestGen');
-  ATemplate := TWebTemplate.Create(FLoader,SessionFile,SessionId, FSessionsPath);
+  ATemplate := TTemplate.Create(FLoader);
+  ATemplate.SetWebVars(SessionFile,SessionId, FSessionsPath, @ARequest, @AResponse);
   ATemplate.ParseTemplate(AGenSet);
   DumpTemplate := ATemplate.ParsedLines.Text;
   AGenSet.Free;

@@ -30,7 +30,7 @@
         <PackageName Value="LazUtils"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="17">
+    <Units Count="16">
       <Unit0>
         <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -106,11 +106,6 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="MathFunctions"/>
       </Unit15>
-      <Unit16>
-        <Filename Value="Classes/webtemplateclass.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="WebTemplateClass"/>
-      </Unit16>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

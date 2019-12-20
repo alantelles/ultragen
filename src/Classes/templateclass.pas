@@ -6,7 +6,7 @@ unit TemplateClass;
 interface
 
 uses
-   LazUTF8,Classes, SysUtils, FileUtil, DateUtils, StrUtils, Process, crt,
+   LazUTF8,Classes, SysUtils, FileUtil, DateUtils, StrUtils, Process, crt, httpdefs,
   {$IFDEF UNIX}
     {$IFDEF UseCThreads}
     cthreads,
@@ -45,6 +45,10 @@ type
     RenderBlank: boolean;
   end;
 
+  TWebVars = record
+    SessionFile,SessionId, SessionPath:string;
+	end;
+
   TDefaultParam = record
     FuncName:string;
     ParamPos:integer;
@@ -63,6 +67,9 @@ type
     Limit:integer;
   end;
   TForRecursion = array of TForLevel;
+
+  TPtrRequest = ^TRequest;
+  TPtrResponse = ^TResponse;
 
 
 type
@@ -88,6 +95,9 @@ type
     FLoopTypeLast,FLoopType:string;
     FForSkip:boolean;
     FAbort: boolean;
+    FWebVars: TWebVars;
+    FRequest: ^TRequest;
+    FResponse: ^TResponse;
   public
     constructor Create(ATempName: string = ''; AExpLocation: string = '.');
     property RenderBlank: boolean read FOverrides.RenderBlank
@@ -121,7 +131,7 @@ type
     property Variables: TDict read FVariables write FVariables;
     property Sections: TStringList read FSections write FSections;
     property ForLevel: integer read FForLevel write FForLevel;
-
+    property WebVars: TWebVars read FWebVars write FWebVars;
 
     function Name: string;
     function SetPredefined(AKey, AValue: string): boolean;
@@ -178,7 +188,9 @@ type
     procedure DestroySession(var Params:TStringList);
     procedure SetSessionVar(var Params:TStringList);
     procedure DropSessionVar(var Params:TStringList);
+    procedure SetCookie(var Params:TStringList);
     //end web procedures
+    procedure SetWebVars(ASessionFile, ASessionId, ASessionPath:string; ARequest: TptrRequest; AResponse: TptrResponse);
 
     destructor Destroy; override;
   end;
@@ -225,6 +237,27 @@ begin
   end;
 end;
 
+procedure TTemplate.SetWebVars(ASessionFile, ASessionId, ASessionPath:string; ARequest: TptrRequest; AResponse: TptrResponse);
+begin
+  with FWebVars do
+  begin
+    SessionID := ASessionID;
+    SessionPath := ASessionPath;
+    SessionFile := ASessionFile;
+	end;
+  FRequest := ARequest;
+  FResponse := AResponse;
+end;
+
+procedure TTemplate.SetCookie(var Params:TStringList);
+var
+  C: TCookie;
+begin
+  C := FResponse^.Cookies.Add;
+  C.Name := Params[0];
+  C.Value := Params[1];
+
+end;
 
 procedure TTemplate.DestroySession(var Params:TStringList);
 begin
@@ -1065,10 +1098,11 @@ begin
     'goTo' : RedirectTo(Params);
     'setSessionVar' : SetSessionVar(Params);
     'dropSessionKey' : DropSessionVar(Params);
+    'setCookie' : SetCookie(Params);
     else
       Return := False;
   end;
-  PArams.Free;
+  Params.Free;
   Result := Return;
 end;
 
