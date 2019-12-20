@@ -183,7 +183,7 @@ begin
   AGenSet.Add(AConfig, 'appGen');
   AGenSet.Add(AGenReq, 'requestGen');
   ATemplate := TTemplate.Create(FLoader);
-  ATemplate.SetWebVars(SessionFile,SessionId, FSessionsPath, @ARequest, @AResponse);
+  //ATemplate.SetWebVars(SessionFile,SessionId, FSessionsPath, ARequest, AResponse);
   ATemplate.ParseTemplate(AGenSet);
   DumpTemplate := ATemplate.ParsedLines.Text;
   AGenSet.Free;

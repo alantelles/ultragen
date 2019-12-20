@@ -47,6 +47,8 @@ type
 
   TWebVars = record
     SessionFile,SessionId, SessionPath:string;
+    Request: TRequest;
+    Response: TResponse;
 	end;
 
   TDefaultParam = record
@@ -68,8 +70,7 @@ type
   end;
   TForRecursion = array of TForLevel;
 
-  TPtrRequest = ^TRequest;
-  TPtrResponse = ^TResponse;
+
 
 
 type
@@ -96,8 +97,6 @@ type
     FForSkip:boolean;
     FAbort: boolean;
     FWebVars: TWebVars;
-    FRequest: ^TRequest;
-    FResponse: ^TResponse;
   public
     constructor Create(ATempName: string = ''; AExpLocation: string = '.');
     property RenderBlank: boolean read FOverrides.RenderBlank
@@ -190,7 +189,7 @@ type
     procedure DropSessionVar(var Params:TStringList);
     procedure SetCookie(var Params:TStringList);
     //end web procedures
-    procedure SetWebVars(ASessionFile, ASessionId, ASessionPath:string; ARequest: TptrRequest; AResponse: TptrResponse);
+    procedure SetWebVars(ASessionFile, ASessionId, ASessionPath:string; ARequest: TRequest; AResponse: TResponse);
 
     destructor Destroy; override;
   end;
@@ -215,6 +214,9 @@ begin
   FCommentBlock := False;
   FScriptMode := False;
 
+  //FWebVars.Request := TRequest.Create;
+  //FWebVars.Response := TResponse.Create;
+
   if (Length(AExpLocation) > 0) and (AExpLocation[Length(AExpLocation)] =
     DirectorySeparator) then
     AExpLocation := Copy(AExpLocation, 1, Length(AExpLocation) - 1)
@@ -237,7 +239,7 @@ begin
   end;
 end;
 
-procedure TTemplate.SetWebVars(ASessionFile, ASessionId, ASessionPath:string; ARequest: TptrRequest; AResponse: TptrResponse);
+procedure TTemplate.SetWebVars(ASessionFile, ASessionId, ASessionPath:string;ARequest: TRequest; AResponse: TResponse);
 begin
   with FWebVars do
   begin
@@ -245,18 +247,13 @@ begin
     SessionPath := ASessionPath;
     SessionFile := ASessionFile;
 	end;
-  FRequest := ARequest;
-  FResponse := AResponse;
 end;
 
 procedure TTemplate.SetCookie(var Params:TStringList);
 var
   C: TCookie;
 begin
-  C := FResponse^.Cookies.Add;
-  C.Name := Params[0];
-  C.Value := Params[1];
-
+  FParsed.Add('<script>document.cookie="'+Params[0]+'='+Params[1]+'"</script>');
 end;
 
 procedure TTemplate.DestroySession(var Params:TStringList);
@@ -1525,6 +1522,7 @@ begin
     for i := 0 to FImported.Count - 1 do
       FImported.Objects[i].Free;
   end;
+  //FWebVars.Request.Free;
   FSections.Free;
   FImported.Free;
   FLines.Free;
