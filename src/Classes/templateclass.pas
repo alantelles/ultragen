@@ -69,6 +69,7 @@ type
     Limit:integer;
   end;
   TForRecursion = array of TForLevel;
+  TIfrecursion = array of boolean;
 
 type
   TTemplate = class
@@ -91,6 +92,7 @@ type
     FIfLevel: integer;
     FElseLevel: integer;
     FForLoops: TForRecursion;
+    FIfTests: TIfRecursion;
     FRewind, FSkip: boolean;
     FLoopTypeLast,FLoopType:string;
     FForSkip:boolean;
@@ -130,6 +132,8 @@ type
     property Sections: TStringList read FSections write FSections;
     property ForLevel: integer read FForLevel write FForLevel;
     property IfLevel: integer read FIfLevel write FIfLevel;
+    property ElseLevel: integer read FElseLevel write FElseLevel;
+    property IfRecursion: TIfRecursion read FIfTests write FIfTests;
     property WebVars: TWebVars read FWebVars write FWebVars;
 
     function Name: string;
@@ -660,6 +664,7 @@ var
   len, i: integer;
   EmptyList:boolean;
 begin
+
   FLoopTypeLast := FLoopType;
   FLoopType := FORDEV;
   FForLevel := FForLevel + 1;
@@ -864,35 +869,51 @@ var
 begin
   FLoopTypeLast := FLoopType;
   FLoopType := IFDEV;
-  FIfLevel := FIfLevel + 1;
+  //FIfLevel := FIfLevel + 1;
+  {if FIfLevel > 0 then
+  begin
+    if FIftests[FIfLevel-1] then
+    begin
+      Exit;
+    end
+	end;}
+  if not FSkip then
+  begin
 
-  a := Params[0];
-  b := Params[1];
-  if a = 'EMPTY' then
-    Logic := Length(Params[1]) = 0
-  else if a = 'CONTAINS' then
-  begin
-    c := Params[2];
-    d := Pos(c,Params[1]);
-    Logic := d > 0;
-  end
-  else if a = 'EQ' then
-  begin
-    try
-      Logic := StrToInt(Params[1]) = StrToInt(Params[2])
-    except
-      Logic := Params[1] = Params[2]
-    end;
-  end
-  else if a = 'GT' then
-  begin
-    c := Params[2];
-    Logic := StrToInt(Params[1]) > StrToInt(Params[2])
-  end;
-  if (Logic and (not IfNot)) or ((not Logic) and IfNot) then
-    FSkip := False
-  else
-    FSkip := True;
+			  a := Params[0];
+		    b := Params[1];
+		    if a = 'EMPTY' then
+		      Logic := Length(Params[1]) = 0
+		    else if a = 'CONTAINS' then
+		    begin
+		      c := Params[2];
+		      d := Pos(c,Params[1]);
+		      Logic := d > 0;
+		    end
+		    else if a = 'EQ' then
+		    begin
+		      try
+		        Logic := StrToInt(Params[1]) = StrToInt(Params[2])
+		      except
+		        Logic := Params[1] = Params[2]
+		      end;
+		    end
+		    else if a = 'GT' then
+		    begin
+		      c := Params[2];
+		      Logic := StrToInt(Params[1]) > StrToInt(Params[2])
+		    end;
+		    if (Logic and (not IfNot)) or ((not Logic) and IfNot) then
+		    begin
+		      FSkip := False;
+			  end
+			  else
+		    begin
+		      FSkip := True;
+			  end;
+		    SetLength(FIfTests, FIfLevel+1);
+		    FIfTests[FIfLevel] := not FSkip; //test is true
+	end;
 end;
 
 procedure TTemplate.ElseDecision;
@@ -1395,6 +1416,8 @@ begin
     FForTimes := 0;
     SetLength(FForLoops, 0);
     FForLevel := -1;
+    FIfLevel := -1;
+    FElseLevel := -1;
     FRewind := False;
     AParser := TTempParser.Create(Self);
     AParser.ParseTemplate(OutputParsed);

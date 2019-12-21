@@ -935,7 +935,7 @@ var
   Key, Value, Line, LineTrim, Temp: string;
   PosAssoc, PosVarAssoc: integer;
   Unary: boolean;
-  AOpt, AOver, ATarget, AKey: string;
+  AOpt, AOver, ATarget, AKey, x, y: string;
   PosAs, i, Times: integer;
   Params: TStringList;
 begin
@@ -987,21 +987,54 @@ begin
     i := 0;
     while (i < FTemplate.TempLines.Count) do
     begin
-      if FTemplate.DoAbort then
+      x := Trim(FTemplate.TempLines[i]);
+      if i > 0 then
+        y := Trim(FTemplate.TempLines[i-1]);
+			if FTemplate.DoAbort then
         break;
-      if (not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) =
+      if (
+           (not FTemplate.ScriptMode and
+                (
+                (Copy(Trim(FTemplate.TempLines[i]),1,4) = OVER_STATE + 'if' + OVER_ASSOC)
+                or
+                (Copy(Trim(FTemplate.TempLines[i]),1,7) = OVER_STATE + 'ifNot' + OVER_ASSOC)
+                )
+           ) or
+           (FTemplate.ScriptMode and
+                (
+                (Copy(Trim(FTemplate.TempLines[i]),1,3) = 'if' + OVER_ASSOC)
+                or
+                (Copy(Trim(FTemplate.TempLines[i]),1,6) = 'ifNot' + OVER_ASSOC)
+                )
+           )
+      ) then
+      begin
+        FTemplate.IfLevel := FTemplate.IfLevel + 1;
+
+			end
+      else if (not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) =
         OVER_STATE + 'else')) or (FTemplate.ScriptMode and
         (Trim(FTemplate.TempLines[i]) = 'else')) then
-        FTemplate.Skip := not FTemplate.Skip
+      begin
+        try
 
-      else if ((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = OVER_STATE + 'endIf')) or
-        (FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = 'endIf'))) or
+				    FTemplate.Skip := FTemplate.IfRecursion[FTemplate.IfLevel];
+
+				finally
+				end;
+
+			end
+
+			else if ((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = OVER_STATE + 'endIf')) or
+        (FTemplate.ScriptMode and (Trim(x) = 'endIf'))) or
         (((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = OVER_STATE + 'end')) or (FTemplate.ScriptMode and
         (Trim(FTemplate.TempLines[i]) = 'end'))) and (FTemplate.LoopType = IFDEV)) then
       begin
-        FTemplate.IfLevel := FTemplate.IfLevel -1;
+        FTemplate.Skip := FTemplate.IfRecursion[FTemplate.IfLevel-1];
+        FTemplate.IfLevel := FTemplate.IfLevel - 1;
         if FTemplate.IfLevel = -1 then
           FTemplate.Skip := False;
+
       end
       else if ((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = OVER_STATE + 'endFor')) or
         (FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = 'endFor'))) or
