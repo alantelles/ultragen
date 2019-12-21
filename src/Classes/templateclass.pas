@@ -70,9 +70,6 @@ type
   end;
   TForRecursion = array of TForLevel;
 
-
-
-
 type
   TTemplate = class
   private
@@ -91,6 +88,8 @@ type
     FCanSave: boolean;
     FLineNumber, FForGoto, FForTimes: integer;
     FForLevel: integer;
+    FIfLevel: integer;
+    FElseLevel: integer;
     FForLoops: TForRecursion;
     FRewind, FSkip: boolean;
     FLoopTypeLast,FLoopType:string;
@@ -130,6 +129,7 @@ type
     property Variables: TDict read FVariables write FVariables;
     property Sections: TStringList read FSections write FSections;
     property ForLevel: integer read FForLevel write FForLevel;
+    property IfLevel: integer read FIfLevel write FIfLevel;
     property WebVars: TWebVars read FWebVars write FWebVars;
 
     function Name: string;
@@ -864,6 +864,8 @@ var
 begin
   FLoopTypeLast := FLoopType;
   FLoopType := IFDEV;
+  FIfLevel := FIfLevel + 1;
+
   a := Params[0];
   b := Params[1];
   if a = 'EMPTY' then
@@ -876,7 +878,11 @@ begin
   end
   else if a = 'EQ' then
   begin
-    Logic := StrToInt(Params[1]) = StrToInt(Params[2])
+    try
+      Logic := StrToInt(Params[1]) = StrToInt(Params[2])
+    except
+      Logic := Params[1] = Params[2]
+    end;
   end
   else if a = 'GT' then
   begin
@@ -1421,6 +1427,7 @@ begin
     FForTimes := 0;
     SetLength(FForLoops, 0);
     FForLevel := -1;
+    FIfLevel := -1;
     FRewind := False;
     AParser := TTempParser.Create(Self);
     AParser.ParseTemplate(OutputParsed);

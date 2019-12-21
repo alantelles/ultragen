@@ -60,6 +60,7 @@ begin
     MimeTypesFile := 'core/mime-types.txt';
     for APair in FLocations.Pairs do
     begin
+      CreateDirTree(APair.Value+DirectorySeparator);
       RegisterFileLocation(APair.Key, APair.Value);
     end;
   end;

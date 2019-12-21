@@ -91,6 +91,7 @@
       <Unit12>
         <Filename Value="Globals/variablesglobals.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="VariablesGlobals"/>
       </Unit12>
       <Unit13>
         <Filename Value="Utils/filehandlingutils.pas"/>

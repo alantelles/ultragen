@@ -993,12 +993,15 @@ begin
         OVER_STATE + 'else')) or (FTemplate.ScriptMode and
         (Trim(FTemplate.TempLines[i]) = 'else')) then
         FTemplate.Skip := not FTemplate.Skip
+
       else if ((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = OVER_STATE + 'endIf')) or
         (FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = 'endIf'))) or
         (((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = OVER_STATE + 'end')) or (FTemplate.ScriptMode and
         (Trim(FTemplate.TempLines[i]) = 'end'))) and (FTemplate.LoopType = IFDEV)) then
       begin
-        FTemplate.Skip := False;
+        FTemplate.IfLevel := FTemplate.IfLevel -1;
+        if FTemplate.IfLevel = -1 then
+          FTemplate.Skip := False;
       end
       else if ((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = OVER_STATE + 'endFor')) or
         (FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = 'endFor'))) or
