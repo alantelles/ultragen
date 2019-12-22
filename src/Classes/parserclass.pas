@@ -808,6 +808,8 @@ begin
     { String Manipulation }
     else if (AFuncName = 'concat') then
       Return := StringsFunctions.Concat(Params)
+    else if (AFuncName = 'join') and (Params.Count > 1) then
+      Return := StringsFunctions.Join(Params)
     else if (AFuncName = 'lower') and (Params.Count = 1) then
       Return := AnsiLowerCase(Params[0])
     else if (AFuncName = 'upper') and (Params.Count = 1) then

@@ -16,8 +16,29 @@ function SuperHash(AStr:string):string;
 function Concat(var Params:TStringList):string;
 procedure ReverseList(var AList:TstringList);
 function DropLastLineBreak(s:string):string;
+function Join(var Params:TStringList):string;
 
 implementation
+
+function Join(var Params:TStringList):string;
+// Params[0] is the joiner, other are the parts
+var
+  j, Return:string;
+  i:integer;
+begin
+  j := Params[0];
+  Return := '';
+  if Params.Count > 1 then
+  begin
+    for i:=1 to Params.Count - 1 do
+    begin
+      Return := Return + Params[i];
+      if i < Params.Count-1 then
+        Return := Return + j;
+    end;
+  end;
+  Result := Return;
+end;
 
 function DropLastLineBreak(s:string):string;
 var
