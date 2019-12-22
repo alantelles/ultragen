@@ -692,7 +692,8 @@ begin
     else
     begin
       //Params[0] := DropLastLineBreak(Params[0]);
-      //Params[0] := ReplaceStr(#13#10,#10,Params[0]);
+      Params[0] := ReplaceStr(Params[0],#13#10,#10);
+      Params[0] := DropLastLineBreak(Params[0]);
       FForLoops[FForLevel].List.Delimiter := #10;
       FForLoops[FForLevel].List.StrictDelimiter := True;
       FForLoops[FForLevel].List.DelimitedText := Params[0];
@@ -877,43 +878,41 @@ begin
       Exit;
     end
 	end;}
-  if not FSkip then
-  begin
 
-			  a := Params[0];
-		    b := Params[1];
-		    if a = 'EMPTY' then
-		      Logic := Length(Params[1]) = 0
-		    else if a = 'CONTAINS' then
-		    begin
-		      c := Params[2];
-		      d := Pos(c,Params[1]);
-		      Logic := d > 0;
-		    end
-		    else if a = 'EQ' then
-		    begin
-		      try
-		        Logic := StrToInt(Params[1]) = StrToInt(Params[2])
-		      except
-		        Logic := Params[1] = Params[2]
-		      end;
-		    end
-		    else if a = 'GT' then
-		    begin
-		      c := Params[2];
-		      Logic := StrToInt(Params[1]) > StrToInt(Params[2])
-		    end;
-		    if (Logic and (not IfNot)) or ((not Logic) and IfNot) then
-		    begin
-		      FSkip := False;
-			  end
-			  else
-		    begin
-		      FSkip := True;
-			  end;
-		    SetLength(FIfTests, FIfLevel+1);
-		    FIfTests[FIfLevel] := not FSkip; //test is true
+	a := Params[0];
+	b := Params[1];
+	if a = 'EMPTY' then
+		Logic := Length(Params[1]) = 0
+	else if a = 'CONTAINS' then
+	begin
+		c := Params[2];
+		d := Pos(c,Params[1]);
+		Logic := d > 0;
+	end
+	else if a = 'EQ' then
+	begin
+		try
+		  Logic := StrToInt(Params[1]) = StrToInt(Params[2])
+		except
+		  Logic := Params[1] = Params[2]
+		end;
+	end
+	else if a = 'GT' then
+	begin
+		c := Params[2];
+		Logic := StrToInt(Params[1]) > StrToInt(Params[2])
 	end;
+	if (Logic and (not IfNot)) or ((not Logic) and IfNot) then
+	begin
+		FSkip := False;
+	end
+	else
+	begin
+		FSkip := True;
+	end;
+ 	SetLength(FIfTests, FIfLevel+1);
+  if not FSkip then
+	  FIfTests[FIfLevel] := True; //test is true
 end;
 
 procedure TTemplate.ElseDecision;
@@ -923,7 +922,7 @@ end;
 
 procedure TTemplate.EndIf;
 begin
-
+  SetLength(FIfTests, FIfLevel+1);
   //FSkip := False;
 end;
 
