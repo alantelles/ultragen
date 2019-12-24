@@ -2,7 +2,7 @@
 
 `print:'Hello, UltraGen'`
 
-UltraGen é uma linguagem interpretada de alto nível desenhada para ser **a linguagem mais simples do mundo**. Inicialmente concebida como uma template engine mirou novos rumos e hoje é uma linguagem para tarefas genéricas e para construção da camada mid-level de sistemas web.
+UltraGen é uma linguagem interpretada de alto nível desenhada para ser **simples e objetiva**. Inicialmente concebida como uma template engine tomou novos rumos e hoje é uma linguagem para tarefas genéricas e para construção da camada mid-level de sistemas web.
 
 ## Camada mid-level?
 
@@ -13,7 +13,7 @@ Sim. Hoje vemos sistemas web compostos de duas partes geralmente:
 
 Ou...
 
-- Algum framework cheio de recursos que geralmente é uma Ferrari para fazer compras. Você não precisa daquilo tudo, mas pra seu sistema acontecer, tudo aquilo tem que vir no pacote.
+- Algum framework cheio de recursos que geralmente tem muito mais do que você precisa. Você não precisa daquilo tudo, mas pra seu sistema acontecer, tudo aquilo tem que vir no pacote.
 
 E todas essas com algum tipo de deploy relativamente complexo.
 
@@ -47,7 +47,7 @@ UltraGen tem 3 diretrizes principais de construção:
 
 `ultragen yourTemplate.ultra -gens "a.gen|b.gen|c.gen" --persist`
 
-- Este modo processa os dois arquivos citados sobre o template definido.
+- Este modo processa os três arquivos citados sobre o template definido.
 
 ## Processando uma pasta de arquivos gen em lote
 
