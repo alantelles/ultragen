@@ -94,8 +94,7 @@ Mostrando o modo de bloco de script
   print:'divisão: ',div(@b,@a)
   print:'potenciação ao quadrado: ',pow(@a)
   print:'potenciação: ',pow(@a,3)
-  print:'raiz quadrada: ',root(@a)
-  print:'raiz: ',root(@b,3)
+  print:'raiz quadrada: ',root(@b)
 }
 ```
 
@@ -109,8 +108,7 @@ divisão inteira: 6
 divisão: 6.4
 potenciação ao quadrado: 100
 potenciação: 1000
-raiz quadrada: 3.16227766016838
-raiz: 1
+raiz quadrada: 8
 ```
 
 Laços `for` e `loop`
