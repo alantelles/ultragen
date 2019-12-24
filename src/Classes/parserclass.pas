@@ -654,7 +654,8 @@ function TTempParser.ParseFunction(AFuncName: string; var Params: TStringList): 
 var
   Return, a, b: string;
   ExtName, ExtPath: string;
-  i,m,n: integer;
+  i: integer;
+  m, n: real;
 begin
   AFuncName := Trim(AFuncName);
   //if exists a default
@@ -721,11 +722,118 @@ begin
       try
         m := StrToInt(Params[0]);
         n := StrToInt(Params[1]);
-        Return := IntToStr(MathFunctions.sum(m,n));
+        Return := FloatToStr(MathFunctions.sum(m,n));
       except
         Return := ''
       end;
     end
+
+    else if (AFuncName = 'sub') and (Params.Count = 2) then
+    begin
+      try
+        m := StrToFloat(Params[0]);
+        n := StrToFloat(Params[1]);
+        Return := FloatToStr(MathFunctions.sub(m,n));
+      except
+        Return := ''
+      end;
+    end
+
+    else if (AFuncName = 'mult') and (Params.Count = 2) then
+    begin
+      try
+        m := StrToFloat(Params[0]);
+        n := StrToFloat(Params[1]);
+        Return := FloatToStr(MathFunctions.mult(m,n));
+      except
+        Return := ''
+      end;
+    end
+
+    else if (AFuncName = 'intDiv') and (Params.Count = 2) then
+    begin
+      try
+        m := StrToFloat(Params[0]);
+        n := StrToFloat(Params[1]);
+        Return := FloatToStr(MathFunctions.divInt(m,n));
+      except
+        Return := ''
+      end;
+    end
+
+    else if (AFuncName = 'div') and (Params.Count = 2) then
+    begin
+      try
+        m := StrToFloat(Params[0]);
+        n := StrToFloat(Params[1]);
+        Return := FloatToStr(MathFunctions.divFloat(m,n));
+      except
+        Return := ''
+      end;
+    end
+
+    else if (AFuncName = 'mod') and (Params.Count = 2) then
+    begin
+      try
+        m := StrToFloat(Params[0]);
+        n := StrToFloat(Params[1]);
+        Return := FloatToStr(MathFunctions.modNum(m,n));
+      except
+        Return := ''
+      end;
+    end
+
+    else if (AFuncName = 'pow') and (Params.Count = 2) then
+    begin
+      try
+        m := StrToFloat(Params[0]);
+        n := StrToFloat(Params[1]);
+        Return := FloatToStr(MathFunctions.pow(m,n));
+      except
+        Return := ''
+      end;
+    end
+
+    else if (AFuncName = 'pow') and (Params.Count = 1) then
+    begin
+      try
+        m := StrToFloat(Params[0]);
+        Return := FloatToStr(MathFunctions.pow(m));
+      except
+        Return := ''
+      end;
+    end
+
+    else if (AFuncName = 'root') and (Params.Count = 1) then
+    begin
+      try
+        m := StrToFloat(Params[0]);
+        Return := FloatToStr(MathFunctions.root(m));
+      except
+        Return := ''
+      end;
+    end
+
+    else if (AFuncName = 'root') and (Params.Count = 2) then
+    begin
+      try
+        m := StrToFloat(Params[0]);
+        n := StrToFloat(Params[1]);
+        Return := FloatToStr(MathFunctions.modNum(m,n));
+      except
+        Return := ''
+      end;
+    end
+
+    else if (AFuncName = 'num') and (PArams.Count = 1) then
+    begin
+      try
+        m := StrToFloat(Params[0]);
+        Return := FloatToStr(m)
+			except
+        Return := '0'
+			end;
+		end
 
     { Interaction manipulations }
     else if (AFuncName = 'insert') and (Params.Count = 2) then
@@ -840,9 +948,12 @@ begin
       Return := StringsFunctions.SuperHash(Params[0])
     else if (AFuncName = 'indexOf') and (Params.Count = 2) then
       Return := IntToStr(Pos(Params[0], Params[1]))
+
+    //HTML
     else if (AFuncName = 'nl2br') and (Params.Count = 1) then
       Return := ReplaceStr(Params[0],sLineBreak,'<br>'+sLineBreak)
-
+    else if (AFuncName = 'inTag') and (Params.Count > 2) then
+      Return := StringsFunctions.InTag(Params)
     else if ExternalExists(AFuncName) then
       Return := CallExternal(PROCESSORS_FOLDER + DirectorySeparator + AFuncName, Params)
     else

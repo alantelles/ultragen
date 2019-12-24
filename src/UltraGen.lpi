@@ -73,6 +73,7 @@
       <Unit8>
         <Filename Value="Functions/listfunctions.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="ListFunctions"/>
       </Unit8>
       <Unit9>
         <Filename Value="Functions/stringsfunctions.pas"/>

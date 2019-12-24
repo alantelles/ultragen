@@ -17,6 +17,7 @@ function Concat(var Params:TStringList):string;
 procedure ReverseList(var AList:TstringList);
 function DropLastLineBreak(s:string):string;
 function Join(var Params:TStringList):string;
+function InTag(var Params:TStringList):string;
 
 implementation
 
@@ -38,6 +39,20 @@ begin
     end;
   end;
   Result := Return;
+end;
+
+function InTag(var Params:TStringList):string;
+var
+  Return, open, close:string;
+  i: integer;
+begin
+  open := '<'+Params[0];
+  if Params.Count > 2 then
+    for i:=2 to Params.Count - 1 do
+      open := open +' '+Params[i];
+  open := open+'>';
+  close := '</'+Params[0]+'>';
+  Result := open + Params[1] + close;
 end;
 
 function DropLastLineBreak(s:string):string;
