@@ -878,41 +878,35 @@ begin
       Exit;
     end
 	end;}
-
-	a := Params[0];
-	b := Params[1];
-	if a = 'EMPTY' then
-		Logic := Length(Params[1]) = 0
-	else if a = 'CONTAINS' then
-	begin
-		c := Params[2];
-		d := Pos(c,Params[1]);
-		Logic := d > 0;
-	end
-	else if a = 'EQ' then
-	begin
-		try
-		  Logic := StrToInt(Params[1]) = StrToInt(Params[2])
-		except
-		  Logic := Params[1] = Params[2]
-		end;
-	end
-	else if a = 'GT' then
-	begin
-		c := Params[2];
-		Logic := StrToInt(Params[1]) > StrToInt(Params[2])
-	end;
-	if (Logic and (not IfNot)) or ((not Logic) and IfNot) then
-	begin
-		FSkip := False;
-	end
-	else
-	begin
-		FSkip := True;
-	end;
- 	SetLength(FIfTests, FIfLevel+1);
   if not FSkip then
-	  FIfTests[FIfLevel] := True; //test is true
+  begin
+	  a := Params[0];
+	  b := Params[1];
+	  if a = 'EMPTY' then
+		  Logic := Length(Params[1]) = 0
+	  else if a = 'CONTAINS' then
+	  begin
+		  c := Params[2];
+		  d := Pos(c,Params[1]);
+		  Logic := d > 0;
+	  end
+	  else if a = 'EQ' then
+	  begin
+		  try
+		    Logic := StrToInt(Params[1]) = StrToInt(Params[2])
+		  except
+		    Logic := Params[1] = Params[2]
+		  end;
+	  end
+	  else if a = 'GT' then
+	  begin
+		  c := Params[2];
+		  Logic := StrToInt(Params[1]) > StrToInt(Params[2])
+	  end;
+	  FSkip := not ((Logic and (not IfNot)) or ((not Logic) and IfNot));   //teste passou
+    SetLength(FIfTests, FIfLevel+1);
+	  FIfTests[FIfLevel] := not FSkip; //test is true
+  end;
 end;
 
 procedure TTemplate.ElseDecision;
@@ -1415,8 +1409,9 @@ begin
     FForTimes := 0;
     SetLength(FForLoops, 0);
     FForLevel := -1;
+    SetLength(FIfTests,0);
     FIfLevel := -1;
-    FElseLevel := -1;
+    FSkip := False;
     FRewind := False;
     AParser := TTempParser.Create(Self);
     AParser.ParseTemplate(OutputParsed);

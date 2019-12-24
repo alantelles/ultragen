@@ -838,7 +838,7 @@ begin
       Return := StringsFunctions.StrToMD5(Params[0])
     else if (AFuncName = 'superHash') and (Params.Count = 1) then
       Return := StringsFunctions.SuperHash(Params[0])
-    else if (AFuncName = 'indexOf') and (Params.Count = 2) then
+    else if (AFuncName = 'posOf') and (Params.Count = 2) then
       Return := IntToStr(Pos(Params[0], Params[1]))
     else if ExternalExists(AFuncName) then
       Return := CallExternal(PROCESSORS_FOLDER + DirectorySeparator + AFuncName, Params)
@@ -1018,8 +1018,11 @@ begin
         OVER_STATE + 'else')) or (FTemplate.ScriptMode and
         (Trim(FTemplate.TempLines[i]) = 'else')) then
       begin
+
         if FTemplate.IfLevel = (Length(FTemplate.IfRecursion) - 1) then
+
           FTemplate.Skip := FTemplate.IfRecursion[FTemplate.IfLevel];
+
 			end
 
 			else if ((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = OVER_STATE + 'endIf')) or
@@ -1027,10 +1030,14 @@ begin
         (((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = OVER_STATE + 'end')) or (FTemplate.ScriptMode and
         (Trim(FTemplate.TempLines[i]) = 'end'))) and (FTemplate.LoopType = IFDEV)) then
       begin
-        FTemplate.Skip := False;
         FTemplate.IfLevel := FTemplate.IfLevel - 1;
         if FTemplate.IfLevel = - 1 then
-          FTemplate.Skip := False;
+          FTemplate.Skip := False
+        else
+          FTemplate.Skip := not FTemplate.IfRecursion[FTemplate.IfLevel];
+
+
+
 
 
       end
