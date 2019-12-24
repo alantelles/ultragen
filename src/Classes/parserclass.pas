@@ -840,6 +840,9 @@ begin
       Return := StringsFunctions.SuperHash(Params[0])
     else if (AFuncName = 'posOf') and (Params.Count = 2) then
       Return := IntToStr(Pos(Params[0], Params[1]))
+    else if (AFuncName = 'nl2br') and (Params.Count = 1) then
+      Return := ReplaceStr(Params[0],sLineBreak,'<br>'+sLineBreak)
+
     else if ExternalExists(AFuncName) then
       Return := CallExternal(PROCESSORS_FOLDER + DirectorySeparator + AFuncName, Params)
     else
