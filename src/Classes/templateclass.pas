@@ -185,6 +185,7 @@ type
     procedure SaveGen(var Params:TStringList);
     procedure CreateGen(var Params:TStringList);
     procedure UnloadGen(var Params:TStringList);
+    procedure LoadGenFolder(var Params:TStringList);
     // end gen file handling
     //Web module procedures
     procedure RedirectTo(var Params:TstringList);
@@ -396,11 +397,7 @@ begin
   GenAlias := Params[0];
   AKey := Params[1];
   AValue := Params[2];
-  try
-    i := StrToInt(GenAlias);
-  except
-    i := FGenFileSet.IndexOf(GenAlias);
-  end;
+  i := FGenFileSet.IndexOf(GenAlias);
   FGenFileSet.GenFiles[i].GenFile.SetValue(AKey,AValue);
 end;
 
@@ -410,16 +407,23 @@ var
   i:integer;
 begin
   GenAlias := Params[0];
-  try StrToInt(GenAlias);
-    i := StrToInt(GenAlias);
-  except
-    i := FGenFileSet.IndexOf(GenAlias);
-  end;
-  a := Params[1];
+  i := FGenFileSet.IndexOf(GenAlias);
   if Params.Count = 1 then
     FGenFileSet.GenFiles[i].GenFile.Save
   else if Params.Count = 2 then
     FGenFileSet.GenFiles[i].GenFile.Save(Params[1]);
+end;
+
+procedure TTemplate.LoadGenFolder(var Params:TStringList);
+var
+  AGenList: TStringList;
+  s:string;
+begin
+  AGenList := TStringList.Create;
+  FindAllFiles(AGenList,Params[1],'*.gen;*.GEN',False);
+  AGenList.Sort;
+  FGenFileSet.Enlist(AGenList,Params[0]);
+  AGenList.Free;
 end;
 
 procedure TTemplate.TempFileCopy(var Params:TStringList);
@@ -1110,6 +1114,7 @@ begin
     'saveGen' : SaveGen(Params);
     'createGen' : CreateGen(Params);
     'unloadGen' : UnloadGen(Params);
+    'loadGenFolder' : LoadGenFolder(Params);
     // End of Gen operations
     'abort' : ParseAbort(Params);
     'goTo' : RedirectTo(Params);
@@ -1202,11 +1207,7 @@ var
   i:integer;
   ADefault: string='';
 begin
-  try
-    i := StrToInt(AnAlias);
-  except
-    i := FGenFileSet.IndexOf(AnAlias);
-  end;
+  i := FGenFileSet.IndexOf(AnAlias);
   if i > -1 then
     ADefault := FGenFileSet.GenFiles[i].GenFile.IfNotFound;
   Result := GetWild(ASearch, AnAlias, ADefault);
@@ -1225,11 +1226,8 @@ begin
   // :any - for any word
   // :bool - for match with "true" or "false" (:str will not match it. true and false will be treated as reserved words)
   // :strbool - match any strings and does not treat true and false as reserved words
-  try
-    i := StrToInt(AnAlias);
-  except
-    i := FGenFileSet.IndexOf(AnAlias);
-  end;
+
+  i := FGenFileSet.IndexOf(AnAlias);
   Return := ADefault;
   if i > -1 then
   begin
@@ -1296,11 +1294,8 @@ var
   WildLeft, WildRight, Match: boolean;
 begin
   Ret := ADefault;
-  try
-    i := StrToInt(AnAlias);
-  except
-    i := FGenFileSet.IndexOf(AnAlias);
-  end;
+
+  i := StrToInt(AnAlias);
   if i > -1 then
   begin
     Pairs := FGenFileSet.GenFiles[i].GenFile.Pairs;

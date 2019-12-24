@@ -34,6 +34,9 @@ type
       constructor Create;
       procedure Enlist(AGenFiles:array of string);
       procedure Enlist(var AGenFiles:TStringList);
+      procedure Enlist(var AGenFiles:TStringList; AnAliasRule:string);
+      procedure Add(WithAlias:boolean; AGenFile:string; AnAlias:string);
+      function Add(WithAlias:boolean; AnAlias:string):integer;
       procedure Add(AGenFile:string);
       procedure Add(AGenFile, ASeparator:string);
       procedure Add(AGenFile, ASeparator, ADefault:string);
@@ -60,6 +63,7 @@ begin
   for iter in AGenFiles do
     Add(iter);
 end;
+
 procedure TGenFileSet.SetDefault(AValue:String);
 var
   i:integer;
@@ -90,22 +94,40 @@ begin
   end;
 end;
 
+procedure TGenFileSet.Enlist(var AGenFiles:TStringList; AnAliasRule:string);
+var
+  i:integer;
+begin
+  i := Add(True,AnAliasRule);
+  FGenFiles[i].GenFile.SetValue('count',IntToStr(AGenFiles.Count));
+  if AGenFiles.Count > 1 then
+  begin
+    Add(True,AnAliasRule);
+	  for i:=0 to AGenFiles.Count-1 do
+	    Add(True,AGenFiles[i],AnAliasRule+GEN_SUB_LEVEL+IntToStr(i));
+	end;
+end;
+
 function TGenFileSet.IndexOf(AnAlias:string):integer;
 var
   i:integer=-1;
   Return:integer=-1;
   ARec:TGenFileRecord;
 begin
-  for ARec in FGenFiles do
-  begin
-    i := i+1;
-    if ARec.GenAlias = AnAlias then
+  try
+    Return := StrToInt(AnAlias);
+	except
+  	for ARec in FGenFiles do
     begin
-      Return := i;
-      Break;
+      i := i+1;
+      if ARec.GenAlias = AnAlias then
+      begin
+        Return := i;
+        Break;
+      end;
     end;
-  end;
-  Result := Return;
+	end;
+	Result := Return;
 end;
 
 procedure TGenFileSet.Drop(var AnAlias:string);
@@ -203,6 +225,35 @@ begin
     end;
   end;
   Result := Return;
+end;
+
+procedure TGenFileSet.Add(WithAlias:boolean; AGenFile:string; AnAlias:string);
+var
+  len:integer;
+  AGenObj: TGenFile;
+begin
+  len := Length(FGenFiles);
+  SetLength(FGenFiles,len+1);
+  AGenObj := TGenFile.Create;
+  AGenObj.Load(AGenFile);
+  FGenFiles[len].GenFile := AGenObj;
+  if WithAlias then
+    FGenFiles[len].GenAlias := AnAlias
+  else
+    FGenFiles[len].GenAlias := AGenObj.OnlyName;
+end;
+
+function TGenFileSet.Add(WithAlias:boolean; AnAlias:string):integer;
+var
+  len:integer;
+  AGenObj: TGenFile;
+begin
+  len := Length(FGenFiles);
+  SetLength(FGenFiles,len+1);
+  AGenObj := TGenFile.Create;
+  FGenFiles[len].GenFile := AGenObj;
+  FGenFiles[len].GenAlias := AnAlias;
+  Result := len;
 end;
 
 procedure TGenFileSet.Add(AGenFile, ASeparator:string);

@@ -13,6 +13,7 @@ uses
 
 function PrintCount(AListStr,ADelim:string):string;
 function PrintRange(AnEnd:integer):string;
+function PrintRange(AStart,AnEnd:integer):string;
 
 implementation
 
@@ -24,6 +25,19 @@ begin
   if AnEnd > 0 then
   begin
     for i:=0 to AnEnd-1 do
+      Return := Return + IntToStr(i)+',';
+  end;
+  Result := Copy(Return,1,Length(Return)-1);
+end;
+
+function PrintRange(AStart,AnEnd:integer):string;
+var
+  Return:string='';
+  i:integer;
+begin
+  if AnEnd > AStart then
+  begin
+    for i:=AStart to AnEnd-1 do
       Return := Return + IntToStr(i)+',';
   end;
   Result := Copy(Return,1,Length(Return)-1);

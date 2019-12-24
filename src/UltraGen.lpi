@@ -63,6 +63,7 @@
       <Unit6>
         <Filename Value="Functions/booleansfunctions.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="BooleansFunctions"/>
       </Unit6>
       <Unit7>
         <Filename Value="Functions/datetimefunctions.pas"/>

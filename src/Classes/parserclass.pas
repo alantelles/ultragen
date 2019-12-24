@@ -673,46 +673,44 @@ begin
         StrToInt(Params[1]) * (-1))
     else if (AFuncName = 'genPath') and (Params.Count = 1) then
     begin
-      try
-        i := StrToInt(Params[0]);
-      except
-        i := FTemplate.GenFileSet.IndexOf(Params[0]);
-      end;
-
+      i := FTemplate.GenFileSet.IndexOf(Params[0]);
       Return := FTemplate.GenFileSet.GenFiles[i].GenFile.FullName;
     end
     else if (AFuncName = 'genPath') and (Params.Count = 2) then
     begin
-      try
-        i := StrToInt(Params[0]);
-      except
-        i := FTemplate.GenFileSet.IndexOf(Params[0]);
-      end;
-
+      i := FTemplate.GenFileSet.IndexOf(Params[0]);
       Return := GetFilePath(FTemplate.GenFileSet.GenFiles[i].GenFile.FullName,
         (StrToInt(Params[1]) * (-1)));
     end
     else if (AFuncName = 'genName') and (Params.Count = 1) then
     begin
-      try
-        i := StrToInt(Params[0]);
-      except
-        i := FTemplate.GenFileSet.IndexOf(Params[0]);
-      end;
+      i := FTemplate.GenFileSet.IndexOf(Params[0]);
       Return := GetFileName(FTemplate.GenFileSet.GenFiles[i].GenFile.FullName,False);
 		end
 		else if (AFuncName = 'genRelativePath') and (Params.Count = 2) then
     begin
-      try
-        i := StrToInt(Params[0]);
-      except
-        i := FTemplate.GenFileSet.IndexOf(Params[0]);
-      end;
-
+      i := FTemplate.GenFileSet.IndexOf(Params[0]);
       Return := GetFileRelative(FTemplate.GenFileSet.GenFiles[i].GenFile.FullName,
         (StrToInt(Params[1]) * (-1)));
     end
-    else if (AFuncName = 'fileName') and (Params.Count = 1) then
+		else if (AFuncName = 'genValue') and (Params.Count = 1) then
+    begin
+      Return := FTemplate.GenFileSet.GetValue(Params[0]).Value;
+		end
+    else if (AFuncName = 'genValue') and (Params.Count = 2) then
+    begin
+      Return := FTemplate.GenFileSet.GetValue(FROM_GEN_SET+Params[1]+ATTR_ACCESSOR+Params[0]).Value;
+		end
+    else if (AFuncName = 'genValue') and (Params.Count = 3) then
+    begin
+      Return := FTemplate.GenFileSet.GetValue(FROM_GEN_SET+Params[1]+GEN_SUB_LEVEL+Params[2]+ATTR_ACCESSOR+Params[0]).Value;
+		end
+    else if (AFuncName = 'genValue') and (Params.Count = 4) then
+    begin
+      Return := FTemplate.GenFileSet.GetValue(FROM_GEN_SET+Params[1]+ATTR_ACCESSOR+Params[0]+GEN_SUB_LEVEL+Params[2],Params[3]).Value;
+		end
+
+		else if (AFuncName = 'fileName') and (Params.Count = 1) then
       Return := GetFileName(Params[0])
     else if (AFuncName = 'fileName') and (Params.Count = 2) then
       Return := GetFileName(Params[0], StrToBoolean(Params[1]))
@@ -786,6 +784,8 @@ begin
       Return := ListFunctions.PrintCount(Params[0], Params[1])
     else if (AFuncName = 'range') and (Params.Count = 1) then
       Return := ListFunctions.PrintRange(StrToInt(Params[0]))
+    else if (AFuncName = 'range') and (Params.Count = 2) then
+      Return := ListFunctions.PrintRange(StrToInt(Params[0]),StrToInt(Params[1]))
     else if (AFuncName = 'index') and (Params.Count = 2) then
       Return := FTemplate.GetVariable(Params[0] + '[' + Params[1] + ']')
 
@@ -838,7 +838,7 @@ begin
       Return := StringsFunctions.StrToMD5(Params[0])
     else if (AFuncName = 'superHash') and (Params.Count = 1) then
       Return := StringsFunctions.SuperHash(Params[0])
-    else if (AFuncName = 'posOf') and (Params.Count = 2) then
+    else if (AFuncName = 'indexOf') and (Params.Count = 2) then
       Return := IntToStr(Pos(Params[0], Params[1]))
     else if (AFuncName = 'nl2br') and (Params.Count = 1) then
       Return := ReplaceStr(Params[0],sLineBreak,'<br>'+sLineBreak)

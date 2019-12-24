@@ -34,11 +34,11 @@ function IntToBoolean(AValue:string):string;
 begin
   try
     if (StrToInt(AValue) > 0) then
-      Result := 'True'
+      Result := 'TRUE'
     else
-      Result := 'False';
+      Result := 'FALSE';
   except
-    Result := 'False';
+    Result := 'FALSE';
   end;
 end;
 

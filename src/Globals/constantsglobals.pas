@@ -28,6 +28,7 @@ const
   GEN_FILES_CALL_SEP = '|';
   SCRIPT_MODE_ENTER = '@{';
   SCRIPT_MODE_EXIT = '}';
+  GEN_SUB_LEVEL = ':';
 
   { calling modes }
   SET_GROUP = '+';
