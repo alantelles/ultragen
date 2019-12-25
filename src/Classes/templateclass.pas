@@ -193,8 +193,9 @@ type
     procedure SetSessionVar(var Params:TStringList);
     procedure DropSessionVar(var Params:TStringList);
     procedure SetCookie(var Params:TStringList);
+    procedure CreateSession(var Params:TStringList);
     //end web procedures
-    procedure SetWebVars(ASessionFile, ASessionId, ASessionPath:string; ARequest: TRequest; AResponse: TResponse);
+    procedure SetWebVars(ASessionFile, ASessionId, ASessionPath:string);
 
     destructor Destroy; override;
   end;
@@ -244,7 +245,7 @@ begin
   end;
 end;
 
-procedure TTemplate.SetWebVars(ASessionFile, ASessionId, ASessionPath:string;ARequest: TRequest; AResponse: TResponse);
+procedure TTemplate.SetWebVars(ASessionFile, ASessionId, ASessionPath:string);
 begin
   with FWebVars do
   begin
@@ -298,6 +299,11 @@ var
 begin
   AStr := '<script>window.location.replace("'+Params[0]+'")</script>';
   FParsed.Add(AStr);
+end;
+
+procedure TTemplate.CreateSession(var Params:TStringList);
+begin
+
 end;
 
 procedure TTemplate.CreateGen(var Params:TStringList);
@@ -697,6 +703,7 @@ begin
     begin
       //Params[0] := DropLastLineBreak(Params[0]);
       {$IFDEF WINDOWS}
+      Params[0] := DropLastLineBreak(Params[0]);
       Params[0] := ReplaceStr(Params[0],#13#10,#10);
       FForLoops[FForLevel].List.Delimiter := #10;
       {$ENDIF}

@@ -51,10 +51,9 @@ begin
   else
   begin
 
-    FHandler := TFPCustomFileModule.CreateNew(nil);
     FLocations := TGenFile.Create;
     FConfig := TGenFile.Create;
-    FConfig.Load(AnApp + '.gen');
+    FConfig.Load(GetFileName(AnApp,False) + '.gen');
     FLoader := FConfig.GetValue('_appLoader').Value + '.ultra';
     FLocations.Load(FConfig.GetValue('_locations').Value);
     MimeTypesFile := 'core/mime-types.txt';
@@ -144,7 +143,15 @@ begin
 
   FSessionsPath := AConfig.GetValue('_sessionsPath','core/sessions').Value;
   CreateDirTree(FSessionsPath);
+  if ARequest.CookieFields.IndexOfName('sessionID') > 0 then
+  begin
+    ASession := TGenFile.Create;
+    ASession.SetValue('expiresAt',FormatDateTime(DATE_INTERCHANGE_FORMAT,IncMinute(Now,StrToInt(AConfig.GetValue('_sessionDuration').Value))));
+    ASession.Save(FSessionsPath+DirectorySeparator+SessionID+'.gen');
+    ASession.Free;
+  end;
 
+   {
   if ARequest.CookieFields.IndexOfName('sessionID') < 0 then
   begin
     SessionID := CreateSessionID;
@@ -177,14 +184,14 @@ begin
 		end;
 		SessionID := ARequest.CookieFields.Values['sessionID'];
 	end;
-
+   }
   AGenReq.SetValue('_sessionID',SessionID);
   AGenReq.SetValue('_sessionFile',SessionFile);
 
   AGenSet.Add(AConfig, 'appGen');
   AGenSet.Add(AGenReq, 'requestGen');
   ATemplate := TTemplate.Create(FLoader);
-  //ATemplate.SetWebVars(SessionFile,SessionId, FSessionsPath, ARequest, AResponse);
+  ATemplate.SetWebVars(SessionFile,SessionId, FSessionsPath);
   ATemplate.ParseTemplate(AGenSet);
   DumpTemplate := ATemplate.ParsedLines.Text;
   AGenSet.Free;
