@@ -12,7 +12,7 @@ uses
 function GetFileName(AFileName:string; WithExt:boolean=True; NewExt:string=''):string;
 function GetFilePath (AFileName:string; ALevel: integer=-1; FullPathReturn:boolean=True):string;
 function GetFileRelative(AFileName:string; ALevel: integer=-1; FullPathReturn: boolean=True):string;
-procedure CreateDirTree(APath: string);
+procedure CreateDirTree(APath: string; ToFile:boolean=true);
 function RemoveLastBackslash(AStr:string):string;
 function PrintFileIfExists(AName,Ifnot, IfYes:string):string;
 
@@ -120,13 +120,15 @@ begin
   Result := RemoveLastBackslash(Ret);
 end;
 
-procedure CreateDirTree(APath: string);
+procedure CreateDirTree(APath: string; ToFile:boolean=true);
 var
   ADelim: TStringList;
   Part: String = '';
   Temp: string;
 begin
-  APath := RemoveLastBackslash(GetFilePath(APath));
+  if ToFile then
+    APath := GetFilePath(APath);
+  APath := RemoveLastBackslash(APath);
   ADelim := TStringList.Create;
   ADelim.Delimiter := DirectorySeparator;
   ADelim.StrictDelimiter := True;

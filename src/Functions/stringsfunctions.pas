@@ -5,7 +5,7 @@ unit StringsFunctions;
 interface
 
 uses
-  Classes, SysUtils, StrUtils, md5;
+  Classes, SysUtils, StrUtils, md5, DateUtils;
 
 function ReplaceStrExtended(var AList:TStringList):string;
 function RepeatStr(AText: string; ACount: Integer; AJoiner:string=''): string;
@@ -18,8 +18,30 @@ procedure ReverseList(var AList:TstringList);
 function DropLastLineBreak(s:string):string;
 function Join(var Params:TStringList):string;
 function InTag(var Params:TStringList):string;
+function CreateSessionID:string;
 
 implementation
+
+function CreateSessionID:string;
+var
+  ASessionName:string;
+  FullPath: string;
+begin
+  ASessionName :=  StrToMd5(
+    FormatDateTime('yyyymmddhhnnsszzz',now)+
+    IntToStr(Random(Int64(HourOf(now))))+
+    IntToStr(MilliSecondOf(now))+
+    IntToStr(Random(Int64(MinuteOf(now)+SecondOf(Now))))
+  );
+  ASessionName := ASessionName + StrToMd5(
+    FormatDateTime('yyyymmddhhnnsszzz',now)+
+    IntToStr(Random(Int64(HourOf(now))))+
+    IntToStr(MilliSecondOf(now))+
+    IntToStr(Random(Int64(MinuteOf(now)+SecondOf(Now))))
+  );
+  Result := ASessionName;
+
+end;
 
 function Join(var Params:TStringList):string;
 // Params[0] is the joiner, other are the parts

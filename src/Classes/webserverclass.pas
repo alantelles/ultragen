@@ -32,7 +32,6 @@ type
     property Handler: TFPCustomFileModule read FHandler write FHandler;
     constructor Create(APort: word; AnApp: string; Mode:string);
     procedure ExecuteAction(ARequest: TRequest; AResponse: TResponse);
-    function CreateSessionID:string;
     function RunServer:boolean;
   end;
 
@@ -54,7 +53,7 @@ begin
   FLocations := TGenFile.Create;
   FConfig := TGenFile.Create;
   FConfig.Load(GetFileName(AnApp,False) + '.gen');
-  Aux := FConfig.GetValue('_appLoader').Value+'.ultra';
+  Aux := FConfig.GetValue('_appLoader').Value;
   if Trim(Aux) <> '' then
   begin
     if FileExists(Aux) then
@@ -74,35 +73,6 @@ begin
     Exit;
   end;
 
-  Aux := FConfig.GetValue('_sessionDuration').Value;
-  if (Trim(Aux) <> '') then
-  begin
-    try
-      FSessionDuration := StrToInt(Aux);
-
-    finally
-      WriteLn('Session duration is not a number. Using 120 minutes as value.');
-      FSessionDuration := 120;
-    end;
-  end
-  else
-  begin
-    WriteLn('Session duration not defined.');
-    WriteLn('Using 120 minutes.');
-    FSessionDuration := 120;
-  end;
-
-  Aux := FConfig.GetValue('_sessionsPath').Value;
-  if (Trim(Aux) <> '') then
-    FSessionsPath := Aux
-  else
-  begin
-    WriteLn('Session path not defined.');
-    WriteLn('Using "./sessions"');
-    FSessionsPath := 'sessions';
-  end;
-  CreateDirTree(FSessionsPath);
-
   Aux := FConfig.GetValue('_locations').Value;
   if Trim(Aux) <> '' then
   begin
@@ -111,10 +81,8 @@ begin
       FLocations.Load(Aux);
       for APair in FLocations.Pairs do
       begin
-        if DirectoryExists(APair.Value+DirectorySeparator) then
-          RegisterFileLocation(APair.Key, APair.Value)
-        else
-          Writeln('Location ',APair.Value,' doesn''t exist. Skipping creation');
+        CreateDirTree(APair.Value,False);
+        RegisterFileLocation(APair.Key, APair.Value);
       end;
     end
     else
@@ -128,6 +96,34 @@ begin
   begin
     WriteLn('Locations gen not defined. No static file will be served.');
     WriteLn('See docs for details.');
+  end;
+
+  Aux := FConfig.GetValue('_sessionsPath').Value;
+  if (Trim(Aux) <> '') then
+    FSessionsPath := Aux
+  else
+  begin
+    WriteLn('Session path not defined.');
+    WriteLn('Using "./sessions"');
+    FSessionsPath := 'sessions';
+  end;
+  CreateDirTree(FSessionsPath+DirectorySeparator,False);
+
+  Aux := FConfig.GetValue('_sessionDuration').Value;
+  if (Trim(Aux) <> '') then
+  begin
+    try
+      FSessionDuration := StrToInt(Aux);
+    except
+      WriteLn('Session duration is not a number. Using 120 minutes as value.');
+      FSessionDuration := 120;
+    end;
+  end
+  else
+  begin
+    WriteLn('Session duration not defined.');
+    WriteLn('Using 120 minutes.');
+    FSessionDuration := 120;
   end;
 
   Aux := FConfig.GetValue('_mimeTypesFile').Value;
@@ -163,33 +159,14 @@ begin
     Result := False;
 end;
 
-function TUltraGenServer.CreateSessionID:string;
-var
-  ASessionName:string;
-  FullPath: string;
-begin
-  ASessionName :=  StrToMd5(
-    FormatDateTime('yyyymmddhhnnsszzz',now)+
-    IntToStr(Random(Int64(HourOf(now))))+
-    IntToStr(MilliSecondOf(now))+
-    IntToStr(Random(Int64(MinuteOf(now)+SecondOf(Now))))
-  );
-  ASessionName := ASessionName + StrToMd5(
-    FormatDateTime('yyyymmddhhnnsszzz',now)+
-    IntToStr(Random(Int64(HourOf(now))))+
-    IntToStr(MilliSecondOf(now))+
-    IntToStr(Random(Int64(MinuteOf(now)+SecondOf(Now))))
-  );
-  Result := ASessionName;
 
-end;
 procedure TUltraGenServer.ExecuteAction(ARequest: TRequest;AResponse: TResponse);
 var
   C: TCookie;
   ATemplate: TTemplate;
   AGenSet: TGenFileSet;
   AGenReq, AConfig, ASession: TGenFile;
-  DumpTemplate, Route: string;
+  DumpTemplate, Route, s: string;
   i: integer;
   SessionID, ExpireTime, SessionFile:string;
 begin
@@ -201,15 +178,8 @@ begin
   AGenReq := TGenFile.Create;
 
   AConfig := TGenFile.Create;
-  try
-    for i := 0 to Length(FConfig.Pairs) - 1 do
-    begin
-      AConfig.SetValue(FConfig.Pairs[i].Key, FConfig.Pairs[i].Value);
-	  end;
-
-  finally
-  end;
-
+  for i := 0 to Length(FConfig.Pairs) - 1 do
+    AConfig.SetValue(FConfig.Pairs[i].Key, FConfig.Pairs[i].Value);
 
   if ARequest.QueryFields.Count > 0 then
   begin
@@ -225,6 +195,13 @@ begin
         ARequest.ContentFields.ValueFromIndex[i]);
   end;
 
+  if ARequest.CookieFields.Count > 0 then
+  begin
+    for i := 0 to ARequest.CookieFields.Count - 1 do
+      AGenReq.SetValue('_cookie:' + ARequest.CookieFields.Names[i],
+        ARequest.CookieFields.ValueFromIndex[i]);
+  end;
+
   i := Pos('?',ARequest.URI);
   if i > 0 then
     Route := Copy(ARequest.URI,1,i-1)
@@ -233,20 +210,7 @@ begin
 
   AGenReq.SetValue('_route', Route);
   AGenReq.SetValue('_method', ARequest.Method);
-  try
-    FSessionsPath := AConfig.GetValue('_sessionsPath','core/sessions').Value;
 
-  except
-    FSessionsPath := 'core/sessions';
-  end;
-  CreateDirTree(FSessionsPath);
-  if ARequest.CookieFields.IndexOfName('sessionID') > 0 then
-  begin
-    ASession := TGenFile.Create;
-    ASession.SetValue('expiresAt',FormatDateTime(DATE_INTERCHANGE_FORMAT,IncMinute(Now,StrToInt(AConfig.GetValue('_sessionDuration').Value))));
-    ASession.Save(FSessionsPath+DirectorySeparator+SessionID+'.gen');
-    ASession.Free;
-  end;
 
    {
   if ARequest.CookieFields.IndexOfName('sessionID') < 0 then
@@ -284,12 +248,23 @@ begin
    }
   AGenReq.SetValue('_sessionID',SessionID);
   AGenReq.SetValue('_sessionFile',SessionFile);
-  try
-    AGenSet.Add(AConfig, 'appGen');
-
-  finally
+  AGenSet.Add(AConfig, 'app');
+  if ARequest.CookieFields.IndexOfName('sessionID') > 0 then
+  begin
+    SessionId := ARequest.CookieFields.Values['sessionID'];
+    SessionFile := FSessionsPath+DirectorySeparator+SessionId+'.gen';
+    if not FileExists(SessionFile) then
+    begin
+      ASession := TGenFile.Create;
+      ASession.SetValue('_session:sessionID',SessionId);
+      ASession.SetValue('_session:expiresAt',FormatDateTime(
+          DATE_INTERCHANGE_FORMAT,IncMinute(Now,StrToInt(AConfig.GetValue('_sessionDuration').Value))
+      ));
+      ASession.Save(FSessionsPath+DirectorySeparator+SessionID+'.gen');
+      ASession.Free;
+    end;
   end;
-  AGenSet.Add(AGenReq, 'requestGen');
+  AGenSet.Add(AGenReq, 'request');
   ATemplate := TTemplate.Create(FLoader);
   ATemplate.SetWebVars(SessionFile,SessionId, FSessionsPath);
   ATemplate.ParseTemplate(AGenSet);
