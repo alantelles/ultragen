@@ -28,6 +28,7 @@ var
   RESERVED_WORDS: array [0..11] of string;
   LOOP_FUNCTION:string = 'LOOP';
   LINE_BREAK:string = 'LINE';
+  PI: double;
 
 implementation
 begin
@@ -58,6 +59,8 @@ begin
   RESERVED_WORDS[9] := 'LEQ';
   RESERVED_WORDS[10] := LOOP_FUNCTION;
   RESERVED_WORDS[11] := LINE_BREAK;
+
+  PI := System.Pi();
 
 
 end.

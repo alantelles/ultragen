@@ -696,9 +696,13 @@ begin
     else
     begin
       //Params[0] := DropLastLineBreak(Params[0]);
-      //Params[0] := ReplaceStr(Params[0],#13#10,#10);
-
+      {$IFDEF WINDOWS}
+      Params[0] := ReplaceStr(Params[0],#13#10,#10);
+      FForLoops[FForLevel].List.Delimiter := #10;
+      {$ENDIF}
+      {$IFDEF UNIX}
       FForLoops[FForLevel].List.Delimiter := sLineBreak;
+      {$ENDIF}
       FForLoops[FForLevel].List.StrictDelimiter := True;
       FForLoops[FForLevel].List.DelimitedText := Params[0];
 

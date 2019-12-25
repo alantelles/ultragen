@@ -808,7 +808,7 @@ begin
     begin
       try
         m := StrToFloat(Params[0]);
-        Return := FloatToStr(MathFunctions.root(m));
+        Return := FloatToStrF(MathFunctions.root(m),ffGeneral,20,20);
       except
         Return := ''
       end;
@@ -819,7 +819,7 @@ begin
       try
         m := StrToFloat(Params[0]);
         n := StrToFloat(Params[1]);
-        Return := FloatToStr(MathFunctions.modNum(m,n));
+        Return := FloatToStr(MathFunctions.root(m,n));
       except
         Return := ''
       end;
