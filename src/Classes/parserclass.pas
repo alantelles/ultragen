@@ -952,7 +952,7 @@ begin
     //HTML
     else if (AFuncName = 'nl2br') and (Params.Count = 1) then
       Return := ReplaceStr(Params[0],sLineBreak,'<br>'+sLineBreak)
-    else if (AFuncName = 'inTag') and (Params.Count > 2) then
+    else if (AFuncName = 'inTag') and (Params.Count > 1) then
       Return := StringsFunctions.InTag(Params)
     else if ExternalExists(AFuncName) then
       Return := CallExternal(PROCESSORS_FOLDER + DirectorySeparator + AFuncName, Params)

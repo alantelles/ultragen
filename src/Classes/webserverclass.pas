@@ -16,13 +16,15 @@ uses
 type
   TUltraGenServer = class
   private
+    FDontServe:boolean;
     FPort: word;
     FLoader: string;
     FRoutesAge: int64;
     FConfig, FLocations: TGenFile;
     FHandler: TFPCustomFileModule;
     FServer: TFPHTTPServer;
-    FSessionsPath:string;
+    FSessionsPath, FSessionFile:string;
+    FSessionDuration:integer;
   public
     property SessionsPath: string read FSessionsPath write FSessionsPath;
     property Port: word read FPort write FPort;
@@ -31,7 +33,7 @@ type
     constructor Create(APort: word; AnApp: string; Mode:string);
     procedure ExecuteAction(ARequest: TRequest; AResponse: TResponse);
     function CreateSessionID:string;
-    procedure RunServer;
+    function RunServer:boolean;
   end;
 
 implementation
@@ -39,41 +41,126 @@ implementation
 uses
   TemplateClass,
   FileHandlingUtils,
-  StringsFunctions, DateUtils;
+  StringsFunctions, DateUtils,
+  Character;
 
 constructor TUltraGenServer.Create(APort: word; AnApp: string; Mode:string);
 var
+  Aux:string;
   APair: TKVPair;
 begin
+  FDontServe := False;
   FPort := APort;
-  if AnApp = 'index.ultra' then
-    FLoader := AnApp
+  FLocations := TGenFile.Create;
+  FConfig := TGenFile.Create;
+  FConfig.Load(GetFileName(AnApp,False) + '.gen');
+  Aux := FConfig.GetValue('_appLoader').Value+'.ultra';
+  if Trim(Aux) <> '' then
+  begin
+    if FileExists(Aux) then
+      FLoader := Aux
+    else
+    begin
+      WriteLn('App Loader doesn''t exist. Exitting');
+      FDontServe := True;
+      Exit;
+    end;
+  end
   else
   begin
+    WriteLn('App Loader not defined.');
+    WriteLn('See docs for details. Exitting.');
+    FDontServe := True;
+    Exit;
+  end;
 
-    FLocations := TGenFile.Create;
-    FConfig := TGenFile.Create;
-    FConfig.Load(GetFileName(AnApp,False) + '.gen');
-    FLoader := FConfig.GetValue('_appLoader').Value + '.ultra';
-    FLocations.Load(FConfig.GetValue('_locations').Value);
-    MimeTypesFile := 'core/mime-types.txt';
-    for APair in FLocations.Pairs do
-    begin
-      CreateDirTree(APair.Value+DirectorySeparator);
-      RegisterFileLocation(APair.Key, APair.Value);
+  Aux := FConfig.GetValue('_sessionDuration').Value;
+  if (Trim(Aux) <> '') then
+  begin
+    try
+      FSessionDuration := StrToInt(Aux);
+
+    finally
+      WriteLn('Session duration is not a number. Using 120 minutes as value.');
+      FSessionDuration := 120;
     end;
+  end
+  else
+  begin
+    WriteLn('Session duration not defined.');
+    WriteLn('Using 120 minutes.');
+    FSessionDuration := 120;
+  end;
+
+  Aux := FConfig.GetValue('_sessionsPath').Value;
+  if (Trim(Aux) <> '') then
+    FSessionsPath := Aux
+  else
+  begin
+    WriteLn('Session path not defined.');
+    WriteLn('Using "./sessions"');
+    FSessionsPath := 'sessions';
+  end;
+  CreateDirTree(FSessionsPath);
+
+  Aux := FConfig.GetValue('_locations').Value;
+  if Trim(Aux) <> '' then
+  begin
+    if FileExists(Aux) then
+    begin
+      FLocations.Load(Aux);
+      for APair in FLocations.Pairs do
+      begin
+        if DirectoryExists(APair.Value+DirectorySeparator) then
+          RegisterFileLocation(APair.Key, APair.Value)
+        else
+          Writeln('Location ',APair.Value,' doesn''t exist. Skipping creation');
+      end;
+    end
+    else
+    begin
+      WriteLn('Locations gen doesn''t exist. Exitting.');
+      FDontServe := True;
+      Exit;
+    end;
+  end
+  else
+  begin
+    WriteLn('Locations gen not defined. No static file will be served.');
+    WriteLn('See docs for details.');
+  end;
+
+  Aux := FConfig.GetValue('_mimeTypesFile').Value;
+  if Trim(Aux) <> '' then
+  begin
+    if FileExists(Aux) then
+      MimeTypesFile := Aux
+    else
+    begin
+      WriteLn('MimeTypesFile doesn''t exist. Using default static load.');
+    end;
+  end
+  else
+  begin
+    WriteLn('Mime Types File not defined. Using default static load.');
   end;
   HTTPRouter.RegisterRoute('*', @ExecuteAction);
 end;
 
-procedure TUltraGenServer.RunServer;
+function TUltraGenServer.RunServer:boolean;
 begin
-  WriteLn('Running server at port: ', FPort);
-  Application.Title := 'UltraGen server 1.0';
-  Application.Port := FPort;
-  Application.Threaded := True;
-  Application.Initialize;
-  Application.Run;
+  if not FDontServe then
+  begin
+    WriteLn('Running server at port: ', FPort);
+    Application.Title := 'UltraGen server 1.0';
+    Application.Port := FPort;
+    Application.Threaded := True;
+    Application.Initialize;
+    Application.Run;
+    Result := True;
+  end
+  else
+    Result := False;
 end;
 
 function TUltraGenServer.CreateSessionID:string;
@@ -106,16 +193,22 @@ var
   i: integer;
   SessionID, ExpireTime, SessionFile:string;
 begin
+  if FDontServe then
+    Exit;
   WriteLn('Requesting: ', ARequest.URI, '. Return code: ', AResponse.Code,
     ' ', AResponse.CodeText);
   AGenSet := TGenFileSet.Create;
   AGenReq := TGenFile.Create;
 
   AConfig := TGenFile.Create;
-  for i := 0 to Length(FConfig.Pairs) - 1 do
-  begin
-    AConfig.SetValue(FConfig.Pairs[i].Key, FConfig.Pairs[i].Value);
-	end;
+  try
+    for i := 0 to Length(FConfig.Pairs) - 1 do
+    begin
+      AConfig.SetValue(FConfig.Pairs[i].Key, FConfig.Pairs[i].Value);
+	  end;
+
+  finally
+  end;
 
 
   if ARequest.QueryFields.Count > 0 then
@@ -140,8 +233,12 @@ begin
 
   AGenReq.SetValue('_route', Route);
   AGenReq.SetValue('_method', ARequest.Method);
+  try
+    FSessionsPath := AConfig.GetValue('_sessionsPath','core/sessions').Value;
 
-  FSessionsPath := AConfig.GetValue('_sessionsPath','core/sessions').Value;
+  except
+    FSessionsPath := 'core/sessions';
+  end;
   CreateDirTree(FSessionsPath);
   if ARequest.CookieFields.IndexOfName('sessionID') > 0 then
   begin
@@ -187,8 +284,11 @@ begin
    }
   AGenReq.SetValue('_sessionID',SessionID);
   AGenReq.SetValue('_sessionFile',SessionFile);
+  try
+    AGenSet.Add(AConfig, 'appGen');
 
-  AGenSet.Add(AConfig, 'appGen');
+  finally
+  end;
   AGenSet.Add(AGenReq, 'requestGen');
   ATemplate := TTemplate.Create(FLoader);
   ATemplate.SetWebVars(SessionFile,SessionId, FSessionsPath);

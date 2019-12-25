@@ -51,9 +51,18 @@ begin
   begin
     IsGenSetCall := False;
     IsGenPathCall := False;
+    if not FileExists(GetFileName(ParamStr(2),False)+'.gen') then
+    begin
+      WriteLn('Config App Gen ',GetFileName(ParamStr(2),False),' not found.');
+      WriteLn('See docs for details. Exitting');
+      Exit;
+    end;
     if ParamCount = 2 then
+    begin
     //-- serve appName mode
+
       Server := TUltraGenServer.Create(2020, ParamStr(2), '--dev')
+    end
     else if ParamCount = 3 then
     //-- serve appName mode
       Server := TUltraGenServer.Create(StrToInt(ParamStr(3)), ParamStr(2), '--dev')
@@ -62,7 +71,8 @@ begin
         Server := TUltraGenServer.Create(StrToInt(ParamStr(3)), ParamStr(2), '--prod')
       else
         Server := TUltraGenServer.Create(StrToInt(ParamStr(3)), ParamStr(2), '--dev');
-    Server.RunServer;
+    if not Server.RunServer then
+      exit;
 	end;
   Live := True;
 
