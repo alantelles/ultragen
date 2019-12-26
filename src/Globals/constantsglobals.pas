@@ -22,7 +22,7 @@ const
   FUNCTION_ALLOWED = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
   NUMBERS = '1234567890';
   FUNC_SYMBOLS = '._:';
-  DATE_INTERCHANGE_FORMAT = 'yyyy-mm-dd hh:nn:ss.zzz';
+
   AS_STRING = True;
   FLOW_EXT = 'uflow';
   GEN_FILES_CALL_SEP = '|';
@@ -49,6 +49,9 @@ const
 
   ASC = 'ASC';
   DESC = 'DESC';
+
+  UTC_FORMAT = 'ddd, dd mmm yyyy hh:nn:ss "UTC"';
+  DATE_INTERCHANGE_FORMAT = 'yyyy-mm-dd hh:nn:ss.zzz';
 
 
 

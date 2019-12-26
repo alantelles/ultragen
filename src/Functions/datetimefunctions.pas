@@ -17,6 +17,10 @@ implementation
 
 function PrintDate(AFormat,ADateTime:string):string;
 begin
+  if AFormat = 'FULL_DATE' then
+    AFormat := DATE_INTERCHANGE_FORMAT
+  else if AFormat = 'UTC_FORMAT' then
+    AFormat := UTC_FORMAT;
   Result := FormatDateTime(AFormat,ScanDateTime(DATE_INTERCHANGE_FORMAT,ADateTime));
 end;
 

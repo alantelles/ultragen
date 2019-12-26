@@ -48,7 +48,7 @@ type
     function CallExternal(ExtPath: string; var Params: TStringList): string;
     function InsertTemplate(ATempName, AgenName: string): string;
     function InsertTemplate(ATempName: string): string;
-    function InsertTemplate(var Params:TStringList): string;
+    function InsertTemplate(var Params: TStringList): string;
     function PrintPlainText(AFileName: string): string;
   end;
 
@@ -440,18 +440,18 @@ begin
   Result := Return;
 end;
 
-function TTempParser.InsertTemplate(var Params:TStringList): string;
+function TTempParser.InsertTemplate(var Params: TStringList): string;
 var
   Return, Line: string;
   AGen: TGenFileSet;
   ATemp: TTemplate;
-  i:integer;
+  i: integer;
 begin
   Return := '';
   ATemp := TTemplate.Create(Params[0]);
-  for i:=2 to Params.Count-1 do
+  for i := 2 to Params.Count - 1 do
   begin
-    ATemp.SetVariable('param['+IntToStr(i-2)+']',Params[i]);     {back}
+    ATemp.SetVariable('param[' + IntToStr(i - 2) + ']', Params[i]);     {back}
   end;
   AGen := TGenFileSet.Create;
   if Params[1] <> '' then
@@ -686,32 +686,35 @@ begin
     else if (AFuncName = 'genName') and (Params.Count = 1) then
     begin
       i := FTemplate.GenFileSet.IndexOf(Params[0]);
-      Return := GetFileName(FTemplate.GenFileSet.GenFiles[i].GenFile.FullName,False);
-		end
-		else if (AFuncName = 'genRelativePath') and (Params.Count = 2) then
+      Return := GetFileName(FTemplate.GenFileSet.GenFiles[i].GenFile.FullName, False);
+    end
+    else if (AFuncName = 'genRelativePath') and (Params.Count = 2) then
     begin
       i := FTemplate.GenFileSet.IndexOf(Params[0]);
       Return := GetFileRelative(FTemplate.GenFileSet.GenFiles[i].GenFile.FullName,
         (StrToInt(Params[1]) * (-1)));
     end
-		else if (AFuncName = 'genValue') and (Params.Count = 1) then
+    else if (AFuncName = 'genValue') and (Params.Count = 1) then
     begin
       Return := FTemplate.GenFileSet.GetValue(Params[0]).Value;
-		end
+    end
     else if (AFuncName = 'genValue') and (Params.Count = 2) then
     begin
-      Return := FTemplate.GenFileSet.GetValue(FROM_GEN_SET+Params[1]+ATTR_ACCESSOR+Params[0]).Value;
-		end
+      Return := FTemplate.GenFileSet.GetValue(FROM_GEN_SET + Params[1] +
+        ATTR_ACCESSOR + Params[0]).Value;
+    end
     else if (AFuncName = 'genValue') and (Params.Count = 3) then
     begin
-      Return := FTemplate.GenFileSet.GetValue(FROM_GEN_SET+Params[1]+GEN_SUB_LEVEL+Params[2]+ATTR_ACCESSOR+Params[0]).Value;
-		end
+      Return := FTemplate.GenFileSet.GetValue(FROM_GEN_SET + Params[1] +
+        GEN_SUB_LEVEL + Params[2] + ATTR_ACCESSOR + Params[0]).Value;
+    end
     else if (AFuncName = 'genValue') and (Params.Count = 4) then
     begin
-      Return := FTemplate.GenFileSet.GetValue(FROM_GEN_SET+Params[1]+ATTR_ACCESSOR+Params[0]+GEN_SUB_LEVEL+Params[2],Params[3]).Value;
-		end
+      Return := FTemplate.GenFileSet.GetValue(FROM_GEN_SET + Params[1] +
+        ATTR_ACCESSOR + Params[0] + GEN_SUB_LEVEL + Params[2], Params[3]).Value;
+    end
 
-		else if (AFuncName = 'fileName') and (Params.Count = 1) then
+    else if (AFuncName = 'fileName') and (Params.Count = 1) then
       Return := GetFileName(Params[0])
     else if (AFuncName = 'fileName') and (Params.Count = 2) then
       Return := GetFileName(Params[0], StrToBoolean(Params[1]))
@@ -722,7 +725,7 @@ begin
       try
         m := StrToInt(Params[0]);
         n := StrToInt(Params[1]);
-        Return := FloatToStr(MathFunctions.sum(m,n));
+        Return := FloatToStr(MathFunctions.sum(m, n));
       except
         Return := ''
       end;
@@ -733,7 +736,7 @@ begin
       try
         m := StrToFloat(Params[0]);
         n := StrToFloat(Params[1]);
-        Return := FloatToStr(MathFunctions.sub(m,n));
+        Return := FloatToStr(MathFunctions.sub(m, n));
       except
         Return := ''
       end;
@@ -744,7 +747,7 @@ begin
       try
         m := StrToFloat(Params[0]);
         n := StrToFloat(Params[1]);
-        Return := FloatToStr(MathFunctions.mult(m,n));
+        Return := FloatToStr(MathFunctions.mult(m, n));
       except
         Return := ''
       end;
@@ -755,7 +758,7 @@ begin
       try
         m := StrToFloat(Params[0]);
         n := StrToFloat(Params[1]);
-        Return := FloatToStr(MathFunctions.divInt(m,n));
+        Return := FloatToStr(MathFunctions.divInt(m, n));
       except
         Return := ''
       end;
@@ -766,7 +769,7 @@ begin
       try
         m := StrToFloat(Params[0]);
         n := StrToFloat(Params[1]);
-        Return := FloatToStr(MathFunctions.divFloat(m,n));
+        Return := FloatToStr(MathFunctions.divFloat(m, n));
       except
         Return := ''
       end;
@@ -777,7 +780,7 @@ begin
       try
         m := StrToFloat(Params[0]);
         n := StrToFloat(Params[1]);
-        Return := FloatToStr(MathFunctions.modNum(m,n));
+        Return := FloatToStr(MathFunctions.modNum(m, n));
       except
         Return := ''
       end;
@@ -788,7 +791,7 @@ begin
       try
         m := StrToFloat(Params[0]);
         n := StrToFloat(Params[1]);
-        Return := FloatToStr(MathFunctions.pow(m,n));
+        Return := FloatToStr(MathFunctions.pow(m, n));
       except
         Return := ''
       end;
@@ -808,7 +811,7 @@ begin
     begin
       try
         m := StrToFloat(Params[0]);
-        Return := FloatToStrF(MathFunctions.root(m),ffGeneral,20,20);
+        Return := FloatToStrF(MathFunctions.root(m), ffGeneral, 20, 20);
       except
         Return := ''
       end;
@@ -819,7 +822,7 @@ begin
       try
         m := StrToFloat(Params[0]);
         n := StrToFloat(Params[1]);
-        Return := FloatToStr(MathFunctions.root(m,n));
+        Return := FloatToStr(MathFunctions.root(m, n));
       except
         Return := ''
       end;
@@ -830,10 +833,10 @@ begin
       try
         m := StrToFloat(Params[0]);
         Return := FloatToStr(m)
-			except
+      except
         Return := '0'
-			end;
-		end
+      end;
+    end
 
     { Interaction manipulations }
     else if (AFuncName = 'insert') and (Params.Count = 2) then
@@ -876,14 +879,17 @@ begin
       Return := DateTimeFunctions.PrintDate(Params[0],
         FormatDateTime(DATE_INTERCHANGE_FORMAT, Now))
     else if (AFuncName = 'date') and (Params.Count = 2) then
+    begin
       Return := DateTimeFunctions.PrintDate(Params[0], GetTimeStr(Params[1]))
-    else if (AFuncName = 'dateMs') and (Params.Count = 0) then
+		end
+		else if (AFuncName = 'dateMs') and (Params.Count = 0) then
       Return := DateTimeFunctions.PrintDateMs(
         FormatDateTime(DATE_INTERCHANGE_FORMAT, Now))
     else if (AFuncName = 'dateMs') and (Params.Count = 1) then
       Return := DateTimeFunctions.PrintDateMs(GetTimeStr(Params[0]))
     else if (AFuncName = 'dateMs') and (Params.Count = 2) then
-      Return := DateTimeFunctions.PrintDateMs(GetTimeStr(Params[0]),StrToFloat(Params[1]))
+      Return := DateTimeFunctions.PrintDateMs(GetTimeStr(Params[0]),
+        StrToFloat(Params[1]))
 
     { ListFunctions }
     else if (AFuncName = 'count') and (Params.Count = 1) then
@@ -893,7 +899,7 @@ begin
     else if (AFuncName = 'range') and (Params.Count = 1) then
       Return := ListFunctions.PrintRange(StrToInt(Params[0]))
     else if (AFuncName = 'range') and (Params.Count = 2) then
-      Return := ListFunctions.PrintRange(StrToInt(Params[0]),StrToInt(Params[1]))
+      Return := ListFunctions.PrintRange(StrToInt(Params[0]), StrToInt(Params[1]))
     else if (AFuncName = 'index') and (Params.Count = 2) then
       Return := FTemplate.GetVariable(Params[0] + '[' + Params[1] + ']')
 
@@ -906,11 +912,11 @@ begin
     end
     else if (AFuncName = 'routeMatch') and (Params.Count = 2) then
     begin
-      Return := FTemplate.RouteMatch(Params[0],Params[1]);
+      Return := FTemplate.RouteMatch(Params[0], Params[1]);
     end
     else if (AFuncName = 'routeMatch') and (Params.Count = 3) then
     begin
-      Return := FTemplate.RouteMatch(Params[0],Params[1], Params[2]);
+      Return := FTemplate.RouteMatch(Params[0], Params[1], Params[2]);
     end
 
     { String Manipulation }
@@ -934,7 +940,7 @@ begin
     else if (AFuncName = 'repeat') and (Params.Count = 2) then
       Return := StringsFunctions.RepeatStr(Params[0], StrToInt(Params[1]))
     else if (AFuncName = 'repeat') and (Params.Count = 3) then
-      Return := StringsFunctions.RepeatStr(Params[0], StrToInt(Params[1]),Params[2])
+      Return := StringsFunctions.RepeatStr(Params[0], StrToInt(Params[1]), Params[2])
     else if (AFuncName = 'leftZeros') and (Params.Count = 2) then
       Return := StringsFunctions.LeftZeros(Params[0], StrToInt(Params[1]))
     else if (AFuncName = 'reverse') and (Params.Count = 1) then
@@ -951,7 +957,7 @@ begin
 
     //HTML
     else if (AFuncName = 'nl2br') and (Params.Count = 1) then
-      Return := ReplaceStr(Params[0],sLineBreak,'<br>'+sLineBreak)
+      Return := ReplaceStr(Params[0], sLineBreak, '<br>' + sLineBreak)
     else if (AFuncName = 'inTag') and (Params.Count > 1) then
       Return := StringsFunctions.InTag(Params)
     else if ExternalExists(AFuncName) then
@@ -1105,29 +1111,23 @@ begin
     begin
       x := Trim(FTemplate.TempLines[i]);
       if i > 0 then
-        y := Trim(FTemplate.TempLines[i-1]);
-			if FTemplate.DoAbort then
+        y := Trim(FTemplate.TempLines[i - 1]);
+      if FTemplate.DoAbort then
         break;
-      if (
-           (not FTemplate.ScriptMode and
-                (
-                (Copy(Trim(FTemplate.TempLines[i]),1,4) = OVER_STATE + 'if' + OVER_ASSOC)
-                or
-                (Copy(Trim(FTemplate.TempLines[i]),1,7) = OVER_STATE + 'ifNot' + OVER_ASSOC)
-                )
-           ) or
-           (FTemplate.ScriptMode and
-                (
-                (Copy(Trim(FTemplate.TempLines[i]),1,3) = 'if' + OVER_ASSOC)
-                or
-                (Copy(Trim(FTemplate.TempLines[i]),1,6) = 'ifNot' + OVER_ASSOC)
-                )
-           )
-      ) then
+      if ((not FTemplate.ScriptMode and
+        ((Copy(Trim(FTemplate.TempLines[i]), 1, 4) =
+        OVER_STATE + 'if' + OVER_ASSOC) or
+        (Copy(Trim(FTemplate.TempLines[i]), 1, 7) = OVER_STATE +
+        'ifNot' + OVER_ASSOC))) or
+        (FTemplate.ScriptMode and
+        ((Copy(Trim(FTemplate.TempLines[i]), 1, 3) =
+        'if' + OVER_ASSOC) or
+        (Copy(Trim(FTemplate.TempLines[i]), 1, 6) = 'ifNot' +
+        OVER_ASSOC)))) then
       begin
         FTemplate.IfLevel := FTemplate.IfLevel + 1;
 
-			end
+      end
       else if (not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) =
         OVER_STATE + 'else')) or (FTemplate.ScriptMode and
         (Trim(FTemplate.TempLines[i]) = 'else')) then
@@ -1137,27 +1137,29 @@ begin
 
           FTemplate.Skip := FTemplate.IfRecursion[FTemplate.IfLevel];
 
-			end
+      end
 
-			else if ((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = OVER_STATE + 'endIf')) or
-        (FTemplate.ScriptMode and (Trim(x) = 'endIf'))) or
-        (((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = OVER_STATE + 'end')) or (FTemplate.ScriptMode and
+      else if ((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) =
+        OVER_STATE + 'endIf')) or (FTemplate.ScriptMode and (Trim(x) = 'endIf'))) or
+        (((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) =
+        OVER_STATE + 'end')) or (FTemplate.ScriptMode and
         (Trim(FTemplate.TempLines[i]) = 'end'))) and (FTemplate.LoopType = IFDEV)) then
       begin
         FTemplate.IfLevel := FTemplate.IfLevel - 1;
-        if FTemplate.IfLevel = - 1 then
+        if FTemplate.IfLevel = -1 then
           FTemplate.Skip := False
         else
           FTemplate.Skip := not FTemplate.IfRecursion[FTemplate.IfLevel];
 
-
-
-
-
       end
-      else if ((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = OVER_STATE + 'endFor')) or
-        (FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = 'endFor'))) or
-        (((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) = OVER_STATE + 'end')) or (FTemplate.ScriptMode and
+      else if ((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) =
+        OVER_STATE + 'endFor')) or (FTemplate.ScriptMode and
+        (Trim(FTemplate.TempLines[i]) = 'endFor'))) or
+        (((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) =
+        OVER_STATE + 'end')) or (FTemplate.ScriptMode and
+
+
+
         (Trim(FTemplate.TempLines[i]) = 'end'))) and (FTemplate.LoopType = IFDEV)) then
       begin
         FTemplate.ForSkip := False;

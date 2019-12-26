@@ -210,42 +210,6 @@ begin
 
   AGenReq.SetValue('_route', Route);
   AGenReq.SetValue('_method', ARequest.Method);
-
-
-   {
-  if ARequest.CookieFields.IndexOfName('sessionID') < 0 then
-  begin
-    SessionID := CreateSessionID;
-    C := AResponse.Cookies.Add;
-    C.Name := 'sessionID';
-    C.Value := SessionID;
-    ASession := TGenFile.Create;
-    ASession.SetValue('sessionID',SessionID);
-    ASession.SetValue('expiresAt',FormatDateTime(DATE_INTERCHANGE_FORMAT,IncMinute(Now,StrToInt(AConfig.GetValue('_sessionDuration').Value))));
-    ASession.SetValue('valid','true');
-    SessionFile := FSessionsPath+DirectorySeparator+SessionID+'.gen';
-    ASession.FullName := SessionFile;
-    ASession.Save;
-    ASession.Free;
-  end
-  else
-  begin
-    SessionFile := FSessionsPath+DirectorySeparator+SessionID+'.gen';
-    if not FileExists (SessionFile) then
-    begin
-      SessionID := ARequest.CookieFields.Values['sessionID'];
-      ASession := TGenFile.Create;
-      ASession.SetValue('sessionID',SessionID);
-      ASession.SetValue('expiresAt',FormatDateTime(DATE_INTERCHANGE_FORMAT,IncMinute(Now,StrToInt(AConfig.GetValue('_sessionDuration').Value))));
-      ASession.SetValue('valid','true');
-      SessionFile := FSessionsPath+DirectorySeparator+SessionID+'.gen';
-      ASession.FullName := SessionFile;
-      ASession.Save;
-      ASession.Free;
-		end;
-		SessionID := ARequest.CookieFields.Values['sessionID'];
-	end;
-   }
   AGenReq.SetValue('_sessionID',SessionID);
   AGenReq.SetValue('_sessionFile',SessionFile);
   AGenSet.Add(AConfig, 'app');
@@ -253,17 +217,21 @@ begin
   begin
     SessionId := ARequest.CookieFields.Values['sessionID'];
     SessionFile := FSessionsPath+DirectorySeparator+SessionId+'.gen';
+    ASession := TGenFile.Create;
     if not FileExists(SessionFile) then
     begin
-      ASession := TGenFile.Create;
       ASession.SetValue('_session:sessionID',SessionId);
       ASession.SetValue('_session:expiresAt',FormatDateTime(
           DATE_INTERCHANGE_FORMAT,IncMinute(Now,StrToInt(AConfig.GetValue('_sessionDuration').Value))
       ));
       ASession.Save(FSessionsPath+DirectorySeparator+SessionID+'.gen');
-      ASession.Free;
-    end;
-  end;
+    end
+    else
+    begin
+      ASession.Load(SessionFile);
+		end;
+    AGenSet.Add(ASession, 'session');
+	end;
   AGenSet.Add(AGenReq, 'request');
   ATemplate := TTemplate.Create(FLoader);
   ATemplate.SetWebVars(SessionFile,SessionId, FSessionsPath);

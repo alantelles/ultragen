@@ -5,7 +5,7 @@ unit VariablesGlobals;
 interface
 
 uses
-    Classes, SysUtils;
+    Classes, SysUtils, ConstantsGlobals;
 
 var
   TOKEN_OPEN:string = '{';
@@ -25,9 +25,10 @@ var
   TIME_STR:array of string;
   EXT_ACCEPTED:array[0..3] of string;
   PREDEF_OVERR:array[0..5] of string;
-  RESERVED_WORDS: array [0..11] of string;
+  RESERVED_WORDS: array [0..13] of string;
   LOOP_FUNCTION:string = 'LOOP';
   LINE_BREAK:string = 'LINE';
+  FULL_DATE:string = DATE_INTERCHANGE_FORMAT;
   PI: double;
 
 implementation
@@ -59,6 +60,8 @@ begin
   RESERVED_WORDS[9] := 'LEQ';
   RESERVED_WORDS[10] := LOOP_FUNCTION;
   RESERVED_WORDS[11] := LINE_BREAK;
+  RESERVED_WORDS[12] := 'FULL_DATE';
+  RESERVED_WORDS[13] := 'UTC_FORMAT';
 
   PI := System.Pi();
 
