@@ -248,12 +248,9 @@ end;
 
 procedure TTemplate.SetWebVars(ASessionId, ASessionPath:string; ASessionDuration:integer);
 begin
-  with FWebVars do
-  begin
-    SessionID := ASessionID;
-    SessionPath := ASessionPath;
-    SessionDuration := ASessionDuration;
-	end;
+  FWebVars.SessionID := ASessionID;
+  FWebVars.SessionPath := ASessionPath;
+  FWebVars.SessionDuration := ASessionDuration;
 end;
 
 procedure TTemplate.SetCookie(var Params:TStringList);
@@ -280,7 +277,17 @@ begin
 end;
 
 procedure TTemplate.DestroySession(var Params:TStringList);
+var
+  ParamsC:TStringList;
 begin
+  ParamsC := TStringList.Create;
+  ParamsC.Add('sessionID');
+  DropCookie(ParamsC);
+  ParamsC.Clear;
+  ParamsC.Add('session');
+  UnloadGen(ParamsC);
+  ParamsC.Free;
+  DeleteFile(FWebVars.SessionPath+DirectorySeparator+FWebVars.SessionId+'.gen');
 
 end;
 
@@ -329,22 +336,27 @@ var
   ASession: TGenFile;
   SessionId, SessionFile:string;
   ParamsC:TStringList;
+  i:integer;
 begin
   if FWebVars.SessionId = '' then
   begin
     SessionId := CreateSessionId;
+    FwebVars.SessionId := SessionId;
     ASession := TGenFile.Create;
     ASession.SetValue('_session:sessionID',SessionId);
   	ASession.SetValue('_session:expiresAt',FormatDateTime(
   	  DATE_INTERCHANGE_FORMAT,IncMinute(Now,FWebVars.SessionDuration)
   	));
-    ASession.Save(FWebVars.SessionPath+DirectorySeparator+SessionId+'.gen');
+    ASession.FullName := FWebVars.SessionPath+DirectorySeparator+SessionId+'.gen';
+    ASession.Save;
     ASession.Free;
     ParamsC := TStringList.Create;
     ParamsC.Add('sessionID');
     ParamsC.Add(SessionId);
     SetCookie(ParamsC);
     ParamsC.Free;
+    i := FGenFileSet.IndexOf('session');
+    FGenFileSet.GenFiles[i].GenFile.Load(FWebVars.SessionPath+DirectorySeparator+SessionId+'.gen');
 	end
   else
     WriteLn('Session already created');
@@ -540,6 +552,7 @@ begin
   else
     TempAlias := GetFileName(GetFileName(IncName, False), False);
   ATemp := TTemplate.Create(IncName, FExpLocation);
+  ATemp.SetWebVars(FWebVars.SessionId,FWebVars.SessionPath,FWebVars.SessionDuration);
   ATemp.ParseTemplate(FGenFileSet);
   for ALine in ATemp.ParsedLines do
     FParsed.Add(ALine);
@@ -1174,6 +1187,7 @@ begin
     'abort' : ParseAbort(Params);
     'goTo' : RedirectTo(Params);
     'createSession' : CreateSession(Params);
+    'destroySession' : DestroySession(Params);
     'setSessionVar' : SetSessionVar(Params);
     'dropSessionVar' : DropSessionVar(Params);
     'setCookie' : SetCookie(Params);
@@ -1353,7 +1367,7 @@ var
 begin
   Ret := ADefault;
 
-  i := StrToInt(AnAlias);
+  i := FGenFileSet.IndexOf(AnAlias);
   if i > -1 then
   begin
     Pairs := FGenFileSet.GenFiles[i].GenFile.Pairs;
