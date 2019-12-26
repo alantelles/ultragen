@@ -165,10 +165,11 @@ var
   C: TCookie;
   ATemplate: TTemplate;
   AGenSet: TGenFileSet;
-  AGenReq, AConfig, ASession: TGenFile;
+  AGenReq, AConfig, ASession, AFileGen: TGenFile;
   DumpTemplate, Route, s: string;
   i: integer;
   SessionID, ExpireTime, SessionFile:string;
+  AnAlias:string;
 begin
   if FDontServe then
     Exit;
@@ -187,6 +188,30 @@ begin
       AGenReq.SetValue('_get:' + ARequest.QueryFields.Names[i],
         ARequest.QueryFields.ValueFromIndex[i]);
   end;
+
+  if ARequest.Files.Count > 0 then
+  begin
+    //alias: _files:[fieldName]:0
+    for i:=0 to ARequest.Files.Count - 1 do
+    begin
+      AFileGen := TGenFile.Create;
+      AFileGen.SetValue('fileName',ARequest.Files[i].FileName);
+      AFileGen.SetValue('size',IntToStr(ARequest.Files[i].Size));
+      AFileGen.SetValue('serverName',ARequest.Files[i].LocalFileName);
+      AnAlias := '_files:'+ARequest.Files[i].FieldName+':'+IntToStr(i);
+      AGenSet.Add(AFileGen,AnAlias);
+    end;
+    {
+    Property FieldName: String Read FFieldName Write FFieldName;
+  Property FileName: String Read FFileName Write FFileName;
+  Property Stream: TStream Read GetStream;
+  Property Size: Int64 Read FSize Write FSize;
+  Property ContentType: String Read FContentType Write FContentType;
+  Property Disposition: String Read FDisposition Write FDisposition;
+  Property LocalFileName: String Read FLocalFileName Write FLocalFileName;
+  Property Description: String Read FDescription Write FDescription;
+    }
+	end;
 
   if ARequest.ContentFields.Count > 0 then
   begin

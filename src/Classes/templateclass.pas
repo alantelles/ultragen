@@ -832,6 +832,7 @@ end;
 procedure TTemplate.BreakFor;
 begin
   FForLoops[FForLevel].Times := 0;
+  FForLoops[FForLevel].Infinite := False;
   FForSkip := True;
 end;
 
