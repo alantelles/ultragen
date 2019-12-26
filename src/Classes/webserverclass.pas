@@ -213,7 +213,7 @@ begin
   AGenReq.SetValue('_sessionID',SessionID);
   AGenReq.SetValue('_sessionFile',SessionFile);
   AGenSet.Add(AConfig, 'app');
-  if ARequest.CookieFields.IndexOfName('sessionID') > 0 then
+  if ARequest.CookieFields.IndexOfName('sessionID') > -1 then
   begin
     SessionId := ARequest.CookieFields.Values['sessionID'];
     SessionFile := FSessionsPath+DirectorySeparator+SessionId+'.gen';
@@ -222,7 +222,7 @@ begin
     begin
       ASession.SetValue('_session:sessionID',SessionId);
       ASession.SetValue('_session:expiresAt',FormatDateTime(
-          DATE_INTERCHANGE_FORMAT,IncMinute(Now,StrToInt(AConfig.GetValue('_sessionDuration').Value))
+          DATE_INTERCHANGE_FORMAT,IncMinute(Now,FSessionDuration)
       ));
       ASession.Save(FSessionsPath+DirectorySeparator+SessionID+'.gen');
     end
@@ -231,10 +231,15 @@ begin
       ASession.Load(SessionFile);
 		end;
     AGenSet.Add(ASession, 'session');
+	end
+  else
+  begin
+    SessionFile := '';
+    SessionId := '';
 	end;
-  AGenSet.Add(AGenReq, 'request');
+	AGenSet.Add(AGenReq, 'request');
   ATemplate := TTemplate.Create(FLoader);
-  ATemplate.SetWebVars(SessionFile,SessionId, FSessionsPath);
+  ATemplate.SetWebVars(SessionId, FSessionsPath, FSessionDuration);
   ATemplate.ParseTemplate(AGenSet);
   DumpTemplate := ATemplate.ParsedLines.Text;
   AGenSet.Free;

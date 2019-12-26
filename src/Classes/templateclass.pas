@@ -46,9 +46,8 @@ type
   end;
 
   TWebVars = record
-    SessionFile,SessionId, SessionPath:string;
-    Request: TRequest;
-    Response: TResponse;
+    SessionId, SessionPath:string;
+    SessionDuration:integer;
 	end;
 
   TDefaultParam = record
@@ -197,7 +196,7 @@ type
     procedure CreateSession(var Params:TStringList);
     procedure DropCookie(var Params:TStringList);
     //end web procedures
-    procedure SetWebVars(ASessionFile, ASessionId, ASessionPath:string);
+    procedure SetWebVars(ASessionId, ASessionPath:string; SessionDuration:integer);
 
     destructor Destroy; override;
   end;
@@ -247,13 +246,13 @@ begin
   end;
 end;
 
-procedure TTemplate.SetWebVars(ASessionFile, ASessionId, ASessionPath:string);
+procedure TTemplate.SetWebVars(ASessionId, ASessionPath:string; SessionDuration:integer);
 begin
   with FWebVars do
   begin
     SessionID := ASessionID;
     SessionPath := ASessionPath;
-    SessionFile := ASessionFile;
+    SessionDuration := SessionDuration;
 	end;
 end;
 
@@ -320,8 +319,29 @@ begin
 end;
 
 procedure TTemplate.CreateSession(var Params:TStringList);
+var
+  ASession: TGenFile;
+  SessionId, SessionFile:string;
+  ParamsC:TStringList;
 begin
-
+  if FWebVars.SessionId = '' then
+  begin
+    SessionId := CreateSessionId;
+    ASession := TGenFile.Create;
+    ASession.SetValue('_session:sessionID',SessionId);
+  	ASession.SetValue('_session:expiresAt',FormatDateTime(
+  	  DATE_INTERCHANGE_FORMAT,IncMinute(Now,FWebVars.SessionDuration)
+  	));
+    ASession.Save(FWebVars.SessionPath+DirectorySeparator+SessionId+'.gen');
+    ASession.Free;
+    ParamsC := TStringList.Create;
+    ParamsC.Add('sessionID');
+    ParamsC.Add(SessionId);
+    SetCookie(ParamsC);
+    ParamsC.Free;
+	end
+  else
+    WriteLn('Session already created');
 end;
 
 procedure TTemplate.CreateGen(var Params:TStringList);
@@ -1147,6 +1167,7 @@ begin
     // End of Gen operations
     'abort' : ParseAbort(Params);
     'goTo' : RedirectTo(Params);
+    'createSession' : CreateSession(Params);
     'setSessionVar' : SetSessionVar(Params);
     'dropSessionKey' : DropSessionVar(Params);
     'setCookie' : SetCookie(Params);
