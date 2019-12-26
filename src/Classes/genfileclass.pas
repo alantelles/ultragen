@@ -222,7 +222,7 @@ begin
       begin
         FPairs[i] := FPairs[Length(FPairs)-1];
         SetLength(FPairs,Length(FPairs)-1);
-        Exit;
+        Break;
       end;
     end;
 end;

@@ -196,7 +196,7 @@ type
     procedure CreateSession(var Params:TStringList);
     procedure DropCookie(var Params:TStringList);
     //end web procedures
-    procedure SetWebVars(ASessionId, ASessionPath:string; SessionDuration:integer);
+    procedure SetWebVars(ASessionId, ASessionPath:string; ASessionDuration:integer);
 
     destructor Destroy; override;
   end;
@@ -246,13 +246,13 @@ begin
   end;
 end;
 
-procedure TTemplate.SetWebVars(ASessionId, ASessionPath:string; SessionDuration:integer);
+procedure TTemplate.SetWebVars(ASessionId, ASessionPath:string; ASessionDuration:integer);
 begin
   with FWebVars do
   begin
     SessionID := ASessionID;
     SessionPath := ASessionPath;
-    SessionDuration := SessionDuration;
+    SessionDuration := ASessionDuration;
 	end;
 end;
 
@@ -288,26 +288,32 @@ procedure TTemplate.SetSessionVar(var Params:TStringList);
 var
   AGenFile:TGenFile;
   SessionFile:string;
+  i:integer;
 begin
-  SessionFile := Params[0];
+  SessionFile := FWebVars.SessionPath+DirectorySeparator+FWebVars.SessionId+'.gen';
   AGenFile := TGenFile.Create;
   AGenFile.Load(SessionFile);
-  AGenFile.SetValue(Params[1],Params[2]);
+  AGenFile.SetValue('_session:'+Params[0],Params[1]);
   AGenFile.Save;
   AGenFile.Free;
+  i := FGenFileSet.IndexOf('session');
+  FGenFileSet.GenFiles[i].GenFile.Load(SessionFile);
 end;
 
 procedure TTemplate.DropSessionVar(var Params:TStringList);
 var
   AGenFile:TGenFile;
   SessionFile:string;
+  i:integer;
 begin
-  SessionFile := Params[0];
+  SessionFile := FWebVars.SessionPath+DirectorySeparator+FWebVars.SessionId+'.gen';
   AGenFile := TGenFile.Create;
   AGenFile.Load(SessionFile);
-  AGenFile.DropKey(Params[1]);
+  AGenFile.DropKey('_session:'+Params[0]);
   AGenFile.Save;
   AGenFile.Free;
+  i := FGenFileSet.IndexOf('session');
+  FGenFileSet.GenFiles[i].GenFile.Load(SessionFile);
 end;
 
 procedure TTemplate.RedirectTo(var Params:TstringList);
@@ -1169,7 +1175,7 @@ begin
     'goTo' : RedirectTo(Params);
     'createSession' : CreateSession(Params);
     'setSessionVar' : SetSessionVar(Params);
-    'dropSessionKey' : DropSessionVar(Params);
+    'dropSessionVar' : DropSessionVar(Params);
     'setCookie' : SetCookie(Params);
     'setRawCookie' : SetRawCookie(Params);
     'dropCookie' : DropCookie(Params);
