@@ -195,6 +195,7 @@ type
     procedure SetCookie(var Params:TStringList);
     procedure SetRawCookie(var Params:TStringList);
     procedure CreateSession(var Params:TStringList);
+    procedure DropCookie(var Params:TStringList);
     //end web procedures
     procedure SetWebVars(ASessionFile, ASessionId, ASessionPath:string);
 
@@ -273,6 +274,12 @@ begin
     RawPart := '; '+Params[2];
 	FParsed.Add('<script>document.cookie="'+Params[0]+'='+Params[1]+RawPart+'"</script>');
 end;
+
+procedure TTemplate.DropCookie(var Params:TStringList);
+begin
+  FParsed.Add('<script>document.cookie="'+Params[0]+'= ; expires= Thu, 01 Jan 1970 00:00:00 GMT"</script>');
+end;
+
 procedure TTemplate.DestroySession(var Params:TStringList);
 begin
 
@@ -1144,6 +1151,7 @@ begin
     'dropSessionKey' : DropSessionVar(Params);
     'setCookie' : SetCookie(Params);
     'setRawCookie' : SetRawCookie(Params);
+    'dropCookie' : DropCookie(Params);
     else
       Return := False;
   end;
