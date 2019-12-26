@@ -214,6 +214,7 @@ begin
   AGenReq.SetValue('_sessionFile',SessionFile);
   AGenSet.Add(AConfig, 'app');
   ASession := TGenFile.Create;
+
   if ARequest.CookieFields.IndexOfName('sessionID') > -1 then
   begin
     SessionId := ARequest.CookieFields.Values['sessionID'];
@@ -234,6 +235,7 @@ begin
 	end
   else
   begin
+    ASession.ClearValues;
     SessionFile := '';
     SessionId := '';
 	end;

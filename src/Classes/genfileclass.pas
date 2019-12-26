@@ -38,6 +38,7 @@ type
     procedure Append(AKey,AValue:string);
     procedure Prepend(AKey,AValue:string);
     procedure Print;
+    procedure ClearValues;
   end;
 
 implementation
@@ -47,6 +48,11 @@ constructor TGenFile.Create;
 begin
   FDefault := DEF_IF_NOT;
   FGenSep := GEN_SEP;
+end;
+
+procedure TGenFile.ClearValues;
+begin
+  SetLength(FPairs,0);
 end;
 
 function TGenFile.Name:string;

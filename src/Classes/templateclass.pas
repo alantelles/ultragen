@@ -297,14 +297,17 @@ var
   SessionFile:string;
   i:integer;
 begin
-  SessionFile := FWebVars.SessionPath+DirectorySeparator+FWebVars.SessionId+'.gen';
-  AGenFile := TGenFile.Create;
-  AGenFile.Load(SessionFile);
-  AGenFile.SetValue('_session:'+Params[0],Params[1]);
-  AGenFile.Save;
-  AGenFile.Free;
-  i := FGenFileSet.IndexOf('session');
-  FGenFileSet.GenFiles[i].GenFile.Load(SessionFile);
+  if FWebVars.SessionId <> '' then
+  begin
+    SessionFile := FWebVars.SessionPath+DirectorySeparator+FWebVars.SessionId+'.gen';
+    AGenFile := TGenFile.Create;
+    AGenFile.Load(SessionFile);
+    AGenFile.SetValue('_session:'+Params[0],Params[1]);
+    AGenFile.Save;
+    AGenFile.Free;
+    i := FGenFileSet.IndexOf('session');
+    FGenFileSet.GenFiles[i].GenFile.Load(SessionFile);
+	end;
 end;
 
 procedure TTemplate.DropSessionVar(var Params:TStringList);
