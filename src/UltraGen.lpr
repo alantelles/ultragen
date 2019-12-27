@@ -42,8 +42,14 @@ begin
   //calling modes
   //a set of gens example
   //ultragen -set src1.gen|src2.gen -templates teste.ultra.txt|teste2.ultra.txt
-  //new call
+  //new call        f
   //ultragen [template name] [genmode] [genpath]
+
+  if (ParamCount = 1) and (ParamStr(1) = 'special') then
+  begin
+    //JsonToGen;
+    Exit;
+  end;
 
   // server mode
   //--serve appName mode port

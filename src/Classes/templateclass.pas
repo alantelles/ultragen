@@ -145,7 +145,7 @@ type
     property ElseLevel: integer read FElseLevel write FElseLevel;
     property IfRecursion: TIfRecursion read FIfTests write FIfTests;
     property WebVars: TWebVars read FWebVars write FWebVars;
-
+    property UserFunctions: TUserFunctions read FUserFunctions write FUserFunctions;
 
     function Name: string;
     function SetPredefined(AKey, AValue: string): boolean;
@@ -209,7 +209,7 @@ type
     procedure DropCookie(var Params:TStringList);
     procedure SetWebVars(ASessionId, ASessionPath:string; ASessionDuration:integer);
     //end web procedures
-    procedure StartFunction(var Params:TStringList; HasRet: boolean);
+    procedure StartFunction(var Params:TStringList; var PureParams:TStringList; HasRet: boolean);
     procedure EndFunction;
     procedure AddLineToFunction(ALine:string);
     procedure ExecuteFunction(FuncName:string; var Params:TStringList);
@@ -566,6 +566,7 @@ var
   IncName, TempAlias, ALine: string;
   i: integer;
   Dump: TGenFile;
+  F: TUserFunction;
 begin
   IncName := Params[0];
   if (Params.Count > 1) and (Params[1] <> '') then
@@ -579,6 +580,19 @@ begin
     FParsed.Add(ALine);
   for APair in ATemp.Variables do
     SetVariable(TempAlias + ATTR_ACCESSOR + APair.Key, APair.Value);
+  i := Length(FUserFunctions);
+  for F in ATemp.UserFunctions do
+  begin
+    SetLength(FUserFunctions,i+1);
+    FUserFunctions[i].FunctionName := TempAlias + ATTR_ACCESSOR + F.FunctionName;
+    FUserFunctions[i].HasReturn := F.HasReturn;
+    FUserFunctions[i].Args := TStringList.Create;
+    for ALine in F.Args do
+      FUserFunctions[i].Args.Add(ALine);
+    FUserFunctions[i].Lines := TStringList.Create;
+    for ALine in F.Lines do
+      FUserFunctions[i].Lines.Add(ALine);
+  end;
   ATemp.Free;
 end;
 
@@ -1196,9 +1210,18 @@ begin
     'execute':Execute(Params);
     'drop': DropVariable(Params[0]);
     'loadText' : LoadText(Params);
+    //fileHandling
     'listFiles': ListFiles(Params);
     'move' : Move(Params);
     'copy' : TempFileCopy(Params);
+    'mkdir' :
+    begin
+      if Params.Count = 1 then
+        CreateDirTree(Params[0],False)
+      else if (Params.Count = 2) and (Params[1] = 'FILE') then
+        CreateDirTree(Params[0],True);
+    end;
+    //end filehandling
     'renderBlank': FOverrides.RenderBlank := True;
     'pause' : DoPause(Params);
     // Gen operations
@@ -1219,10 +1242,17 @@ begin
     'setRawCookie' : SetRawCookie(Params);
     'dropCookie' : DropCookie(Params);
     // end web operations
-    'function' : StartFunction(PureParams,True);
+    //user functions
+    'function' : StartFunction(Params, PureParams ,True);
     'endFunction' : EndFunction;
-    'proc' : StartFunction(PureParams,False);
+    'proc' : StartFunction(Params, PureParams, False);
     'endProc' : EndFunction;
+    'callProc' :
+    begin
+         a := Params[0];
+         Params.Delete(0);
+         ExecuteFunction(a,Params);
+    end
     else
     begin
       if True then
@@ -1232,13 +1262,14 @@ begin
       else
         Return := False;
     end;
+    //end user functions
   end;
   PureParams.Free;
   Params.Free;
   Result := Return;
 end;
 
-procedure TTemplate.StartFunction(var Params:TStringList; HasRet:boolean);
+procedure TTemplate.StartFunction(var Params:TStringList; var PureParams:TStringList; HasRet:boolean);
 //Params[0] = [funcname]
 //Params[n] ... variables
 var
@@ -1246,7 +1277,7 @@ var
 begin
   len := Length(FUserFunctions);
   SetLength(FUserFunctions,len+1);
-  FUserFunctions[len].FunctionName := Params[0];
+  FUserFunctions[len].FunctionName := PureParams[0];
   FUserFunctions[len].Args := TStringList.Create;
   FUserFunctions[len].Lines := TStringList.Create;
   FUserFunctions[len].Args.AddStrings(Params);
@@ -1257,12 +1288,13 @@ end;
 
 procedure TTemplate.AddLineToFunction(ALine:string);
 begin
-  if ReplaceStr(ALine,OVER_STATE,'') <> 'endFunction' then
+  if (ReplaceStr(ALine,OVER_STATE,'') = 'endFunction') or
+     (ReplaceStr(ALine,OVER_STATE,'') = 'endProc')then
   begin
-    FUserFunctions[Length(FUserFunctions)-1].Lines.Add(OVER_STATE+ALine);
-  end
-  else
     FAddToFunction := False;
+  end
+  else                                            
+    FUserFunctions[Length(FUserFunctions)-1].Lines.Add(OVER_STATE+ALine);
 end;
 
 procedure TTemplate.EndFunction;
@@ -1276,26 +1308,35 @@ end;
 procedure TTemplate.ExecuteFunction(FuncName: string; var Params:TStringList);
 var
   ATemplate: TTemplate;
-  AGenSet: TGenFileSet;
-  FuncIndex, Len, i:integer;
+  Len, i, j:integer;
 begin
-  AGenSet := TGenFileSet.Create;
   Len := Length(FUserFunctions);
   if Len > 0 then
   begin
     for i:=0 to Len - 1 do
     begin
-      if FUserFunctions[i].FunctionName = Params[0] then
+      if (FUserFunctions[i].FunctionName = FuncName) and (not FUserFunctions[i].HasReturn) then
       begin
-        FuncIndex := i;
+        ATemplate := TTemplate.Create;
+        ATemplate.FullName := FuncName;
+        ATemplate.TempLines.AddStrings(FUserFunctions[i].Lines);
+        if FUserFunctions[i].Args.Count > 0 then
+        begin
+          for j:=0 to Params.Count-1 do
+          begin
+            try
+              ATemplate.SetVariable(FUserFunctions[i].Args[j],Params[j]);
+            except
+
+            end;
+          end;
+        end;
+        ATemplate.ParseTemplate(FGenFileSet,FParsed);
+        ATemplate.Free;
         break
       end;
     end;
-    ATemplate := TTemplate.Create;
-    ATemplate.FullName := FuncName;
-    ATemplate.TempLines.AddStrings(FUserFunctions[FuncIndex].Lines);
-    ATemplate.ParseTemplate(AGenSet,FParsed);
-    ATemplate.Free;
+
   end;
 end;
 

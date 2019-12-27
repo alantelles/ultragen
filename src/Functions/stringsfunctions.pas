@@ -150,9 +150,13 @@ begin
     mid := AList.Count div 2;
     for i:=0 to mid-1 do
     begin
-      Aux := AList[i];
-      AList[i] := AList[(AList.Count-1)-i];
-      AList[(AList.Count-1)+i] := Aux;
+      try
+        Aux := AList[i];
+        AList[i] := AList[(AList.Count-1)-i];
+        AList[(AList.Count-1)-i] := Aux;
+
+      finally
+      end;
     end;
   end;
 end;
