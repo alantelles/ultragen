@@ -45,6 +45,13 @@ type
     RenderBlank: boolean;
   end;
 
+  TUserFunction = record
+    FunctionName: string;
+    Args: TStringList;
+    Lines: TStringList;
+    HasReturn: boolean;
+  end;
+
   TWebVars = record
     SessionId, SessionPath:string;
     SessionDuration:integer;
@@ -69,6 +76,7 @@ type
   end;
   TForRecursion = array of TForLevel;
   TIfrecursion = array of boolean;
+  TUserFunctions = array of TUserFunction;
 
 type
   TTemplate = class
@@ -97,11 +105,14 @@ type
     FForSkip:boolean;
     FAbort: boolean;
     FWebVars: TWebVars;
+    FUserFunctions: TUserFunctions;
+    FAddToFunction: boolean;
   public
     constructor Create(ATempName: string = ''; AExpLocation: string = '.');
     property RenderBlank: boolean read FOverrides.RenderBlank
       write FOverrides.RenderBlank;
     property DoAbort:boolean read FAbort write FAbort;
+    property AddToFunction:boolean read FAddToFunction write FAddToFunction;
     property ForSkip:boolean read FForSkip write FForSkip;
     property LoopTypeLast:string read FLoopTypeLast write FLoopTypeLast;
     property LoopType:string read FLoopType write FLoopType;
@@ -114,7 +125,7 @@ type
     property Rewind: boolean read FRewind write FRewind;
     property Skip: boolean read FSkip write FSkip;
     property CanSave: boolean read FCanSave write FCanSave;
-    property FullName: string read FFullName;
+    property FullName: string read FFullName write FFullName;
     property GenFile: TGenFile read FGenFile;
     property GenFileSet: TGenFileSet read FGenFileSet;
     property TempLines: TStringList read FLines write FLines;
@@ -134,6 +145,7 @@ type
     property ElseLevel: integer read FElseLevel write FElseLevel;
     property IfRecursion: TIfRecursion read FIfTests write FIfTests;
     property WebVars: TWebVars read FWebVars write FWebVars;
+
 
     function Name: string;
     function SetPredefined(AKey, AValue: string): boolean;
@@ -195,8 +207,12 @@ type
     procedure SetRawCookie(var Params:TStringList);
     procedure CreateSession(var Params:TStringList);
     procedure DropCookie(var Params:TStringList);
-    //end web procedures
     procedure SetWebVars(ASessionId, ASessionPath:string; ASessionDuration:integer);
+    //end web procedures
+    procedure StartFunction(var Params:TStringList; HasRet: boolean);
+    procedure EndFunction;
+    procedure AddLineToFunction(ALine:string);
+    procedure ExecuteFunction(FuncName:string; var Params:TStringList);
 
     destructor Destroy; override;
   end;
@@ -253,6 +269,8 @@ begin
   FWebVars.SessionDuration := ASessionDuration;
 end;
 
+
+
 procedure TTemplate.SetCookie(var Params:TStringList);
 var
   Expires: string='';
@@ -287,7 +305,7 @@ begin
   ParamsC.Add('session');
   UnloadGen(ParamsC);
   ParamsC.Free;
-  DeleteFile(FWebVars.SessionPath+DirectorySeparator+FWebVars.SessionId+'.gen');
+  SysUtils.DeleteFile(FWebVars.SessionPath+DirectorySeparator+FWebVars.SessionId+'.gen');
 
 end;
 
@@ -1123,13 +1141,15 @@ function TTemplate.SetPredefined(AKey, AValue: string): boolean;
 var
   Return: boolean = True;
   AParser:TTempParser;
-  Params:TStringList;
+  Params, PureParams:TStringList;
   i:integer;
   a:string;
 begin
   Params := TSTringList.Create;
   AParser := TTempParser.Create(Self);
   AParser.ParseParams(AValue, Params);
+  PureParams := TStringList.Create;
+  PureParams.AddStrings(Params);
   if Params.Count > 0 then
   begin
     for i:=0 to Params.Count-1 do
@@ -1188,6 +1208,7 @@ begin
     'unloadGen' : UnloadGen(Params);
     'loadGenFolder' : LoadGenFolder(Params);
     // End of Gen operations
+    //start web operations
     'abort' : ParseAbort(Params);
     'goTo' : RedirectTo(Params);
     'createSession' : CreateSession(Params);
@@ -1197,14 +1218,86 @@ begin
     'setCookie' : SetCookie(Params);
     'setRawCookie' : SetRawCookie(Params);
     'dropCookie' : DropCookie(Params);
+    // end web operations
+    'function' : StartFunction(PureParams,True);
+    'endFunction' : EndFunction;
+    'proc' : StartFunction(PureParams,False);
+    'endProc' : EndFunction;
     else
-      Return := False;
+    begin
+      if True then
+      begin
+        ExecuteFunction(AKey,Params);
+      end
+      else
+        Return := False;
+    end;
   end;
+  PureParams.Free;
   Params.Free;
   Result := Return;
 end;
 
+procedure TTemplate.StartFunction(var Params:TStringList; HasRet:boolean);
+//Params[0] = [funcname]
+//Params[n] ... variables
+var
+  len:integer;
+begin
+  len := Length(FUserFunctions);
+  SetLength(FUserFunctions,len+1);
+  FUserFunctions[len].FunctionName := Params[0];
+  FUserFunctions[len].Args := TStringList.Create;
+  FUserFunctions[len].Lines := TStringList.Create;
+  FUserFunctions[len].Args.AddStrings(Params);
+  FUserFunctions[len].Args.Delete(0);
+  FUserFunctions[len].HasReturn := HasRet;
+  FAddToFunction := True;
+end;
 
+procedure TTemplate.AddLineToFunction(ALine:string);
+begin
+  if ReplaceStr(ALine,OVER_STATE,'') <> 'endFunction' then
+  begin
+    FUserFunctions[Length(FUserFunctions)-1].Lines.Add(OVER_STATE+ALine);
+  end
+  else
+    FAddToFunction := False;
+end;
+
+procedure TTemplate.EndFunction;
+begin
+  FUserFunctions[Length(FUserFunctions)-1].Lines.Delete(
+    FuserFunctions[Length(FUserFunctions)-1].Lines.Count - 1
+  );
+  FAddToFunction := False;
+end;
+
+procedure TTemplate.ExecuteFunction(FuncName: string; var Params:TStringList);
+var
+  ATemplate: TTemplate;
+  AGenSet: TGenFileSet;
+  FuncIndex, Len, i:integer;
+begin
+  AGenSet := TGenFileSet.Create;
+  Len := Length(FUserFunctions);
+  if Len > 0 then
+  begin
+    for i:=0 to Len - 1 do
+    begin
+      if FUserFunctions[i].FunctionName = Params[0] then
+      begin
+        FuncIndex := i;
+        break
+      end;
+    end;
+    ATemplate := TTemplate.Create;
+    ATemplate.FullName := FuncName;
+    ATemplate.TempLines.AddStrings(FUserFunctions[FuncIndex].Lines);
+    ATemplate.ParseTemplate(AGenSet,FParsed);
+    ATemplate.Free;
+  end;
+end;
 
 procedure TTemplate.DoPause(var Params:TStringList);
 var i:longint;
@@ -1260,6 +1353,7 @@ begin
   end;
   Result := Return;
 end;
+
 
 function TTemplate.GetImportedValue(AnAlias, AKey: string): string;
 var
@@ -1484,6 +1578,7 @@ begin
     FIfLevel := -1;
     FSkip := False;
     FRewind := False;
+    SetLength(FUserFunctions,0);
     AParser := TTempParser.Create(Self);
     AParser.ParseTemplate(OutputParsed);
     AParser.Free;

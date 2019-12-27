@@ -828,16 +828,6 @@ begin
       end;
     end
 
-    else if (AFuncName = 'num') and (PArams.Count = 1) then
-    begin
-      try
-        m := StrToFloat(Params[0]);
-        Return := FloatToStr(m)
-      except
-        Return := '0'
-      end;
-    end
-
     { Interaction manipulations }
     else if (AFuncName = 'insert') and (Params.Count = 2) then
       Return := InsertTemplate(Params[0], Params[1])
@@ -954,6 +944,17 @@ begin
       Return := StringsFunctions.SuperHash(Params[0])
     else if (AFuncName = 'indexOf') and (Params.Count = 2) then
       Return := IntToStr(Pos(Params[0], Params[1]))
+    else if (AFuncName = 'trim') and (Params.Count = 1) then
+      Return := Trim(Params[0])
+    else if (AFuncName = 'trim') and (Params.Count = 2) then
+    begin
+      if (lowercase(Params[1]) = 'l') or (lowercase(Params[1]) = 'left') then
+        Return := TrimLeft(Params[0])
+      else if (lowercase(Params[1]) = 'r') or (lowercase(Params[1]) = 'right') then
+        Return := TrimRight(Params[0])
+      else
+        Return := Trim(Params[0]);
+    end
 
     //HTML
     else if (AFuncName = 'nl2br') and (Params.Count = 1) then
@@ -1110,6 +1111,12 @@ begin
     while (i < FTemplate.TempLines.Count) do
     begin
       x := Trim(FTemplate.TempLines[i]);
+      if FTemplate.AddToFunction then
+      begin
+        FTemplate.AddLineToFunction(x);
+        i := i + 1;
+        continue;
+      end;
       if i > 0 then
         y := Trim(FTemplate.TempLines[i - 1]);
       if FTemplate.DoAbort then
