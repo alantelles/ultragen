@@ -26,7 +26,7 @@ type
     class function IsInToken(Line, Test: string): boolean; static;
     function ParseLine(Line: string): TParseResult;
     function ParseToken(AToken: string): string;
-    function ParseTemplate(var OutputParsedLines: TStringList): TTempParser;
+    function ParseTemplate(var OutputParsedLines: TStringList): string;
     function IsFunction(AToken: string): boolean;
     function IsReserved(AToken: string): boolean;
     function IsVari(AToken: string): boolean;
@@ -37,15 +37,12 @@ type
     function IsFromGenSet(AToken: string): boolean;
     function IsFromParent(AToken: string): boolean;
     function IsAnAlias(AToken: string): boolean;
+    function IsUserFunction(AFuncName: string; var i:integer): integer;
     function GetLiteral(AToken: string): string;
     function GetTimeStr(AToken: string): string;
     function ParseParams(AList: string; var ArgsAsList: TStringList): TTempParser;
     function PrintSection(ASection: string): string;
     function ParseFunction(AFuncName: string; var Params: TStringList): string;
-    function ExternalExists(AFuncPath: string): boolean;
-    function ExternalPath(AFuncPath: string): string;
-    function CallExternal(ExtPath, FuncName: string; var Params: TStringList): string;
-    function CallExternal(ExtPath: string; var Params: TStringList): string;
     function InsertTemplate(ATempName, AgenName: string): string;
     function InsertTemplate(ATempName: string): string;
     function InsertTemplate(var Params: TStringList): string;
@@ -213,6 +210,26 @@ begin
     Result := True
   else
     Result := False;
+end;
+
+function TTempParser.IsUserFunction(AFuncName:string; var i:integer): integer;
+var
+  j, len:integer;
+begin
+  i := -1;
+  len := Length(FTemplate.UserFunctions);
+  if len > 0 then
+  begin
+    for j:=0 to len-1 do
+    begin
+      if FTemplate.UserFunctions[j].FunctionName = AFuncName then
+      begin
+        i := j;
+        break;
+      end;
+    end;
+  end;
+  Result := i;
 end;
 
 function TTempParser.IsFromGenSet(AToken: string): boolean;
@@ -660,7 +677,7 @@ begin
   AFuncName := Trim(AFuncName);
   //if exists a default
   //the value must be inserted at position
-  if (Pos(ATTR_ACCESSOR, AFuncName) = 0) and (Pos(EXT_FUNC_SEP, AFuncName) = 0) then
+  if {(Pos(ATTR_ACCESSOR, AFuncName) = 0) and} (Pos(EXT_FUNC_SEP, AFuncName) = 0) then
   begin
     { Template attributes }
     if (AFuncName = 'templateName') and (Params.Count = 0) then
@@ -961,104 +978,24 @@ begin
       Return := ReplaceStr(Params[0], sLineBreak, '<br>' + sLineBreak)
     else if (AFuncName = 'inTag') and (Params.Count > 1) then
       Return := StringsFunctions.InTag(Params)
-    else if ExternalExists(AFuncName) then
-      Return := CallExternal(PROCESSORS_FOLDER + DirectorySeparator + AFuncName, Params)
+    else if IsUserFunction(AFuncName,i) > -1 then
+      Return := FTemplate.ExecuteFunction(AFuncName,True,Params)
     else
       Return := '';
   end
   else
   begin
-    if ExternalExists(EXTENSIONS_FOLDER + DirectorySeparator + AFuncName) or
-      ExternalExists(PROCESSORS_FOLDER + DirectorySeparator + AFuncName) then
-    begin
-      if Pos(ATTR_ACCESSOR, AFuncName) > 0 then
-      begin
-        ExtPath := Copy(AFuncName, 1, Pos(ATTR_ACCESSOR, AFuncName) - 1);
-        ExtName := Copy(AFuncName, Pos(ATTR_ACCESSOR, AFuncName) + 1, Length(AFuncName));
-        //Call a function from an extension
-        Return := CallExternal(EXTENSIONS_FOLDER + DirectorySeparator +
-          ExtPath, ExtName, Params);
-      end
-      else
-        Return := CallExternal(PROCESSORS_FOLDER + DirectorySeparator +
-          AFuncName, Params);
-    end;
+
   end;
   Result := Return;
 end;
 
-function TTempParser.ExternalExists(AFuncPath: string): boolean;
-begin
-  if ExternalPath(AFuncPath) <> '' then
-    Result := True
-  else
-    Result := False;
-end;
-
-function TTempParser.ExternalPath(AFuncPath: string): string;
-var
-  Exts, Return: string;
-begin
-  AFuncPath := ReplaceStr(AFuncPath, EXT_FUNC_SEP, DirectorySeparator);
-  if Pos(ATTR_ACCESSOR, AFuncPath) > 0 then
-    AFuncPath := Copy(AFuncPath, 1, Pos(ATTR_ACCESSOR, AFuncPath) - 1);
-  Return := '';
-  for Exts in EXT_ACCEPTED do
-  begin
-    if FileExists(AFuncPath + Exts) then
-    begin
-      Return := AFuncPath + Exts;
-      Break;
-    end;
-  end;
-  Result := Return;
-end;
-
-function TTempParser.CallExternal(ExtPath, FuncName: string;
-  var Params: TStringList): string;
-begin
-  Params.Insert(0, FuncName);
-  Result := CallExternal(ExtPath, Params);
-end;
-
-function TTempParser.CallExternal(ExtPath: string; var Params: TStringList): string;
-const
-  BUFFER_SIZE = 2048;
-var
-  FuncPath, P, Return: string;
-  AProcess: TProcess;
-  OutStream: TStream;
-  Buf: array[1..BUFFER_SIZE] of byte;
-  BytesRead: longint;
-begin
-  FuncPath := ExternalPath(ExtPath);
-  AProcess := TProcess.Create(nil);
-  AProcess.Executable := FuncPath;
-  AProcess.Parameters.AddStrings(Params);
-  AProcess.Options := [poUsePipes];
-  AProcess.Execute;
-  OutStream := TMemoryStream.Create;
-  repeat
-    BytesRead := AProcess.Output.Read(Buf, BUFFER_SIZE);
-    OutStream.Write(Buf, BytesRead);
-  until BytesRead = 0;
-  AProcess.Free;
-  with TStringList.Create do
-  begin
-    OutStream.Position := 0;
-    LoadFromStream(OutStream);
-    Return := Text;
-    Free;
-  end;
-  Result := Copy(Return, 1, Length(Return) - 2);
-end;
-
-function TTempParser.ParseTemplate(var OutputParsedLines: TStringList): TTempParser;
+function TTempParser.ParseTemplate(var OutputParsedLines: TStringList): string;
 var
   Key, Value, Line, LineTrim, Temp: string;
   PosAssoc, PosVarAssoc: integer;
   Unary: boolean;
-  AOpt, AOver, ATarget, AKey, x, y: string;
+  AOpt, AOver, ATarget, AKey, x, y, Return: string;
   PosAs, i, Times: integer;
   Params: TStringList;
 begin
@@ -1116,6 +1053,11 @@ begin
         FTemplate.AddLineToFunction(x);
         i := i + 1;
         continue;
+      end;
+      if FTemplate.OrderReturn then
+      begin
+        Return := FTemplate.ReturnValue;
+        Break;
       end;
       if i > 0 then
         y := Trim(FTemplate.TempLines[i - 1]);
@@ -1266,7 +1208,7 @@ begin
   end
   else
     FTemplate.CanSave := False;
-  Result := Self;
+  Result := FTemplate.ReturnValue;
 end;
 
 end.

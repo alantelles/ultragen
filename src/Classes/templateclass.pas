@@ -107,6 +107,8 @@ type
     FWebVars: TWebVars;
     FUserFunctions: TUserFunctions;
     FAddToFunction: boolean;
+    FOrderReturn: boolean;
+    FReturnValue: string;
   public
     constructor Create(ATempName: string = ''; AExpLocation: string = '.');
     property RenderBlank: boolean read FOverrides.RenderBlank
@@ -146,12 +148,14 @@ type
     property IfRecursion: TIfRecursion read FIfTests write FIfTests;
     property WebVars: TWebVars read FWebVars write FWebVars;
     property UserFunctions: TUserFunctions read FUserFunctions write FUserFunctions;
+    property OrderReturn:boolean read FOrderReturn write FOrderReturn;
+    property ReturnValue:string read FReturnValue;
 
     function Name: string;
     function SetPredefined(AKey, AValue: string): boolean;
     function Load(ATempName: string): TTemplate;
     function Load(ATempList: TStringList; ATempName: string): TTemplate;
-    procedure LoadText(var Params:TStringList);
+    procedure LoadText(var Params:TStringList; var PureParams:TStringList);
     function Save: TTemplate;
     procedure ProcessTemplate(var Params:TStringList; DoPrint:boolean=False);
     function GetVariable(AVarName: string): string;
@@ -162,11 +166,11 @@ type
     procedure ExtendTemplate(ATemplate: string; Parent: string = '');
     procedure IncludeTemplate(var Params:TStringList);
     procedure Execute(var Params:TStringList);
-    procedure InputValue(var Params:TStringList;DoParse:boolean);
-    function ParseTemplate(var AGen: TGenFileSet): TTemplate;
-    function ParseTemplate(var AGen: TGenFileSet; var OutputParsed: TStringList): TTemplate;
-    function ParseTemplate(var AGen: TGenFile): TTemplate;
-    function ParseTemplate(var AGen: TGenFile; var OutputParsed: TStringList): TTemplate;
+    procedure InputValue(var Params:TStringList;var PureParams:TStringList;DoParse:boolean);
+    function ParseTemplate(var AGen: TGenFileSet): string;
+    function ParseTemplate(var AGen: TGenFileSet; var OutputParsed: TStringList): string;
+    function ParseTemplate(var AGen: TGenFile): string;
+    function ParseTemplate(var AGen: TGenFile; var OutputParsed: TStringList): string;
     function GetWild(ASearch, AnAlias, ADefault: string): string;
     function GetWild(ASearch, AnAlias: string): string;
     function RouteMatch(ASearch, AnAlias:String; ADefault: string=''): string;
@@ -174,20 +178,20 @@ type
     procedure PrintLine(var Params:TStringList; ToConsole, ToOutput:boolean);
     procedure ParseAbort(var Params:TStringList);
     procedure PrintParsed;
-    procedure ForPrepare(var Params:TstringList; ForLoop:boolean = True);
+    procedure ForPrepare(var Params:TstringList ; var PureParams:TstringList; ForLoop:boolean = True);
     procedure BreakFor;
     procedure ContinueFor;
     procedure EndFor;
-    procedure LoopPrepare(var Params:TstringList; ForLoop:boolean = True);
+    procedure LoopPrepare(var Params:TstringList; var PureParams:TstringList; ForLoop:boolean = True);
     procedure EndLoop;
     function EvalFilter: boolean;
     function EvalBypass: boolean;
-    procedure ExplodeStr(var Params:TStringList);
+    procedure ExplodeStr(var Params:TStringList; var PureParams:TStringList);
     procedure Clear;
-    procedure IfPrepare(var Params:TStringList; IfNot: boolean);
+    procedure IfPrepare(var Params:TStringList; var PureParams:TStringList; IfNot: boolean);
     procedure ElseDecision;
     procedure EndIf;
-    procedure ListFiles(var Params:TStringList);
+    procedure ListFiles(var Params:TStringList; var PureParams:TStringList);
     procedure Move(var Params:TStringList);
     procedure TempFileCopy(var Params:TStringList);
     procedure DoPause(var Params:TStringList);
@@ -210,9 +214,10 @@ type
     procedure SetWebVars(ASessionId, ASessionPath:string; ASessionDuration:integer);
     //end web procedures
     procedure StartFunction(var Params:TStringList; var PureParams:TStringList; HasRet: boolean);
+    procedure FunctionReturn(var Params:TStringList);
     procedure EndFunction;
     procedure AddLineToFunction(ALine:string);
-    procedure ExecuteFunction(FuncName:string; var Params:TStringList);
+    function ExecuteFunction(FuncName:string; HasRet:boolean; var Params:TStringList): string;
 
     destructor Destroy; override;
   end;
@@ -461,14 +466,14 @@ begin
   end;
 end;
 
-procedure TTemplate.InputValue(var Params:TStringList; DoParse:boolean);
+procedure TTemplate.InputValue(var Params:TStringList; var PureParams:TStringList; DoParse:boolean);
 var
   AValue:string;
 begin
   if Params.Count = 2 then
      Write(Params[1]+' ');
   ReadLn(AValue);
-  SetVariable(Params[0],AValue,DoParse);
+  SetVariable(PureParams[0],AValue,DoParse);
 end;
 
 procedure TTemplate.SetGenValue(var Params:TStringList);
@@ -580,9 +585,9 @@ begin
     FParsed.Add(ALine);
   for APair in ATemp.Variables do
     SetVariable(TempAlias + ATTR_ACCESSOR + APair.Key, APair.Value);
-  i := Length(FUserFunctions);
   for F in ATemp.UserFunctions do
   begin
+    i := Length(FUserFunctions);
     SetLength(FUserFunctions,i+1);
     FUserFunctions[i].FunctionName := TempAlias + ATTR_ACCESSOR + F.FunctionName;
     FUserFunctions[i].HasReturn := F.HasReturn;
@@ -601,10 +606,11 @@ begin
   Result := GetFileName(GetFileName(FFullName, False), False);
 end;
 
-procedure TTemplate.ExplodeStr(var Params:TStringList);
+procedure TTemplate.ExplodeStr(var Params:TStringList; var PureParams:TStringList);
 var
   Explode: TStringList;
   i: integer;
+  t:string;
 begin
   Explode := TStringList.Create;
   Explode.StrictDelimiter := True;
@@ -613,11 +619,12 @@ begin
   else
     Explode.Delimiter := PARAM_SEP;
   Explode.DelimitedText := Params[0];
+  t := Params[0];
   if Params.Count = 4 then
   begin
-    if Params[3] = ASC then
+    if PureParams[3] = ASC then
       Explode.Sort
-    else if Params[3] = DESC then
+    else if PureParams[3] = DESC then
     begin
       Explode.Sort;
       ReverseList(Explode);
@@ -626,7 +633,7 @@ begin
   if Explode.Count > 0 then
   begin
     for i := 0 to Explode.Count - 1 do
-      SetVariable(Params[1] + '[' + IntToStr(i) + ']', Trim(Explode[i]));
+      SetVariable(PureParams[1] + '[' + IntToStr(i) + ']', Trim(Explode[i]));
   end;
   Explode.Free;
 end;
@@ -675,7 +682,7 @@ begin
   end;
 end;
 
-procedure TTemplate.LoadText(var Params:TStringList);
+procedure TTemplate.LoadText(var Params:TStringList; var PureParams:TStringList);
 var
   AText:TStringList;
   i:integer;
@@ -686,9 +693,9 @@ begin
     AText.LoadFromFile(Params[0]);
     if AText.Count > 0 then
     begin
-      SetVariable(Params[1],AText.Text);
+      SetVariable(PureParams[1],AText.Text);
       for i:=0 to AText.Count-1 do
-        SetVariable(Params[1]+'['+IntToStr(i)+']',AText[i]);
+        SetVariable(PureParams[1]+'['+IntToStr(i)+']',AText[i]);
     end;
   end;
   AText.Free;
@@ -759,7 +766,7 @@ begin
 end;
 
 
-procedure TTemplate.ForPrepare(var Params:TStringList;ForLoop:boolean = True);
+procedure TTemplate.ForPrepare(var Params:TStringList; var PureParams:TStringList; ForLoop:boolean = True);
 var
   Values: TStringList;
   ParamAsStr, Iterated: string;
@@ -771,7 +778,7 @@ begin
   FLoopType := FORDEV;
   FForLevel := FForLevel + 1;
   SetLength(FForLoops, FForLevel+1);
-  FForLoops[FForLevel].ControlVar := Params[1];
+  FForLoops[FForLevel].ControlVar := PureParams[1];
   FForLoops[FForLevel].GoToLine := FLineNumber + 2;
 
   FForLoops[FForLevel].List := TStringList.Create;
@@ -810,9 +817,9 @@ begin
 
   if Params.Count = 4 then
   begin
-    if Params[3] = ASC then
+    if PureParams[3] = ASC then
       FForLoops[FForLevel].List.Sort
-    else if Params[3] = DESC then
+    else if PureParams[3] = DESC then
     begin
       FForLoops[FForLevel].List.Sort;
       ReverseList(FForLoops[FForLevel].List);
@@ -873,7 +880,7 @@ begin
   FForSkip := True;
 end;
 
-procedure TTemplate.LoopPrepare(var Params:TStringList;ForLoop:boolean = True);
+procedure TTemplate.LoopPrepare(var Params:TStringList; var PureParams:TstringList;ForLoop:boolean = True);
 var
   Values: TStringList;
   ParamAsStr, Iterated: string;
@@ -897,14 +904,14 @@ begin
       Pause := StrToInt(Params[1]);
       FForLoops[FForLevel].PauseTime := Pause;
     except
-      FForLoops[FForLevel].ControlVar := Params[1];
+      FForLoops[FForLevel].ControlVar := PureParams[1];
     end;
   end;
   if Params.Count = 3 then
   begin
     Pause := StrToInt(Params[1]);
     FForLoops[FForLevel].PauseTime := Pause;
-    FForLoops[FForLevel].ControlVar := Params[2];
+    FForLoops[FForLevel].ControlVar := PureParams[2];
   end;
   FForLoops[FForLevel].GoToLine := FLineNumber + 2;
   FForLoops[FForLevel].Limit := Times;
@@ -969,7 +976,7 @@ begin
   Result := Self;
 end;
 
-procedure TTemplate.IfPrepare(var Params:TStringList; IfNot: boolean);
+procedure TTemplate.IfPrepare(var Params:TStringList; var PureParams:TStringList; IfNot: boolean);
 var
   a,b,c: string;
   Logic: boolean;
@@ -1182,17 +1189,17 @@ begin
     'exportAtRoot': FOverrides.ExpAtRoot := True;
     'import': ImportGenFile(Params);
     'include': IncludeTemplate(Params);
-    'for': ForPrepare(Params);
+    'for': ForPrepare(Params,PureParams);
     'endFor': EndFor;
     'break' : BreakFor;
     'continue' : ContinueFor;
-    'loop' : LoopPrepare(Params);
+    'loop' : LoopPrepare(Params,PureParams);
     'endLoop' : EndLoop;
-    'if': IfPrepare(Params, False);
-    'ifNot': IfPrepare(Params, True);
+    'if': IfPrepare(Params, PureParams, False);
+    'ifNot': IfPrepare(Params, PureParams, True);
     'else': ElseDecision;
     'endIf': EndIf;
-    'explode': ExplodeStr(Params);
+    'explode': ExplodeStr(Params, PureParams);
     'print' : PrintLine(Params, True, False);
     'tee' : PrintLine(Params, True, True);
     'livePrint' : PrintLine(Params, False, True);
@@ -1204,14 +1211,14 @@ begin
       FTokenOpen := Params[0][1];
       FTokenClose := Params[0][2];
     end;
-    'input' : InputValue(Params,False);
+    'input' : InputValue(Params, PureParams,False);
     'live' : FCanSave := False;
-    'parsedInput':InputValue(Params,True);
+    'parsedInput':InputValue(Params, PureParams,True);
     'execute':Execute(Params);
-    'drop': DropVariable(Params[0]);
-    'loadText' : LoadText(Params);
+    'drop': DropVariable(PureParams[0]);
+    'loadText' : LoadText(Params, PureParams);
     //fileHandling
-    'listFiles': ListFiles(Params);
+    'listFiles': ListFiles(Params, PureParams);
     'move' : Move(Params);
     'copy' : TempFileCopy(Params);
     'mkdir' :
@@ -1246,18 +1253,19 @@ begin
     'function' : StartFunction(Params, PureParams ,True);
     'endFunction' : EndFunction;
     'proc' : StartFunction(Params, PureParams, False);
+    'return' : FunctionReturn(Params);
     'endProc' : EndFunction;
     'callProc' :
     begin
          a := Params[0];
          Params.Delete(0);
-         ExecuteFunction(a,Params);
+         ExecuteFunction(a,False,Params);
     end
     else
     begin
       if True then
       begin
-        ExecuteFunction(AKey,Params);
+        ExecuteFunction(AKey,False,Params);
       end
       else
         Return := False;
@@ -1280,7 +1288,7 @@ begin
   FUserFunctions[len].FunctionName := PureParams[0];
   FUserFunctions[len].Args := TStringList.Create;
   FUserFunctions[len].Lines := TStringList.Create;
-  FUserFunctions[len].Args.AddStrings(Params);
+  FUserFunctions[len].Args.AddStrings(PureParams);
   FUserFunctions[len].Args.Delete(0);
   FUserFunctions[len].HasReturn := HasRet;
   FAddToFunction := True;
@@ -1297,6 +1305,12 @@ begin
     FUserFunctions[Length(FUserFunctions)-1].Lines.Add(OVER_STATE+ALine);
 end;
 
+procedure TTemplate.FunctionReturn(var Params:TStringList);
+begin
+  FOrderReturn := True;
+  FReturnValue := Params[0];
+end;
+
 procedure TTemplate.EndFunction;
 begin
   FUserFunctions[Length(FUserFunctions)-1].Lines.Delete(
@@ -1305,17 +1319,18 @@ begin
   FAddToFunction := False;
 end;
 
-procedure TTemplate.ExecuteFunction(FuncName: string; var Params:TStringList);
+function TTemplate.ExecuteFunction(FuncName: string; HasRet:boolean; var Params:TStringList):string;
 var
   ATemplate: TTemplate;
   Len, i, j:integer;
+  Return: string;
 begin
   Len := Length(FUserFunctions);
   if Len > 0 then
   begin
     for i:=0 to Len - 1 do
     begin
-      if (FUserFunctions[i].FunctionName = FuncName) and (not FUserFunctions[i].HasReturn) then
+      if (FUserFunctions[i].FunctionName = FuncName) and (FUserFunctions[i].HasReturn = HasRet) then
       begin
         ATemplate := TTemplate.Create;
         ATemplate.FullName := FuncName;
@@ -1331,13 +1346,14 @@ begin
             end;
           end;
         end;
-        ATemplate.ParseTemplate(FGenFileSet,FParsed);
+        Return := ATemplate.ParseTemplate(FGenFileSet,FParsed);
         ATemplate.Free;
         break
       end;
     end;
 
   end;
+  Result := Return;
 end;
 
 procedure TTemplate.DoPause(var Params:TStringList);
@@ -1600,9 +1616,10 @@ begin
 end;
 
 function TTemplate.ParseTemplate(var AGen: TGenFileSet;
-  var OutputParsed: TStringList): TTemplate;
+  var OutputParsed: TStringList): string;
 var
   AParser: TTempParser;
+  Return: string;
 begin
   if FFullName <> '' then
   begin
@@ -1621,9 +1638,9 @@ begin
     FRewind := False;
     SetLength(FUserFunctions,0);
     AParser := TTempParser.Create(Self);
-    AParser.ParseTemplate(OutputParsed);
+    Return := AParser.ParseTemplate(OutputParsed);
     AParser.Free;
-    Result := Self;
+    Result := Return;
   end
   else
   begin
@@ -1632,16 +1649,17 @@ begin
   end;
 end;
 
-function TTemplate.ParseTemplate(var AGen: TGenFileSet): TTemplate;
+function TTemplate.ParseTemplate(var AGen: TGenFileSet): string;
 begin
   FParsed.Clear;
   Result := ParseTemplate(AGen, FParsed);
 end;
 
 function TTemplate.ParseTemplate(var AGen: TGenFile;
-  var OutputParsed: TStringList): TTemplate;
+  var OutputParsed: TStringList): string;
 var
   AParser: TTempParser;
+  Return: string;
 begin
   if FFullName <> '' then
   begin
@@ -1653,10 +1671,11 @@ begin
     FForLevel := -1;
     FIfLevel := -1;
     FRewind := False;
+    FOrderReturn := False;
     AParser := TTempParser.Create(Self);
-    AParser.ParseTemplate(OutputParsed);
+    Return := AParser.ParseTemplate(OutputParsed);
     AParser.Free;
-    Result := Self;
+    Result := Return;
   end
   else
   begin
@@ -1665,7 +1684,7 @@ begin
   end;
 end;
 
-function TTemplate.ParseTemplate(var AGen: TGenFile): TTemplate;
+function TTemplate.ParseTemplate(var AGen: TGenFile): string;
 begin
   FParsed.Clear;
   Result := ParseTemplate(AGen, FParsed);
