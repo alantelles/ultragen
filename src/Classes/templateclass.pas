@@ -638,7 +638,7 @@ begin
   Explode.Free;
 end;
 
-procedure TTemplate.ListFiles(var Params:TStringList);
+procedure TTemplate.ListFiles(var Params:TStringList; var PureParams:TStringList);
 var
   APath: string;
   AVarName: string;
@@ -655,18 +655,18 @@ begin
   //ADelimiter := FILES_SECURE_SEP;
   //listFiles:path,vari,filter,sub,order
   APath := Params[0];
-  AVarName := Params[1];
+  AVarName := PureParams[1];
   if Params.Count > 2 then
     AFilter := Params[2];
   if Params.Count > 3 then
-    LookSub := StrToBoolean(Params[3]);
+    LookSub := StrToBoolean(PureParams[3]);
   Files := TStringList.Create;
   FindAllFiles(Files, APath, AFilter, LookSub);
   if Params.Count > 4 then
   begin
-    if Params[4] = ASC then
+    if PureParams[4] = ASC then
       Files.Sort
-    else if Params[4] = DESC then
+    else if PureParams[4] = DESC then
     begin
       Files.Sort;
       ReverseList(Files);
