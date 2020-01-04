@@ -79,13 +79,14 @@ end;
 
 function DropLastLineBreak(s:string):string;
 var
-  last2, ret:string;
+  ret:string;
 begin
-  last2 := Copy(s,Length(s)-2,2);
-  if (Length(s) > 1) and (last2 = #13#10) then
-    ret := Copy(s,1,Length(s)-2)
-  else if (Length(s) > 0) then
-    ret := Copy(s,1,Length(s)-1);
+  {$IFDEF WINDOWS}
+  ret := Copy(s,1,Length(s)-2)
+  {$ENDIF}
+  {$IFDEF UNIX}
+  ret := Copy(s,1,Length(s)-1);
+  {$ENDIF}
   Result := ret;
 end;
 

@@ -427,7 +427,8 @@ begin
   begin
     TextLoad := TStringList.Create;
     Textload.LoadFromFile(AFileName);
-    Return := Copy(TextLoad.Text, 1, Length(TextLoad.Text) - 2);
+    //Return := Copy(TextLoad.Text, 1, Length(TextLoad.Text) - 2);
+    Return := DropLastLineBreak(Textload.Text);
     TextLoad.Free;
   end;
   Result := Return;
@@ -453,7 +454,8 @@ begin
   end;
   ATemp.Free;
   AGen.Free;
-  Return := Copy(Return, 1, Length(Return) - 2);
+  //Return := Copy(Return, 1, Length(Return) - 2);
+  Return := DropLastLineBreak(Return);
   Result := Return;
 end;
 
@@ -483,7 +485,8 @@ begin
   end;
   ATemp.Free;
   AGen.Free;
-  Return := Copy(Return, 1, Length(Return) - 2);
+  //Return := Copy(Return, 1, Length(Return) - 2);
+  Return := DropLastLineBreak(Return);
   Result := Return;
 end;
 
@@ -730,6 +733,18 @@ begin
       Return := FTemplate.GenFileSet.GetValue(FROM_GEN_SET + Params[1] +
         ATTR_ACCESSOR + Params[0] + GEN_SUB_LEVEL + Params[2], Params[3]).Value;
     end
+    else if (AFuncName = 'genKeyByIndex') and (Params.Count = 2) then
+    begin
+      Return := FTemplate.GenFileSet.GenKeyByIndex(Params[0],StrToInt(Params[1]))
+		end
+    else if (AFuncName = 'genValueByIndex') and (Params.Count = 2) then
+    begin
+      Return := FTemplate.GenFileSet.GenValueByIndex(Params[0],StrToInt(Params[1]))
+		end
+    else if (AFuncName = 'keysCount') and (Params.Count = 1) then
+    begin
+      Return := FTemplate.GenFileSet.KeysCount(Params[0])
+		end
 
     else if (AFuncName = 'fileName') and (Params.Count = 1) then
       Return := GetFileName(Params[0])

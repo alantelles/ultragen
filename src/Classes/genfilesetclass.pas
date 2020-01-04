@@ -46,6 +46,9 @@ type
       function GetValue(AKey:string):TParseResult;
       function GetValue(AKey,ADefault:string):TParseResult;
       function IndexOf(AnAlias:string):integer;
+      function GenKeyByIndex(AnAlias:string;AnIndex:integer):string;
+      function GenValueByIndex(AnAlias:string;AnIndex:integer):string;
+      function KeysCount(AnAlias:string):string;
       destructor Destroy; override;
   end;
 
@@ -62,6 +65,37 @@ var
 begin
   for iter in AGenFiles do
     Add(iter);
+end;
+
+function TGenFileSet.KeysCount(AnAlias:string):string;
+var
+  i:integer;
+  Return :integer = 0;
+begin
+  i := IndexOf(AnAlias);
+  if i > -1 then
+    Return := Length(FGenFiles[i].GenFile.Pairs);
+  Result := IntToStr(Return);
+end;
+
+function TGenFileSet.GenKeyByIndex(AnAlias:string;AnIndex:integer):string;
+var
+  Return:string = '';
+  i:integer;
+begin
+  i := IndexOf(AnAlias);
+  Return := FGenFiles[i].GenFile.Pairs[AnIndex].Key;
+  Result := Return;
+end;
+
+function TGenFileSet.GenValueByIndex(AnAlias:string;AnIndex:integer):string;
+var
+  Return:string = '';
+  i:integer;
+begin
+  i := IndexOf(AnAlias);
+  Return := FGenFiles[i].GenFile.Pairs[AnIndex].Value;
+  Result := Return;
 end;
 
 procedure TGenFileSet.SetDefault(AValue:String);

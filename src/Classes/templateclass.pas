@@ -455,7 +455,7 @@ begin
   if FileExists(Params[0]) then
   begin
     ANewName := GetFileName(Params[0]);
-    CreateDirTree(Params[1]);
+    CreateDirTree(Params[1],False);
     if Params.Count = 3 then
       ANewName := Params[2];
     DestFile := Params[1]+DirectorySeparator+ANewName;
@@ -672,9 +672,12 @@ begin
       ReverseList(Files);
     end;
   end;
-
-  //SetVariable(AVarName, Copy(Files.Text,1,Length(Files.Text)-2));
+  {$IFDEF WINDOWS}
   SetVariable(AVarName, DropLastLineBreak(Files.Text));
+  {$ENDIF}
+  {$IFDEF UNIX}
+  SetVariable(AVarName, Files.Text);
+  {$ENDIF}
   if Files.Count > 0 then
   begin
     for i:=0 to Files.Count - 1 do
@@ -798,7 +801,7 @@ begin
       FForLoops[FForLevel].List.DelimitedText := Iterated;
 
     end
-    else
+    else if Params[2] = LINE_BREAK then
     begin
       //Params[0] := DropLastLineBreak(Params[0]);
       {$IFDEF WINDOWS}
@@ -807,6 +810,7 @@ begin
       FForLoops[FForLevel].List.Delimiter := #10;
       {$ENDIF}
       {$IFDEF UNIX}
+      Params[0] := DropLastLineBreak(Params[0]);
       FForLoops[FForLevel].List.Delimiter := sLineBreak;
       {$ENDIF}
       FForLoops[FForLevel].List.StrictDelimiter := True;
