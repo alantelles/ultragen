@@ -679,6 +679,7 @@ var
   ExtName, ExtPath: string;
   i: integer;
   m, n: real;
+  Dump: TStringList;
 begin
   AFuncName := Trim(AFuncName);
   //if exists a default
@@ -996,6 +997,12 @@ begin
       Return := ReplaceStr(Params[0], sLineBreak, '<br>' + sLineBreak)
     else if (AFuncName = 'inTag') and (Params.Count > 1) then
       Return := StringsFunctions.InTag(Params)
+    else if (AFuncName = 'callFunction') and (Params.Count > 1) then
+    begin
+      a := Params[0];
+      Params.Delete(0);
+      Return := ParseFunction(a,Params);
+    end
     else if IsUserFunction(AFuncName,i) > -1 then
       Return := FTemplate.ExecuteFunction(AFuncName,True,Params)
     else
