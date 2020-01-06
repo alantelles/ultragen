@@ -260,6 +260,7 @@ begin
   end
   else
   begin
+    ASession.ClearValues;
     SessionFile := '';
     SessionId := '';
   end;

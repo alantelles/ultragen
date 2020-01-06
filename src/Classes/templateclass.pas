@@ -1219,12 +1219,14 @@ var
   AParser:TTempParser;
   Params, PureParams:TStringList;
   i:integer;
-  a:string;
+  a, b:string;
 begin
   Params := TSTringList.Create;
+  Params.SkipLastLineBreak := True;
   AParser := TTempParser.Create(Self);
   AParser.ParseParams(AValue, Params);
   PureParams := TStringList.Create;
+  PureParams.SkipLastLineBreak := True;
   PureParams.AddStrings(Params);
   if Params.Count > 0 then
   begin
@@ -1314,8 +1316,10 @@ begin
     'callProc' :
     begin
          a := Params[0];
-         Params.Delete(0);
-         ExecuteFunction(a,False,Params);
+         PureParams.Delete(0);
+         PureParams.LineBreak := ',';
+         b := PureParams.Text;
+         Result := SetPredefined(a,b);
     end
     else
     begin
