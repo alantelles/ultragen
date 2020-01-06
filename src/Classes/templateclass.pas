@@ -19,7 +19,7 @@ uses
   {$ENDIF}
 
   { Globals }
-  WebServerClass, TypesGlobals, VariablesGlobals, ConstantsGlobals,
+  WebServerClass, TypesGlobals,  ConstantsGlobals,
 
   { Utils }
   BooleansFunctions,
@@ -227,8 +227,9 @@ implementation
 
 uses FileHandlingUtils,
   ParserClass,
-  StringsFunctions,
+  StringsFunctions, VariablesGlobals,
   fphttpclient, fpopenssl, openssl;
+
 
 constructor TTemplate.Create(ATempName: string = ''; AExpLocation: string = '.');
 begin
@@ -1238,6 +1239,11 @@ begin
   end;
   AKey := Trim(AKey);
   case (AKey) of
+    'setGlobalVar': VariablesGlobals.GlobalTemp.SetVariable(PureParams[0],Params[1]);
+    'getGlobalVar':
+    begin
+      SetVariable(PureParams[1],VariablesGlobals.GlobalTemp.GetVariable(Params[0]));
+    end;
     'outFileName': FOverrides.OutFileName := Params[0];
     'copyTo': FOverrides.CopyTo.Add(RemoveLastBackslash(Params[0]));
     'exportTo': FExpLocation := Params[0];

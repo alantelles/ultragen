@@ -10,7 +10,7 @@ uses
     { you can add units after this }
 
     { Classes }
-     WorkClass, WebServerClass,
+     WorkClass, WebServerClass, TEmplateClass,
 
     { Globals }
     TypesGlobals, VariablesGlobals, ConstantsGlobals,
@@ -39,6 +39,7 @@ begin
   AuxGroup.Delimiter := SET_GROUP;
   AuxTemp.StrictDelimiter := True;
   AuxTemp.Delimiter := SET_SEP;
+  VariablesGlobals.GlobalTemp := TTemplate.Create;
   //calling modes
   //a set of gens example
   //ultragen -set src1.gen|src2.gen -templates teste.ultra.txt|teste2.ultra.txt
@@ -172,5 +173,6 @@ begin
     if ParamStr(i) = '-debug' then
       readln;
   end;
+  VariablesGlobals.GlobalTemp.Free;
 end.
 

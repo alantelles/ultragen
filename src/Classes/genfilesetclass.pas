@@ -15,7 +15,7 @@ uses
   FileHandlingUtils,
 
   { Globals }
-  VariablesGlobals, ConstantsGlobals, TypesGlobals;
+   ConstantsGlobals, TypesGlobals;
 
 type
   TGenFileRecord = record
@@ -54,6 +54,8 @@ type
   end;
 
 implementation
+uses
+  VariablesGlobals;
 
 constructor TGenFileSet.Create;
 begin

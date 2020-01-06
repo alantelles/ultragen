@@ -11,7 +11,7 @@ uses
   GenFileSetClass, GenFileClass,
 
   { Globals }
-  ConstantsGlobals, VariablesGlobals, TypesGlobals;
+  ConstantsGlobals, TypesGlobals;
 
 type
   TUltraGenServer = class
@@ -39,7 +39,7 @@ implementation
 
 uses
   TemplateClass,
-  FileHandlingUtils,
+  FileHandlingUtils, VariablesGlobals,
   StringsFunctions, DateUtils,
   Character;
 

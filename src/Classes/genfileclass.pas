@@ -9,7 +9,6 @@ uses
     Classes, SysUtils, StrUtils,
 
     { Globals }
-    VariablesGlobals,
     ConstantsGlobals,
     TypesGlobals;
 
@@ -43,7 +42,8 @@ type
   end;
 
 implementation
-uses FileHandlingUtils;
+uses
+    VariablesGlobals, FileHandlingUtils;
 
 constructor TGenFile.Create;
 begin

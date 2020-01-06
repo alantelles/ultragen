@@ -6,8 +6,7 @@ interface
 
 uses
     Classes, SysUtils, StrUtils,
-    ConstantsGlobals,
-    VariablesGlobals;
+    ConstantsGlobals;
 
 function GetFileName(AFileName:string; WithExt:boolean=True; NewExt:string=''):string;
 function GetFilePath (AFileName:string; ALevel: integer=-1; FullPathReturn:boolean=True):string;
@@ -17,7 +16,8 @@ function RemoveLastBackslash(AStr:string):string;
 function PrintFileIfExists(AName,Ifnot, IfYes:string):string;
 
 implementation
-uses StringsFunctions;
+uses StringsFunctions,
+    VariablesGlobals;
 
 function PrintFileIfExists(AName,IfNot,IfYes:string):string;
 var

@@ -5,9 +5,10 @@ unit VariablesGlobals;
 interface
 
 uses
-    Classes, SysUtils, ConstantsGlobals;
+    Classes, SysUtils, ConstantsGlobals, TemplateClass;
 
 var
+  GlobalTemp: TTemplate;
   TOKEN_OPEN:string = '{';
   TOKEN_CLOSE:string = '}';
   GEN_SEP:char = '=';
