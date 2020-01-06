@@ -892,8 +892,8 @@ begin
   begin
     FForLoops[FForLevel].Times := 0;
     FForSkip := True;
-	end;
-	Rewind := False;
+  end;
+  Rewind := False;
 end;
 
 procedure TTemplate.EndFor;
@@ -1384,7 +1384,7 @@ function TTemplate.ExecuteFunction(FuncName: string; HasRet:boolean; var Params:
 var
   ATemplate: TTemplate;
   Len, i, j:integer;
-  Return: string;
+  Return, Line: string;
 begin
   Len := Length(FUserFunctions);
   if Len > 0 then
@@ -1408,6 +1408,7 @@ begin
           end;
         end;
         Return := ATemplate.ParseTemplate(FGenFileSet,FParsed);
+        FParsed.AddStrings(ATemplate.ParsedLines);
         ATemplate.Free;
         break
       end;

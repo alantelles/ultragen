@@ -203,10 +203,11 @@ end;
 
 procedure TGenFile.SetValue(AKey, AValue:string);
 var
-  i:integer;
+  i,len:integer;
 begin
-  if Length(FPairs) > 0 then
-    for i in [0..Length(FPairs)-1] do
+  len := Length(FPairs);
+  if len > 0 then
+    for i:=0 to len-1 do
     begin
       if Trim(AKey) = FPairs[i].Key then
       begin
@@ -214,9 +215,9 @@ begin
         Exit;
       end;
     end;
-  SetLength(FPairs,Length(FPairs)+1);
-  FPairs[Length(FPairs)-1].Key := AKey;
-  FPairs[Length(FPairs)-1].Value := ReplaceStr(AValue,'\n',sLineBreak);
+  SetLength(FPairs,len+1);
+  FPairs[len].Key := AKey;
+  FPairs[len].Value := ReplaceStr(AValue,'\n',sLineBreak);
 end;
 
 procedure TGenFile.DropKey(AKey:string);

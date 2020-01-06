@@ -271,8 +271,6 @@ begin
   AGenSet.Add(AGenReq, 'request');
   ATemplate := TTemplate.Create(FLoader);
   ATemplate.SetWebVars(SessionId, FSessionsPath, FSessionDuration);
-  for D in AGenSet.GenFiles do
-    sleep(1);
   ATemplate.ParseTemplate(AGenSet);
   DumpTemplate := ATemplate.ParsedLines.Text;
   AGenSet.Free;
