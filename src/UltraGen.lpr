@@ -77,9 +77,9 @@ begin
         Server := TUltraGenServer.Create(StrToInt(ParamStr(3)), ParamStr(2), '--prod')
       else
         Server := TUltraGenServer.Create(StrToInt(ParamStr(3)), ParamStr(2), '--dev');
-    if not Server.RunServer then
-      exit;
-	end;
+      if not Server.RunServer then
+        exit;
+    end;
   Live := True;
 
 

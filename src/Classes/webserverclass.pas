@@ -166,6 +166,7 @@ var
   ATemplate: TTemplate;
   AGenSet: TGenFileSet;
   AGenReq, AConfig, ASession, AFileGen: TGenFile;
+  D: TGenFileRecord;
   DumpTemplate, Route, s: string;
   i: integer;
   SessionID, ExpireTime, SessionFile:string;
@@ -211,7 +212,7 @@ begin
   Property LocalFileName: String Read FLocalFileName Write FLocalFileName;
   Property Description: String Read FDescription Write FDescription;
     }
-	end;
+  end;
 
   if ARequest.ContentFields.Count > 0 then
   begin
@@ -235,9 +236,8 @@ begin
 
   AGenReq.SetValue('_route', Route);
   AGenReq.SetValue('_method', ARequest.Method);
-  AGenReq.SetValue('_sessionID',SessionID);
-  AGenReq.SetValue('_sessionFile',SessionFile);
   AGenSet.Add(AConfig, 'app');
+
   ASession := TGenFile.Create;
 
   if ARequest.CookieFields.IndexOfName('sessionID') > -1 then
@@ -255,19 +255,23 @@ begin
     else
     begin
       ASession.Load(SessionFile);
-		end;
+    end;
 
-	end
+  end
   else
   begin
-    ASession.ClearValues;
     SessionFile := '';
     SessionId := '';
-	end;
+  end;
+
+  AGenReq.SetValue('_sessionID',SessionID);
+  AGenReq.SetValue('_sessionFile',SessionFile);
   AGenSet.Add(ASession, 'session');
-	AGenSet.Add(AGenReq, 'request');
+  AGenSet.Add(AGenReq, 'request');
   ATemplate := TTemplate.Create(FLoader);
   ATemplate.SetWebVars(SessionId, FSessionsPath, FSessionDuration);
+  for D in AGenSet.GenFiles do
+    sleep(1);
   ATemplate.ParseTemplate(AGenSet);
   DumpTemplate := ATemplate.ParsedLines.Text;
   AGenSet.Free;

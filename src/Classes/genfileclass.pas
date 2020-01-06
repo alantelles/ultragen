@@ -71,9 +71,10 @@ var
   APair:TKVPair;
   Return:boolean;
 begin
+  Return:=False;
   for APair in FPairs do
   begin
-    Return:=False;
+
     if APair.Key = AKey then
     begin
       Return := True;
