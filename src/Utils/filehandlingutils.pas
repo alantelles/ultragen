@@ -72,6 +72,7 @@ var
   Limit, i: integer;
 begin
   ADelim := TStringList.Create;
+  ADelim.SkipLastLineBreak := True;
   ADelim.Delimiter := DirectorySeparator;
   ADelim.StrictDelimiter := True;
   ADelim.DelimitedText := AFileName;
@@ -100,6 +101,7 @@ var
   Limit, i, j: integer;
 begin
   ADelim := TStringList.Create;
+  ADelim.SkipLastLineBreak := True;
   ADelim.Delimiter := DirectorySeparator;
   ADelim.StrictDelimiter := True;
   ADelim.DelimitedText := AFileName;
@@ -130,6 +132,7 @@ begin
     APath := GetFilePath(APath);
   APath := RemoveLastBackslash(APath);
   ADelim := TStringList.Create;
+  ADelim.SkipLastLineBreak := True;
   ADelim.Delimiter := DirectorySeparator;
   ADelim.StrictDelimiter := True;
   ADelim.DelimitedText := APath;

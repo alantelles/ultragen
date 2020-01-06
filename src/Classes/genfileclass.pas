@@ -1,6 +1,7 @@
 unit GenFileClass;
 
 {$mode objfpc}{$H+}
+{$LongStrings ON}
 
 interface
 
@@ -92,6 +93,7 @@ begin
   SetLength(FPairs,0);
   FFullName := ExpandFileName(AFullName);
   Temp := TStringList.Create;
+  Temp.SkipLastLineBreak := True;
   try
     Temp.LoadFromFile(FFullName);
     Key := '';
@@ -240,6 +242,7 @@ var
   OutFile:string;
 begin
   Temp := TStringList.Create;
+  Temp.SkipLastLineBreak := True;
   for APair in FPairs do
     Temp.Add(APair.Key+FGenSep+APair.Value);
   if AName = '' then

@@ -1,6 +1,7 @@
 unit GenFileSetClass;
 
 {$mode objfpc}{$H+}
+{$LongStrings ON}
 
 interface
 

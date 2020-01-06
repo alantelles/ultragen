@@ -82,7 +82,7 @@ var
   ret:string;
 begin
   {$IFDEF WINDOWS}
-  ret := Copy(s,1,Length(s)-2)
+  ret := Copy(s,1,Length(s)-2);
   {$ENDIF}
   {$IFDEF UNIX}
   ret := Copy(s,1,Length(s)-1);

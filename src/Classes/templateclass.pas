@@ -1,7 +1,7 @@
 unit TemplateClass;
 
 {$mode objfpc}{$H+}
-{$codepage cp1252}
+{$LongStrings ON}
 
 interface
 
@@ -66,7 +66,7 @@ type
   TDefaultParamArray = array of TDefaultParam;
 
   TForLevel = record
-    Times: integer;
+    Times: int64;
     GoToLine: integer;
     ControlVar: string;
     List: TStringList;
@@ -192,6 +192,7 @@ type
     procedure ElseDecision;
     procedure EndIf;
     procedure ListFiles(var Params:TStringList; var PureParams:TStringList);
+    procedure LimitedListFiles(var Params:TStringList; var PureParams:TStringList);
     procedure Move(var Params:TStringList);
     procedure TempFileCopy(var Params:TStringList);
     procedure DoPause(var Params:TStringList);
@@ -257,9 +258,13 @@ begin
   FTOkenClose := TOKEN_CLOSE;
 
   FImported := TStringList.Create;
+  FImported.SkipLastLineBreak := True;
   FSections := TStringList.Create;
+  FSections.SkipLastLineBreak := True;
   FLines := TStringList.Create;
+  FLines.SkipLastLineBreak := True;
   FParsed := TStringList.Create;
+  FParsed.SkipLastLineBreak := True;
   if ATempName <> '' then
   begin
     FFullName := ExpandFileName(ATempName);
@@ -613,6 +618,7 @@ var
   t:string;
 begin
   Explode := TStringList.Create;
+  Explode.SkipLastLineBreak := True;
   Explode.StrictDelimiter := True;
   if Params.Count > 2 then
     Explode.Delimiter := Params[2][1]
@@ -661,6 +667,7 @@ begin
   if Params.Count > 3 then
     LookSub := StrToBoolean(PureParams[3]);
   Files := TStringList.Create;
+  Files.SkipLastLineBreak := True;
   FindAllFiles(Files, APath, AFilter, LookSub);
   if Params.Count > 4 then
   begin
@@ -672,17 +679,61 @@ begin
       ReverseList(Files);
     end;
   end;
-  {$IFDEF WINDOWS}
-  SetVariable(AVarName, DropLastLineBreak(Files.Text));
-  {$ENDIF}
-  {$IFDEF UNIX}
   SetVariable(AVarName, Files.Text);
-  {$ENDIF}
   if Files.Count > 0 then
   begin
     for i:=0 to Files.Count - 1 do
       SetVariable(AVarName+'['+IntToStr(i)+']',Files[i]);
   end;
+  Files.Free;
+end;
+
+procedure TTemplate.LimitedListFiles(var Params:TStringList; var PureParams:TStringList);
+var
+  APath: string;
+  AVarName: string;
+  AFilter: string;
+  LookSub: boolean;
+  ADelimiter: string;
+  Files: TStringList;
+  Dump: string;
+  AParser: TTempParser;
+  Sort: boolean = False;
+  i:integer;
+  Start,Limit:integer;
+begin
+  AFilter := '';
+  LookSub := False;
+  //ADelimiter := FILES_SECURE_SEP;
+  //listFiles:start,limit,path,vari,filter,sub,order
+  Start := StrToInt(PureParams[0]);
+  Limit := StrToInt(PureParams[1]);
+  APath := Params[2];
+  AVarName := PureParams[3];
+  if Params.Count > 4 then
+    AFilter := Params[4];
+  if Params.Count > 5 then
+    LookSub := StrToBoolean(PureParams[5]);
+  Files := TStringList.Create;
+  Files.SkipLastLineBreak := True;
+  FindAllFiles(Files, APath, AFilter, LookSub);
+  if Params.Count > 6 then
+  begin
+    if PureParams[6] = ASC then
+      Files.Sort
+    else if PureParams[6] = DESC then
+    begin
+      Files.Sort;
+      ReverseList(Files);
+    end;
+  end;
+  if Files.Count > 0 then
+  begin
+    for i:=0 to Files.Count - 1 do
+      SetVariable(AVarName+'['+IntToStr(i)+']',Files[i]);
+  end;
+  SetVariable(AVarName, Files.Text);
+  Files.Free;
 end;
 
 procedure TTemplate.LoadText(var Params:TStringList; var PureParams:TStringList);
@@ -691,6 +742,7 @@ var
   i:integer;
 begin
   AText := TStringList.Create;
+  AText.SkipLastLineBreak := True;
   if FileExists(Params[0]) then
   begin
     AText.LoadFromFile(Params[0]);
@@ -773,7 +825,7 @@ procedure TTemplate.ForPrepare(var Params:TStringList; var PureParams:TStringLis
 var
   Values: TStringList;
   ParamAsStr, Iterated: string;
-  len, i: integer;
+  len, i, x: int64;
   EmptyList:boolean;
 begin
 
@@ -785,6 +837,7 @@ begin
   FForLoops[FForLevel].GoToLine := FLineNumber + 2;
 
   FForLoops[FForLevel].List := TStringList.Create;
+  FForLoops[FForLevel].List.SkipLastLineBreak := True;
   if Params.Count < 3 then
   begin
     FForLoops[FForLevel].List.Delimiter := PARAM_SEP;
@@ -805,17 +858,14 @@ begin
     begin
       //Params[0] := DropLastLineBreak(Params[0]);
       {$IFDEF WINDOWS}
-      Params[0] := DropLastLineBreak(Params[0]);
       Params[0] := ReplaceStr(Params[0],#13#10,#10);
       FForLoops[FForLevel].List.Delimiter := #10;
       {$ENDIF}
       {$IFDEF UNIX}
-      Params[0] := DropLastLineBreak(Params[0]);
       FForLoops[FForLevel].List.Delimiter := sLineBreak;
       {$ENDIF}
       FForLoops[FForLevel].List.StrictDelimiter := True;
       FForLoops[FForLevel].List.DelimitedText := Params[0];
-
     end;
   end;
 
@@ -1047,6 +1097,7 @@ var
   SectionOpen: boolean = False;
 begin
   Temp := TStringList.Create;
+  Temp.SkipLastLineBreak := True;
   try
     Temp.LoadFromFile(ATempName);
     FLines.Clear;
@@ -1223,6 +1274,7 @@ begin
     'loadText' : LoadText(Params, PureParams);
     //fileHandling
     'listFiles': ListFiles(Params, PureParams);
+    'limitedListFiles': LimitedListFiles(Params,PureParams);
     'move' : Move(Params);
     'copy' : TempFileCopy(Params);
     'mkdir' :
@@ -1292,6 +1344,7 @@ begin
   FUserFunctions[len].FunctionName := PureParams[0];
   FUserFunctions[len].Args := TStringList.Create;
   FUserFunctions[len].Lines := TStringList.Create;
+  FUserFunctions[len].Lines.SkipLastLineBreak := True;
   FUserFunctions[len].Args.AddStrings(PureParams);
   FUserFunctions[len].Args.Delete(0);
   FUserFunctions[len].HasReturn := HasRet;
@@ -1463,10 +1516,12 @@ begin
   if i > -1 then
   begin
     Inp := TStringList.Create;
+    Inp.SkipLastLineBreak := True;
     Inp.Delimiter := '/';
     Inp.StrictDelimiter := True;
     Inp.DelimitedText := ASearch;
     Exp := TStringList.Create;
+    Exp.SkipLastLineBreak := True;
     Exp.Delimiter := '/';
     Exp.StrictDelimiter := True;
     for APair in FGenFileSet.GenFiles[i].GenFile.Pairs do
@@ -1571,15 +1626,17 @@ end;
 
 function TTemplate.SetVariable(AKey, AValue: string; Parse:boolean=False): TTemplate;
 var
-  i: integer;
+  i, len: integer;
   AParser:TTempParser;
+
 begin
   AParser := TTempParser.Create(Self);
   if Parse then
     AValue := AParser.ParseToken(AValue);
-  if Length(FVariables) > 0 then
+  len := Length(FVariables);
+  if len > 0 then
   begin
-    for i in [0..Length(FVariables) - 1] do
+    for i:=0 to len - 1 do
     begin
       if FVariables[i].Key = AKey then
       begin
@@ -1589,9 +1646,10 @@ begin
       end;
     end;
   end;
-  SetLength(FVariables, Length(FVariables) + 1);
-  FVariables[Length(FVariables) - 1].Key := AKey;
-  FVariables[Length(FVariables) - 1].Value := AValue;
+  SetLength(FVariables, len + 1);
+  FVariables[len].Key := AKey;
+  FVariables[len].Value := AValue;
+
   AParser.Free;
   Result := Self;
 end;

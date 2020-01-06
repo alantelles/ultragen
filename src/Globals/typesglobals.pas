@@ -10,7 +10,7 @@ uses
 
 type
   TKVPair = record
-    Key, Value: string;
+    Key, Value: AnsiString;
   end;
 
   TDict = array of TKVPair;

@@ -1,6 +1,7 @@
 unit ParserClass;
 
 {$mode objfpc}{$H+}
+{$LongStrings ON}
 
 interface
 
@@ -257,6 +258,7 @@ var
   AGen: TGenFileSet;
 begin
   OutputParsed := TStringList.Create;
+  OutputParsed.SkipLastLineBreak := True;
   ASection := Trim(ASection);
   i := FTemplate.Sections.IndexOf(ASection);
   ATemplate := TTemplate.Create;
@@ -426,9 +428,10 @@ begin
   if FileExists(AFileName) then
   begin
     TextLoad := TStringList.Create;
+    TextLoad.SkipLastLineBreak := True;
     Textload.LoadFromFile(AFileName);
     //Return := Copy(TextLoad.Text, 1, Length(TextLoad.Text) - 2);
-    Return := DropLastLineBreak(Textload.Text);
+    Return := Textload.Text;
     TextLoad.Free;
   end;
   Result := Return;
