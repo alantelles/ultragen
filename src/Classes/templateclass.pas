@@ -155,6 +155,7 @@ type
     function SetPredefined(AKey, AValue: string): boolean;
     function Load(ATempName: string): TTemplate;
     function Load(ATempList: TStringList; ATempName: string): TTemplate;
+    procedure SetFunctionsLength(NewLen:integer);
     procedure LoadText(var Params:TStringList; var PureParams:TStringList);
     function Save: TTemplate;
     procedure ProcessTemplate(var Params:TStringList; DoPrint:boolean=False);
@@ -257,7 +258,7 @@ begin
   FFullName := '';
   FTokenOpen := TOKEN_OPEN;
   FTOkenClose := TOKEN_CLOSE;
-
+  SetLength(FUserFunctions,0);
   FImported := TStringList.Create;
   FImported.SkipLastLineBreak := True;
   FSections := TStringList.Create;
@@ -280,7 +281,10 @@ begin
   FWebVars.SessionDuration := ASessionDuration;
 end;
 
-
+procedure TTemplate.SetFunctionsLength(NewLen:integer);
+begin
+  SetLength(FUserFunctions,NewLen);
+end;
 
 procedure TTemplate.SetCookie(var Params:TStringList);
 var
@@ -1239,11 +1243,6 @@ begin
   end;
   AKey := Trim(AKey);
   case (AKey) of
-    'setGlobalVar': VariablesGlobals.GlobalTemp.SetVariable(PureParams[0],Params[1]);
-    'getGlobalVar':
-    begin
-      SetVariable(PureParams[1],VariablesGlobals.GlobalTemp.GetVariable(Params[0]));
-    end;
     'outFileName': FOverrides.OutFileName := Params[0];
     'copyTo': FOverrides.CopyTo.Add(RemoveLastBackslash(Params[0]));
     'exportTo': FExpLocation := Params[0];
@@ -1331,6 +1330,8 @@ begin
     begin
       if True then
       begin
+        if Length(FUserFunctions) > 0 then
+          a := FUserFunctions[0].FunctionName;
         ExecuteFunction(AKey,False,Params);
       end
       else
@@ -1369,7 +1370,7 @@ begin
     FAddToFunction := False;
   end
   else                                            
-    FUserFunctions[Length(FUserFunctions)-1].Lines.Add(OVER_STATE+ALine);
+    FUserFunctions[Length(FUserFunctions)-1].Lines.Add(ALine);
 end;
 
 procedure TTemplate.FunctionReturn(var Params:TStringList);
@@ -1389,8 +1390,8 @@ end;
 function TTemplate.ExecuteFunction(FuncName: string; HasRet:boolean; var Params:TStringList):string;
 var
   ATemplate: TTemplate;
-  Len, i, j:integer;
-  Return, Line: string;
+  Len, i, j, DotPos:integer;
+  Return, Line, a, b: string;
 begin
   Len := Length(FUserFunctions);
   if Len > 0 then
@@ -1413,6 +1414,31 @@ begin
             end;
           end;
         end;
+        ATemplate.SetFunctionsLength(Len);
+        for j:=0 to Len-1 do
+        begin
+          DotPos := Pos(ATTR_ACCESSOR,FuncName);
+          if (DotPos > 0) then
+          begin
+            a := Copy(FUserFunctions[j].FunctionName,1,DotPos);
+            b := Copy(FuncName,1,DotPos);
+            if a = b then
+              ATemplate.UserFunctions[j].FunctionName := Copy(FUserFunctions[j].FunctionName,DotPos+1,Length(FUserFunctions[j].FunctionName))
+            else
+              ATemplate.UserFunctions[j].FunctionName := FUserFunctions[j].FunctionName;
+
+          end
+          else
+            ATemplate.UserFunctions[j].FunctionName := FUserFunctions[j].FunctionName;
+          ATemplate.UserFunctions[j].HasReturn := FUserFunctions[j].HasReturn;
+          ATemplate.UserFunctions[j].Lines := TStringList.Create;
+          ATemplate.UserFunctions[j].Args := TStringList.Create;
+          ATemplate.UserFunctions[j].Lines.AddStrings(FUserFunctions[j].Lines);
+          Line := ATemplate.UserFunctions[j].Lines.Text;
+          ATemplate.UserFunctions[j].Args.AddStrings(FUserFunctions[j].Args);
+          Line := ATemplate.UserFunctions[j].Args.Text;
+        end;
+        ATemplate.ScriptMode := True;
         Return := ATemplate.ParseTemplate(FGenFileSet,FParsed);
         FParsed.AddStrings(ATemplate.ParsedLines);
         ATemplate.Free;
@@ -1709,7 +1735,7 @@ begin
     FIfLevel := -1;
     FSkip := False;
     FRewind := False;
-    SetLength(FUserFunctions,0);
+
     AParser := TTempParser.Create(Self);
     Return := AParser.ParseTemplate(OutputParsed);
     AParser.Free;

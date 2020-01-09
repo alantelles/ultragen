@@ -979,7 +979,9 @@ begin
     else if (AFuncName = 'superHash') and (Params.Count = 1) then
       Return := StringsFunctions.SuperHash(Params[0])
     else if (AFuncName = 'indexOf') and (Params.Count = 2) then
-      Return := IntToStr(Pos(Params[0], Params[1]))
+      Return := IntToStr(Pos(Params[0], Params[1])-1)
+    else if (AFuncName = 'lastIndexOf') and (Params.Count = 2) then
+      Return := IntToStr(RPos(Params[0], Params[1])-1)
     else if (AFuncName = 'trim') and (Params.Count = 1) then
       Return := Trim(Params[0])
     else if (AFuncName = 'trim') and (Params.Count = 2) then
@@ -991,6 +993,8 @@ begin
       else
         Return := Trim(Params[0]);
     end
+    else if (AFuncName = 'length') and (Params.Count = 1) then
+      Return := IntToStr(Length(Params[0]))
 
     //HTML
     else if (AFuncName = 'nl2br') and (Params.Count = 1) then
