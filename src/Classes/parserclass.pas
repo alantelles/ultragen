@@ -161,7 +161,7 @@ var
   Return: boolean;
 begin
   try
-    StrToInt(AToken);
+    StrToFloat(AToken);
     Return := True;
   except
     Return := False;
@@ -535,7 +535,7 @@ begin
   IsLiteral := IsLiteralString(AToken);
   IsANumber := IsNumber(AToken);
   IsFromAGenSet := IsFromGenSet(AToken);
-  IsImportedVal := IsImported(AToken) and (not IsLiteral);
+  IsImportedVal := False;//IsImported(AToken) and (not IsLiteral);
   IsFromGen := (not IsAFunction) and (not IsAVari) and (not IsLiteral) and
     (not IsTime) and (not IsANumber) and (not IsImportedVal) and
     (not IsAlias) and (not IsFromAGenSet) and (not IsAReserved);
