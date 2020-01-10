@@ -19,6 +19,7 @@ function DropLastLineBreak(s:string):string;
 function Join(var Params:TStringList):string;
 function InTag(var Params:TStringList):string;
 function CreateSessionID:string;
+function OsDirSep(AStr:string):string;
 
 implementation
 
@@ -98,6 +99,23 @@ begin
   for Temp in Params do
     Return := Return+Temp;
   Result := Return;
+end;
+
+function OsDirSep(AStr:string):string;
+var
+  Part:string;
+begin
+  {$IFDEF WINDOWS}
+  Part := ReplaceStr(AStr,'\','*\');
+  Part := ReplaceStr(Part,'/','\');
+  Part := ReplaceStr(Part,'*\','/');
+  {$ENDIF}
+  {$IFDEF UNIX}
+  Part := ReplaceStr(AStr,'/','*/');
+  Part := ReplaceStr(Part,'\','/');
+  Part := ReplaceStr(Part,'*\','\');
+  {$ENDIF}
+  Result := Part;
 end;
 
 function StrToMD5(AStr:string):string;
