@@ -789,7 +789,7 @@ begin
     else
     begin
       Part := Line;
-      if (Pos(OVER_STATE, Trim(Line)) = 1) then
+      {if (Pos(OVER_STATE, Trim(Line)) = 1) then
       begin
         VarName := Copy(Trim(Line), Pos(OVER_STATE, Line) + Length(OVER_STATE),
           Length(Trim(Line)) - Length(OVER_ASSOC));
@@ -817,7 +817,7 @@ begin
           Part := ReplaceStr(Part, OVER_STATE + AVar, OVER_STATE + Parent +
             TempAlias + ATTR_ACCESSOR + AVar);
         end;
-      end;
+      end;   }
       FLines.Add(Part);
     end;
   end;
@@ -1441,6 +1441,7 @@ begin
         ATemplate.ScriptMode := True;
         Return := ATemplate.ParseTemplate(FGenFileSet,FParsed);
         FParsed.AddStrings(ATemplate.ParsedLines);
+        ATemplate.ScriptMode := False;
         ATemplate.Free;
         break
       end;

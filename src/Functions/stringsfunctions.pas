@@ -129,14 +129,10 @@ var
   Part:string;
 begin
   {$IFDEF WINDOWS}
-  Part := ReplaceStr(AStr,'\','*\');
-  Part := ReplaceStr(Part,'/','\');
-  Part := ReplaceStr(Part,'*\','/');
+  Part := ReplaceStr(AStr,'/','\');
   {$ENDIF}
   {$IFDEF UNIX}
-  Part := ReplaceStr(AStr,'/','*/');
-  Part := ReplaceStr(Part,'\','/');
-  Part := ReplaceStr(Part,'*\','\');
+  Part := ReplaceStr(AStr,'\','/');
   {$ENDIF}
   Result := Part;
 end;
