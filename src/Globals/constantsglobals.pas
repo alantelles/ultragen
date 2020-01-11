@@ -22,9 +22,9 @@ const
   FUNCTION_ALLOWED = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
   NUMBERS = '1234567890';
   FUNC_SYMBOLS = '._:';
+  DEF_DELIM = ',';
 
   AS_STRING = True;
-  FLOW_EXT = 'uflow';
   GEN_FILES_CALL_SEP = '|';
   SCRIPT_MODE_ENTER = '@{';
   SCRIPT_MODE_EXIT = '}';

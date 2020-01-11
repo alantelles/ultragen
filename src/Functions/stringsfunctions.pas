@@ -17,11 +17,14 @@ function Concat(var Params:TStringList):string;
 procedure ReverseList(var AList:TstringList);
 function DropLastLineBreak(s:string):string;
 function Join(var Params:TStringList):string;
+function Explode(var Params:TStringList):string;
 function InTag(var Params:TStringList):string;
 function CreateSessionID:string;
 function OsDirSep(AStr:string):string;
 
 implementation
+
+uses ConstantsGlobals;
 
 function CreateSessionID:string;
 var
@@ -42,6 +45,26 @@ begin
   );
   Result := ASessionName;
 
+end;
+
+function Explode(var Params:TStringList):string;
+var
+  Return:String='';
+  Dump:TStringList;
+  index:integer;
+begin
+  Dump := TStringList.Create;
+  Dump.StrictDelimiter := True;
+  Dump.DelimitedText := Params[0];
+  if Params.Count = 3 then
+    Dump.Delimiter := Params[2][1]
+  else
+    Dump.Delimiter := DEF_DELIM;
+  index := StrToInt(Params[1]);
+  if (Dump.Count > index) and (index > -1) then
+    Return := Dump[index];
+  Dump.Free;
+  Result := Return;
 end;
 
 function Join(var Params:TStringList):string;

@@ -677,7 +677,7 @@ function TTempParser.ParseFunction(AFuncName: string; var Params: TStringList): 
 var
   Return, a, b: string;
   ExtName, ExtPath: string;
-  i: integer;
+  i, j, k: integer;
   m, n: real;
   Dump: TStringList;
 begin
@@ -978,6 +978,14 @@ begin
       Return := StringsFunctions.StrToMD5(Params[0])
     else if (AFuncName = 'superHash') and (Params.Count = 1) then
       Return := StringsFunctions.SuperHash(Params[0])
+    else if (AFuncname = 'charAt') and (Params.Count = 2) then
+    begin
+      a := Params[0];
+      j := StrToInt(Params[1]) + 1;
+      k := Length(Params[0]);
+      if (j >= 0) and (k > 0) and (k >= j) then
+        Return := a[j];
+    end
     else if (AFuncName = 'indexOf') and (Params.Count = 2) then
       Return := IntToStr(Pos(Params[0], Params[1])-1)
     else if (AFuncName = 'lastIndexOf') and (Params.Count = 2) then
@@ -997,7 +1005,8 @@ begin
     end
     else if (AFuncName = 'length') and (Params.Count = 1) then
       Return := IntToStr(Length(Params[0]))
-
+    else if (AFuncName = 'valueAt') and ((Params.Count = 2) or (Params.Count = 3)) then
+      Return := StringsFunctions.Explode(Params)
     //HTML
     else if (AFuncName = 'nl2br') and (Params.Count = 1) then
       Return := ReplaceStr(Params[0], sLineBreak, '<br>' + sLineBreak)
