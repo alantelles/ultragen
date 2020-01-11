@@ -1248,7 +1248,6 @@ begin
   end
   else
     FTemplate.CanSave := False;
-  FTemplate.Print;
   Result := FTemplate.ReturnValue;
 end;
 

@@ -54,12 +54,15 @@ var
   index:integer;
 begin
   Dump := TStringList.Create;
-  Dump.StrictDelimiter := True;
-  Dump.DelimitedText := Params[0];
+  Dump.SkipLastLineBreak := True;
   if Params.Count = 3 then
     Dump.Delimiter := Params[2][1]
   else
     Dump.Delimiter := DEF_DELIM;
+  Dump.StrictDelimiter := True;
+  Dump.DelimitedText := Params[0];
+
+  //Return := Dump.text;
   index := StrToInt(Params[1]);
   if (Dump.Count > index) and (index > -1) then
     Return := Dump[index];
