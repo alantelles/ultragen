@@ -14,16 +14,18 @@ const
   LIST_C = ']';
   SEP = ',';
   STR_ENC = '"';
+  ATTR = ':';
 
 type
   TJson2Gen = class
   private
     FGenFile: TGenFile;
     FJson:string;
+    Fkey:string;
   public
     constructor Create(AStr:String; var AGenFile:TGenFile);
     procedure ParseJson;
-    procedure ParseValue(AStr:string;Key:string='');
+    procedure ParseValue(AStr:string);
     procedure ParseStream(AStr:string);
     procedure ParsePair(AStr:string);
     procedure ParseList(AStr:string);
@@ -44,6 +46,7 @@ constructor TJson2Gen.Create(AStr:string; var AGenFile:TGenFile);
 begin
   FGenFile := AGenFile;
   FJson := AStr;
+  FKey := 'ROOT';
 end;
 
 function TJson2Gen.Conform(AStr:string):string;
@@ -56,17 +59,18 @@ end;
 
 procedure TJson2Gen.ParseJson;
 begin
+  FGenFile.SetValue(FKey,FJson);
   ParseValue(FJson);
 end;
 
-procedure TJson2Gen.ParseValue(AStr:string;Key:string='');
+procedure TJson2Gen.ParseValue(AStr:string);
 begin
   if IsList(AStr) then
-    ParseList(AStr)
+    ParseList(Copy(AStr,2,Length(AStr)-2))
   else if IsObj(AStr) then
-    ParseObj(AStr)
+    ParseObj(Copy(AStr,2,Length(AStr)-2))
   else
-    FGenFile.SetValue(Key,Conform(AStr));
+    FGenFile.SetValue(FKey,AStr);
 end;
 
 procedure TJson2Gen.ParseStream(AStr:string);
@@ -85,8 +89,29 @@ begin
 end;
 
 procedure TJson2Gen.ParseObj(Astr:string);
+var
+  c:char;
+  inStr:boolean=False;
+  part:string='';
 begin
-
+  for c in AStr do
+  begin
+    if c = STR_ENC then
+      inStr := not inStr
+    else if (c = ATTR) and (not inStr) then
+    begin
+      FKey := part;
+      part := '';
+    end
+    else if (c = SEP) and (not inStr) then
+    begin
+      ParseValue(Part);
+      Part := '';
+    end
+    else
+      part := part + c;
+  end;
+  ParseValue(part);
 end;
 
 function TJson2Gen.IsObj(AStr:String):boolean;

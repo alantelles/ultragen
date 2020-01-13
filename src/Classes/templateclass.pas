@@ -215,6 +215,7 @@ type
     procedure CreateSession(var Params:TStringList);
     procedure DropCookie(var Params:TStringList);
     procedure SetWebVars(ASessionId, ASessionPath:string; ASessionDuration:integer);
+    procedure ParseJson(var Params:TStringList);
     //end web procedures
     procedure StartFunction(var Params:TStringList; var PureParams:TStringList; HasRet: boolean);
     procedure FunctionReturn(var Params:TStringList);
@@ -398,6 +399,17 @@ begin
 	end
   else
     WriteLn('Session already created');
+end;
+
+procedure TTemplate.ParseJson(var Params:TStringList);
+var
+  AJson: TJson2Gen;
+  i:integer;
+begin
+  i := FGenFileSet.IndexOf(Params[0]);
+  AJson := TJson2Gen.Create(Params[1],FGenFileSet.GenFiles[i].GenFile);
+  AJson.ParseJson;
+  AJson.Free;
 end;
 
 procedure TTemplate.CreateGen(var Params:TStringList);
@@ -1285,6 +1297,7 @@ begin
     'setCookie' : SetCookie(Params);
     'setRawCookie' : SetRawCookie(Params);
     'dropCookie' : DropCookie(Params);
+    'parseJson' : ParseJson(Params);
     // end web operations
     //user functions
     'function' : StartFunction(Params, PureParams ,True);
