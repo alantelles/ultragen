@@ -30,7 +30,7 @@
         <PackageName Value="LazUtils"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="16">
+    <Units Count="17">
       <Unit0>
         <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -110,6 +110,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="MathFunctions"/>
       </Unit15>
+      <Unit16>
+        <Filename Value="Functions/jsontogenfunctions.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="JsonToGenFunctions"/>
+      </Unit16>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

@@ -39,6 +39,8 @@ type
     procedure Prepend(AKey,AValue:string);
     procedure Print;
     procedure ClearValues;
+    //sort
+
   end;
 
 implementation
@@ -141,7 +143,7 @@ begin
   begin
     Inc(i);
     APos:= Pos(FGenSep,Line);
-    if (APos > 0) and (Line[APos-1] <> ESCAPER) then
+    if (APos > 1) and (Line[APos-1] <> ESCAPER) then
     begin
       Key := Copy(Line,1,APos-1);
       Value := Copy(Line,APos+Length(FGenSep),Length(Line));

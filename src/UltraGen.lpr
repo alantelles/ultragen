@@ -20,11 +20,11 @@ uses
 
 
 var
-  GenPath, UFlow,iter,iterA,iterB, ADefault:string;
+  iter,iterA, ADefault:string;
   Start:TDateTime;
   FlowLines,AuxGens,AuxGroup,AuxTemp:TStringList;
   AWork:TWork;
-  UltraFlowCall, Unique, LookSub, SrcIsPath, Live, AsString, IsGenSetCall, IsGenpathCall:boolean;
+  LookSub, Live, AsString, IsGenSetCall, IsGenpathCall:boolean;
   i:integer;
   Server:TUltraGenServer;
 begin

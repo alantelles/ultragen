@@ -25,7 +25,8 @@ uses
   BooleansFunctions,
 
   { Classes }
-  GenFileClass,  GenFileSetClass;
+  GenFileClass,  GenFileSetClass
+   ;
 
 const
   FORDEV = 'FORDEV';
@@ -229,7 +230,8 @@ implementation
 uses FileHandlingUtils,
   ParserClass,
   StringsFunctions, VariablesGlobals,
-  fphttpclient, fpopenssl, openssl;
+  fphttpclient, fpopenssl, openssl,
+  JsonToGenFunctions;
 
 
 constructor TTemplate.Create(ATempName: string = ''; AExpLocation: string = '.');
@@ -1044,39 +1046,9 @@ var
 begin
   FLoopTypeLast := FLoopType;
   FLoopType := IFDEV;
-  //FIfLevel := FIfLevel + 1;
-  {if FIfLevel > 0 then
-  begin
-    if FIftests[FIfLevel-1] then
-    begin
-      Exit;
-    end
-	end;}
   if not FSkip then
   begin
-	  a := Params[0];
-	  b := Params[1];
-	  if a = 'EMPTY' then
-		  Logic := Length(Params[1]) = 0
-	  else if a = 'CONTAINS' then
-	  begin
-		  c := Params[2];
-		  d := Pos(c,Params[1]);
-		  Logic := d > 0;
-	  end
-	  else if a = 'EQ' then
-	  begin
-		  try
-		    Logic := StrToInt(Params[1]) = StrToInt(Params[2])
-		  except
-		    Logic := Params[1] = Params[2]
-		  end;
-	  end
-	  else if a = 'GT' then
-	  begin
-		  c := Params[2];
-		  Logic := StrToInt(Params[1]) > StrToInt(Params[2])
-	  end;
+    Logic := StrToBoolean(Params[0]);
 	  FSkip := not ((Logic and (not IfNot)) or ((not Logic) and IfNot));   //teste passou
     SetLength(FIfTests, FIfLevel+1);
 	  FIfTests[FIfLevel] := not FSkip; //test is true
@@ -1259,6 +1231,8 @@ begin
     'endLoop' : EndLoop;
     'if': IfPrepare(Params, PureParams, False);
     'ifNot': IfPrepare(Params, PureParams, True);
+    'elseIf': IfPrepare(Params, PureParams, False);
+    'elseIfNot': IfPrepare(Params, PureParams, True);
     'else': ElseDecision;
     'endIf': EndIf;
     'explode': ExplodeStr(Params, PureParams);

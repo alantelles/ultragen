@@ -20,11 +20,21 @@ function Join(var Params:TStringList):string;
 function Explode(var Params:TStringList):string;
 function InTag(var Params:TStringList):string;
 function CreateSessionID:string;
+function CreateRandomHash:String;
 function OsDirSep(AStr:string):string;
+
+// cast functions
+function ToNumeric(AStr:string):string;
+function ToBoolean(AStr:string):string;
 
 implementation
 
 uses ConstantsGlobals;
+
+function CreateRandomHash:string;
+begin
+  Result := CreateSessionID;
+end;
 
 function CreateSessionID:string;
 var
@@ -45,6 +55,33 @@ begin
   );
   Result := ASessionName;
 
+end;
+
+function ToNumeric(AStr:string):string;
+var
+  Return:string;
+begin
+  try
+    Return := IntToStr(StrToInt(AStr));
+  except
+    try
+      Return := FloatToStr(StrToFloat(AStr));
+    except
+      Return := '0';
+    end;
+  end;
+  Result := Return;
+end;
+
+function ToBoolean(AStr:string):string;
+var
+  Return:string;
+begin
+  if (AStr = '0') or (AStr = '-1') then
+    Return := 'false'
+  else
+    Return := 'true';
+  Result := Return;
 end;
 
 function Explode(var Params:TStringList):string;

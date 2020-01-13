@@ -50,6 +50,9 @@ const
   ASC = 'ASC';
   DESC = 'DESC';
 
+  LANG_FALSE = 'false';
+  LANG_TRUE = 'true';
+
   UTC_FORMAT = 'ddd, dd mmm yyyy hh:nn:ss "UTC"';
   DATE_INTERCHANGE_FORMAT = 'yyyy-mm-dd hh:nn:ss.zzz';
 

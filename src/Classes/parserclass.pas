@@ -886,16 +886,48 @@ begin
       Return := FileHandlingUtils.PrintFileIfExists(Params[0], Params[1], Params[2])
 
     { Booleans Functions }
-    else if (AFuncName = 'booleanToInt') and (Params.Count = 1) then
-      Return := BooleansFunctions.BooleanToInt(Params[0])
-    else if (AFuncName = 'intToBoolean') and (Params.Count = 1) then
-      Return := BooleansFunctions.IntToBoolean(Params[0])
-    else if (AFuncName = 'booleanToStr') and (Params.Count = 1) then
-      Return := BooleansFunctions.IntToBoolean(Params[0])
-    else if (AFuncName = 'booleanToStr') and (Params.Count = 2) then
-      Return := BooleansFunctions.BooleanToStr(Params[0], Params[1])
-    else if (AFuncName = 'booleanToStr') and (Params.Count = 3) then
-      Return := BooleansFunctions.BooleanToStr(Params[0], Params[1], Params[2])
+    else if (AFuncName = 'eq') and (Params.Count > 1) then
+      Return := BooleansFunctions.Equal(Params)
+    else if (AFuncName = 'notEq') and (Params.Count > 1) then
+      Return := BooleansFunctions.Equal(Params,True)
+    else if (AFuncName = 'neq') and (Params.Count > 1) then
+      Return := BooleansFunctions.Equal(Params,True)
+    else if (AFuncName = 'gt') and (Params.Count > 1) then
+      Return := BooleansFunctions.Greater(Params)
+    else if (AFuncName = 'lt') and (Params.Count > 1) then
+      Return := BooleansFunctions.Greater(Params,True)
+      else if (AFuncName = 'greater') and (Params.Count > 1) then
+      Return := BooleansFunctions.Greater(Params)
+    else if (AFuncName = 'less') and (Params.Count > 1) then
+      Return := BooleansFunctions.Greater(Params,True)
+      else if (AFuncName = 'geq') and (Params.Count > 1) then
+      Return := BooleansFunctions.GreaterOrEq(Params)
+    else if (AFuncName = 'leq') and (Params.Count > 1) then
+      Return := BooleansFunctions.GreaterOrEq(Params,True)
+      else if (AFuncName = 'greaterOrEq') and (Params.Count > 1) then
+      Return := BooleansFunctions.GreaterOrEq(Params)
+    else if (AFuncName = 'lessOrEq') and (Params.Count > 1) then
+      Return := BooleansFunctions.GreaterOrEq(Params,True)
+    else if (AFuncName = 'not') and (Params.Count = 1) then
+      Return := BooleansFunctions.Inverter(Params)
+    else if(AFuncName = 'and') and (Params.Count > 1) then
+      Return := BooleansFunctions.LogicAnd(Params)
+    else if(AFuncName = 'nand') and (Params.Count > 1) then
+      Return := BooleansFunctions.LogicAnd(Params,True)
+    else if(AFuncName = 'notAnd') and (Params.Count > 1) then
+      Return := BooleansFunctions.LogicAnd(Params,True)
+    else if(AFuncName = 'or') and (Params.Count > 1) then
+      Return := BooleansFunctions.LogicOr(Params)
+    else if(AFuncName = 'nor') and (Params.Count > 1) then
+      Return := BooleansFunctions.LogicOr(Params,True)
+    else if(AFuncName = 'notOr') and (Params.Count > 1) then
+      Return := BooleansFunctions.LogicOr(Params,True)
+
+    { Cast Functions }
+    else if (AFuncName = 'num') and (Params.Count = 1) then
+      Return := StringsFunctions.ToNumeric(Params[0])
+    else if (AFuncName = 'bool') and (Params.Count = 1) then
+      Return := StringsFunctions.ToBoolean(Params[0])
 
     { DateTime Functions }
     else if (AFuncName = 'date') and (Params.Count = 0) then
@@ -1009,7 +1041,7 @@ begin
       Return := StringsFunctions.Explode(Params)
     //HTML
     else if (AFuncName = 'nl2br') and (Params.Count = 1) then
-      Return := ReplaceStr(Params[0], sLineBreak, '<br>' + sLineBreak)
+      Return := ReplaceStr(Params[0], sLineBreak, sLineBreak + '<br>')
     else if (AFuncName = 'inTag') and (Params.Count > 1) then
       Return := StringsFunctions.InTag(Params)
     else if (AFuncName = 'callFunction') and (Params.Count > 1) then
@@ -1127,6 +1159,20 @@ begin
           FTemplate.Skip := FTemplate.IfRecursion[FTemplate.IfLevel];
 
       end
+      else if ((not FTemplate.ScriptMode and
+        ((Copy(Trim(FTemplate.TempLines[i]), 1, 8) =
+        OVER_STATE + 'elseIf' + OVER_ASSOC) or
+        (Copy(Trim(FTemplate.TempLines[i]), 1, 11) = OVER_STATE +
+        'elseIfNot' + OVER_ASSOC))) or
+        (FTemplate.ScriptMode and
+        ((Copy(Trim(FTemplate.TempLines[i]), 1, 7) =
+        'elseIf' + OVER_ASSOC) or
+        (Copy(Trim(FTemplate.TempLines[i]), 1, 10) = 'elseIfNot' +
+        OVER_ASSOC)))) then
+      begin
+        if FTemplate.IfLevel = (Length(FTemplate.IfRecursion) - 1) then
+          FTemplate.Skip := FTemplate.IfRecursion[FTemplate.IfLevel];
+      end
 
       else if ((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) =
         OVER_STATE + 'endIf')) or (FTemplate.ScriptMode and (Trim(x) = 'endIf'))) or
@@ -1146,9 +1192,6 @@ begin
         (Trim(FTemplate.TempLines[i]) = 'endFor'))) or
         (((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) =
         OVER_STATE + 'end')) or (FTemplate.ScriptMode and
-
-
-
         (Trim(FTemplate.TempLines[i]) = 'end'))) and (FTemplate.LoopType = IFDEV)) then
       begin
         FTemplate.ForSkip := False;

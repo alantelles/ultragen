@@ -49,8 +49,8 @@ begin
   PREDEF_OVERR[4] := 'import';
   PREDEF_OVERR[5] := 'include';
 
-  RESERVED_WORDS[0] := 'TRUE';
-  RESERVED_WORDS[1] := 'FALSE';
+  RESERVED_WORDS[0] := 'true';
+  RESERVED_WORDS[1] := 'false';
   RESERVED_WORDS[2] := 'CONTAINS';
   RESERVED_WORDS[3] := 'EMPTY';
   RESERVED_WORDS[4] := 'EQ';
