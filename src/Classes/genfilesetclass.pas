@@ -137,7 +137,7 @@ var
 begin
   i := Add(True,AnAliasRule);
   FGenFiles[i].GenFile.SetValue('count',IntToStr(AGenFiles.Count));
-  if AGenFiles.Count > 1 then
+  if AGenFiles.Count > 0 then
   begin
     Add(True,AnAliasRule);
 	  for i:=0 to AGenFiles.Count-1 do

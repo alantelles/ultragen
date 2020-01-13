@@ -729,8 +729,9 @@ begin
     end
     else if (AFuncName = 'genValue') and (Params.Count = 3) then
     begin
-      Return := FTemplate.GenFileSet.GetValue(FROM_GEN_SET + Params[1] +
-        GEN_SUB_LEVEL + Params[2] + ATTR_ACCESSOR + Params[0]).Value;
+      a := FROM_GEN_SET + Params[1] +
+        GEN_SUB_LEVEL + Params[2] + ATTR_ACCESSOR + Params[0];
+      Return := FTemplate.GenFileSet.GetValue(a).Value;
     end
     else if (AFuncName = 'genValue') and (Params.Count = 4) then
     begin
