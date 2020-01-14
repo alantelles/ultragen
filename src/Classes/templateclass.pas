@@ -407,7 +407,7 @@ var
   AJson: TJson2Gen;
   i:integer;
 begin
-  i := FGenFileSet.IndexOf(Params[0]);
+  i := FGenFileSet.Add(True,Params[0]);
   AJson := TJson2Gen.Create(Params[1],FGenFileSet.GenFiles[i].GenFile);
   AJson.ParseJson;
   AJson.Free;
