@@ -1653,27 +1653,47 @@ function TTemplate.SetVariable(AKey, AValue: string; Parse:boolean=False): TTemp
 var
   i, len: integer;
   AParser:TTempParser;
-
+  GenValue, ValidVar:boolean;
+  GenAliasPos, AttrAccPos:integer;
+  AnAlias:string;
 begin
   AParser := TTempParser.Create(Self);
   if Parse then
     AValue := AParser.ParseToken(AValue);
+  GenAliasPos := Pos(FROM_GEN_SET,AKey);
+  AttrAccPos := Pos(ATTR_ACCESSOR,AKey);
+  GenValue := (GenAliasPos = 1) and (AttrAccPos > GenAliasPos + 1);
+  ValidVar := (GenAliasPos = 0) and (AttrAccPos = 0);
   len := Length(FVariables);
-  if len > 0 then
+  if ValidVar then
   begin
-    for i:=0 to len - 1 do
+    if len > 0 then
     begin
-      if FVariables[i].Key = AKey then
+      for i:=0 to len - 1 do
       begin
-        FVariables[i].Value := AValue;
-        Result := Self;
-        Exit;
+        if FVariables[i].Key = AKey then
+        begin
+          FVariables[i].Value := AValue;
+          Result := Self;
+          Exit;
+        end;
       end;
     end;
+    SetLength(FVariables, len + 1);
+    FVariables[len].Key := AKey;
+    FVariables[len].Value := AValue;
+  end
+  else if GenValue then
+  begin
+    AnAlias := Copy(AKey,2,AttrAccPos-2);
+    AKey := Copy(AKey,AttrAccPos+1,Length(AKey));
+    i := FGenFileSet.IndexOf(AnAlias);
+    if i = -1 then
+    begin
+      i := FGenFileSet.Add(True,AnAlias);
+    end;
+    FGenFileSet.GenFiles[i].GenFile.SetValue(AKey,AValue);
   end;
-  SetLength(FVariables, len + 1);
-  FVariables[len].Key := AKey;
-  FVariables[len].Value := AValue;
 
   AParser.Free;
   Result := Self;
