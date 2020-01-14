@@ -70,26 +70,31 @@ var
   Part: String = '';
   Temp, Ret: string;
   Limit, i: integer;
-begin
-  ADelim := TStringList.Create;
-  ADelim.SkipLastLineBreak := True;
-  ADelim.Delimiter := DirectorySeparator;
-  ADelim.StrictDelimiter := True;
-  ADelim.DelimitedText := AFileName;
-  Limit := (ADelim.Count-1) + ALevel;
-  i:=0;
-  for Temp in ADelim do
   begin
-    Part := Part + Temp + DirectorySeparator;
-    if not FullPathReturn then
-      Ret := Temp
-    else
-      Ret := Part;
-    if i >= Limit then
-      Break;
-    Inc(i);
-  end;
-  ADelim.Free;
+  if Pos(DirectorySeparator,AFileName) > 0 then
+  begin
+    ADelim := TStringList.Create;
+    ADelim.SkipLastLineBreak := True;
+    ADelim.Delimiter := DirectorySeparator;
+    ADelim.StrictDelimiter := True;
+    ADelim.DelimitedText := AFileName;
+    Limit := (ADelim.Count-1) + ALevel;
+    i:=0;
+    for Temp in ADelim do
+    begin
+      Part := Part + Temp + DirectorySeparator;
+      if not FullPathReturn then
+        Ret := Temp
+      else
+        Ret := Part;
+      if i >= Limit then
+        Break;
+      Inc(i);
+    end;
+    ADelim.Free;
+  end
+  else
+    Ret := '.';
   Result := RemoveLastBackslash(Ret);
 end;
 

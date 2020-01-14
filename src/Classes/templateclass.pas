@@ -204,6 +204,7 @@ type
     procedure CreateGen(var Params:TStringList);
     procedure UnloadGen(var Params:TStringList);
     procedure LoadGenFolder(var Params:TStringList);
+    procedure SetGenName(var Params:TStringList);
     // end gen file handling
     //Web module procedures
     procedure RedirectTo(var Params:TstringList);
@@ -1283,6 +1284,7 @@ begin
     // Gen operations
     'setValue' : SetGenValue(Params);
     'saveGen' : SaveGen(Params);
+    'setGenName' : SetGenName(Params);
     'createGen' : CreateGen(Params);
     'unloadGen' : UnloadGen(Params);
     'loadGenFolder' : LoadGenFolder(Params);
@@ -1647,6 +1649,15 @@ begin
     end;
 	end;
   Result := Ret;
+end;
+
+procedure TTemplate.SetGenName(var Params:TStringList);
+var
+  i:integer;
+begin
+  i := FGenFileSet.IndexOf(Params[0]);
+  if i > -1 then
+    FGenFileSet.GenFiles[i].GenFile.FullName := Params[1];
 end;
 
 function TTemplate.SetVariable(AKey, AValue: string; Parse:boolean=False): TTemplate;
