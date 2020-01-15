@@ -217,6 +217,7 @@ type
     procedure DropCookie(var Params:TStringList);
     procedure SetWebVars(ASessionId, ASessionPath:string; ASessionDuration:integer);
     procedure ParseJson(var Params:TStringList);
+    procedure RequestRest(var Params:TStringList; var PureParams:TStringList);
     //end web procedures
     procedure StartFunction(var Params:TStringList; var PureParams:TStringList; HasRet: boolean);
     procedure FunctionReturn(var Params:TStringList);
@@ -411,6 +412,22 @@ begin
   AJson := TJson2Gen.Create(Params[1],FGenFileSet.GenFiles[i].GenFile);
   AJson.ParseJson;
   AJson.Free;
+end;
+
+procedure TTemplate.RequestRest(var Params:TStringList; var PureParams:TStringList);
+var
+  Requirer:TFPHttpClient;
+  Return:string='';
+begin
+  //InitSSLInterface;
+  Requirer := TFPHttpClient.Create(nil);
+  try
+    Requirer.AllowRedirect := True;
+    Return := Requirer.Get(Params[1]);
+  finally
+    Requirer.Free;
+    SetVariable(PureParams[0],Return);
+  end;
 end;
 
 procedure TTemplate.CreateGen(var Params:TStringList);
@@ -1305,6 +1322,7 @@ begin
     'setRawCookie' : SetRawCookie(Params);
     'dropCookie' : DropCookie(Params);
     'parseJson' : ParseJson(Params);
+    'request' : RequestRest(Params,PureParams);
     // end web operations
     //user functions
     'function' : StartFunction(Params, PureParams ,True);
