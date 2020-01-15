@@ -269,7 +269,7 @@ begin
   ATemplate.ParseTemplate(AGen);
   Line := ATemplate.ParsedLines.Text;
   OutputParsed.Free;
-  Result := Copy(Line, 1, Length(Line) - Length(sLineBreak));
+  Result := Line;
 end;
 
 function TTempParser.ParseLine(Line: string): TParseResult;
@@ -1042,7 +1042,7 @@ begin
       Return := StringsFunctions.Explode(Params)
     //HTML
     else if (AFuncName = 'nl2br') and (Params.Count = 1) then
-      Return := ReplaceStr(Params[0], sLineBreak, sLineBreak + '<br>')
+      Return := ReplaceStr(Params[0], sLineBreak, '<br>' + sLineBreak)
     else if (AFuncName = 'inTag') and (Params.Count > 1) then
       Return := StringsFunctions.InTag(Params)
     else if (AFuncName = 'callFunction') and (Params.Count > 1) then

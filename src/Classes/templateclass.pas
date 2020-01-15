@@ -205,6 +205,7 @@ type
     procedure UnloadGen(var Params:TStringList);
     procedure LoadGenFolder(var Params:TStringList);
     procedure SetGenName(var Params:TStringList);
+    procedure MapGenKeys(var Params:TStringList; DoMap:boolean);
     // end gen file handling
     //Web module procedures
     procedure RedirectTo(var Params:TstringList);
@@ -234,7 +235,7 @@ uses FileHandlingUtils,
   ParserClass,
   StringsFunctions, VariablesGlobals,
   fphttpclient, fpopenssl, openssl,
-  JsonToGenFunctions;
+  JsonToGenFunctions, Math;
 
 
 constructor TTemplate.Create(ATempName: string = ''; AExpLocation: string = '.');
@@ -542,6 +543,31 @@ begin
     FGenFileSet.GenFiles[i].GenFile.Save
   else if Params.Count = 2 then
     FGenFileSet.GenFiles[i].GenFile.Save(Params[1]);
+end;
+
+procedure TTemplate.MapGenKeys(var Params:TStringList; DoMap:boolean);
+var
+  i:integer;
+  APair: TKVPair;
+  VarAlias:string;
+begin
+  //mapGenKeys:aGenAlias,aVarPrefix
+  i := FGenFileSet.IndexOf(Params[0]);
+  if i > -1 then
+  begin
+    VarAlias := Params[0]+ATTR_ACCESSOR;
+    if Params.Count = 2 then
+    begin
+      VarAlias := Params[1];
+      if VarAlias <> '' then
+        VarAlias := VarAlias+ATTR_ACCESSOR;
+    end;
+    for APair in FGenFileSet.GenFiles[i].GenFile.Pairs do
+      if DoMap then
+        SetVariable(VarAlias+APair.Key,APair.Value)
+      else
+        DropVariable(VarAlias+APair.Key);
+  end;
 end;
 
 procedure TTemplate.LoadGenFolder(var Params:TStringList);
@@ -861,7 +887,7 @@ end;
 procedure TTemplate.ForPrepare(var Params:TStringList; var PureParams:TStringList; ForLoop:boolean = True);
 var
   Values: TStringList;
-  ParamAsStr, Iterated: string;
+  ParamAsStr, Iterated, j: string;
   len, i, x: int64;
   EmptyList:boolean;
 begin
@@ -922,8 +948,12 @@ begin
     FForLoops[FForLevel].Times := FForLoops[FForLevel].List.Count;
     SetVariable(FForLoops[FForLevel].ControlVar,
       FForLoops[FForLevel].List[FForLoops[FForLevel].List.Count - FForLoops[FForLevel].Times]);
-    SetVariable(FForLoops[FForLevel].ControlVar + '.i', IntToStr(
+    j := FForLoops[FForLevel].ControlVar + '.i';
+    SetVariable(j, IntToStr(
       FForLoops[FForLevel].List.Count - FForLoops[FForLevel].Times));
+    j := GetVariable(j);
+    j := j;
+
   end
   else
   begin
@@ -1310,6 +1340,8 @@ begin
     'createGen' : CreateGen(Params);
     'unloadGen' : UnloadGen(Params);
     'loadGenFolder' : LoadGenFolder(Params);
+    'mapGenKeys' : MapGenKeys(Params,True);
+    'dropGenMap' : MapGenKeys(Params,False);
     // End of Gen operations
     //start web operations
     'abort' : ParseAbort(Params);
@@ -1697,7 +1729,7 @@ begin
   GenAliasPos := Pos(FROM_GEN_SET,AKey);
   AttrAccPos := Pos(ATTR_ACCESSOR,AKey);
   GenValue := (GenAliasPos = 1) and (AttrAccPos > GenAliasPos + 1);
-  ValidVar := (GenAliasPos = 0) and (AttrAccPos = 0);
+  ValidVar := (GenAliasPos = 0);
   len := Length(FVariables);
   if ValidVar then
   begin
