@@ -21,10 +21,10 @@ type
   private
     FGenFile: TGenFile;
     FJson: string;
-    Fkey: string;
+    Fkey, FPrefix: string;
     FListIndex: integer;
   public
-    constructor Create(AStr: string; var AGenFile: TGenFile);
+    constructor Create(AStr: string; var AGenFile: TGenFile; Prefix:string='');
     procedure ParseJson;
     procedure ParseValue(AStr: string);
     procedure ParseStream(AStr: string);
@@ -43,11 +43,12 @@ implementation
 uses
   Classes, SysUtils, ConstantsGlobals, StrUtils;
 
-constructor TJson2Gen.Create(AStr: string; var AGenFile: TGenFile);
+constructor TJson2Gen.Create(AStr: string; var AGenFile: TGenFile; Prefix:string='');
 begin
   FGenFile := AGenFile;
   FJson := Trim(AStr);
   FKey := '';
+  FPrefix := Prefix;
   FListIndex := 0;
 end;
 
@@ -67,13 +68,19 @@ begin
 end;
 
 procedure TJson2Gen.ParseValue(AStr: string);
+var
+  Prefix:string='';
 begin
   if IsList(AStr) then
     ParseList(Copy(AStr, 2, Length(AStr) - 2))
   else if IsObj(AStr) then
     ParseObj(Copy(AStr, 2, Length(AStr) - 2))
   else
-    FGenFile.SetValue(FKey, AStr);
+  begin
+    if FPrefix <> '' then
+      Prefix := FPrefix + GEN_SUB_LEVEL;
+    FGenFile.SetValue(Prefix+FKey, AStr);
+  end;
 end;
 
 procedure TJson2Gen.ParseStream(AStr: string);

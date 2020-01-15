@@ -410,7 +410,10 @@ var
   i:integer;
 begin
   i := FGenFileSet.Add(True,Params[0]);
-  AJson := TJson2Gen.Create(Params[1],FGenFileSet.GenFiles[i].GenFile);
+  if Params.Count = 3 then
+    AJson := TJson2Gen.Create(Params[1],FGenFileSet.GenFiles[i].GenFile,Params[2])
+  else
+    AJson := TJson2Gen.Create(Params[1],FGenFileSet.GenFiles[i].GenFile);
   AJson.ParseJson;
   AJson.Free;
 end;
@@ -420,7 +423,8 @@ var
   Requirer:TFPHttpClient;
   Return:string='';
 begin
-  //InitSSLInterface;
+
+  InitSSLInterface;
   Requirer := TFPHttpClient.Create(nil);
   try
     Requirer.AllowRedirect := True;
