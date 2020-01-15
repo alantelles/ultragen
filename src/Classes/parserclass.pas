@@ -724,8 +724,8 @@ begin
     end
     else if (AFuncName = 'genValue') and (Params.Count = 2) then
     begin
-      Return := FTemplate.GenFileSet.GetValue(FROM_GEN_SET + Params[1] +
-        ATTR_ACCESSOR + Params[0]).Value;
+      a := FROM_GEN_SET + Params[1] + ATTR_ACCESSOR + Params[0];
+      Return := FTemplate.GenFileSet.GetValue(a).Value;
     end
     else if (AFuncName = 'genValue') and (Params.Count = 3) then
     begin
@@ -1182,10 +1182,13 @@ begin
         (Trim(FTemplate.TempLines[i]) = 'end'))) and (FTemplate.LoopType = IFDEV)) then
       begin
         FTemplate.IfLevel := FTemplate.IfLevel - 1;
-        if FTemplate.IfLevel = -1 then
-          FTemplate.Skip := False
-        else
-          FTemplate.Skip := not FTemplate.IfRecursion[FTemplate.IfLevel];
+        if not FTemplate.ForSkip then
+        begin
+          if FTemplate.IfLevel = -1 then
+            FTemplate.Skip := False
+          else
+            FTemplate.Skip := not FTemplate.IfRecursion[FTemplate.IfLevel];
+        end;
 
       end
       else if ((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) =

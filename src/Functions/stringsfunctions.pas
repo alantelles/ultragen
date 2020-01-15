@@ -77,7 +77,7 @@ function ToBoolean(AStr:string):string;
 var
   Return:string;
 begin
-  if (AStr = '0') or (AStr = '-1') then
+  if (AStr = '0') or (AStr = '-1') or (AStr = '') then
     Return := 'false'
   else
     Return := 'true';

@@ -1000,24 +1000,29 @@ end;
 procedure TTemplate.EndLoop;
 begin
   FLoopType := NODEV;
-  FForLoops[FForLevel].Times := FForLoops[FForLevel].Times + 1;
-  if FForLoops[FForLevel].Infinite then
-    FForLoops[FForLevel].Limit := FForLoops[FForLevel].Limit+FForLoops[FForLevel].Times + 1;
-  FRewind := True;
-  if FForLoops[FForLevel].PauseTime > 0 then
-    Sleep(FForLoops[FForLevel].PauseTime);
-  if FForLoops[FForLevel].Times = (FForLoops[FForLevel].Limit) then
+  if FForLevel > -1 then
   begin
-    DropVariable(FForLoops[FForLevel].ControlVar);
-    FRewind := False;
-    FForLevel := FForLevel - 1;
-    SetLength(FForLoops, FForLevel + 1);
-  end
-  else
-  begin
-    if FForLoops[FForLevel].ControlVar <> '' then
-      SetVariable(FForLoops[FForLevel].ControlVar , IntToStr(FForLoops[FForLevel].Times));
+    FForLoops[FForLevel].Times := FForLoops[FForLevel].Times + 1;
+    if FForLoops[FForLevel].Infinite then
+      FForLoops[FForLevel].Limit := FForLoops[FForLevel].Limit+FForLoops[FForLevel].Times + 1;
+    if FForLoops[FForLevel].PauseTime > 0 then
+      Sleep(FForLoops[FForLevel].PauseTime);
+    if FForLoops[FForLevel].Times = (FForLoops[FForLevel].Limit) then
+    begin
+      DropVariable(FForLoops[FForLevel].ControlVar);
+      FRewind := False;
+      FForLevel := FForLevel - 1;
+      SetLength(FForLoops, FForLevel + 1);
+    end
+    else
+    begin
+      if FForLoops[FForLevel].ControlVar <> '' then
+        SetVariable(FForLoops[FForLevel].ControlVar , IntToStr(FForLoops[FForLevel].Times));
+    end;
+    FRewind := True;
   end;
+
+
 end;
 
 function TTemplate.ImportGenFile(var Params:TStringList): TTemplate;
