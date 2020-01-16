@@ -111,9 +111,8 @@
         <UnitName Value="MathFunctions"/>
       </Unit15>
       <Unit16>
-        <Filename Value="Functions/jsontogenfunctions.pas"/>
+        <Filename Value="Classes/jsontogenclass.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="JsonToGenFunctions"/>
       </Unit16>
     </Units>
   </ProjectOptions>

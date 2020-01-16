@@ -6,10 +6,10 @@ unit TemplateClass;
 interface
 
 uses
-   LazUTF8,Classes, SysUtils, FileUtil, DateUtils, StrUtils, Process, crt, httpdefs,
+  LazUTF8, Classes, SysUtils, FileUtil, DateUtils, StrUtils, Process, crt, httpdefs,
   {$IFDEF UNIX}
     {$IFDEF UseCThreads}
-    cthreads,
+  cthreads,
     {$ENDIF}
   {Widestring manager needed for widestring support}
   cwstring,
@@ -19,14 +19,13 @@ uses
   {$ENDIF}
 
   { Globals }
-  WebServerClass, TypesGlobals,  ConstantsGlobals,
+  WebServerClass, TypesGlobals, ConstantsGlobals,
 
   { Utils }
   BooleansFunctions,
 
   { Classes }
-  GenFileClass,  GenFileSetClass
-   ;
+  GenFileClass, GenFileSetClass;
 
 const
   FORDEV = 'FORDEV';
@@ -54,14 +53,14 @@ type
   end;
 
   TWebVars = record
-    SessionId, SessionPath:string;
-    SessionDuration:integer;
-	end;
+    SessionId, SessionPath: string;
+    SessionDuration: integer;
+  end;
 
   TDefaultParam = record
-    FuncName:string;
-    ParamPos:integer;
-    DefValue:string;
+    FuncName: string;
+    ParamPos: integer;
+    DefValue: string;
   end;
 
   TDefaultParamArray = array of TDefaultParam;
@@ -71,9 +70,9 @@ type
     GoToLine: integer;
     ControlVar: string;
     List: TStringList;
-    PauseTime:integer;
-    Infinite:boolean;
-    Limit:integer;
+    PauseTime: integer;
+    Infinite: boolean;
+    Limit: integer;
   end;
   TForRecursion = array of TForLevel;
   TIfrecursion = array of boolean;
@@ -102,8 +101,8 @@ type
     FForLoops: TForRecursion;
     FIfTests: TIfRecursion;
     FRewind, FSkip: boolean;
-    FLoopTypeLast,FLoopType:string;
-    FForSkip:boolean;
+    FLoopTypeLast, FLoopType: string;
+    FForSkip: boolean;
     FAbort: boolean;
     FWebVars: TWebVars;
     FUserFunctions: TUserFunctions;
@@ -114,11 +113,11 @@ type
     constructor Create(ATempName: string = ''; AExpLocation: string = '.');
     property RenderBlank: boolean read FOverrides.RenderBlank
       write FOverrides.RenderBlank;
-    property DoAbort:boolean read FAbort write FAbort;
-    property AddToFunction:boolean read FAddToFunction write FAddToFunction;
-    property ForSkip:boolean read FForSkip write FForSkip;
-    property LoopTypeLast:string read FLoopTypeLast write FLoopTypeLast;
-    property LoopType:string read FLoopType write FLoopType;
+    property DoAbort: boolean read FAbort write FAbort;
+    property AddToFunction: boolean read FAddToFunction write FAddToFunction;
+    property ForSkip: boolean read FForSkip write FForSkip;
+    property LoopTypeLast: string read FLoopTypeLast write FLoopTypeLast;
+    property LoopType: string read FLoopType write FLoopType;
     property ForLoops: TForRecursion read FForloops write FForLoops;
     property TokenOpen: string read FTokenOpen write FTokenOpen;
     property TokenClose: string read FTokenClose write FTokenClose;
@@ -136,8 +135,8 @@ type
     property GenTime: TDateTime read FGenTime;
     property ExportLocation: string read FExpLocation write FExpLocation;
     property OutFilePath: string read FOutFilePath;
-    property ScriptMode:boolean read FScriptMode write FScriptMode;
-    property CommentBlock:boolean read FCommentBlock write FCommentBlock;
+    property ScriptMode: boolean read FScriptMode write FScriptMode;
+    property CommentBlock: boolean read FCommentBlock write FCommentBlock;
     property Imported: TStringList read FImported write FImported;
     property Filters: TStringList read FOverrides.Filters write FOverrides.Filters;
     property Bypasses: TStringList read FOverrides.Bypasses write FOverrides.Bypasses;
@@ -149,82 +148,89 @@ type
     property IfRecursion: TIfRecursion read FIfTests write FIfTests;
     property WebVars: TWebVars read FWebVars write FWebVars;
     property UserFunctions: TUserFunctions read FUserFunctions write FUserFunctions;
-    property OrderReturn:boolean read FOrderReturn write FOrderReturn;
-    property ReturnValue:string read FReturnValue;
+    property OrderReturn: boolean read FOrderReturn write FOrderReturn;
+    property ReturnValue: string read FReturnValue;
 
     function Name: string;
     function SetPredefined(AKey, AValue: string): boolean;
     function Load(ATempName: string): TTemplate;
     function Load(ATempList: TStringList; ATempName: string): TTemplate;
-    procedure SetFunctionsLength(NewLen:integer);
-    procedure LoadText(var Params:TStringList; var PureParams:TStringList);
+    procedure SetFunctionsLength(NewLen: integer);
+    procedure LoadText(var Params: TStringList; var PureParams: TStringList);
     function Save: TTemplate;
-    procedure ProcessTemplate(var Params:TStringList; DoPrint:boolean=False);
+    procedure ProcessTemplate(var Params: TStringList; DoPrint: boolean = False);
     function GetVariable(AVarName: string): string;
-    function SetVariable(AKey, AValue: string; Parse:boolean=False): TTemplate;
+    function SetVariable(AKey, AValue: string; Parse: boolean = False): TTemplate;
     function DropVariable(AKey: string): TTemplate;
     function GetImportedValue(AnAlias, AKey: string): string;
-    function ImportGenFile(var Params:TStringList): TTemplate;
+    function ImportGenFile(var Params: TStringList): TTemplate;
     procedure ExtendTemplate(ATemplate: string; Parent: string = '');
-    procedure IncludeTemplate(var Params:TStringList);
-    procedure Execute(var Params:TStringList);
-    procedure InputValue(var Params:TStringList;var PureParams:TStringList;DoParse:boolean);
+    procedure IncludeTemplate(var Params: TStringList);
+    procedure Execute(var Params: TStringList);
+    procedure InputValue(var Params: TStringList;
+      var PureParams: TStringList; DoParse: boolean);
     function ParseTemplate(var AGen: TGenFileSet): string;
     function ParseTemplate(var AGen: TGenFileSet; var OutputParsed: TStringList): string;
     function ParseTemplate(var AGen: TGenFile): string;
     function ParseTemplate(var AGen: TGenFile; var OutputParsed: TStringList): string;
     function GetWild(ASearch, AnAlias, ADefault: string): string;
     function GetWild(ASearch, AnAlias: string): string;
-    function RouteMatch(ASearch, AnAlias:String; ADefault: string=''): string;
+    function RouteMatch(ASearch, AnAlias: string; ADefault: string = ''): string;
     procedure Print;
-    procedure PrintLine(var Params:TStringList; ToConsole, ToOutput:boolean);
-    procedure ParseAbort(var Params:TStringList);
+    procedure PrintLine(var Params: TStringList; ToConsole, ToOutput: boolean);
+    procedure ParseAbort(var Params: TStringList);
     procedure PrintParsed;
-    procedure ForPrepare(var Params:TstringList ; var PureParams:TstringList; ForLoop:boolean = True);
+    procedure ForPrepare(var Params: TStringList; var PureParams: TStringList;
+      ForLoop: boolean = True);
     procedure BreakFor;
     procedure ContinueFor;
     procedure EndFor;
-    procedure LoopPrepare(var Params:TstringList; var PureParams:TstringList; ForLoop:boolean = True);
+    procedure LoopPrepare(var Params: TStringList; var PureParams: TStringList;
+      ForLoop: boolean = True);
     procedure EndLoop;
     function EvalFilter: boolean;
     function EvalBypass: boolean;
-    procedure ExplodeStr(var Params:TStringList; var PureParams:TStringList);
+    procedure ExplodeStr(var Params: TStringList; var PureParams: TStringList);
     procedure Clear;
-    procedure IfPrepare(var Params:TStringList; var PureParams:TStringList; IfNot: boolean);
+    procedure IfPrepare(var Params: TStringList; var PureParams: TStringList;
+      IfNot: boolean);
     procedure ElseDecision;
     procedure EndIf;
-    procedure ListFiles(var Params:TStringList; var PureParams:TStringList);
-    procedure LimitedListFiles(var Params:TStringList; var PureParams:TStringList);
-    procedure Move(var Params:TStringList);
-    procedure TempFileCopy(var Params:TStringList);
-    procedure DoPause(var Params:TStringList);
+    procedure ListFiles(var Params: TStringList; var PureParams: TStringList);
+    procedure LimitedListFiles(var Params: TStringList; var PureParams: TStringList);
+    procedure Move(var Params: TStringList);
+    procedure TempFileCopy(var Params: TStringList);
+    procedure DoPause(var Params: TStringList);
     //Gen file handling
-    procedure SetGenValue(var Params:TStringList);
-    procedure SaveGen(var Params:TStringList);
-    procedure CreateGen(var Params:TStringList);
-    procedure UnloadGen(var Params:TStringList);
-    procedure LoadGenFolder(var Params:TStringList);
-    procedure SetGenName(var Params:TStringList);
-    procedure MapGenKeys(var Params:TStringList; DoMap:boolean);
+    procedure SetGenValue(var Params: TStringList);
+    procedure SaveGen(var Params: TStringList);
+    procedure CreateGen(var Params: TStringList);
+    procedure UnloadGen(var Params: TStringList);
+    procedure LoadGenFolder(var Params: TStringList);
+    procedure SetGenName(var Params: TStringList);
+    procedure MapGenKeys(var Params: TStringList; DoMap: boolean);
+    procedure GroupKeys(var Params: TStringList);
     // end gen file handling
     //Web module procedures
-    procedure RedirectTo(var Params:TstringList);
-    procedure DestroySession(var Params:TStringList);
-    procedure SetSessionVar(var Params:TStringList);
-    procedure DropSessionVar(var Params:TStringList);
-    procedure SetCookie(var Params:TStringList);
-    procedure SetRawCookie(var Params:TStringList);
-    procedure CreateSession(var Params:TStringList);
-    procedure DropCookie(var Params:TStringList);
-    procedure SetWebVars(ASessionId, ASessionPath:string; ASessionDuration:integer);
-    procedure ParseJson(var Params:TStringList);
-    procedure RequestRest(var Params:TStringList; var PureParams:TStringList);
+    procedure RedirectTo(var Params: TStringList);
+    procedure DestroySession(var Params: TStringList);
+    procedure SetSessionVar(var Params: TStringList);
+    procedure DropSessionVar(var Params: TStringList);
+    procedure SetCookie(var Params: TStringList);
+    procedure SetRawCookie(var Params: TStringList);
+    procedure CreateSession(var Params: TStringList);
+    procedure DropCookie(var Params: TStringList);
+    procedure SetWebVars(ASessionId, ASessionPath: string; ASessionDuration: integer);
+    procedure ParseJson(var Params: TStringList);
+    procedure RequestRest(var Params: TStringList; var PureParams: TStringList);
     //end web procedures
-    procedure StartFunction(var Params:TStringList; var PureParams:TStringList; HasRet: boolean);
-    procedure FunctionReturn(var Params:TStringList);
+    procedure StartFunction(var Params: TStringList; var PureParams: TStringList;
+      HasRet: boolean);
+    procedure FunctionReturn(var Params: TStringList);
     procedure EndFunction;
-    procedure AddLineToFunction(ALine:string);
-    function ExecuteFunction(FuncName:string; HasRet:boolean; var Params:TStringList): string;
+    procedure AddLineToFunction(ALine: string);
+    function ExecuteFunction(FuncName: string; HasRet: boolean;
+      var Params: TStringList): string;
 
     destructor Destroy; override;
   end;
@@ -235,8 +241,7 @@ uses FileHandlingUtils,
   ParserClass,
   StringsFunctions, VariablesGlobals,
   fphttpclient, fpopenssl, openssl,
-  JsonToGenFunctions, Math;
-
+  JsonToGenClass, Math;
 
 constructor TTemplate.Create(ATempName: string = ''; AExpLocation: string = '.');
 begin
@@ -264,7 +269,7 @@ begin
   FFullName := '';
   FTokenOpen := TOKEN_OPEN;
   FTOkenClose := TOKEN_CLOSE;
-  SetLength(FUserFunctions,0);
+  SetLength(FUserFunctions, 0);
   FImported := TStringList.Create;
   FImported.SkipLastLineBreak := True;
   FSections := TStringList.Create;
@@ -280,44 +285,46 @@ begin
   end;
 end;
 
-procedure TTemplate.SetWebVars(ASessionId, ASessionPath:string; ASessionDuration:integer);
+procedure TTemplate.SetWebVars(ASessionId, ASessionPath: string;
+  ASessionDuration: integer);
 begin
   FWebVars.SessionID := ASessionID;
   FWebVars.SessionPath := ASessionPath;
   FWebVars.SessionDuration := ASessionDuration;
 end;
 
-procedure TTemplate.SetFunctionsLength(NewLen:integer);
+procedure TTemplate.SetFunctionsLength(NewLen: integer);
 begin
-  SetLength(FUserFunctions,NewLen);
+  SetLength(FUserFunctions, NewLen);
 end;
 
-procedure TTemplate.SetCookie(var Params:TStringList);
+procedure TTemplate.SetCookie(var Params: TStringList);
 var
-  Expires: string='';
+  Expires: string = '';
 begin
   if Params.Count = 3 then
-    Expires := '; expires= '+Params[2];
-	FParsed.Add('<script>document.cookie="'+Params[0]+'='+Params[1]+Expires+'"</script>');
+    Expires := '; expires= ' + Params[2];
+  FParsed.Add('<script>document.cookie="' + Params[0] + '=' + Params[1] + Expires + '"</script>');
 end;
 
-procedure TTemplate.SetRawCookie(var Params:TStringList);
+procedure TTemplate.SetRawCookie(var Params: TStringList);
 var
-  RawPart:string = '';
+  RawPart: string = '';
 begin
   if Params.Count = 3 then
-    RawPart := '; '+Params[2];
-	FParsed.Add('<script>document.cookie="'+Params[0]+'='+Params[1]+RawPart+'"</script>');
+    RawPart := '; ' + Params[2];
+  FParsed.Add('<script>document.cookie="' + Params[0] + '=' + Params[1] + RawPart + '"</script>');
 end;
 
-procedure TTemplate.DropCookie(var Params:TStringList);
+procedure TTemplate.DropCookie(var Params: TStringList);
 begin
-  FParsed.Add('<script>document.cookie="'+Params[0]+'= ; expires= Thu, 01 Jan 1970 00:00:00 GMT"</script>');
+  FParsed.Add('<script>document.cookie="' + Params[0] +
+    '= ; expires= Thu, 01 Jan 1970 00:00:00 GMT"</script>');
 end;
 
-procedure TTemplate.DestroySession(var Params:TStringList);
+procedure TTemplate.DestroySession(var Params: TStringList);
 var
-  ParamsC:TStringList;
+  ParamsC: TStringList;
 begin
   ParamsC := TStringList.Create;
   ParamsC.Add('sessionID');
@@ -326,70 +333,69 @@ begin
   ParamsC.Add('session');
   UnloadGen(ParamsC);
   ParamsC.Free;
-  SysUtils.DeleteFile(FWebVars.SessionPath+DirectorySeparator+FWebVars.SessionId+'.gen');
+  SysUtils.DeleteFile(FWebVars.SessionPath + DirectorySeparator + FWebVars.SessionId + '.gen');
 
 end;
 
-procedure TTemplate.SetSessionVar(var Params:TStringList);
+procedure TTemplate.SetSessionVar(var Params: TStringList);
 var
-  AGenFile:TGenFile;
-  SessionFile:string;
-  i:integer;
+  AGenFile: TGenFile;
+  SessionFile: string;
+  i: integer;
 begin
   if FWebVars.SessionId <> '' then
   begin
-    SessionFile := FWebVars.SessionPath+DirectorySeparator+FWebVars.SessionId+'.gen';
+    SessionFile := FWebVars.SessionPath + DirectorySeparator + FWebVars.SessionId + '.gen';
     AGenFile := TGenFile.Create;
     AGenFile.Load(SessionFile);
-    AGenFile.SetValue('_session:'+Params[0],Params[1]);
+    AGenFile.SetValue('_session:' + Params[0], Params[1]);
     AGenFile.Save;
     AGenFile.Free;
     i := FGenFileSet.IndexOf('session');
     FGenFileSet.GenFiles[i].GenFile.Load(SessionFile);
-	end;
+  end;
 end;
 
-procedure TTemplate.DropSessionVar(var Params:TStringList);
+procedure TTemplate.DropSessionVar(var Params: TStringList);
 var
-  AGenFile:TGenFile;
-  SessionFile:string;
-  i:integer;
+  AGenFile: TGenFile;
+  SessionFile: string;
+  i: integer;
 begin
-  SessionFile := FWebVars.SessionPath+DirectorySeparator+FWebVars.SessionId+'.gen';
+  SessionFile := FWebVars.SessionPath + DirectorySeparator + FWebVars.SessionId + '.gen';
   AGenFile := TGenFile.Create;
   AGenFile.Load(SessionFile);
-  AGenFile.DropKey('_session:'+Params[0]);
+  AGenFile.DropKey('_session:' + Params[0]);
   AGenFile.Save;
   AGenFile.Free;
   i := FGenFileSet.IndexOf('session');
   FGenFileSet.GenFiles[i].GenFile.Load(SessionFile);
 end;
 
-procedure TTemplate.RedirectTo(var Params:TstringList);
+procedure TTemplate.RedirectTo(var Params: TStringList);
 var
   AStr: string;
 begin
-  AStr := '<script>window.location.replace("'+Params[0]+'")</script>';
+  AStr := '<script>window.location.replace("' + Params[0] + '")</script>';
   FParsed.Add(AStr);
 end;
 
-procedure TTemplate.CreateSession(var Params:TStringList);
+procedure TTemplate.CreateSession(var Params: TStringList);
 var
   ASession: TGenFile;
-  SessionId, SessionFile:string;
-  ParamsC:TStringList;
-  i:integer;
+  SessionId, SessionFile: string;
+  ParamsC: TStringList;
+  i: integer;
 begin
   if FWebVars.SessionId = '' then
   begin
     SessionId := CreateSessionId;
     FwebVars.SessionId := SessionId;
     ASession := TGenFile.Create;
-    ASession.SetValue('_session:sessionID',SessionId);
-  	ASession.SetValue('_session:expiresAt',FormatDateTime(
-  	  DATE_INTERCHANGE_FORMAT,IncMinute(Now,FWebVars.SessionDuration)
-  	));
-    ASession.FullName := FWebVars.SessionPath+DirectorySeparator+SessionId+'.gen';
+    ASession.SetValue('_session:sessionID', SessionId);
+    ASession.SetValue('_session:expiresAt', FormatDateTime(
+      DATE_INTERCHANGE_FORMAT, IncMinute(Now, FWebVars.SessionDuration)));
+    ASession.FullName := FWebVars.SessionPath + DirectorySeparator + SessionId + '.gen';
     ASession.Save;
     ASession.Free;
     ParamsC := TStringList.Create;
@@ -398,30 +404,31 @@ begin
     SetCookie(ParamsC);
     ParamsC.Free;
     i := FGenFileSet.IndexOf('session');
-    FGenFileSet.GenFiles[i].GenFile.Load(FWebVars.SessionPath+DirectorySeparator+SessionId+'.gen');
-	end
+    FGenFileSet.GenFiles[i].GenFile.Load(FWebVars.SessionPath +
+      DirectorySeparator + SessionId + '.gen');
+  end
   else
     WriteLn('Session already created');
 end;
 
-procedure TTemplate.ParseJson(var Params:TStringList);
+procedure TTemplate.ParseJson(var Params: TStringList);
 var
   AJson: TJson2Gen;
-  i:integer;
+  i: integer;
 begin
-  i := FGenFileSet.Add(True,Params[0]);
+  i := FGenFileSet.Add(True, Params[0]);
   if Params.Count = 3 then
-    AJson := TJson2Gen.Create(Params[1],FGenFileSet.GenFiles[i].GenFile,Params[2])
+    AJson := TJson2Gen.Create(Params[1], FGenFileSet.GenFiles[i].GenFile, Params[2])
   else
-    AJson := TJson2Gen.Create(Params[1],FGenFileSet.GenFiles[i].GenFile);
+    AJson := TJson2Gen.Create(Params[1], FGenFileSet.GenFiles[i].GenFile);
   AJson.ParseJson;
   AJson.Free;
 end;
 
-procedure TTemplate.RequestRest(var Params:TStringList; var PureParams:TStringList);
+procedure TTemplate.RequestRest(var Params: TStringList; var PureParams: TStringList);
 var
-  Requirer:TFPHttpClient;
-  Return:string='';
+  Requirer: TFPHttpClient;
+  Return: string = '';
 begin
 
   InitSSLInterface;
@@ -431,11 +438,11 @@ begin
     Return := Requirer.Get(Params[1]);
   finally
     Requirer.Free;
-    SetVariable(PureParams[0],Return);
+    SetVariable(PureParams[0], Return);
   end;
 end;
 
-procedure TTemplate.CreateGen(var Params:TStringList);
+procedure TTemplate.CreateGen(var Params: TStringList);
 var
   AGenFile: TGenFile;
   //Params[0] = Alias
@@ -446,35 +453,35 @@ begin
     AGenFile.FullName := Params[1];
     if FileExists(Params[1]) then
       AGenFile.Load(Params[1]);
-	end;
-  FGenFileSet.Add(AGenFile,Params[0]);
+  end;
+  FGenFileSet.Add(AGenFile, Params[0]);
 end;
 
-procedure TTemplate.UnloadGen(var Params:TStringList);
+procedure TTemplate.UnloadGen(var Params: TStringList);
 var
-  AnAlias:string;
+  AnAlias: string;
 begin
   AnAlias := Params[0];
   FGenFileSet.Drop(AnAlias);
 end;
 
-procedure TTemplate.ParseAbort(var Params:TStringList);
+procedure TTemplate.ParseAbort(var Params: TStringList);
 var
   msg: string;
 begin
   msg := Params.Text;
-  msg := Copy(msg,1,Length(msg)-1);
+  msg := Copy(msg, 1, Length(msg) - 1);
   WriteLn(msg);
   FParsed.Add(msg);
   FAbort := True;
 end;
 
-procedure TTemplate.ProcessTemplate(var Params:TStringList; DoPrint:boolean=False);
+procedure TTemplate.ProcessTemplate(var Params: TStringList; DoPrint: boolean = False);
 var
-  ATemplate:TTemplate;
-  AGenSet:TGenFileSet;
-  TempPath:string;
-  i:integer;
+  ATemplate: TTemplate;
+  AGenSet: TGenFileSet;
+  TempPath: string;
+  i: integer;
 begin
   TempPath := Params[0];
   ATemplate := TTemplate.Create(TempPath);
@@ -483,8 +490,8 @@ begin
     AGenSet.Add(Params[1]);
   if Params.Count > 2 then
   begin
-    for i:=2 to Params.Count-1 do
-      ATemplate.SetVariable('param['+IntToStr(i-2)+']',Params[i]);
+    for i := 2 to Params.Count - 1 do
+      ATemplate.SetVariable('param[' + IntToStr(i - 2) + ']', Params[i]);
   end;
   ATemplate.ParseTemplate(AGenSet);
   if DoPrint then
@@ -494,52 +501,53 @@ begin
   ATemplate.Free;
 end;
 
-procedure TTemplate.Move(var Params:TStringList);
+procedure TTemplate.Move(var Params: TStringList);
 var
-  ANewName:string;
-  DestFile:string;
+  ANewName: string;
+  DestFile: string;
 begin
   if FileExists(Params[0]) then
   begin
     ANewName := GetFileName(Params[0]);
-    CreateDirTree(Params[1],False);
+    CreateDirTree(Params[1], False);
     if Params.Count = 3 then
       ANewName := Params[2];
-    DestFile := Params[1]+DirectorySeparator+ANewName;
+    DestFile := Params[1] + DirectorySeparator + ANewName;
     CreateDirTree(DestFile);
     if FileExists(DestFile) then
       SysUtils.DeleteFile(DestFile);
-    RenameFile(Params[0],RemoveLastBackslash(Params[1])+DirectorySeparator+ANewName);
+    RenameFile(Params[0], RemoveLastBackslash(Params[1]) + DirectorySeparator + ANewName);
   end;
 end;
 
-procedure TTemplate.InputValue(var Params:TStringList; var PureParams:TStringList; DoParse:boolean);
+procedure TTemplate.InputValue(var Params: TStringList; var PureParams: TStringList;
+  DoParse: boolean);
 var
-  AValue:string;
+  AValue: string;
 begin
   if Params.Count = 2 then
-     Write(Params[1]+' ');
+    Write(Params[1] + ' ');
   ReadLn(AValue);
-  SetVariable(PureParams[0],AValue,DoParse);
+  SetVariable(PureParams[0], AValue, DoParse);
 end;
 
-procedure TTemplate.SetGenValue(var Params:TStringList);
+procedure TTemplate.SetGenValue(var Params: TStringList);
 var
-  GenAlias, AKey, AValue, FullGenName:string;
-  AGen:TGenFile;
-  i:integer;
+  GenAlias, AKey, AValue, FullGenName: string;
+  AGen: TGenFile;
+  i: integer;
 begin
   GenAlias := Params[0];
   AKey := Params[1];
   AValue := Params[2];
   i := FGenFileSet.IndexOf(GenAlias);
-  FGenFileSet.GenFiles[i].GenFile.SetValue(AKey,AValue);
+  FGenFileSet.GenFiles[i].GenFile.SetValue(AKey, AValue);
 end;
 
-procedure TTemplate.SaveGen(var Params:TStringList);
+procedure TTemplate.SaveGen(var Params: TStringList);
 var
-  GenAlias, a:string;
-  i:integer;
+  GenAlias, a: string;
+  i: integer;
 begin
   GenAlias := Params[0];
   i := FGenFileSet.IndexOf(GenAlias);
@@ -549,46 +557,66 @@ begin
     FGenFileSet.GenFiles[i].GenFile.Save(Params[1]);
 end;
 
-procedure TTemplate.MapGenKeys(var Params:TStringList; DoMap:boolean);
+procedure TTemplate.GroupKeys(var Params: TStringList);
 var
   i:integer;
   APair: TKVPair;
-  VarAlias:string;
+  AGenFile:TGenFile;
+  //groupKeys:'newAlias','prefix','genAlias'
+begin
+  i := FGenFileSet.IndexOf(Params[2]);
+  if i > -1 then
+  begin
+    AGenFile := TGenFile.Create;
+    for APair in FGenFileSet.GenFiles[i].GenFile.Pairs do
+    begin
+      if Copy(APair.Key,1,Length(Params[1])) = Params[1] then
+        AGenFile.SetValue(ReplaceStr(APair.Key,Params[1],''),APair.Value);
+    end;
+    FGenFileSet.Add(AGenFile,Params[0]);
+  end;
+end;
+
+procedure TTemplate.MapGenKeys(var Params: TStringList; DoMap: boolean);
+var
+  i: integer;
+  APair: TKVPair;
+  VarAlias: string;
 begin
   //mapGenKeys:aGenAlias,aVarPrefix
   i := FGenFileSet.IndexOf(Params[0]);
   if i > -1 then
   begin
-    VarAlias := Params[0]+ATTR_ACCESSOR;
+    VarAlias := Params[0] + ATTR_ACCESSOR;
     if Params.Count = 2 then
     begin
       VarAlias := Params[1];
       if VarAlias <> '' then
-        VarAlias := VarAlias+ATTR_ACCESSOR;
+        VarAlias := VarAlias + ATTR_ACCESSOR;
     end;
     for APair in FGenFileSet.GenFiles[i].GenFile.Pairs do
       if DoMap then
-        SetVariable(VarAlias+APair.Key,APair.Value)
+        SetVariable(VarAlias + APair.Key, APair.Value)
       else
-        DropVariable(VarAlias+APair.Key);
+        DropVariable(VarAlias + APair.Key);
   end;
 end;
 
-procedure TTemplate.LoadGenFolder(var Params:TStringList);
+procedure TTemplate.LoadGenFolder(var Params: TStringList);
 var
   AGenList: TStringList;
-  s:string;
+  s: string;
 begin
   AGenList := TStringList.Create;
-  FindAllFiles(AGenList,Params[1],'*.gen;*.GEN',False);
+  FindAllFiles(AGenList, Params[1], '*.gen;*.GEN', False);
   AGenList.Sort;
-  FGenFileSet.Enlist(AGenList,Params[0]);
+  FGenFileSet.Enlist(AGenList, Params[0]);
   AGenList.Free;
 end;
 
-procedure TTemplate.TempFileCopy(var Params:TStringList);
+procedure TTemplate.TempFileCopy(var Params: TStringList);
 var
-  ANewName:string;
+  ANewName: string;
 begin
   if FileExists(Params[0]) then
   begin
@@ -596,15 +624,16 @@ begin
     CreateDirTree(Params[1]);
     if Params.Count = 3 then
       ANewName := Params[2];
-    CreateDirTree(Params[1]+DirectorySeparator+ANewName);
-    FileUtil.CopyFile(Params[0],RemoveLastBackslash(Params[1])+DirectorySeparator+ANewName,[cffOverwriteFile,cffPreserveTime]);
+    CreateDirTree(Params[1] + DirectorySeparator + ANewName);
+    FileUtil.CopyFile(Params[0], RemoveLastBackslash(Params[1]) +
+      DirectorySeparator + ANewName, [cffOverwriteFile, cffPreserveTime]);
   end;
 end;
 
-procedure TTemplate.Execute(var Params:TStringList);
+procedure TTemplate.Execute(var Params: TStringList);
 var
-  AProcess:TProcess;
-  i:integer;
+  AProcess: TProcess;
+  i: integer;
 begin
   AProcess := TProcess.Create(nil);
   if not FileExists(Params[0]) then
@@ -613,20 +642,20 @@ begin
     Exit;
   end;
   AProcess.Executable := Params[0];
-  AProcess.Options := AProcess.Options+[poWaitOnExit];
+  AProcess.Options := AProcess.Options + [poWaitOnExit];
   if Params.Count > 1 then
   begin
-    for i:=1 to Params.Count-1 do
+    for i := 1 to Params.Count - 1 do
       AProcess.Parameters.Add(Params[i]);
   end;
   AProcess.Execute;
 end;
 
 
-procedure TTemplate.PrintLine(var Params:TStringList; ToConsole, ToOutput:boolean);
+procedure TTemplate.PrintLine(var Params: TStringList; ToConsole, ToOutput: boolean);
 var
-  Return:string='';
-  P:string;
+  Return: string = '';
+  P: string;
 begin
   for P in Params do
     Return := Return + P;
@@ -636,7 +665,7 @@ begin
     WriteLn(Return);
 end;
 
-procedure TTemplate.IncludeTemplate(var Params:TStringList);
+procedure TTemplate.IncludeTemplate(var Params: TStringList);
 var
   ATemp: TTemplate;
   APair: TKVPair;
@@ -651,7 +680,7 @@ begin
   else
     TempAlias := GetFileName(GetFileName(IncName, False), False);
   ATemp := TTemplate.Create(IncName, FExpLocation);
-  ATemp.SetWebVars(FWebVars.SessionId,FWebVars.SessionPath,FWebVars.SessionDuration);
+  ATemp.SetWebVars(FWebVars.SessionId, FWebVars.SessionPath, FWebVars.SessionDuration);
   ATemp.ParseTemplate(FGenFileSet);
   for ALine in ATemp.ParsedLines do
     FParsed.Add(ALine);
@@ -660,7 +689,7 @@ begin
   for F in ATemp.UserFunctions do
   begin
     i := Length(FUserFunctions);
-    SetLength(FUserFunctions,i+1);
+    SetLength(FUserFunctions, i + 1);
     FUserFunctions[i].FunctionName := TempAlias + ATTR_ACCESSOR + F.FunctionName;
     FUserFunctions[i].HasReturn := F.HasReturn;
     FUserFunctions[i].Args := TStringList.Create;
@@ -678,11 +707,11 @@ begin
   Result := GetFileName(GetFileName(FFullName, False), False);
 end;
 
-procedure TTemplate.ExplodeStr(var Params:TStringList; var PureParams:TStringList);
+procedure TTemplate.ExplodeStr(var Params: TStringList; var PureParams: TStringList);
 var
   Explode: TStringList;
   i: integer;
-  t:string;
+  t: string;
 begin
   Explode := TStringList.Create;
   Explode.SkipLastLineBreak := True;
@@ -711,7 +740,7 @@ begin
   Explode.Free;
 end;
 
-procedure TTemplate.ListFiles(var Params:TStringList; var PureParams:TStringList);
+procedure TTemplate.ListFiles(var Params: TStringList; var PureParams: TStringList);
 var
   APath: string;
   AVarName: string;
@@ -721,7 +750,7 @@ var
   Files: TStringList;
   AParser: TTempParser;
   Sort: boolean = False;
-  i:integer;
+  i: integer;
 begin
   AFilter := '';
   LookSub := False;
@@ -749,13 +778,13 @@ begin
   SetVariable(AVarName, Files.Text);
   if Files.Count > 0 then
   begin
-    for i:=0 to Files.Count - 1 do
-      SetVariable(AVarName+'['+IntToStr(i)+']',Files[i]);
+    for i := 0 to Files.Count - 1 do
+      SetVariable(AVarName + '[' + IntToStr(i) + ']', Files[i]);
   end;
   Files.Free;
 end;
 
-procedure TTemplate.LimitedListFiles(var Params:TStringList; var PureParams:TStringList);
+procedure TTemplate.LimitedListFiles(var Params: TStringList; var PureParams: TStringList);
 var
   APath: string;
   AVarName: string;
@@ -766,8 +795,8 @@ var
   Dump: string;
   AParser: TTempParser;
   Sort: boolean = False;
-  i:integer;
-  Start,Limit:integer;
+  i: integer;
+  Start, Limit: integer;
 begin
   AFilter := '';
   LookSub := False;
@@ -796,17 +825,17 @@ begin
   end;
   if Files.Count > 0 then
   begin
-    for i:=0 to Files.Count - 1 do
-      SetVariable(AVarName+'['+IntToStr(i)+']',Files[i]);
+    for i := 0 to Files.Count - 1 do
+      SetVariable(AVarName + '[' + IntToStr(i) + ']', Files[i]);
   end;
   SetVariable(AVarName, Files.Text);
   Files.Free;
 end;
 
-procedure TTemplate.LoadText(var Params:TStringList; var PureParams:TStringList);
+procedure TTemplate.LoadText(var Params: TStringList; var PureParams: TStringList);
 var
-  AText:TStringList;
-  i:integer;
+  AText: TStringList;
+  i: integer;
 begin
   AText := TStringList.Create;
   AText.SkipLastLineBreak := True;
@@ -815,9 +844,9 @@ begin
     AText.LoadFromFile(Params[0]);
     if AText.Count > 0 then
     begin
-      SetVariable(PureParams[1],AText.Text);
-      for i:=0 to AText.Count-1 do
-        SetVariable(PureParams[1]+'['+IntToStr(i)+']',AText[i]);
+      SetVariable(PureParams[1], AText.Text);
+      for i := 0 to AText.Count - 1 do
+        SetVariable(PureParams[1] + '[' + IntToStr(i) + ']', AText[i]);
     end;
   end;
   AText.Free;
@@ -888,18 +917,19 @@ begin
 end;
 
 
-procedure TTemplate.ForPrepare(var Params:TStringList; var PureParams:TStringList; ForLoop:boolean = True);
+procedure TTemplate.ForPrepare(var Params: TStringList; var PureParams: TStringList;
+  ForLoop: boolean = True);
 var
   Values: TStringList;
   ParamAsStr, Iterated, j: string;
   len, i, x: int64;
-  EmptyList:boolean;
+  EmptyList: boolean;
 begin
 
   FLoopTypeLast := FLoopType;
   FLoopType := FORDEV;
   FForLevel := FForLevel + 1;
-  SetLength(FForLoops, FForLevel+1);
+  SetLength(FForLoops, FForLevel + 1);
   FForLoops[FForLevel].ControlVar := PureParams[1];
   FForLoops[FForLevel].GoToLine := FLineNumber + 2;
 
@@ -909,7 +939,7 @@ begin
   begin
     FForLoops[FForLevel].List.Delimiter := PARAM_SEP;
     FForLoops[FForLevel].List.StrictDelimiter := True;
-    FForLoops[FForLevel].List.DelimitedText := Params[0]
+    FForLoops[FForLevel].List.DelimitedText := Params[0];
   end
   else
   begin
@@ -925,7 +955,7 @@ begin
     begin
       //Params[0] := DropLastLineBreak(Params[0]);
       {$IFDEF WINDOWS}
-      Params[0] := ReplaceStr(Params[0],#13#10,#10);
+      Params[0] := ReplaceStr(Params[0], #13#10, #10);
       FForLoops[FForLevel].List.Delimiter := #10;
       {$ENDIF}
       {$IFDEF UNIX}
@@ -951,10 +981,11 @@ begin
   begin
     FForLoops[FForLevel].Times := FForLoops[FForLevel].List.Count;
     SetVariable(FForLoops[FForLevel].ControlVar,
-      FForLoops[FForLevel].List[FForLoops[FForLevel].List.Count - FForLoops[FForLevel].Times]);
+      FForLoops[FForLevel].List[FForLoops[FForLevel].List.Count -
+      FForLoops[FForLevel].Times]);
     j := FForLoops[FForLevel].ControlVar + '.i';
-    SetVariable(j, IntToStr(
-      FForLoops[FForLevel].List.Count - FForLoops[FForLevel].Times));
+    SetVariable(j, IntToStr(FForLoops[FForLevel].List.Count -
+      FForLoops[FForLevel].Times));
     j := GetVariable(j);
     j := j;
 
@@ -986,7 +1017,8 @@ begin
   else
   begin
     SetVariable(FForLoops[FForLevel].ControlVar,
-      FForLoops[FForLevel].List[FForLoops[FForLevel].List.Count - FForLoops[FForLevel].Times]);
+      FForLoops[FForLevel].List[FForLoops[FForLevel].List.Count -
+      FForLoops[FForLevel].Times]);
     SetVariable(FForLoops[FForLevel].ControlVar + '.i', IntToStr(
       FForLoops[FForLevel].List.Count - FForLoops[FForLevel].Times));
   end;
@@ -1005,11 +1037,12 @@ begin
   FForSkip := True;
 end;
 
-procedure TTemplate.LoopPrepare(var Params:TStringList; var PureParams:TstringList;ForLoop:boolean = True);
+procedure TTemplate.LoopPrepare(var Params: TStringList;
+  var PureParams: TStringList; ForLoop: boolean = True);
 var
   Values: TStringList;
   ParamAsStr, Iterated: string;
-  len, i,Times, Pause: integer;
+  len, i, Times, Pause: integer;
 begin
   //loop:[times],[control var],[pause (ms)]
   //loop:30,500,'i'
@@ -1018,10 +1051,10 @@ begin
   FLoopType := LOOPDEV;
   Times := StrToInt(Params[0]);
   FForLevel := FForLevel + 1;
-  SetLength(FForLoops, FForLevel+1);
+  SetLength(FForLoops, FForLevel + 1);
   FForLoops[FForLevel].ControlVar := '';
   FForLoops[FForLevel].PauseTime := 0;
-  if Times  = 0 then
+  if Times = 0 then
     FForLoops[FForLevel].Infinite := True;
   if Params.Count = 2 then
   begin
@@ -1055,7 +1088,8 @@ begin
   begin
     FForLoops[FForLevel].Times := FForLoops[FForLevel].Times + 1;
     if FForLoops[FForLevel].Infinite then
-      FForLoops[FForLevel].Limit := FForLoops[FForLevel].Limit+FForLoops[FForLevel].Times + 1;
+      FForLoops[FForLevel].Limit :=
+        FForLoops[FForLevel].Limit + FForLoops[FForLevel].Times + 1;
     if FForLoops[FForLevel].PauseTime > 0 then
       Sleep(FForLoops[FForLevel].PauseTime);
     if FForLoops[FForLevel].Times = (FForLoops[FForLevel].Limit) then
@@ -1068,15 +1102,15 @@ begin
     else
     begin
       if FForLoops[FForLevel].ControlVar <> '' then
-        SetVariable(FForLoops[FForLevel].ControlVar , IntToStr(FForLoops[FForLevel].Times));
+        SetVariable(FForLoops[FForLevel].ControlVar,
+          IntToStr(FForLoops[FForLevel].Times));
     end;
     FRewind := True;
   end;
 
-
 end;
 
-function TTemplate.ImportGenFile(var Params:TStringList): TTemplate;
+function TTemplate.ImportGenFile(var Params: TStringList): TTemplate;
 var
   GenName: string;
   DefValue: string;
@@ -1106,11 +1140,12 @@ begin
   Result := Self;
 end;
 
-procedure TTemplate.IfPrepare(var Params:TStringList; var PureParams:TStringList; IfNot: boolean);
+procedure TTemplate.IfPrepare(var Params: TStringList; var PureParams: TStringList;
+  IfNot: boolean);
 var
-  a,b,c: string;
+  a, b, c: string;
   Logic: boolean;
-  d:integer;
+  d: integer;
 
 begin
   FLoopTypeLast := FLoopType;
@@ -1118,9 +1153,9 @@ begin
   if not FSkip then
   begin
     Logic := StrToBoolean(Params[0]);
-	  FSkip := not ((Logic and (not IfNot)) or ((not Logic) and IfNot));   //teste passou
-    SetLength(FIfTests, FIfLevel+1);
-	  FIfTests[FIfLevel] := not FSkip; //test is true
+    FSkip := not ((Logic and (not IfNot)) or ((not Logic) and IfNot));   //teste passou
+    SetLength(FIfTests, FIfLevel + 1);
+    FIfTests[FIfLevel] := not FSkip; //test is true
   end;
 end;
 
@@ -1131,7 +1166,7 @@ end;
 
 procedure TTemplate.EndIf;
 begin
-  SetLength(FIfTests, FIfLevel+1);
+  SetLength(FIfTests, FIfLevel + 1);
   //FSkip := False;
 end;
 
@@ -1262,12 +1297,12 @@ end;
 function TTemplate.SetPredefined(AKey, AValue: string): boolean;
 var
   Return: boolean = True;
-  AParser:TTempParser;
-  Params, PureParams:TStringList;
-  i:integer;
-  a, b:string;
+  AParser: TTempParser;
+  Params, PureParams: TStringList;
+  i: integer;
+  a, b: string;
 begin
-  Params := TSTringList.Create;
+  Params := TStringList.Create;
   Params.SkipLastLineBreak := True;
   AParser := TTempParser.Create(Self);
   AParser.ParseParams(AValue, Params);
@@ -1276,7 +1311,7 @@ begin
   PureParams.AddStrings(Params);
   if Params.Count > 0 then
   begin
-    for i:=0 to Params.Count-1 do
+    for i := 0 to Params.Count - 1 do
     begin
       a := AParser.ParseToken(Params[i]);
       Params[i] := a;
@@ -1292,12 +1327,12 @@ begin
     'exportAtRoot': FOverrides.ExpAtRoot := True;
     'import': ImportGenFile(Params);
     'include': IncludeTemplate(Params);
-    'for': ForPrepare(Params,PureParams);
+    'for': ForPrepare(Params, PureParams);
     'endFor': EndFor;
-    'break' : BreakFor;
-    'continue' : ContinueFor;
-    'loop' : LoopPrepare(Params,PureParams);
-    'endLoop' : EndLoop;
+    'break': BreakFor;
+    'continue': ContinueFor;
+    'loop': LoopPrepare(Params, PureParams);
+    'endLoop': EndLoop;
     'if': IfPrepare(Params, PureParams, False);
     'ifNot': IfPrepare(Params, PureParams, True);
     'elseIf': IfPrepare(Params, PureParams, False);
@@ -1305,74 +1340,75 @@ begin
     'else': ElseDecision;
     'endIf': EndIf;
     'explode': ExplodeStr(Params, PureParams);
-    'print' : PrintLine(Params, True, False);
-    'tee' : PrintLine(Params, True, True);
-    'livePrint' : PrintLine(Params, False, True);
-    'processTemplate' : ProcessTemplate(Params);
-    'printTemplate' : ProcessTemplate(Params, True);
-    'clear' : clrscr;
+    'print': PrintLine(Params, True, False);
+    'tee': PrintLine(Params, True, True);
+    'livePrint': PrintLine(Params, False, True);
+    'processTemplate': ProcessTemplate(Params);
+    'printTemplate': ProcessTemplate(Params, True);
+    'clear': clrscr;
     'tokenEnclosers':
     begin
       FTokenOpen := Params[0][1];
       FTokenClose := Params[0][2];
     end;
-    'input' : InputValue(Params, PureParams,False);
-    'live' : FCanSave := False;
-    'parsedInput':InputValue(Params, PureParams,True);
-    'execute':Execute(Params);
+    'input': InputValue(Params, PureParams, False);
+    'live': FCanSave := False;
+    'parsedInput': InputValue(Params, PureParams, True);
+    'execute': Execute(Params);
     'drop': DropVariable(PureParams[0]);
-    'loadText' : LoadText(Params, PureParams);
+    'loadText': LoadText(Params, PureParams);
     //fileHandling
     'listFiles': ListFiles(Params, PureParams);
-    'limitedListFiles': LimitedListFiles(Params,PureParams);
-    'move' : Move(Params);
-    'copy' : TempFileCopy(Params);
-    'mkdir' :
+    'limitedListFiles': LimitedListFiles(Params, PureParams);
+    'move': Move(Params);
+    'copy': TempFileCopy(Params);
+    'mkdir':
     begin
       if Params.Count = 1 then
-        CreateDirTree(Params[0],False)
+        CreateDirTree(Params[0], False)
       else if (Params.Count = 2) and (Params[1] = 'FILE') then
-        CreateDirTree(Params[0],True);
+        CreateDirTree(Params[0], True);
     end;
     //end filehandling
     'renderBlank': FOverrides.RenderBlank := True;
-    'pause' : DoPause(Params);
+    'pause': DoPause(Params);
     // Gen operations
-    'setValue' : SetGenValue(Params);
-    'saveGen' : SaveGen(Params);
-    'setGenName' : SetGenName(Params);
-    'createGen' : CreateGen(Params);
-    'unloadGen' : UnloadGen(Params);
-    'loadGenFolder' : LoadGenFolder(Params);
-    'mapGenKeys' : MapGenKeys(Params,True);
-    'dropGenMap' : MapGenKeys(Params,False);
+    'setValue': SetGenValue(Params);
+    'saveGen': SaveGen(Params);
+    'setGenName': SetGenName(Params);
+    'createGen': CreateGen(Params);
+    'unloadGen': UnloadGen(Params);
+    'loadGenFolder': LoadGenFolder(Params);
+    'mapGenKeys': MapGenKeys(Params, True);
+    'dropGenMap': MapGenKeys(Params, False);
+    'groupKeys': GroupKeys(Params);
     // End of Gen operations
     //start web operations
-    'abort' : ParseAbort(Params);
-    'goTo' : RedirectTo(Params);
-    'createSession' : CreateSession(Params);
-    'destroySession' : DestroySession(Params);
-    'setSessionVar' : SetSessionVar(Params);
-    'dropSessionVar' : DropSessionVar(Params);
-    'setCookie' : SetCookie(Params);
-    'setRawCookie' : SetRawCookie(Params);
-    'dropCookie' : DropCookie(Params);
-    'parseJson' : ParseJson(Params);
-    'request' : RequestRest(Params,PureParams);
+    'abort': ParseAbort(Params);
+    'goTo': RedirectTo(Params);
+    'createSession': CreateSession(Params);
+    'destroySession': DestroySession(Params);
+    'setSessionVar': SetSessionVar(Params);
+    'dropSessionVar': DropSessionVar(Params);
+    'setCookie': SetCookie(Params);
+    'setRawCookie': SetRawCookie(Params);
+    'dropCookie': DropCookie(Params);
+    'parseJson': ParseJson(Params);
+    'request': RequestRest(Params, PureParams);
     // end web operations
     //user functions
-    'function' : StartFunction(Params, PureParams ,True);
-    'endFunction' : EndFunction;
-    'proc' : StartFunction(Params, PureParams, False);
-    'return' : FunctionReturn(Params);
-    'endProc' : EndFunction;
-    'callProc' :
+    'function': StartFunction(Params, PureParams, True);
+    'endFunction': EndFunction;
+    'proc': StartFunction(Params, PureParams, False);
+    'return': FunctionReturn(Params);
+    'endProc': EndFunction;
+    'callProc':
     begin
-         a := Params[0];
-         PureParams.Delete(0);
-         PureParams.LineBreak := ',';
-         b := PureParams.Text;
-         Result := SetPredefined(a,b);
+      a := Params[0];
+      PureParams.Delete(0);
+      PureParams.LineBreak := ',';
+      b := PureParams.Text;
+      Result := SetPredefined(a, b);
     end
     else
     begin
@@ -1380,26 +1416,27 @@ begin
       begin
         if Length(FUserFunctions) > 0 then
           a := FUserFunctions[0].FunctionName;
-        ExecuteFunction(AKey,False,Params);
+        ExecuteFunction(AKey, False, Params);
       end
       else
         Return := False;
     end;
-    //end user functions
+      //end user functions
   end;
   PureParams.Free;
   Params.Free;
   Result := Return;
 end;
 
-procedure TTemplate.StartFunction(var Params:TStringList; var PureParams:TStringList; HasRet:boolean);
+procedure TTemplate.StartFunction(var Params: TStringList;
+  var PureParams: TStringList; HasRet: boolean);
 //Params[0] = [funcname]
 //Params[n] ... variables
 var
-  len:integer;
+  len: integer;
 begin
   len := Length(FUserFunctions);
-  SetLength(FUserFunctions,len+1);
+  SetLength(FUserFunctions, len + 1);
   FUserFunctions[len].FunctionName := PureParams[0];
   FUserFunctions[len].Args := TStringList.Create;
   FUserFunctions[len].Lines := TStringList.Create;
@@ -1410,18 +1447,18 @@ begin
   FAddToFunction := True;
 end;
 
-procedure TTemplate.AddLineToFunction(ALine:string);
+procedure TTemplate.AddLineToFunction(ALine: string);
 begin
-  if (ReplaceStr(ALine,OVER_STATE,'') = 'endFunction') or
-     (ReplaceStr(ALine,OVER_STATE,'') = 'endProc')then
+  if (ReplaceStr(ALine, OVER_STATE, '') = 'endFunction') or
+    (ReplaceStr(ALine, OVER_STATE, '') = 'endProc') then
   begin
     FAddToFunction := False;
   end
-  else                                            
-    FUserFunctions[Length(FUserFunctions)-1].Lines.Add(ALine);
+  else
+    FUserFunctions[Length(FUserFunctions) - 1].Lines.Add(ALine);
 end;
 
-procedure TTemplate.FunctionReturn(var Params:TStringList);
+procedure TTemplate.FunctionReturn(var Params: TStringList);
 begin
   FOrderReturn := True;
   FReturnValue := Params[0];
@@ -1429,49 +1466,52 @@ end;
 
 procedure TTemplate.EndFunction;
 begin
-  FUserFunctions[Length(FUserFunctions)-1].Lines.Delete(
-    FuserFunctions[Length(FUserFunctions)-1].Lines.Count - 1
-  );
+  FUserFunctions[Length(FUserFunctions) - 1].Lines.Delete(
+    FuserFunctions[Length(FUserFunctions) - 1].Lines.Count - 1
+    );
   FAddToFunction := False;
 end;
 
-function TTemplate.ExecuteFunction(FuncName: string; HasRet:boolean; var Params:TStringList):string;
+function TTemplate.ExecuteFunction(FuncName: string; HasRet: boolean;
+  var Params: TStringList): string;
 var
   ATemplate: TTemplate;
-  Len, i, j, DotPos:integer;
+  Len, i, j, DotPos: integer;
   Return, Line, a, b: string;
 begin
   Len := Length(FUserFunctions);
   if Len > 0 then
   begin
-    for i:=0 to Len - 1 do
+    for i := 0 to Len - 1 do
     begin
-      if (FUserFunctions[i].FunctionName = FuncName) and (FUserFunctions[i].HasReturn = HasRet) then
+      if (FUserFunctions[i].FunctionName = FuncName) and
+        (FUserFunctions[i].HasReturn = HasRet) then
       begin
         ATemplate := TTemplate.Create;
         ATemplate.FullName := FuncName;
         ATemplate.TempLines.AddStrings(FUserFunctions[i].Lines);
         if FUserFunctions[i].Args.Count > 0 then
         begin
-          for j:=0 to Params.Count-1 do
+          for j := 0 to Params.Count - 1 do
           begin
             try
-              ATemplate.SetVariable(FUserFunctions[i].Args[j],Params[j]);
+              ATemplate.SetVariable(FUserFunctions[i].Args[j], Params[j]);
             except
 
             end;
           end;
         end;
         ATemplate.SetFunctionsLength(Len);
-        for j:=0 to Len-1 do
+        for j := 0 to Len - 1 do
         begin
-          DotPos := Pos(ATTR_ACCESSOR,FuncName);
+          DotPos := Pos(ATTR_ACCESSOR, FuncName);
           if (DotPos > 0) then
           begin
-            a := Copy(FUserFunctions[j].FunctionName,1,DotPos);
-            b := Copy(FuncName,1,DotPos);
+            a := Copy(FUserFunctions[j].FunctionName, 1, DotPos);
+            b := Copy(FuncName, 1, DotPos);
             if a = b then
-              ATemplate.UserFunctions[j].FunctionName := Copy(FUserFunctions[j].FunctionName,DotPos+1,Length(FUserFunctions[j].FunctionName))
+              ATemplate.UserFunctions[j].FunctionName :=
+                Copy(FUserFunctions[j].FunctionName, DotPos + 1, Length(FUserFunctions[j].FunctionName))
             else
               ATemplate.UserFunctions[j].FunctionName := FUserFunctions[j].FunctionName;
 
@@ -1487,11 +1527,11 @@ begin
           Line := ATemplate.UserFunctions[j].Args.Text;
         end;
         ATemplate.ScriptMode := True;
-        Return := ATemplate.ParseTemplate(FGenFileSet,FParsed);
+        Return := ATemplate.ParseTemplate(FGenFileSet, FParsed);
         FParsed.AddStrings(ATemplate.ParsedLines);
         ATemplate.ScriptMode := False;
         ATemplate.Free;
-        break
+        break;
       end;
     end;
 
@@ -1499,22 +1539,23 @@ begin
   Result := Return;
 end;
 
-procedure TTemplate.DoPause(var Params:TStringList);
-var i:longint;
+procedure TTemplate.DoPause(var Params: TStringList);
+var
+  i: longint;
 begin
   if Params[0] = '' then
     ReadLn
   else
   begin
-    i :=  StrToInt(Params[0]);
+    i := StrToInt(Params[0]);
     if Params.Count = 2 then
     begin
       if Params[1] = 'h' then
-        i := i*1000*60*60
+        i := i * 1000 * 60 * 60
       else if Params[1] = 'm' then
-        i := i*1000*60
+        i := i * 1000 * 60
       else if Params[1] = 's' then
-        i := i*1000;
+        i := i * 1000;
     end;
     Sleep(i);
   end;
@@ -1574,8 +1615,8 @@ end;
 
 function TTemplate.GetWild(ASearch, AnAlias: string): string;
 var
-  i:integer;
-  ADefault: string='';
+  i: integer;
+  ADefault: string = '';
 begin
   i := FGenFileSet.IndexOf(AnAlias);
   if i > -1 then
@@ -1583,9 +1624,9 @@ begin
   Result := GetWild(ASearch, AnAlias, ADefault);
 end;
 
-function TTemplate.RouteMatch(ASearch, AnAlias:String ; ADefault: string=''): string;
+function TTemplate.RouteMatch(ASearch, AnAlias: string; ADefault: string = ''): string;
 var
-  i, j:integer;
+  i, j: integer;
   Exp, Inp: TStringList;
   APair: TKVPair;
   Match: boolean = False;
@@ -1706,32 +1747,32 @@ begin
         end;
       end;
     end;
-	end;
+  end;
   Result := Ret;
 end;
 
-procedure TTemplate.SetGenName(var Params:TStringList);
+procedure TTemplate.SetGenName(var Params: TStringList);
 var
-  i:integer;
+  i: integer;
 begin
   i := FGenFileSet.IndexOf(Params[0]);
   if i > -1 then
     FGenFileSet.GenFiles[i].GenFile.FullName := Params[1];
 end;
 
-function TTemplate.SetVariable(AKey, AValue: string; Parse:boolean=False): TTemplate;
+function TTemplate.SetVariable(AKey, AValue: string; Parse: boolean = False): TTemplate;
 var
   i, len: integer;
-  AParser:TTempParser;
-  GenValue, ValidVar:boolean;
-  GenAliasPos, AttrAccPos:integer;
-  AnAlias:string;
+  AParser: TTempParser;
+  GenValue, ValidVar: boolean;
+  GenAliasPos, AttrAccPos: integer;
+  AnAlias: string;
 begin
   AParser := TTempParser.Create(Self);
   if Parse then
     AValue := AParser.ParseToken(AValue);
-  GenAliasPos := Pos(FROM_GEN_SET,AKey);
-  AttrAccPos := Pos(ATTR_ACCESSOR,AKey);
+  GenAliasPos := Pos(FROM_GEN_SET, AKey);
+  AttrAccPos := Pos(ATTR_ACCESSOR, AKey);
   GenValue := (GenAliasPos = 1) and (AttrAccPos > GenAliasPos + 1);
   ValidVar := (GenAliasPos = 0);
   len := Length(FVariables);
@@ -1739,7 +1780,7 @@ begin
   begin
     if len > 0 then
     begin
-      for i:=0 to len - 1 do
+      for i := 0 to len - 1 do
       begin
         if FVariables[i].Key = AKey then
         begin
@@ -1755,14 +1796,14 @@ begin
   end
   else if GenValue then
   begin
-    AnAlias := Copy(AKey,2,AttrAccPos-2);
-    AKey := Copy(AKey,AttrAccPos+1,Length(AKey));
+    AnAlias := Copy(AKey, 2, AttrAccPos - 2);
+    AKey := Copy(AKey, AttrAccPos + 1, Length(AKey));
     i := FGenFileSet.IndexOf(AnAlias);
     if i = -1 then
     begin
-      i := FGenFileSet.Add(True,AnAlias);
+      i := FGenFileSet.Add(True, AnAlias);
     end;
-    FGenFileSet.GenFiles[i].GenFile.SetValue(AKey,AValue);
+    FGenFileSet.GenFiles[i].GenFile.SetValue(AKey, AValue);
   end;
 
   AParser.Free;
@@ -1809,7 +1850,7 @@ begin
     FForTimes := 0;
     SetLength(FForLoops, 0);
     FForLevel := -1;
-    SetLength(FIfTests,0);
+    SetLength(FIfTests, 0);
     FIfLevel := -1;
     FSkip := False;
     FRewind := False;

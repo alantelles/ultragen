@@ -1,4 +1,4 @@
-unit JsonToGenFunctions;
+unit JsonToGenClass;
 
 {$mode objfpc}{$H+}
 
