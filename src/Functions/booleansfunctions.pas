@@ -16,12 +16,25 @@ function GreaterOrEq(var Params:TStringList; neg:boolean=False):string;
 function Inverter(var Params:TStringList):string;
 function LogicAnd(var Params:TStringList; neg:boolean=False):string;
 function LogicOr(var Params:TStringList; neg:boolean=False):string;
+function TernaryPrint(var Params:TStringList):string;
 //end booleans comparisons
 
 implementation
 
 uses
   ConstantsGlobals;
+
+function TernaryPrint(var Params:TStringList):string;
+var
+  IfFalse:string = '';
+begin
+  if Params.Count = 3 then
+    IfFalse := Params[2];
+  if Params[0] = LANG_TRUE then
+    Result := Params[1]
+  else
+    Result := IfFalse;
+end;
 
 function Equal(var Params:TStringList; neg:boolean=False):string;
 var

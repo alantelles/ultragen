@@ -923,6 +923,10 @@ begin
       Return := BooleansFunctions.LogicOr(Params,True)
     else if(AFuncName = 'notOr') and (Params.Count > 1) then
       Return := BooleansFunctions.LogicOr(Params,True)
+    else if(AFuncName ='ternary') and (Params.Count = 3) then
+      Return := BooleansFunctions.TernaryPrint(Params)
+    else if(AFuncName ='ternary') and (Params.Count = 2) then
+      Return := BooleansFunctions.TernaryPrint(Params)
 
     { Cast Functions }
     else if (AFuncName = 'num') and (Params.Count = 1) then
