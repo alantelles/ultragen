@@ -29,7 +29,7 @@ function ToBoolean(AStr:string):string;
 
 implementation
 
-uses ConstantsGlobals;
+uses ConstantsGlobals, VariablesGlobals;
 
 function CreateRandomHash:string;
 begin
@@ -114,6 +114,8 @@ var
   i:integer;
 begin
   j := Params[0];
+  if j = LINE_BREAK then
+    j := sLineBreak;
   Return := '';
   if Params.Count > 1 then
   begin
