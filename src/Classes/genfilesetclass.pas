@@ -73,7 +73,7 @@ end;
 function TGenFileSet.KeysCount(AnAlias:string):string;
 var
   i:integer;
-  Return :integer = 0;
+  Return :integer = -1;
 begin
   i := IndexOf(AnAlias);
   if i > -1 then
