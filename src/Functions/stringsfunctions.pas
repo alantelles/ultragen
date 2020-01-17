@@ -61,13 +61,23 @@ function ToNumeric(AStr:string):string;
 var
   Return:string;
 begin
-  try
-    Return := IntToStr(StrToInt(AStr));
-  except
+  if AStr = 'true' then
+    Return := '1'
+  else if AStr = 'false' then
+    Return := '0'
+  else if AStr = '' then
+    Return := '0'
+  else
+  begin
     try
-      Return := FloatToStr(StrToFloat(AStr));
+      Return := IntToStr(StrToInt(AStr));
     except
-      Return := '0';
+      try
+        Return := FloatToStr(StrToFloat(AStr));
+      except
+        if Length(AStr) > 0 then
+          Return := '1';
+      end;
     end;
   end;
   Result := Return;
