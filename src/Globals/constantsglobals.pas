@@ -46,6 +46,7 @@ const
   GEN_AS_STRING_S = '-s';
   SEPARATOR_CHANGE = ' -separator:';
   DEFAULT_CHANGE = ' -default:';
+  ENABLE_THREADS = '--threads';
 
   ASC = 'ASC';
   DESC = 'DESC';

@@ -129,7 +129,7 @@ type
     property CanSave: boolean read FCanSave write FCanSave;
     property FullName: string read FFullName write FFullName;
     property GenFile: TGenFile read FGenFile;
-    property GenFileSet: TGenFileSet read FGenFileSet;
+    property GenFileSet: TGenFileSet read FGenFileSet write FGenFileSet;
     property TempLines: TStringList read FLines write FLines;
     property ParsedLines: TStringList read FParsed write FParsed;
     property GenTime: TDateTime read FGenTime;
@@ -211,6 +211,12 @@ type
     procedure MapGenKeys(var Params: TStringList; DoMap: boolean);
     procedure GroupKeys(var Params: TStringList);
     // end gen file handling
+    //queue procs
+    procedure CreateQueue(var Params:TStringList);
+    procedure QueueTask(var Params:TStringList);
+    procedure DestroyQueue(var Params:TStringList);
+    procedure ActivateQueue(var Params:TStringList);
+    //end queue
     //Web module procedures
     procedure RedirectTo(var Params: TStringList);
     procedure DestroySession(var Params: TStringList);
@@ -226,9 +232,11 @@ type
     //end web procedures
     procedure StartFunction(var Params: TStringList; var PureParams: TStringList;
       HasRet: boolean);
+    procedure MakeFunctionsRoom;
     procedure FunctionReturn(var Params: TStringList);
     procedure EndFunction;
     procedure AddLineToFunction(ALine: string);
+    function FindFunction(AnAlias:string):integer;
     function ExecuteFunction(FuncName: string; HasRet: boolean;
       var Params: TStringList): string;
 
@@ -241,7 +249,7 @@ uses FileHandlingUtils,
   ParserClass,
   StringsFunctions, VariablesGlobals,
   fphttpclient, fpopenssl, openssl,
-  JsonToGenClass, Math;
+  JsonToGenClass, Math, QueueListClass;
 
 constructor TTemplate.Create(ATempName: string = ''; AExpLocation: string = '.');
 begin
@@ -283,6 +291,26 @@ begin
     FFullName := ExpandFileName(ATempName);
     Load(FFullName);
   end;
+end;
+
+function TTemplate.FindFunction(AnAlias:string):integer;
+var
+  Ret:integer = -1;
+  i, len:integer;
+begin
+  len := Length(FUserFunctions);
+  if len > 0 then
+  begin
+    for i:=0 to len-1 do
+    begin
+      if FUserFunctions[i].FunctionName = AnAlias then
+      begin
+        Ret := i;
+        break;
+      end;
+    end;
+  end;
+  Result := Ret;
 end;
 
 procedure TTemplate.SetWebVars(ASessionId, ASessionPath: string;
@@ -441,6 +469,41 @@ begin
     SetVariable(PureParams[0], Return);
   end;
 end;
+
+procedure TTemplate.CreateQueue(var Params:TStringList);
+begin
+  GlobalQueue.AddQueue(Params[0],StrToInt(Params[1]));
+end;
+
+procedure TTemplate.DestroyQueue(var Params:TStringList);
+begin
+  GlobalQueue.StopQueue(Params[0]);
+end;
+
+procedure TTemplate.ActivateQueue(var Params:TStringList);
+begin
+  GlobalQueue.ActivateQueue(Params[0]);
+end;
+
+procedure TTemplate.QueueTask(var Params:TStringList);
+var
+  AFuncName:String;
+  AQueue:string;
+  i:integer;
+  AFunc:TUserFunction;
+begin
+  AFuncName := Params[1];
+  AQueue := Params[0];
+  Params.Delete(0);
+  Params.Delete(0);
+  i := FindFunction(AFuncName);
+  if i > -1 then
+  begin
+    AFunc := FUserFunctions[i];
+    GlobalQueue.AddTask(AQueue,AFunc,Params,FGenFileSet);
+  end;
+end;
+
 
 procedure TTemplate.CreateGen(var Params: TStringList);
 var
@@ -1396,6 +1459,12 @@ begin
     'parseJson': ParseJson(Params);
     'request': RequestRest(Params, PureParams);
     // end web operations
+    //queues opers
+    'createQueue': CreateQueue(Params);
+    'queue':QueueTask(Params);
+    'stopQueue': DestroyQueue(Params);
+    'startQueue': ActivateQueue(Params);
+    //end queues
     //user functions
     'function': StartFunction(Params, PureParams, True);
     'endFunction': EndFunction;
@@ -1445,6 +1514,11 @@ begin
   FUserFunctions[len].Args.Delete(0);
   FUserFunctions[len].HasReturn := HasRet;
   FAddToFunction := True;
+end;
+
+procedure TTemplate.MakeFunctionsRoom;
+begin
+  SetLength(FUserFunctions,Length(FUserFunctions)+1);
 end;
 
 procedure TTemplate.AddLineToFunction(ALine: string);
@@ -1527,6 +1601,7 @@ begin
           Line := ATemplate.UserFunctions[j].Args.Text;
         end;
         ATemplate.ScriptMode := True;
+        ATemplate.SetWebVars(FWebVars.SessionId, FWebVars.SessionPath, FWebVars.SessionDuration);
         Return := ATemplate.ParseTemplate(FGenFileSet, FParsed);
         FParsed.AddStrings(ATemplate.ParsedLines);
         ATemplate.ScriptMode := False;

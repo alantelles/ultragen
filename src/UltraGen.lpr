@@ -10,13 +10,15 @@ uses
     { you can add units after this }
 
     { Classes }
-     WorkClass, WebServerClass, TEmplateClass,
+     WorkClass, WebServerClass, TemplateClass, QueueListClass,
 
     { Globals }
     TypesGlobals, VariablesGlobals, ConstantsGlobals,
 
     { Utils }
     FileHandlingUtils;
+
+
 
 
 var
@@ -27,8 +29,20 @@ var
   LookSub, Live, AsString, IsGenSetCall, IsGenpathCall:boolean;
   i:integer;
   Server:TUltraGenServer;
+
 begin
   Start := now;
+  GlobalQueue := TQueueSet.Create;
+  AVerifyThread := TThreadVerify.Create;
+  if ParamCount > 2 then
+  begin
+    if (ParamStr(ParamCount-1) = ENABLE_THREADS) then
+    begin
+      GlobalQueue.Interval := StrToInt(Trim(ParamStr(ParamCount)))*1000;
+      AVerifyThread.Start;
+    end;
+  end;
+
   randomize;
   AuxGens :=  TStringList.Create;
   AuxGroup :=  TStringList.Create;
@@ -44,12 +58,6 @@ begin
   //ultragen -set src1.gen|src2.gen -templates teste.ultra.txt|teste2.ultra.txt
   //new call        f
   //ultragen [template name] [genmode] [genpath]
-
-  if (ParamCount = 1) and (ParamStr(1) = 'special') then
-  begin
-    //JsonToGen;
-    Exit;
-  end;
 
   // server mode
   //--serve appName mode port
@@ -79,7 +87,7 @@ begin
         Server := TUltraGenServer.Create(StrToInt(ParamStr(3)), ParamStr(2), '--dev');
       if not Server.RunServer then
         exit;
-    end;
+  end;
   Live := True;
 
 
@@ -172,5 +180,8 @@ begin
     if ParamStr(i) = '-debug' then
       readln;
   end;
+  GlobalQueue.Free;
+  AVerifyThread.Terminate;
+
 end.
 

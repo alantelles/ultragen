@@ -5,7 +5,7 @@ unit VariablesGlobals;
 interface
 
 uses
-    Classes, SysUtils, ConstantsGlobals, TemplateClass;
+    Classes, SysUtils, ConstantsGlobals, TemplateClass, QueueListClass;
 
 var
   TOKEN_OPEN:string = '{';
@@ -30,6 +30,7 @@ var
   LINE_BREAK:string = 'LINE';
   FULL_DATE:string = DATE_INTERCHANGE_FORMAT;
   PI: double;
+
 
 implementation
 begin

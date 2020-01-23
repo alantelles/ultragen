@@ -30,7 +30,7 @@
         <PackageName Value="LazUtils"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="17">
+    <Units Count="19">
       <Unit0>
         <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -114,6 +114,16 @@
         <Filename Value="Classes/jsontogenclass.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit16>
+      <Unit17>
+        <Filename Value="Classes/queueclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="QueueClass"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="Classes/queuelistclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="QueueListClass"/>
+      </Unit18>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -126,6 +136,16 @@
       <OtherUnitFiles Value="Classes;Functions;Globals;Utils"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
+    <CodeGeneration>
+      <Optimizations>
+        <OptimizationLevel Value="3"/>
+      </Optimizations>
+    </CodeGeneration>
+    <Linking>
+      <Debugging>
+        <GenerateDebugInfo Value="False"/>
+      </Debugging>
+    </Linking>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="6">

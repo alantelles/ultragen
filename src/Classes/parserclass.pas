@@ -58,7 +58,8 @@ uses
   FileHandlingUtils,
   StringsFunctions,
   ListFunctions,
-  MathFunctions;
+  MathFunctions,
+  QueueListClass;
 
 constructor TTempParser.Create(var ATemplate: TTemplate);
 begin
@@ -448,6 +449,7 @@ begin
   AGen.Add(AGenName);
   ATemp := TTemplate.Create(ATempName);
   ATemp.ParseTemplate(AGen);
+  ATemp.ParsedLines.SkipLastLineBreak := True;
   for Line in ATemp.ParsedLines do
   begin
     if ATemp.ParsedLines.IndexOf(Line) = 0 then
@@ -479,6 +481,7 @@ begin
   if Params[1] <> '' then
     AGen.Add(Params[1]);
   ATemp.ParseTemplate(AGen);
+  ATemp.ParsedLines.SkipLastLineBreak := True;
   for Line in ATemp.ParsedLines do
   begin
     if ATemp.ParsedLines.IndexOf(Line) = 0 then
@@ -503,6 +506,7 @@ begin
   AGen := TGenFileSet.Create;
   ATemp := TTemplate.Create(ATempName);
   ATemp.ParseTemplate(AGen);
+  ATemp.ParsedLines.SkipLastLineBreak := True;
   for Line in ATemp.ParsedLines do
   begin
     if ATemp.ParsedLines.IndexOf(Line) = 0 then
@@ -512,7 +516,7 @@ begin
   end;
   ATemp.Free;
   AGen.Free;
-  Return := Copy(Return, 1, Length(Return) - 2);
+  Return := DropLastLineBreak(Return);
   Result := Return;
 end;
 
@@ -1049,6 +1053,9 @@ begin
       Return := ReplaceStr(Params[0], sLineBreak, '<br>' + sLineBreak)
     else if (AFuncName = 'inTag') and (Params.Count > 1) then
       Return := StringsFunctions.InTag(Params)
+    // System
+    else if (AFuncName = 'tasksRunning') and (Params.Count = 1) then
+      Return := IntToStr(GlobalQueue.TasksRunning(Params[0]))
     else if (AFuncName = 'callFunction') and (Params.Count > 1) then
     begin
       a := Params[0];

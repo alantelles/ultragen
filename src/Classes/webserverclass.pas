@@ -272,7 +272,6 @@ begin
   ATemplate := TTemplate.Create(FLoader);
   ATemplate.SetWebVars(SessionId, FSessionsPath, FSessionDuration);
   ATemplate.ParseTemplate(AGenSet);
-  ATemplate.ParsedLines.SaveToFile('zika.txt');
   DumpTemplate := ATemplate.ParsedLines.Text;
   AGenSet.Free;
   ATemplate.Free;
