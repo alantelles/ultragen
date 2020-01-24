@@ -107,7 +107,7 @@ begin
   FQueue[len].Args := TStringList.Create;
   FQueue[len].Args.AddStrings(AnArgs);
   FQueue[len].GenFileSet := AGenFileSet;
-  writeln('task ',AFunc.FunctionName,' added to queue ',FName);
+  //writeln('task ',AFunc.FunctionName,' added to queue ',FName);
   Result := len;
 end;
 

@@ -761,6 +761,8 @@ begin
       Return := GetFileName(Params[0], StrToBoolean(Params[1]))
 
     { Math functions }
+    else if (AFuncName = 'random') and (Params.Count = 1) then
+      Return := IntToStr(Random(StrToInt(Params[0])))
     else if (AFuncName = 'sum') and (Params.Count = 2) then
     begin
       try

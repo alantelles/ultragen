@@ -27,7 +27,7 @@ var
   FlowLines,AuxGens,AuxGroup,AuxTemp:TStringList;
   AWork:TWork;
   LookSub, Live, AsString, IsGenSetCall, IsGenpathCall:boolean;
-  i:integer;
+  i, interval:integer;
   Server:TUltraGenServer;
 
 begin
@@ -38,7 +38,10 @@ begin
   begin
     if (ParamStr(ParamCount-1) = ENABLE_THREADS) then
     begin
-      GlobalQueue.Interval := StrToInt(Trim(ParamStr(ParamCount)))*1000;
+      interval := StrToInt(Trim(ParamStr(ParamCount)));
+      if interval < 1 then
+        interval := 1;
+      GlobalQueue.Interval := interval*1000;
       AVerifyThread.Start;
     end;
   end;

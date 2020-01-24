@@ -212,7 +212,7 @@ type
     procedure GroupKeys(var Params: TStringList);
     // end gen file handling
     //queue procs
-    procedure CreateQueue(var Params:TStringList);
+    procedure CreateQueue(var Params:TStringList; var PureParams:TStringList);
     procedure QueueTask(var Params:TStringList);
     procedure DestroyQueue(var Params:TStringList);
     procedure ActivateQueue(var Params:TStringList);
@@ -470,9 +470,14 @@ begin
   end;
 end;
 
-procedure TTemplate.CreateQueue(var Params:TStringList);
+procedure TTemplate.CreateQueue(var Params:TStringList; var PureParams:TStringList);
 begin
-  GlobalQueue.AddQueue(Params[0],StrToInt(Params[1]));
+  if Params.Count = 1 then
+    GlobalQueue.AddQueue(Params[0],1, False)
+  else if Params.Count = 2 then
+    GlobalQueue.AddQueue(Params[0],StrToInt(Params[1]),False)
+  else if Params.Count = 3 then
+    GlobalQueue.AddQueue(Params[0],StrToInt(Params[1]), StrToBoolean(PureParams[2]));
 end;
 
 procedure TTemplate.DestroyQueue(var Params:TStringList);
@@ -1460,7 +1465,7 @@ begin
     'request': RequestRest(Params, PureParams);
     // end web operations
     //queues opers
-    'createQueue': CreateQueue(Params);
+    'createQueue': CreateQueue(Params, PureParams);
     'queue':QueueTask(Params);
     'stopQueue': DestroyQueue(Params);
     'startQueue': ActivateQueue(Params);

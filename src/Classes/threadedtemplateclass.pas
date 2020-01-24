@@ -24,16 +24,16 @@ type
   protected
     procedure Execute; override;
   public
-    Constructor Create(AFunction:TUserFunction; var AGenFileSet:TGenFileSet; TaskIndex:integer; var AParams:TStringList; AQueueName:string);
+    Constructor Create(AFunction:TUserFunction; AGenFileSet:TGenFileSet; TaskIndex:integer; var AParams:TStringList; AQueueName:string);
   end;
 
 implementation
 
 uses
   { Classes }
-  ParserClass;
+  ParserClass, GenFileClass;
 
-constructor TThreadedTemplate.Create(AFunction:TUserFunction; var AGenFileSet:TGenFileSet; TaskIndex:integer; var AParams:TStringList; AQueueName:string);
+constructor TThreadedTemplate.Create(AFunction:TUserFunction; AGenFileSet:TGenFileSet; TaskIndex:integer; var AParams:TStringList; AQueueName:string);
 begin
   inherited Create(True);
   FGenFileSet := AGenFileSet;
@@ -50,15 +50,24 @@ var
   i, all:integer;
   ATemplate:TTemplate;
   Line:string;
+  AGenFile: TGenFile;
 begin
   //FCaller^.Consume(FIndex, FGenFileSet);
   //Randomize;
+  //writeln('executing task ',FIndex);
+  AGenFile := TGenFile.Create;
+  AGenFile.Create;
+  AGenFile.SetValue('TASK_INDEX',IntToStr(FIndex));
+  AGenFile.SetValue('QUEUE_NAME',FQueueName);
+  FGenFileSet.Add(AGenFile,'INTERNALS');
   ATemplate := TTemplate.Create;
   ATemplate.GenFileSet := FGenFileSet;
   ATemplate.MakeFunctionsRoom;
+
   ATemplate.UserFunctions[0] := FFunction;
   ATemplate.ExecuteFunction(FFunction.FunctionName,FFunction.HasReturn,FParams);
   ATemplate.Free;
+  //writeln('ending task ',FIndex);
 
 
   {all := 5000+Random(5000);

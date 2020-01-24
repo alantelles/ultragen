@@ -18,7 +18,7 @@ type
     property Count:integer read FCount write FCount;
     property Interval:integer read FInterval write FInterval;
     constructor Create;
-    function AddQueue(AnAlias:string; Slots:integer):integer;
+    function AddQueue(AnAlias:string; Slots:integer; Activate:boolean):integer;
     procedure StopQueue(AnAlias:string);
     procedure ActivateQueue(AnAlias:string);
     function FindQueue(AnAlias:string):integer;
@@ -98,7 +98,7 @@ var
 begin
   while True do
   begin
-    writeln('verifying all');
+    //writeln('verifying all');
     if FCount > 0 then
     begin
 
@@ -107,7 +107,7 @@ begin
       begin
         if (FQueueList[i].Active) and (FQueueList[i].Executing < FQueueList[i].MaxThreads) then
         begin
-          writeln('verifying queue ',FQueueList[i].Name);
+          //writeln('verifying queue ',FQueueList[i].Name,' that has ',FQueueList[i].MaxThreads,' slots.');
           QVThreads[i] := TQueueVerify.Create(i);
           QVThreads[i].Start;
         end;
@@ -119,7 +119,7 @@ begin
 end;
 
 
-function TQueueSet.AddQueue(AnAlias:string; Slots:integer):integer;
+function TQueueSet.AddQueue(AnAlias:string; Slots:integer; Activate:boolean):integer;
 var
   len:integer;
 begin
@@ -127,6 +127,7 @@ begin
   SetLength(FQueueList,len+1);
   FCount := len+1;
   FQueueList[len] := TQueue.Create(AnAlias, Slots);
+  FQueueList[len].Active := Activate;
   //writeln('The queue ',FQueueList[len].Name,' was created.');
   //writeln('It has ',FQueueList[len].MaxThreads,' slots.');
   Result := len;
@@ -139,7 +140,7 @@ begin
   i := FindQueue(AnAlias);
    if i > -1 then
      FQueueList[i].Active := False;
-   writeln('stopping queue');
+   //writeln('stopping queue');
 end;
 
 procedure TQueueSet.ActivateQueue(AnAlias:string);
@@ -149,7 +150,7 @@ begin
   i := FindQueue(AnAlias);
    if i > -1 then
      FQueueList[i].Active := True;
-   writeln('activating queue');
+   //writeln('activating queue');
 end;
 
 function TQueueSet.FindQueue(AnAlias:string):integer;
