@@ -496,16 +496,19 @@ var
   AQueue:string;
   i:integer;
   AFunc:TUserFunction;
+  AParams:TStringList;
 begin
   AFuncName := Params[1];
   AQueue := Params[0];
   Params.Delete(0);
   Params.Delete(0);
+  AParams := TSTringList.Create;
+  AParams.AddStrings(Params);
   i := FindFunction(AFuncName);
   if i > -1 then
   begin
     AFunc := FUserFunctions[i];
-    GlobalQueue.AddTask(AQueue,AFunc,Params,FGenFileSet);
+    GlobalQueue.AddTask(AQueue,AFunc,AParams,FGenFileSet);
   end;
 end;
 

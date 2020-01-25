@@ -71,10 +71,10 @@ begin
 
 
   {all := 5000+Random(5000);
-  writeln('comecou ',IntToStr(FIndex),' rodando por ',(all div 1000),' segundos na fila ',FQueueName);
-  writeln('funcao ',FFunction.FunctionName);
+  //writeln('comecou ',IntToStr(FIndex),' rodando por ',(all div 1000),' segundos na fila ',FQueueName);
+  //writeln('funcao ',FFunction.FunctionName);
   sleep(all);
-  writeln('acabou ',IntToStr(FIndex),' na fila ',FQueueName);}
+  //writeln('acabou ',IntToStr(FIndex),' na fila ',FQueueName);}
   ReturnValue := TASK_DONE;
   //FCaller^.Queue[FIndex].Done := TASK_DONE;
 end;
