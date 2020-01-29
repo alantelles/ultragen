@@ -217,6 +217,9 @@ type
     procedure DestroyQueue(var Params:TStringList);
     procedure ActivateQueue(var Params:TStringList);
     //end queue
+    //textsave
+    procedure LogText(var Params:TStringList);
+    //end textsave
     //Web module procedures
     procedure RedirectTo(var Params: TStringList);
     procedure DestroySession(var Params: TStringList);
@@ -512,6 +515,20 @@ begin
   end;
 end;
 
+procedure TTemplate.LogText(var Params:TStringList);
+var
+  AText:TStringList;
+begin
+  AText := TStringList.Create;
+  AText.SkipLastLineBreak := True;
+  if FileExists(Params[1]) then
+    AText.LoadFromFile(Params[1])
+  else
+    CreateDirTree(Params[1]);
+  AText.Add(Params[0]);
+  AText.SaveToFile(Params[1]);
+  AText.Free;
+end;
 
 procedure TTemplate.CreateGen(var Params: TStringList);
 var
@@ -1099,6 +1116,7 @@ end;
 procedure TTemplate.BreakFor;
 begin
   FForLoops[FForLevel].Times := 0;
+  FForLoops[FForLevel].Limit := 1;
   FForLoops[FForLevel].Infinite := False;
   FForSkip := True;
 end;
@@ -1175,10 +1193,10 @@ begin
       if FForLoops[FForLevel].ControlVar <> '' then
         SetVariable(FForLoops[FForLevel].ControlVar,
           IntToStr(FForLoops[FForLevel].Times));
+      FRewind := True;
     end;
-    FRewind := True;
-  end;
 
+  end;
 end;
 
 function TTemplate.ImportGenFile(var Params: TStringList): TTemplate;
@@ -1454,6 +1472,9 @@ begin
     'dropGenMap': MapGenKeys(Params, False);
     'groupKeys': GroupKeys(Params);
     // End of Gen operations
+    //textsave functions
+    'log': LogText(Params);
+    //end textsave
     //start web operations
     'abort': ParseAbort(Params);
     'goTo': RedirectTo(Params);
@@ -1560,6 +1581,7 @@ var
   ATemplate: TTemplate;
   Len, i, j, DotPos: integer;
   Return, Line, a, b: string;
+  AGenSet:TGenFileSet;
 begin
   Len := Length(FUserFunctions);
   if Len > 0 then
@@ -1610,7 +1632,10 @@ begin
         end;
         ATemplate.ScriptMode := True;
         ATemplate.SetWebVars(FWebVars.SessionId, FWebVars.SessionPath, FWebVars.SessionDuration);
-        Return := ATemplate.ParseTemplate(FGenFileSet, FParsed);
+        AGenSet := TGenFileSet.Create;
+        //AGenSet := FGenFileSet;
+        FGenFileSet.CopyGenSet(AGenSet);
+        Return := ATemplate.ParseTemplate(AGenSet, FParsed);
         FParsed.AddStrings(ATemplate.ParsedLines);
         ATemplate.ScriptMode := False;
         ATemplate.Free;

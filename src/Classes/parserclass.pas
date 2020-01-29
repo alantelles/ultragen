@@ -1058,6 +1058,8 @@ begin
     // System
     else if (AFuncName = 'tasksRunning') and (Params.Count = 1) then
       Return := IntToStr(GlobalQueue.TasksRunning(Params[0]))
+    else if (AFuncName = 'allTasksRunning') and (Params.Count = 0) then
+      Return := IntToStr(GlobalQueue.AllTasksRunning)
     else if (AFuncName = 'callFunction') and (Params.Count > 1) then
     begin
       a := Params[0];
@@ -1195,6 +1197,15 @@ begin
             FTemplate.Skip := not FTemplate.IfRecursion[FTemplate.IfLevel];
         end;
 
+      end
+      else if ((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) =
+        OVER_STATE + 'endLoop')) or (FTemplate.ScriptMode and
+        (Trim(FTemplate.TempLines[i]) = 'endLoop'))) or
+        (((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) =
+        OVER_STATE + 'end')) or (FTemplate.ScriptMode and
+        (Trim(FTemplate.TempLines[i]) = 'end'))) and (FTemplate.LoopType = IFDEV)) then
+      begin
+        FTemplate.ForSkip := False;
       end
       else if ((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) =
         OVER_STATE + 'endFor')) or (FTemplate.ScriptMode and

@@ -23,6 +23,7 @@ type
     procedure ActivateQueue(AnAlias:string);
     function FindQueue(AnAlias:string):integer;
     function TasksRunning(AnAlias:string):integer;
+    function AllTasksRunning:integer;
     procedure AddTask(AnAlias:string; AFunc:TUserFunction; AParams:TStringList; AGenFileSet:TGenFileSet);
     procedure Verify;
   end;
@@ -180,6 +181,20 @@ begin
    i := FindQueue(AnAlias);
    if i > -1 then
      Ret := FQueueList[i].Executing;
+  Result := Ret;
+end;
+
+function TQueueSet.AllTasksRunning:integer;
+var
+  i:integer;
+  Ret:integer=0;
+begin
+  if FCount > 0 then
+  begin
+    for i:=0 to FCount-1 do
+      Result := Result + FQueueList[i].Executing;
+
+  end;
   Result := Ret;
 end;
 

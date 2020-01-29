@@ -161,6 +161,7 @@ begin
       end;
       //ut := UndoneTasks;
     end;
+    Verify;
   end;
 end;
 

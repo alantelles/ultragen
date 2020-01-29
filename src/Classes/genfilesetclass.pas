@@ -37,6 +37,7 @@ type
       procedure Enlist(var AGenFiles:TStringList);
       procedure Enlist(var AGenFiles:TStringList; AnAliasRule:string);
       procedure Add(WithAlias:boolean; AGenFile:string; AnAlias:string);
+      procedure CopyGenSet(var OutGenSet:TGenFileSet);
       function Add(WithAlias:boolean; AnAlias:string):integer;
       procedure Add(AGenFile:string);
       procedure Add(AGenFile, ASeparator:string);
@@ -68,6 +69,23 @@ var
 begin
   for iter in AGenFiles do
     Add(iter);
+end;
+
+procedure TGenFileSet.CopyGenSet(var OutGenSet:TGenFileSet);
+var
+  AGenFile:TGenFile;
+  i,len:integer;
+begin
+  len := Length(FGenFiles);
+  if len > 0 then
+  begin
+    for i:=0 to len-1 do
+    begin
+      AGenFile := TGenFile.Create;
+      FGenFiles[i].GenFile.CopyGen(AGenFile);
+      OutGenSet.Add(AGenFile,FGenFiles[i].GenAlias);
+    end;
+  end;
 end;
 
 function TGenFileSet.KeysCount(AnAlias:string):string;

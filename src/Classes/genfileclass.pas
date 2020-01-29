@@ -23,7 +23,7 @@ type
     property FullName:string read FFullName write FFullName;
     property IfNotFound:string read FDefault write FDefault;
     property GenSeparator:string read FGenSep write FGenSep;
-    property Pairs:TDict read FPairs;
+    property Pairs:TDict read FPairs write FPairs;
     constructor Create;
     function Name:string;
     function OnlyName:string;
@@ -39,6 +39,7 @@ type
     procedure Prepend(AKey,AValue:string);
     procedure Print;
     procedure ClearValues;
+    procedure CopyGen(var OutGenFile:TGenFile);
     //sort
 
   end;
@@ -84,6 +85,17 @@ begin
     end;
   end;
   Result := Return;
+end;
+
+procedure TGenFile.CopyGen(var OutGenFile:TGenFile);
+var
+  APair:TKVPair;
+begin
+  OutGenFile.ClearValues;
+  for APair in FPairs do
+    OutGenFile.SetValue(APair.Key, APair.Value);
+  OutGenFile.IfNotFound := FDefault;
+  OutGenFile.GenSeparator := FGenSep;
 end;
 
 function TGenFile.Load(AFullName:string):boolean;
