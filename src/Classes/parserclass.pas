@@ -971,6 +971,12 @@ begin
       Return := ListFunctions.PrintRange(StrToInt(Params[0]), StrToInt(Params[1]))
     else if (AFuncName = 'index') and (Params.Count = 2) then
       Return := FTemplate.GetVariable(Params[0] + '[' + Params[1] + ']')
+    else if (AFuncName = 'map') and (Params.Count > 2) then
+      //Params[0] = a listable
+      //Params[1] = a separator
+      //Params[2] = a function name
+      //Params[3...] = params of function
+      Return := FTemplate.MapElem(Params)
 
     { Simple REGEX Functions }
     else if (AFuncName = 'match') and (Params.Count = 3) then

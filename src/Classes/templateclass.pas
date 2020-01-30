@@ -233,6 +233,7 @@ type
     procedure ParseJson(var Params: TStringList);
     procedure RequestRest(var Params: TStringList; var PureParams: TStringList);
     //end web procedures
+    function MapElem(var Params:TStringList):string;
     procedure StartFunction(var Params: TStringList; var PureParams: TStringList;
       HasRet: boolean);
     procedure MakeFunctionsRoom;
@@ -1574,6 +1575,51 @@ begin
     FuserFunctions[Length(FUserFunctions) - 1].Lines.Count - 1
     );
   FAddToFunction := False;
+end;
+
+function TTemplate.MapElem(var Params:TStringList):string;
+var
+  Ret:string='';
+  AListable:string;
+  ASep:string;
+  AFuncName,z:string;
+  Mapped:TStringList;
+  i:integer;
+  AParser:TTempParser;
+begin
+  AListable := Params[0];
+  Params.Delete(0);
+  ASep := Params[0];
+  Params.Delete(0);
+  AFuncName := Params[0];
+  Params.Delete(0);
+  Mapped := TStringList.Create;
+  Mapped.SkipLastLineBreak := True;
+  if ASep <> LINE_BREAK then
+  begin
+    Mapped.Delimiter := ASep[1];
+    Mapped.StrictDelimiter := True;
+    Mapped.DelimitedText := AListable;
+  end
+  else
+  begin
+    Mapped.Text := AListable;
+  end;
+  if Mapped.Count > 0 then
+  begin
+    AParser := TTempParser.Create(Self);
+    for i:=0 to Mapped.Count - 1 do
+    begin
+      Params.Add(Mapped[i]);
+      z := AParser.ParseFunction(AFuncName,Params);
+      Ret := Ret + z;
+      Params.Delete(Params.Count-1);
+      if i < Mapped.Count-1 then
+        Ret := Ret + ASep;
+    end;
+  end;
+  AParser.Free;
+  Result := Ret;
 end;
 
 function TTemplate.ExecuteFunction(FuncName: string; HasRet: boolean;
