@@ -24,7 +24,7 @@ type
     function FindQueue(AnAlias:string):integer;
     function TasksRunning(AnAlias:string):integer;
     function AllTasksRunning:integer;
-    procedure AddTask(AnAlias:string; AFunc:TUserFunction; AParams:TStringList; AGenFileSet:TGenFileSet);
+    procedure AddTask(ATemplateName:string; AnAlias:string; FuncIndex:integer; AParams:TStringList; AGenFileSet:TGenFileSet);
     procedure Verify;
   end;
 
@@ -83,13 +83,18 @@ begin
   SetLength(FQueueList,FCount);
 end;
 
-procedure TQueueSet.AddTask(AnAlias:string; AFunc:TUserFunction; AParams:TStringList; AGenFileSet:TGenFileSet);
+procedure TQueueSet.AddTask(ATemplateName:string; AnAlias:string; FuncIndex:integer; AParams:TStringList; AGenFileSet:TGenFileSet);
 var
   i:integer;
+  AGenSet:TGenFileSet;
 begin
   i := FindQueue(AnAlias);
   if i > -1 then
-    FQueueList[i].AddTask(AFunc,AParams,AGenFileSet);
+  begin
+    AGenSet := TGenFileSet.Create;
+    AGenFileSet.CopyGenSet(AGenSet);
+    FQueueList[i].AddTask(ATemplateName,FuncIndex,AParams,AGenFileSet);
+  end;
 end;
 
 procedure TQueueSet.Verify;

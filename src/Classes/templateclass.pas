@@ -511,7 +511,7 @@ begin
   if i > -1 then
   begin
     AFunc := FUserFunctions[i];
-    GlobalQueue.AddTask(AQueue,AFunc,AParams,FGenFileSet);
+    GlobalQueue.AddTask(Self.FullName,AQueue,i,AParams,FGenFileSet);
   end;
 end;
 
@@ -1633,7 +1633,6 @@ begin
         ATemplate.ScriptMode := True;
         ATemplate.SetWebVars(FWebVars.SessionId, FWebVars.SessionPath, FWebVars.SessionDuration);
         AGenSet := TGenFileSet.Create;
-        //AGenSet := FGenFileSet;
         FGenFileSet.CopyGenSet(AGenSet);
         Return := ATemplate.ParseTemplate(AGenSet, FParsed);
         FParsed.AddStrings(ATemplate.ParsedLines);

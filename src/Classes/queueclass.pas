@@ -18,9 +18,10 @@ const
 
 type
   TTask = record
-    Func:TUserFunction;
+    Func:integer;
     Args:TStringList;
     Done:integer;
+    Template:string;
     GenFileSet:TGenFileSet;
     // Done status:
     // 0 - queued
@@ -53,7 +54,7 @@ type
     property Queue:TTaskQueue read FQueue write FQueue;
     property Active:boolean read FActive write FActive;
     constructor Create(AnAlias:string; AMaxThreads:integer);
-    function AddTask(AFunc:TUserFunction; AnArgs:TStringList;AGenFileSet:TGenFileSet):integer;
+    function AddTask(ATemplateName:string; AFunc:integer; AnArgs:TStringList; AGenFileSet:TGenFileSet):integer;
     procedure Verify;
     function UndoneTasks:integer;
   end;
@@ -95,7 +96,7 @@ begin
   Result := Ret;
 end;
 
-function TQueue.AddTask(AFunc:TUserFunction; AnArgs:TStringList; AGenFileSet:TGenFileSet):integer;
+function TQueue.AddTask(ATemplateName:string; AFunc:integer; AnArgs:TStringList; AGenFileSet:TGenFileSet):integer;
 var
   len: integer;
 begin
@@ -103,6 +104,7 @@ begin
   len := Length(FQueue);
   SetLength(FQueue,len+1);
   FQueue[len].Done := TASK_QUEUED;
+  FQueue[len].Template := ATemplateName;
   FQueue[len].Func := AFunc;
   FQueue[len].Args := TStringList.Create;
   FQueue[len].Args.AddStrings(AnArgs);
@@ -132,7 +134,14 @@ begin
             if FSlots[j].IsFree then
             begin
               FExecuting := FExecuting + 1;
-              FSlots[j].AThread := TThreadedTemplate.Create(FQueue[i].Func, FQueue[i].GenFileSet, i, FQueue[i].Args , FName);
+              FSlots[j].AThread := TThreadedTemplate.Create(
+                FQueue[i].Template,
+                FQueue[i].Func,
+                FQueue[i].GenFileSet,
+                i,
+                FQueue[i].Args,
+                FName
+              );
               FSlots[j].IsFree := False;
               FSlots[j].AThread.Start;
               FSlots[j].TaskId := i;

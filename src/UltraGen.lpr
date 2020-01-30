@@ -11,6 +11,7 @@ uses
 
     { Classes }
      WorkClass, WebServerClass, TemplateClass, QueueListClass,
+     ThreadedTemplateClass,
 
     { Globals }
     TypesGlobals, VariablesGlobals, ConstantsGlobals,

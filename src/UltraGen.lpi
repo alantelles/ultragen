@@ -30,7 +30,7 @@
         <PackageName Value="LazUtils"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="19">
+    <Units Count="20">
       <Unit0>
         <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -124,6 +124,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="QueueListClass"/>
       </Unit18>
+      <Unit19>
+        <Filename Value="Classes/threadedtemplateclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ThreadedTemplateClass"/>
+      </Unit19>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

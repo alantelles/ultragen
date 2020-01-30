@@ -16,7 +16,8 @@ const
 type
   TThreadedTemplate = class(TThread)
   private
-    FFunction: TUserFunction;
+    FFunction: integer;
+    FTemplate:string;
     FGenFileSet: TGenFileSet;
     FIndex:integer;
     FQueueName:string;
@@ -24,7 +25,7 @@ type
   protected
     procedure Execute; override;
   public
-    Constructor Create(AFunction:TUserFunction; AGenFileSet:TGenFileSet; TaskIndex:integer; var AParams:TStringList; AQueueName:string);
+    Constructor Create(ATemplate:string;AFunction:integer; AGenFileSet:TGenFileSet; TaskIndex:integer; var AParams:TStringList; AQueueName:string);
   end;
 
 implementation
@@ -33,10 +34,11 @@ uses
   { Classes }
   ParserClass, GenFileClass;
 
-constructor TThreadedTemplate.Create(AFunction:TUserFunction; AGenFileSet:TGenFileSet; TaskIndex:integer; var AParams:TStringList; AQueueName:string);
+constructor TThreadedTemplate.Create(ATemplate:string;AFunction:integer; AGenFileSet:TGenFileSet; TaskIndex:integer; var AParams:TStringList; AQueueName:string);
 begin
   inherited Create(True);
   FGenFileSet := AGenFileSet;
+  FTemplate := ATemplate;
   FreeOnTerminate := True;
   FIndex := TaskIndex;
   FParams := AParams;
@@ -61,11 +63,13 @@ begin
   AGenFile.SetValue('QUEUE_NAME',FQueueName);
   FGenFileSet.Add(AGenFile,'INTERNALS');
   ATemplate := TTemplate.Create;
+  ATemplate.Load(FTemplate);
+  ATemplate.ParseTemplate(FGenFileSet);
   ATemplate.GenFileSet := FGenFileSet;
-  ATemplate.MakeFunctionsRoom;
-
-  ATemplate.UserFunctions[0] := FFunction;
-  ATemplate.ExecuteFunction(FFunction.FunctionName,FFunction.HasReturn,FParams);
+  ATemplate.ExecuteFunction(
+    ATemplate.UserFunctions[FFunction].FunctionName,
+    ATemplate.UserFunctions[FFunction].HasReturn,
+    FParams);
   ATemplate.Free;
   //writeln('ending task ',FIndex);
 
