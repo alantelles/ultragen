@@ -750,7 +750,7 @@ begin
   if ToOutput then
     FParsed.Add(Return);
   if ToConsole then
-    WriteLn(Return);
+    WriteLn(Return+#13);
 end;
 
 procedure TTemplate.IncludeTemplate(var Params: TStringList);
@@ -1242,9 +1242,10 @@ begin
   if not FSkip then
   begin
     Logic := StrToBoolean(Params[0]);
-    FSkip := not ((Logic and (not IfNot)) or ((not Logic) and IfNot));   //teste passou
+    //FSkip := not ((Logic and (not IfNot)) or ((not Logic) and IfNot));   //teste passou
+    FSkip := not Logic;
     SetLength(FIfTests, FIfLevel + 1);
-    FIfTests[FIfLevel] := not FSkip; //test is true
+    FIfTests[FIfLevel] := Logic; //test is true
   end;
 end;
 

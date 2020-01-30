@@ -1030,9 +1030,9 @@ begin
         Return := a[j];
     end
     else if (AFuncName = 'indexOf') and (Params.Count = 2) then
-      Return := IntToStr(Pos(Params[0], Params[1])-1)
+      Return := IntToStr(Pos(Params[1], Params[0])-1)
     else if (AFuncName = 'lastIndexOf') and (Params.Count = 2) then
-      Return := IntToStr(RPos(Params[0], Params[1])-1)
+      Return := IntToStr(RPos(Params[1], Params[0])-1)
     else if (AFuncName = 'dirSep') and (Params.Count = 1) then
       Return := StringsFunctions.OsDirSep(Params[0])
     else if (AFuncName = 'trim') and (Params.Count = 1) then
@@ -1188,14 +1188,15 @@ begin
         OVER_STATE + 'end')) or (FTemplate.ScriptMode and
         (Trim(FTemplate.TempLines[i]) = 'end'))) and (FTemplate.LoopType = IFDEV)) then
       begin
-        FTemplate.IfLevel := FTemplate.IfLevel - 1;
+
         if not FTemplate.ForSkip then
         begin
-          if FTemplate.IfLevel = -1 then
+          if FTemplate.IfLevel = 0 then
             FTemplate.Skip := False
-          else
-            FTemplate.Skip := not FTemplate.IfRecursion[FTemplate.IfLevel];
+          else if (FTemplate.IfLevel = (Length(FTemplate.IfRecursion) -1 )) and (FTemplate.Skip) then
+              FTemplate.Skip := not FTemplate.IfRecursion[FTemplate.IfLevel];
         end;
+        FTemplate.IfLevel := FTemplate.IfLevel - 1;
 
       end
       else if ((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) =

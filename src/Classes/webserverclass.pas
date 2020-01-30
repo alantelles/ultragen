@@ -175,7 +175,7 @@ begin
   if FDontServe then
     Exit;
   WriteLn('Requesting: ', ARequest.URI, '. Return code: ', AResponse.Code,
-    ' ', AResponse.CodeText);
+    ' ', AResponse.CodeText+#13);
   AGenSet := TGenFileSet.Create;
   AGenReq := TGenFile.Create;
 
@@ -198,7 +198,7 @@ begin
       AFileGen := TGenFile.Create;
       AFileGen.SetValue('fileName',ARequest.Files[i].FileName);
       AFileGen.SetValue('size',IntToStr(ARequest.Files[i].Size));
-      AFileGen.SetValue('serverName',ARequest.Files[i].LocalFileName);
+      AFileGen.SetValue('tempName',ARequest.Files[i].LocalFileName);
       AnAlias := '_files:'+ARequest.Files[i].FieldName+':'+IntToStr(i);
       AGenSet.Add(AFileGen,AnAlias);
     end;
@@ -217,8 +217,10 @@ begin
   if ARequest.ContentFields.Count > 0 then
   begin
     for i := 0 to ARequest.ContentFields.Count - 1 do
+    begin
       AGenReq.SetValue('_post:' + ARequest.ContentFields.Names[i],
         ARequest.ContentFields.ValueFromIndex[i]);
+    end;
   end;
 
   if ARequest.CookieFields.Count > 0 then
