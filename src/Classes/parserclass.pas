@@ -400,7 +400,11 @@ begin
   if Length(Temp) > 0 then
   begin
     if IsReserved(AToken) then
-      Return := AToken
+    begin                    
+      Return := AToken;
+      if AToken = LINE_BREAK then
+        Return := sLineBreak
+    end
     else if IsNumber(AToken) then
       Return := AToken
     else if IsTimeStr(AToken) then
@@ -971,11 +975,12 @@ begin
       Return := ListFunctions.PrintRange(StrToInt(Params[0]), StrToInt(Params[1]))
     else if (AFuncName = 'index') and (Params.Count = 2) then
       Return := FTemplate.GetVariable(Params[0] + '[' + Params[1] + ']')
-    else if (AFuncName = 'map') and (Params.Count > 2) then
+    else if (AFuncName = 'map') and (Params.Count > 3) then
       //Params[0] = a listable
       //Params[1] = a separator
-      //Params[2] = a function name
-      //Params[3...] = params of function
+      //Params[2] = ret separator
+      //Params[3] = a function name
+      //Params[4...] = params of function
       Return := FTemplate.MapElem(Params)
 
     { Simple REGEX Functions }

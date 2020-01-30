@@ -1581,7 +1581,7 @@ function TTemplate.MapElem(var Params:TStringList):string;
 var
   Ret:string='';
   AListable:string;
-  ASep:string;
+  ASep, ARetSep:string;
   AFuncName,z:string;
   Mapped:TStringList;
   i:integer;
@@ -1590,6 +1590,10 @@ begin
   AListable := Params[0];
   Params.Delete(0);
   ASep := Params[0];
+  Params.Delete(0);
+  ARetSep := Params[0];
+  if ARetSep = LINE_BREAK then
+    ARetSep := sLineBreak;
   Params.Delete(0);
   AFuncName := Params[0];
   Params.Delete(0);
@@ -1615,10 +1619,10 @@ begin
       Ret := Ret + z;
       Params.Delete(Params.Count-1);
       if i < Mapped.Count-1 then
-        Ret := Ret + ASep;
+        Ret := Ret + ARetSep;
     end;
+    AParser.Free;
   end;
-  AParser.Free;
   Result := Ret;
 end;
 
