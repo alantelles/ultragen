@@ -233,9 +233,10 @@ type
     procedure ParseJson(var Params: TStringList);
     procedure RequestRest(var Params: TStringList; var PureParams: TStringList);
     //end web procedures
-    function MapElem(var Params:TStringList):string;
+    function MapElem(var Params:TStringList;var PureParams:TStringList):string;
     procedure StartFunction(var Params: TStringList; var PureParams: TStringList;
       HasRet: boolean);
+    function ArrowFunction(var Params: TStringList; var PureParams: TStringList):string;
     procedure MakeFunctionsRoom;
     procedure FunctionReturn(var Params: TStringList);
     procedure EndFunction;
@@ -295,6 +296,39 @@ begin
     FFullName := ExpandFileName(ATempName);
     Load(FFullName);
   end;
+end;
+
+function TTemplate.ArrowFunction(var Params: TStringList; var PureParams: TStringList):string;
+var
+  Ret:string='';
+  ATemplate:TTemplate;
+  AParser:TTempParser;
+  AGenSet:TGenFileSet;
+  ArgsStr, Arg, P:string;
+  ArgsList:TStringList;
+  i:integer=0;
+begin
+  AGenSet := TGenFileSet.Create;
+  FGenFileSet.CopyGenSet(AGenSet);
+  ATemplate := TTemplate.Create;
+  ArgsStr := Copy(PureParams[0],2,Length(PureParams[0])-2);
+  AParser := TTempParser.Create(Self);
+  ArgsList := TStringList.Create;
+  AParser.ParseParams(ArgsStr,ArgsList);
+  for Arg in ArgsList do
+  begin
+    P := AParser.ParseToken(Arg);
+    ATemplate.SetVariable('arg'+IntToStr(i),P);
+    i := i+1;
+  end;
+  AParser.Free;
+  PureParams.Delete(0);
+  ATemplate.TempLines.AddStrings(PureParams);
+  ATemplate.FullName := 'arrow';
+  ATemplate.ScriptMode := True;
+  Ret := ATemplate.ParseTemplate(AGenSet,FParsed);
+  ATemplate.Free;
+  Result := Ret;
 end;
 
 function TTemplate.FindFunction(AnAlias:string):integer;
@@ -1511,7 +1545,7 @@ begin
     'function': StartFunction(Params, PureParams, True);
     'endFunction': EndFunction;
     'proc': StartFunction(Params, PureParams, False);
-    'return': FunctionReturn(Params);
+    '_', 'return': FunctionReturn(Params);
     'endProc': EndFunction;
     'callProc':
     begin
@@ -1588,7 +1622,7 @@ begin
   FAddToFunction := False;
 end;
 
-function TTemplate.MapElem(var Params:TStringList):string;
+function TTemplate.MapElem(var Params:TStringList; var PureParams:TStringList):string;
 var
   Ret:string='';
   AListable:string;
@@ -1598,16 +1632,24 @@ var
   i:integer;
   AParser:TTempParser;
 begin
+  //Params[0] = a listable
+  //Params[1] = a separator
+  //Params[2] = ret separator
+  //PureParams[3] = an arrow function
   AListable := Params[0];
   Params.Delete(0);
+
   ASep := Params[0];
   Params.Delete(0);
+
   ARetSep := Params[0];
   if ARetSep = LINE_BREAK then
     ARetSep := sLineBreak;
   Params.Delete(0);
-  AFuncName := Params[0];
   Params.Delete(0);
+
+  AFuncName := PureParams[3];
+
   Mapped := TStringList.Create;
   Mapped.SkipLastLineBreak := True;
   if ASep <> LINE_BREAK then
@@ -1626,7 +1668,8 @@ begin
     for i:=0 to Mapped.Count - 1 do
     begin
       Params.Add(Mapped[i]);
-      z := AParser.ParseFunction(AFuncName,Params);
+      //z := AParser.ParseFunction(AFuncName,Params,Params);
+      z := AParser.ParseToken(AFuncName);
       Ret := Ret + z;
       Params.Delete(Params.Count-1);
       if i < Mapped.Count-1 then

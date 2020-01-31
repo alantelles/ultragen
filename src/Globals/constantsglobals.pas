@@ -29,6 +29,7 @@ const
   SCRIPT_MODE_ENTER = '@{';
   SCRIPT_MODE_EXIT = '}';
   GEN_SUB_LEVEL = ':';
+  ARROW_OPER = '^';
 
   { calling modes }
   SET_GROUP = '+';

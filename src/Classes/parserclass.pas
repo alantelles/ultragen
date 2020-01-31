@@ -43,7 +43,7 @@ type
     function GetTimeStr(AToken: string): string;
     function ParseParams(AList: string; var ArgsAsList: TStringList): TTempParser;
     function PrintSection(ASection: string): string;
-    function ParseFunction(AFuncName: string; var Params: TStringList): string;
+    function ParseFunction(AFuncName: string; var Params: TStringList; var PureParams: TStringList): string;
     function InsertTemplate(ATempName, AgenName: string): string;
     function InsertTemplate(ATempName: string): string;
     function InsertTemplate(var Params: TStringList): string;
@@ -105,7 +105,7 @@ end;
 
 function TTempParser.IsFunction(AToken: string): boolean;
 var
-  OpenPoint, ClosePoint: integer;
+  OpenPoint, ClosePoint, len: integer;
   OnlyAllowedChars: boolean = True;
   c: integer;
   FuncName: string;
@@ -113,14 +113,25 @@ begin
   OpenPoint := Pos(PARAM_OPEN, AToken);
   ClosePoint := RPos(PARAM_CLOSE, AToken);
   FuncName := Trim(Copy(AToken, 1, OpenPoint - 1));
-  for c := 1 to Length(FuncName) do
+  len := Length(FuncName);
+  if FuncName <> ARROW_OPER then
   begin
-    if ((c > 1) and (Pos(FuncName[c], FUNCTION_ALLOWED + NUMBERS + FUNC_SYMBOLS) = 0)) or
-      ((c = 1) and (Pos(FuncName[c], FUNCTION_ALLOWED) = 0)) then
+    if len > 0 then
     begin
-      OnlyAllowedChars := False;
-    end;
-  end;
+      for c := 1 to len do
+      begin
+        if (((c > 1) and (Pos(FuncName[c], FUNCTION_ALLOWED + NUMBERS + FUNC_SYMBOLS) = 0)) or
+          ((c = 1) and (Pos(FuncName[c], FUNCTION_ALLOWED) = 0))) then
+        begin
+          OnlyAllowedChars := False;
+        end;
+      end;
+    end
+    else
+      OnlyAllowedChars := True;
+  end
+  else
+    OnlyAllowedChars := True;
   Result := (OpenPoint < ClosePoint) and OnlyAllowedChars;
 end;
 
@@ -530,7 +541,7 @@ var
   Return, GenDef, GenKey, TokenLiteral, ImportName, aaa: string;
   IsANumber, IsFromGen, IsAFunction, IsAVari, FirstIsFromGen, IsLiteral,
   IsTime, IsImportedVal, IsFromAGenSet, IsAlias, IsAReserved: boolean;
-  Params: TStringList;
+  Params, PureParams: TStringList;
   i, DotPos: integer;
 begin
   if IsFromParent(AToken) then
@@ -607,16 +618,18 @@ begin
     GenDef := Copy(AToken, Pos(PARAM_OPEN, AToken) + 1,
       (RPos(PARAM_CLOSE, AToken) - Pos(PARAM_OPEN, AToken)) - 1);
     Params := TStringList.Create;
+    PureParams := TStringList.Create;
     if Length(GenDef) > 0 then
     begin
-      ParseParams(GenDef, Params);
+      ParseParams(GenDef, Params);   
+      PureParams.AddStrings(Params);
       for i := 0 to Params.Count - 1 do
       begin
         aaa := ParseToken(Params[i]);
         Params[i] := ParseToken(Params[i]);
       end;
     end;
-    Return := ParseFunction(GenKey, Params);
+    Return := ParseFunction(GenKey, Params, PureParams);
     Params.Free;
   end
   else if IsLiteral or IsAReserved then
@@ -681,7 +694,7 @@ begin
   Result := Self;
 end;
 
-function TTempParser.ParseFunction(AFuncName: string; var Params: TStringList): string;
+function TTempParser.ParseFunction(AFuncName: string; var Params: TStringList; var PureParams: TStringList): string;
 var
   Return, a, b: string;
   ExtName, ExtPath: string;
@@ -981,7 +994,7 @@ begin
       //Params[2] = ret separator
       //Params[3] = a function name
       //Params[4...] = params of function
-      Return := FTemplate.MapElem(Params)
+      Return := FTemplate.MapElem(Params, PureParams)
 
     { Simple REGEX Functions }
     else if (AFuncName = 'match') and (Params.Count = 3) then
@@ -1071,11 +1084,15 @@ begin
       Return := IntToStr(GlobalQueue.TasksRunning(Params[0]))
     else if (AFuncName = 'allTasksRunning') and (Params.Count = 0) then
       Return := IntToStr(GlobalQueue.AllTasksRunning)
+    else if (AFuncName = ARROW_OPER) and (Params.Count > 0) then
+      //syntax
+      //^([lines of function])
+      Return := FTemplate.ArrowFunction(Params,PureParams)
     else if (AFuncName = 'callFunction') and (Params.Count > 1) then
     begin
       a := Params[0];
       Params.Delete(0);
-      Return := ParseFunction(a,Params);
+      Return := ParseFunction(a,Params,PureParams);
     end
     else if IsUserFunction(AFuncName,i) > -1 then
       Return := FTemplate.ExecuteFunction(AFuncName,True,Params)
