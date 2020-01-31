@@ -57,6 +57,8 @@ const
   UTC_FORMAT = 'ddd, dd mmm yyyy hh:nn:ss "UTC"';
   DATE_INTERCHANGE_FORMAT = 'yyyy-mm-dd hh:nn:ss.zzz';
 
+  MULTI_LINE = ' ++';
+
 
 
 implementation

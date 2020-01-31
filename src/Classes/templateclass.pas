@@ -1265,8 +1265,9 @@ function TTemplate.Load(ATempName: string): TTemplate;
 var
   Temp: TStringList;
   SectionLines: TStringList;
-  Line, Part: string;
+  Line, Part, WillAdd: string;
   SectionOpen: boolean = False;
+  IsMulti:boolean;
 begin
   Temp := TStringList.Create;
   Temp.SkipLastLineBreak := True;
@@ -1276,6 +1277,7 @@ begin
     Clear;
     FFullname := ATempName;
     FOverrides.Extension := Copy(FFullName, RPos(EXT_SEP, FFullName), Length(FFullName));
+    WillAdd := '';
     for Line in Temp do
     begin
       if Pos(OVER_STATE + 'extend' + OVER_ASSOC, Trim(Line)) = 1 then
@@ -1297,8 +1299,17 @@ begin
         TStringList(FSections.Objects[FSections.IndexOf(Part)]).Add(Line)
       else
       begin
-        FLines.Add(Line);
+        IsMulti := Copy(Trim(Line),Length(Trim(Line))-2,3) = MULTI_LINE;
+        if IsMulti then
+          WillAdd := WillAdd + Copy(Line,1,Length(Line)-3)
+        else
+        begin
+          WillAdd := WillAdd + Line;
+          FLines.Add(WillAdd);
+          WillAdd := '';
+        end;
       end;
+
     end;
   finally
     Temp.Free;
