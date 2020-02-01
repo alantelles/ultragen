@@ -115,7 +115,8 @@ begin
   FuncName := Trim(Copy(AToken, 1, OpenPoint - 1));
   len := Length(FuncName);
   if (FuncName <> ARROW_OPER) and
-     (FuncName <> '?') then
+     (FuncName <> '?')and
+     (FuncName <> '~') then
   begin
     if len > 0 then
     begin
@@ -1019,7 +1020,7 @@ begin
     end
 
     { String Manipulation }
-    else if (AFuncName = 'concat') then
+    else if ((AFuncName = 'concat') or (AFuncName = '~')) then
       Return := StringsFunctions.Concat(Params)
     else if (AFuncName = 'join') and (Params.Count > 1) then
       Return := StringsFunctions.Join(Params)
