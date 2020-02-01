@@ -114,7 +114,8 @@ begin
   ClosePoint := RPos(PARAM_CLOSE, AToken);
   FuncName := Trim(Copy(AToken, 1, OpenPoint - 1));
   len := Length(FuncName);
-  if FuncName <> ARROW_OPER then
+  if (FuncName <> ARROW_OPER) and
+     (FuncName <> '?') then
   begin
     if len > 0 then
     begin
@@ -934,21 +935,21 @@ begin
       Return := BooleansFunctions.GreaterOrEq(Params,True)
     else if (AFuncName = 'not') and (Params.Count = 1) then
       Return := BooleansFunctions.Inverter(Params)
-    else if(AFuncName = 'and') and (Params.Count > 1) then
+    else if (AFuncName = 'and') and (Params.Count > 1) then
       Return := BooleansFunctions.LogicAnd(Params)
-    else if(AFuncName = 'nand') and (Params.Count > 1) then
+    else if (AFuncName = 'nand') and (Params.Count > 1) then
       Return := BooleansFunctions.LogicAnd(Params,True)
-    else if(AFuncName = 'notAnd') and (Params.Count > 1) then
+    else if (AFuncName = 'notAnd') and (Params.Count > 1) then
       Return := BooleansFunctions.LogicAnd(Params,True)
-    else if(AFuncName = 'or') and (Params.Count > 1) then
+    else if (AFuncName = 'or') and (Params.Count > 1) then
       Return := BooleansFunctions.LogicOr(Params)
-    else if(AFuncName = 'nor') and (Params.Count > 1) then
+    else if (AFuncName = 'nor') and (Params.Count > 1) then
       Return := BooleansFunctions.LogicOr(Params,True)
-    else if(AFuncName = 'notOr') and (Params.Count > 1) then
+    else if (AFuncName = 'notOr') and (Params.Count > 1) then
       Return := BooleansFunctions.LogicOr(Params,True)
-    else if(AFuncName ='ternary') and (Params.Count = 3) then
+    else if ((AFuncName ='ternary') or (AFuncName ='?')) and (Params.Count = 3) then
       Return := BooleansFunctions.TernaryPrint(Params)
-    else if(AFuncName ='ternary') and (Params.Count = 2) then
+    else if ((AFuncName ='ternary') or (AFuncName ='?')) and (Params.Count = 2) then
       Return := BooleansFunctions.TernaryPrint(Params)
 
     { Cast Functions }

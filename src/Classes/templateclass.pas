@@ -1647,8 +1647,6 @@ begin
     ARetSep := Params[0];
     if ARetSep = LINE_BREAK then
       ARetSep := sLineBreak;
-    Params.Delete(0);
-    Params.Delete(0);
     AFunc := PureParams[3];
   end
   else
