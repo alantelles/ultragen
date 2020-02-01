@@ -1627,7 +1627,7 @@ var
   Ret:string='';
   AListable:string;
   ASep, ARetSep:string;
-  AFuncName,z:string;
+  AFunc,z:string;
   Mapped:TStringList;
   i:integer;
   AParser:TTempParser;
@@ -1648,7 +1648,7 @@ begin
   Params.Delete(0);
   Params.Delete(0);
 
-  AFuncName := PureParams[3];
+  AFunc := PureParams[3];
 
   Mapped := TStringList.Create;
   Mapped.SkipLastLineBreak := True;
@@ -1667,15 +1667,18 @@ begin
     AParser := TTempParser.Create(Self);
     for i:=0 to Mapped.Count - 1 do
     begin
-      Params.Add(Mapped[i]);
+      SetVariable('elem',Mapped[i]);
+      SetVariable('elem.i',IntToStr(i));
       //z := AParser.ParseFunction(AFuncName,Params,Params);
-      z := AParser.ParseToken(AFuncName);
+      z := AParser.ParseToken(AFunc);
       Ret := Ret + z;
-      Params.Delete(Params.Count-1);
+      //Params.Delete(Params.Count-1);
       if i < Mapped.Count-1 then
         Ret := Ret + ARetSep;
     end;
     AParser.Free;
+    DropVariable('elem');
+    DropVariable('elem.i');
   end;
   Result := Ret;
 end;
