@@ -1638,17 +1638,27 @@ begin
   //PureParams[3] = an arrow function
   AListable := Params[0];
   Params.Delete(0);
+  if Params.Count = 3 then
+  begin
 
-  ASep := Params[0];
-  Params.Delete(0);
+    ASep := Params[0];
+    Params.Delete(0);
 
-  ARetSep := Params[0];
-  if ARetSep = LINE_BREAK then
-    ARetSep := sLineBreak;
-  Params.Delete(0);
-  Params.Delete(0);
+    ARetSep := Params[0];
+    if ARetSep = LINE_BREAK then
+      ARetSep := sLineBreak;
+    Params.Delete(0);
+    Params.Delete(0);
+    AFunc := PureParams[3];
+  end
+  else
+  begin
+    ASep := ',';
+    ARetSep := ', ';
+    AFunc := PureParams[1];
+  end;
 
-  AFunc := PureParams[3];
+
 
   Mapped := TStringList.Create;
   Mapped.SkipLastLineBreak := True;
