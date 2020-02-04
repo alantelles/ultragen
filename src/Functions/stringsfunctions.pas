@@ -202,6 +202,7 @@ var dump,temp:string;
 begin
     len := 8;
     temp := '';
+
     dump:=StrToMD5(AStr);
     for j:=1 to (16 div len) do
     begin
