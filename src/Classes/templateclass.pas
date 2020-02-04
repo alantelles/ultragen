@@ -1276,10 +1276,12 @@ begin
   FLoopType := IFDEV;
   if not FSkip then
   begin
-    Logic := StrToBoolean(Params[0]);
+    a := Params[0];
+    Logic := StrToBoolean(a);
     //FSkip := not ((Logic and (not IfNot)) or ((not Logic) and IfNot));   //teste passou
     FSkip := not Logic;
-    SetLength(FIfTests, FIfLevel + 1);
+    d := FIfLevel + 1;
+    SetLength(FIfTests, d);
     FIfTests[FIfLevel] := Logic; //test is true
   end;
 end;
@@ -1290,8 +1292,11 @@ begin
 end;
 
 procedure TTemplate.EndIf;
+var
+  len:integer;
 begin
-  SetLength(FIfTests, FIfLevel + 1);
+  len := FIfLevel + 1;
+  SetLength(FIfTests, len);
   //FSkip := False;
 end;
 
