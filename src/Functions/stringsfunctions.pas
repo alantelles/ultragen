@@ -22,6 +22,7 @@ function InTag(var Params:TStringList):string;
 function CreateSessionID:string;
 function CreateRandomHash:String;
 function OsDirSep(AStr:string):string;
+function UltraGenCrypt(var Params:TStringList):string;
 
 // cast functions
 function ToNumeric(AStr:string):string;
@@ -55,6 +56,16 @@ begin
   );
   Result := ASessionName;
 
+end;
+
+function UltraGenCrypt(var Params:TStringList):string;
+begin
+  //TODO: a super crypt function
+  //params
+  //Source
+  //Key
+  //Passes
+  //Doubles
 end;
 
 function ToNumeric(AStr:string):string;
