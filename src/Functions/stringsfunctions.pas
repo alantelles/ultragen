@@ -12,7 +12,7 @@ function RepeatStr(AText: string; ACount: Integer; AJoiner:string=''): string;
 function LeftZeros(ANumber:string; Zeros:integer): string;
 function Slice(AStr:string; StrStart, StrEnd:integer):string;
 function StrToMD5(AStr:string):string;
-function SuperHash(AStr:string):string;
+function MiniHash(AStr:string):string;
 function Concat(var Params:TStringList):string;
 procedure ReverseList(var AList:TstringList);
 function DropLastLineBreak(s:string):string;
@@ -194,7 +194,7 @@ begin
   Result := MD5Print(MD5String(AStr));
 end;
 
-function SuperHash(AStr:string):string;
+function MiniHash(AStr:string):string;
 var dump,temp:string;
    i,j, len:integer;
    Reverse:boolean=True;

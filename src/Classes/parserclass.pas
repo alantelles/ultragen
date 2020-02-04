@@ -44,9 +44,9 @@ type
     function ParseParams(AList: string; var ArgsAsList: TStringList): TTempParser;
     function PrintSection(ASection: string): string;
     function ParseFunction(AFuncName: string; var Params: TStringList; var PureParams: TStringList): string;
-    function InsertTemplate(ATempName, AgenName: string): string;
-    function InsertTemplate(ATempName: string): string;
-    function InsertTemplate(var Params: TStringList): string;
+    //function InsertTemplate(ATempName, AgenName: string): string;
+    //function InsertTemplate(ATempName: string): string;
+    function InsertTemplate(var Params: TStringList; var PureParams: TStringList): string;
     function PrintPlainText(AFileName: string): string;
   end;
 
@@ -454,7 +454,7 @@ begin
   end;
   Result := Return;
 end;
-
+{
 function TTempParser.InsertTemplate(ATempName, AGenName: string): string;
 var
   Return, Line: string;
@@ -512,28 +512,44 @@ begin
   Return := DropLastLineBreak(Return);
   Result := Return;
 end;
-
-function TTempParser.InsertTemplate(ATempName: string): string;
+}
+function TTempParser.InsertTemplate(var Params: TStringList; var PureParams: TStringList): string;
 var
-  Return, Line: string;
-  AGen: TGenFileSet;
+  Return: string;
+  AGenSet: TGenFileSet;
+  AGenFile: TGenFile;
   ATemp: TTemplate;
+  i, j:integer;
 begin
   Return := '';
-  AGen := TGenFileSet.Create;
-  ATemp := TTemplate.Create(ATempName);
-  ATemp.ParseTemplate(AGen);
-  ATemp.ParsedLines.SkipLastLineBreak := True;
-  for Line in ATemp.ParsedLines do
+  if FileExists (Params[0]) then
   begin
-    if ATemp.ParsedLines.IndexOf(Line) = 0 then
-      Return := Return + Line + sLineBreak
-    else
-      Return := Return + RepeatStr(' ', FTokenPos) + Line + sLineBreak;
+    AGenSet := TGenFileSet.Create;
+    ATemp := TTemplate.Create(Params[0]);
+    Params.Delete(0);
+    if Params.Count > 0 then
+    begin
+      for i:=0 to Params.Count-1 do
+      begin
+        // first: is it a loaded gen?
+        try
+          j := StrToInt(Params[i]);
+          j := -1;
+        except
+          j := FTemplate.GenFileSet.IndexOf(Params[i]);
+        end;
+        if j > -1 then
+        begin
+          AGenFile := TGenFile.Create;
+          FTemplate.GenFileSet.GenFiles[j].GenFile.CopyGen(AGenFile);
+          AGenSet.Add(AGenFile,'param'+IntToStr(i));
+        end;
+        ATemp.SetVariable('param['+IntToStr(i)+']',Params[i]);
+      end;
+    end;
+    ATemp.ParseTemplate(AGenSet);
+    Return := ATemp.ParsedLines.Text;
   end;
-  ATemp.Free;
-  AGen.Free;
-  Return := DropLastLineBreak(Return);
   Result := Return;
 end;
 
@@ -891,15 +907,15 @@ begin
     end
 
     { Interaction manipulations }
-    else if (AFuncName = 'insert') and (Params.Count = 2) then
+    {else if (AFuncName = 'insert') and (Params.Count = 2) then
       Return := InsertTemplate(Params[0], Params[1])
     else if (AFuncName = 'insert') and (Params.Count = 1) then
     begin
       a := Params[0];
       Return := InsertTemplate(Params[0]);
-    end
-    else if (AFuncName = 'insert') and (Params.Count > 2) then
-      Return := InsertTemplate(Params)
+    end                               }
+    else if (AFuncName = 'insert') and (Params.Count > 0) then
+      Return := InsertTemplate(Params, PureParams)
     else if (AFuncName = 'section') and (Params.Count = 1) then
       Return := PrintSection(Params[0])
     else if (AFuncName = 'text') and (Params.Count = 1) then
@@ -1050,8 +1066,13 @@ begin
     end
     else if (AFuncName = 'md5') and (Params.Count = 1) then
       Return := StringsFunctions.StrToMD5(Params[0])
-    else if (AFuncName = 'superHash') and (Params.Count = 1) then
-      Return := StringsFunctions.SuperHash(Params[0])
+    else if (AFuncName = 'miniHash') and (Params.Count = 1) then
+      Return := StringsFunctions.MiniHash(Params[0])
+    else if (AFuncName = 'randomHash') and (Params.Count = 0) then
+      Return := StringsFunctions.CreateRandomHash()
+
+
+
     else if (AFuncname = 'charAt') and (Params.Count = 2) then
     begin
       a := Params[0];
