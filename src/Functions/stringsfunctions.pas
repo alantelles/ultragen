@@ -73,11 +73,11 @@ var
   Return:string;
 begin
   if AStr = 'true' then
-    Return := '1'
+    Return := '0'
   else if AStr = 'false' then
-    Return := '0'
+    Return := '-1'
   else if AStr = '' then
-    Return := '0'
+    Return := '-1'
   else
   begin
     try
@@ -87,7 +87,7 @@ begin
         Return := FloatToStr(StrToFloat(AStr));
       except
         if Length(AStr) > 0 then
-          Return := '1';
+          Return := '0';
       end;
     end;
   end;

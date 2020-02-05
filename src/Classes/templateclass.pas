@@ -166,7 +166,7 @@ type
     function ImportGenFile(var Params: TStringList): TTemplate;
     procedure ExtendTemplate(ATemplate: string; Parent: string = '');
     procedure IncludeTemplate(var Params: TStringList);
-    procedure Execute(var Params: TStringList);
+    procedure Execute(var Params: TStringList; Async:boolean);
     procedure InputValue(var Params: TStringList;
       var PureParams: TStringList; DoParse: boolean);
     function ParseTemplate(var AGen: TGenFileSet): string;
@@ -753,25 +753,27 @@ begin
   end;
 end;
 
-procedure TTemplate.Execute(var Params: TStringList);
+procedure TTemplate.Execute(var Params: TStringList; Async:boolean);
 var
   AProcess: TProcess;
   i: integer;
 begin
   AProcess := TProcess.Create(nil);
-  if not FileExists(Params[0]) then
-  begin
+  try
+    AProcess.Executable := Params[0];
+    if not Async then
+      AProcess.Options := AProcess.Options + [poWaitOnExit];
+    if Params.Count > 1 then
+    begin
+      for i := 1 to Params.Count - 1 do
+        AProcess.Parameters.Add(Params[i]);
+    end;
+    AProcess.Execute;
+
+  except
     WriteLn('Process not found');
-    Exit;
   end;
-  AProcess.Executable := Params[0];
-  AProcess.Options := AProcess.Options + [poWaitOnExit];
-  if Params.Count > 1 then
-  begin
-    for i := 1 to Params.Count - 1 do
-      AProcess.Parameters.Add(Params[i]);
-  end;
-  AProcess.Execute;
+  AProcess.Free;
 end;
 
 
@@ -1495,7 +1497,8 @@ begin
     'input': InputValue(Params, PureParams, False);
     'live': FCanSave := False;
     'parsedInput': InputValue(Params, PureParams, True);
-    'execute': Execute(Params);
+    'execute': Execute(Params, False);
+    'trigger': Execute(Params, True);
     'drop': DropVariable(PureParams[0]);
     'loadText': LoadText(Params, PureParams);
     //fileHandling
