@@ -1208,11 +1208,9 @@ begin
       if FTemplate.DoAbort then
         break;
       if ((not FTemplate.ScriptMode and
-        ((Copy(Trim(FTemplate.TempLines[i]), 1, 4) =
-        OVER_STATE + 'if' + OVER_ASSOC))) or
+         ((Copy(Trim(FTemplate.TempLines[i]), 1, 4) = OVER_STATE + 'if' + OVER_ASSOC))) or
         (FTemplate.ScriptMode and
-        ((Copy(Trim(FTemplate.TempLines[i]), 1, 3) =
-        'if' + OVER_ASSOC)))) then
+        ((Copy(Trim(FTemplate.TempLines[i]), 1, 3) = 'if' + OVER_ASSOC)))) then
       begin
         FTemplate.IfLevel := FTemplate.IfLevel + 1;
 
@@ -1247,7 +1245,7 @@ begin
           if FTemplate.IfLevel = 0 then
             FTemplate.Skip := False
           else if (FTemplate.IfLevel = (Length(FTemplate.IfRecursion) -1 )) and (FTemplate.Skip) then
-              FTemplate.Skip := not FTemplate.IfRecursion[FTemplate.IfLevel];
+              FTemplate.Skip := not FTemplate.IfRecursion[FTemplate.IfLevel-1];
         end;
         if FTemplate.IfLevel > -1 then
           FTemplate.IfLevel := FTemplate.IfLevel - 1;

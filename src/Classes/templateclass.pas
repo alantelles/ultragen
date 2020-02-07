@@ -560,10 +560,13 @@ begin
     AText.LoadFromFile(Params[1])
   else
     CreateDirTree(Params[1]);
+  if (Params.Count = 3) and (StrToBoolean(Params[2]) = True) then
+    AText.Clear;
   AText.Add(Params[0]);
   AText.SaveToFile(Params[1]);
   AText.Free;
 end;
+
 
 procedure TTemplate.CreateGen(var Params: TStringList);
 var
@@ -886,7 +889,7 @@ begin
   if Params.Count > 2 then
     AFilter := Params[2];
   if Params.Count > 3 then
-    LookSub := StrToBoolean(PureParams[3]);
+    LookSub := StrToBoolean(PureParams[3])             ;
   Files := TStringList.Create;
   Files.SkipLastLineBreak := True;
   FindAllFiles(Files, APath, AFilter, LookSub);
@@ -900,6 +903,7 @@ begin
       ReverseList(Files);
     end;
   end;
+  Files.LineBreak := #13;
   SetVariable(AVarName, Files.Text);
   if Files.Count > 0 then
   begin
