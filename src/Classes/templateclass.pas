@@ -858,6 +858,7 @@ begin
       ReverseList(Explode);
     end;
   end;
+  SetVariable(PureParams[1],Explode.Text);
   if Explode.Count > 0 then
   begin
     for i := 0 to Explode.Count - 1 do
@@ -901,7 +902,9 @@ begin
       ReverseList(Files);
     end;
   end;
-  Files.LineBreak := #13;
+  {$IFDEF Windows}
+    Files.LineBreak := #13;
+  {$ENDIF}
   SetVariable(AVarName, Files.Text);
   if Files.Count > 0 then
   begin
