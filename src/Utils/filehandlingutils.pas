@@ -14,6 +14,7 @@ function GetFileRelative(AFileName:string; ALevel: integer=-1; FullPathReturn: b
 procedure CreateDirTree(APath: string; ToFile:boolean=true);
 function RemoveLastBackslash(AStr:string):string;
 function PrintFileIfExists(AName,Ifnot, IfYes:string):string;
+function PrintDirIfExists(AName,Ifnot, IfYes:string):string;
 
 implementation
 uses StringsFunctions,
@@ -25,6 +26,18 @@ var
 begin
   Return := AName;
   if FileExists(AName) then
+    Return := IfYes
+  else
+    Return := Ifnot;
+  Result := Return;
+end;
+
+function PrintDirIfExists(AName,IfNot,IfYes:string):string;
+var
+  Return,Aux:string;
+begin
+  Return := AName;
+  if DirectoryExists(AName) then
     Return := IfYes
   else
     Return := Ifnot;

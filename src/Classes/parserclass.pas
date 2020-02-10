@@ -922,10 +922,8 @@ begin
       Return := PrintPlainText(Params[0])
     else if (AFuncName = 'file') and (Params.Count = 1) then
       Return := FileHandlingUtils.PrintFileIfExists(Params[0], '', Params[0])
-    else if (AFuncName = 'file') and (Params.Count = 2) then
-      Return := FileHandlingUtils.PrintFileIfExists(Params[0], Params[1], Params[0])
-    else if (AFuncName = 'file') and (PArams.Count = 3) then
-      Return := FileHandlingUtils.PrintFileIfExists(Params[0], Params[1], Params[2])
+    else if (AFuncName = 'dir') and (Params.Count = 1) then
+      Return := FileHandlingUtils.PrintDirIfExists(Params[0], '', Params[0])
 
     { Booleans Functions }
     else if (AFuncName = 'eq') and (Params.Count > 1) then

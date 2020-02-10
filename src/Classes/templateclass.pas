@@ -197,6 +197,7 @@ type
     procedure ElseDecision;
     procedure EndIf;
     procedure ListFiles(var Params: TStringList; var PureParams: TStringList);
+    procedure ListDirs(var Params: TStringList; var PureParams: TStringList);
     procedure LimitedListFiles(var Params: TStringList; var PureParams: TStringList);
     procedure Move(var Params: TStringList);
     procedure TempFileCopy(var Params: TStringList);
@@ -914,6 +915,62 @@ begin
   Files.Free;
 end;
 
+procedure TTemplate.ListDirs(var Params: TStringList; var PureParams: TStringList);
+var
+  APath: string;
+  AVarName: string;
+  AFilter: string;
+  LookSub: boolean;
+  ADelimiter: string;
+  Files: TStringList;
+  AParser: TTempParser;
+  Sort: boolean = False;
+  i: integer;
+begin
+  AFilter := '';
+  LookSub := False;
+  //ADelimiter := FILES_SECURE_SEP;
+  //listFiles:path,vari,filter,sub,order
+  APath := Params[0];
+  AVarName := PureParams[1];
+  if Params.Count > 2 then
+    AFilter := Params[2];
+  if Params.Count > 3 then
+    LookSub := StrToBoolean(PureParams[3])             ;
+  Files := TStringList.Create;
+  Files.SkipLastLineBreak := True;
+  //FindAllFiles(Files, APath, AFilter, LookSub);
+  FindAllDirectories(Files, Apath, LookSub);
+  if (Files.Count > 0) and (AFilter <> '') then
+  begin
+    for i:=Files.Count-1 downto 0 do
+    begin
+      if Pos(AFilter,Files[i]) = 0 then
+        Files.Delete(i);
+    end;
+  end;
+  if Params.Count > 4 then
+  begin
+    if PureParams[4] = ASC then
+      Files.Sort
+    else if PureParams[4] = DESC then
+    begin
+      Files.Sort;
+      ReverseList(Files);
+    end;
+  end;
+  {$IFDEF Windows}
+    Files.LineBreak := #13;
+  {$ENDIF}
+  SetVariable(AVarName, Files.Text);
+  if Files.Count > 0 then
+  begin
+    for i := 0 to Files.Count - 1 do
+      SetVariable(AVarName + '[' + IntToStr(i) + ']', Files[i]);
+  end;
+  Files.Free;
+end;
+
 procedure TTemplate.LimitedListFiles(var Params: TStringList; var PureParams: TStringList);
 var
   APath: string;
@@ -1507,6 +1564,7 @@ begin
     'loadText': LoadText(Params, PureParams);
     //fileHandling
     'listFiles': ListFiles(Params, PureParams);
+    'listDirs': ListDirs(Params, PureParams);
     'limitedListFiles': LimitedListFiles(Params, PureParams);
     'move': Move(Params);
     'copy': TempFileCopy(Params);
