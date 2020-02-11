@@ -500,6 +500,7 @@ begin
 
   InitSSLInterface;
   Requirer := TFPHttpClient.Create(nil);
+  Requirer.AddHeader('User-Agent','Mozilla/5.0 (compatible; fpweb)');
   try
     Requirer.AllowRedirect := True;
     Return := Requirer.Get(Params[1]);
@@ -1547,9 +1548,9 @@ begin
     'explode': ExplodeStr(Params, PureParams);
     'print': PrintLine(Params, True, False);
     'tee': PrintLine(Params, True, True);
+    'live',
     'livePrint': PrintLine(Params, False, True);
     'processTemplate': ProcessTemplate(Params);
-    'printTemplate': ProcessTemplate(Params, True);
     'clear': clrscr;
     'tokenEnclosers':
     begin
@@ -1557,7 +1558,7 @@ begin
       FTokenClose := Params[0][2];
     end;
     'input': InputValue(Params, PureParams, False);
-    'live': FCanSave := False;
+    //'live': FCanSave := False;
     'parsedInput': InputValue(Params, PureParams, True);
     'execute': Execute(Params);
     'drop': DropVariable(PureParams[0]);
@@ -1568,6 +1569,7 @@ begin
     'limitedListFiles': LimitedListFiles(Params, PureParams);
     'move': Move(Params);
     'copy': TempFileCopy(Params);
+    'del' :  SysUtils.DeleteFile(Params[0]);
     'mkdir':
     begin
       if Params.Count = 1 then
