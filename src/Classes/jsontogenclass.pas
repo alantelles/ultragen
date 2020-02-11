@@ -16,6 +16,10 @@ const
   STR_ENC = '"';
   ATTR = ':';
 
+
+type
+  TListLevels = array of integer;
+
 type
   TJson2Gen = class
   private
@@ -23,12 +27,11 @@ type
     FJson: string;
     Fkey, FPrefix: string;
     FListIndex: integer;
+    FListLevels:TListLevels;
   public
     constructor Create(AStr: string; var AGenFile: TGenFile; Prefix:string='');
     procedure ParseJson;
     procedure ParseValue(AStr: string);
-    procedure ParseStream(AStr: string);
-    procedure ParsePair(AStr: string);
     procedure ParseList(AStr: string);
     procedure ParseObj(Astr: string);
     function IsObj(AStr: string): boolean;
@@ -50,6 +53,7 @@ begin
   FKey := '';
   FPrefix := Prefix;
   FListIndex := 0;
+  SetLength(FListLevels,0);
 end;
 
 function TJson2Gen.Conform(AStr: string): string;
@@ -83,24 +87,17 @@ begin
   end;
 end;
 
-procedure TJson2Gen.ParseStream(AStr: string);
-begin
-
-end;
-
-procedure TJson2Gen.ParsePair(AStr: string);
-begin
-
-end;
-
 procedure TJson2Gen.ParseList(AStr: string);
 var
   c: char;
   inStr: boolean = False;
   inVal: boolean = False;
-  objLevel, listLevel, AttrPos: integer;
+  objLevel, listLevel, AttrPos, len: integer;
   part: string = '';
 begin
+  len := Length(FListLevels);
+  SetLength(FListLevels,len+1);
+  FListLevels[len] := 0;
   objLevel := 0;
   listLevel := 0;
   for c in AStr do
@@ -121,11 +118,12 @@ begin
     begin
       AttrPos := RPos(GEN_SUB_LEVEL, FKey);
       if FKey <> '' then
-        FKey := FKey + GEN_SUB_LEVEL + IntToStr(FListIndex)
+        FKey := FKey + GEN_SUB_LEVEL + IntToStr(FListLevels[len])
       else
-        FKey := IntToStr(FListIndex);
+        FKey := IntToStr(FListLevels[len]);
       ParseValue(Conform(part));
-      FListIndex := FListIndex + 1;
+      //FListIndex := FListIndex + 1;
+      FListLevels[len] := FListLevels[len] + 1;
       AttrPos := RPos(GEN_SUB_LEVEL, FKey);
       if AttrPos > 0 then
         FKey := Copy(FKey, 1, AttrPos - 1)
@@ -139,9 +137,9 @@ begin
   end;
 
   if FKey <> '' then
-    FKey := FKey + GEN_SUB_LEVEL + IntToStr(FListIndex)
+    FKey := FKey + GEN_SUB_LEVEL + IntToStr(FListLevels[len])
   else
-    FKey := IntToStr(FListIndex);
+    FKey := IntToStr(FListLevels[len]);
   ParseValue(Conform(Part));
   FListIndex := 0;
   AttrPos := RPos(GEN_SUB_LEVEL, FKey);
@@ -149,6 +147,7 @@ begin
     FKey := Copy(FKey, 1, AttrPos - 1)
   else
     FKey := '';
+  SetLength(FListLevels,len);
 end;
 
 procedure TJson2Gen.ParseObj(Astr: string);

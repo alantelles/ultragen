@@ -113,6 +113,7 @@
       <Unit16>
         <Filename Value="Classes/jsontogenclass.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="JsonToGenClass"/>
       </Unit16>
       <Unit17>
         <Filename Value="Classes/queueclass.pas"/>
