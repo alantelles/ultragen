@@ -1168,7 +1168,7 @@ begin
         else if AOpt = (OVER_STATE + 'strict' + OVER_ASSOC) then
         begin
           y := Copy(LineTrim, Length(AOpt) + 1, Length(LineTrim));
-          FTemplate.Sctricts.Add(y);
+          FTemplate.Stricts.Add(y);
         end
         else if AOpt = (OVER_STATE + 'bypass' + OVER_ASSOC) then
         begin
@@ -1185,7 +1185,7 @@ begin
         else if AOpt = ('strict' + OVER_ASSOC) then
         begin
           y := Copy(LineTrim, Length(AOpt) + 1, Length(LineTrim));
-          FTemplate.Sctricts.Add(y);
+          FTemplate.Stricts.Add(y);
         end
         else if AOpt = ('bypass' + OVER_ASSOC) then
         begin
@@ -1194,7 +1194,7 @@ begin
       end;
     end;
   end;
-  if FTemplate.EvalFilter and (not FTemplate.EvalBypass) then
+  if FTemplate.EvalStrict and FTemplate.EvalFilter and (not FTemplate.EvalBypass) then
   begin
     FTemplate.CanSave := True;
     //for Line in FTemplate.TempLines do

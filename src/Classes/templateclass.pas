@@ -41,6 +41,7 @@ type
     Overwrite: boolean;
     Filters: TStringList;
     Bypasses: TStringList;
+    Stricts: TStringList;
     ExpAtRoot: boolean;
     RenderBlank: boolean;
   end;
@@ -140,6 +141,7 @@ type
     property Imported: TStringList read FImported write FImported;
     property Filters: TStringList read FOverrides.Filters write FOverrides.Filters;
     property Bypasses: TStringList read FOverrides.Bypasses write FOverrides.Bypasses;
+    property Stricts: TStringList read FOverrides.Stricts write FOverrides.Stricts;
     property Variables: TDict read FVariables write FVariables;
     property Sections: TStringList read FSections write FSections;
     property ForLevel: integer read FForLevel write FForLevel;
@@ -190,6 +192,7 @@ type
     procedure EndLoop;
     function EvalFilter: boolean;
     function EvalBypass: boolean;
+    function EvalStrict: boolean;
     procedure ExplodeStr(var Params: TStringList; var PureParams: TStringList);
     procedure Clear;
     procedure IfPrepare(var Params: TStringList; var PureParams: TStringList;
@@ -267,6 +270,7 @@ begin
   //FOverrides.Filters.NameValueSeparator := OVER_PARAM;
   FOverrides.Bypasses := TStringList.Create;
   //FOverrides.Bypasses.NameValueSeparator := OVER_PARAM;
+  FOverrides.Stricts := TStringList.Create;
   FCommentBlock := False;
   FScriptMode := False;
 
@@ -2235,6 +2239,38 @@ begin
   Result := Return;
 end;
 
+function TTemplate.EvalStrict: boolean;
+var
+  i: integer;
+  AKey, AValue, ATarget: string;
+  Return: boolean = True;
+begin
+  if FOverrides.Stricts.Count > 0 then
+  begin
+    Return := False;
+    for i := 0 to FOverrides.Stricts.Count - 1 do
+    begin
+      AKey := FOverrides.Stricts.Names[i];
+      ATarget := FOverrides.Stricts.Values[AKey];
+      AKey := Copy(FOverrides.Stricts[i],1,Pos(OVER_PARAM,FOverrides.Stricts[i])-1);
+      ATarget := Copy(FOverrides.Stricts[i],Pos(OVER_PARAM,FOverrides.Stricts[i])+1,Length(FOverrides.Stricts[i]));
+      AValue := FGenFileSet.GetValue(AKey).Value;
+      if Pos(ATarget, AValue) > 0 then
+      begin
+        Return := True;
+      end
+      else
+      begin
+        Return := False;
+        break;
+      end;
+    end;
+  end
+  else
+    Return := True;
+  Result := Return;
+end;
+
 function TTemplate.EvalBypass: boolean;
 var
   i: integer;
@@ -2282,6 +2318,7 @@ begin
   FOverrides.CopyTo.Free;
   FOverrides.Filters.Free;
   FOverrides.Bypasses.Free;
+  FOverrides.Stricts.Free;
   if FSections.Count > 0 then
   begin
     for i := 0 to FSections.Count - 1 do
