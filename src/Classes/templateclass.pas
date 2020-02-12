@@ -264,9 +264,9 @@ begin
   FOverrides.Overwrite := False;
   FOverrides.CopyTo := TStringList.Create;
   FOverrides.Filters := TStringList.Create;
-  FOverrides.Filters.NameValueSeparator := OVER_PARAM;
+  //FOverrides.Filters.NameValueSeparator := OVER_PARAM;
   FOverrides.Bypasses := TStringList.Create;
-  FOverrides.Bypasses.NameValueSeparator := OVER_PARAM;
+  //FOverrides.Bypasses.NameValueSeparator := OVER_PARAM;
   FCommentBlock := False;
   FScriptMode := False;
 
@@ -2220,6 +2220,8 @@ begin
     begin
       AKey := FOverrides.Filters.Names[i];
       ATarget := FOverrides.Filters.Values[AKey];
+      AKey := Copy(FOverrides.Filters[i],1,Pos(OVER_PARAM,FOverrides.Filters[i])-1);
+      ATarget := Copy(FOverrides.Filters[i],Pos(OVER_PARAM,FOverrides.Filters[i])+1,Length(FOverrides.Filters[i]));
       AValue := FGenFileSet.GetValue(AKey).Value;
       if Pos(ATarget, AValue) > 0 then
       begin
@@ -2243,8 +2245,8 @@ begin
   begin
     for i := 0 to FOverrides.Bypasses.Count - 1 do
     begin
-      AKey := FOverrides.Bypasses.Names[i];
-      ATarget := FOverrides.Bypasses.Values[AKey];
+      AKey := Copy(FOverrides.Bypasses[i],1,Pos(OVER_PARAM,FOverrides.Bypasses[i])-1);
+      ATarget := Copy(FOverrides.Bypasses[i],Pos(OVER_PARAM,FOverrides.Bypasses[i])+1,Length(FOverrides.Bypasses[i]));
       AValue := FGenFileSet.GetValue(AKey).Value;
       if Pos(ATarget, AValue) > 0 then
       begin

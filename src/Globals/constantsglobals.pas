@@ -36,7 +36,7 @@ const
   SET_SEP = '|';
 
   GENSET_CALL = '-gens';
-  GENPATH_CALL = '-genpath';
+  GENPATH_CALL = '--genpath';
   TEMPSET_CALL = '-templates';
   LOOK_SUB_FLAG = '-sub';
   PARAM_SET_DEFAULT = '-default';

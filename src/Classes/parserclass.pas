@@ -1162,11 +1162,18 @@ begin
       begin
         if AOpt = (OVER_STATE + 'filter' + OVER_ASSOC) then
         begin
+          y := Copy(LineTrim, Length(AOpt) + 1, Length(LineTrim));
           FTemplate.Filters.Add(Copy(LineTrim, Length(AOpt) + 1, Length(LineTrim)));
+        end
+        else if AOpt = (OVER_STATE + 'strict' + OVER_ASSOC) then
+        begin
+          y := Copy(LineTrim, Length(AOpt) + 1, Length(LineTrim));
+          FTemplate.Sctricts.Add(y);
         end
         else if AOpt = (OVER_STATE + 'bypass' + OVER_ASSOC) then
         begin
-          FTemplate.Bypasses.Add(Copy(LineTrim, Length(AOpt) + 1, Length(LineTrim)));
+          y := Copy(LineTrim, Length(AOpt) + 1, Length(LineTrim));
+          FTemplate.Bypasses.Add(y);
         end;
       end
       else if FTemplate.ScriptMode then
@@ -1174,6 +1181,11 @@ begin
         if AOpt = ('filter' + OVER_ASSOC) then
         begin
           FTemplate.Filters.Add(Copy(LineTrim, Length(AOpt) + 1, Length(LineTrim)));
+        end
+        else if AOpt = ('strict' + OVER_ASSOC) then
+        begin
+          y := Copy(LineTrim, Length(AOpt) + 1, Length(LineTrim));
+          FTemplate.Sctricts.Add(y);
         end
         else if AOpt = ('bypass' + OVER_ASSOC) then
         begin

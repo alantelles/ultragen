@@ -33,6 +33,7 @@ type
       property GenFiles:TGenFileArray read FGenFiles write FGenFiles;
       property IfNotFound:string read FDefault write FDefault;
       constructor Create;
+      procedure ClearSet;
       procedure Enlist(AGenFiles:array of string);
       procedure Enlist(var AGenFiles:TStringList);
       procedure Enlist(var AGenFiles:TStringList; AnAliasRule:string);
@@ -59,6 +60,11 @@ uses
   VariablesGlobals;
 
 constructor TGenFileSet.Create;
+begin
+  SetLength(FGenFiles,0);
+end;
+
+procedure TGenFileSet.ClearSet;
 begin
   SetLength(FGenFiles,0);
 end;

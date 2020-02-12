@@ -11,7 +11,7 @@ uses
 
     { Classes }
      WorkClass, WebServerClass, TemplateClass, QueueListClass,
-     ThreadedTemplateClass,
+     ThreadedTemplateClass, GenFileSetClass, ParserClass,
 
     { Globals }
     TypesGlobals, VariablesGlobals, ConstantsGlobals,
@@ -30,6 +30,8 @@ var
   LookSub, Live, AsString, IsGenSetCall, IsGenpathCall:boolean;
   i, interval:integer;
   Server:TUltraGenServer;
+  ATemplate:TTemplate;
+  AGenSet:TGenFileSet;
 
 begin
   Start := now;
@@ -134,30 +136,22 @@ begin
   end
   else if IsGenPathCall then
   begin
-    //-genpath gens -templates "teste.ultra.txt|teste2.ultra.txt" -sub -default thomas
+    //temp.ultra --genpath [folder]
     //dummy
-    AuxGens.Clear;
-    LookSub := False;
-    ADefault := DEF_IF_NOT;
-    AuxTemp.DelimitedText := ParamStr(4);
-    if ParamStr(5) = LOOK_SUB_FLAG then
-      LookSub := True;
-    if (ParamCount > 5) then
+    Live := False;
+    FindAllFiles(AuxGens,ParamStr(3),'*.GEN;*.gen',False);
+    AuxGens.Sort;
+    if AuxGens.Count > 0 then
     begin
-      if (ParamStr(5) = PARAM_SET_DEFAULT) then
-        ADefault := ParamStr(6)
-      else if (ParamStr(6) = PARAM_SET_DEFAULT) then
-        ADefault := ParamStr(7);
-    end;
-    FindAllFiles(AuxGens,ParamStr(2),'*.GEN;*.gen',LookSub);
-    for iter in AuxGens do
-    begin
-      AuxGroup.Clear;
-      AuxGroup.Add(iter);
-      AWork := TWork.Create(AuxGroup);
-      AWork.Live := Live;
-      AWork.DoWork(GENSET_TEMPLATE,AuxGroup,AuxTemp,ADefault);
-      AWork.Free;
+      ATemplate := TTemplate.Create(ParamStr(1));
+      for i:=0 to AuxGens.Count-1 do
+      begin
+        AGenSet.Add(AuxGens[i]);
+        ATemplate.ParseTemplate(AGenSet);
+        ATemplate.Save;
+        AGenSet.ClearSet;
+      end;
+      ATemplate.Free;
     end;
   end
   else
