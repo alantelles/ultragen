@@ -1346,7 +1346,7 @@ var
 begin
   FLoopTypeLast := FLoopType;
   FLoopType := IFDEV;
-  if not FSkip then
+  if IfLevel = Length(FIfTests) then
   begin
     a := Params[0];
     Logic := StrToBoolean(a);

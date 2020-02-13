@@ -1128,7 +1128,7 @@ var
   PosAssoc, PosVarAssoc: integer;
   Unary: boolean;
   AOpt, AOver, ATarget, AKey, x, y, Return: string;
-  PosAs, i, Times: integer;
+  PosAs, i, Times, k: integer;
   Params: TStringList;
 begin
   for Line in FTemplate.TempLines do
@@ -1212,17 +1212,20 @@ begin
         (FTemplate.ScriptMode and
         ((Copy(Trim(FTemplate.TempLines[i]), 1, 3) = 'if' + OVER_ASSOC)))) then
       begin
-        FTemplate.IfLevel := FTemplate.IfLevel + 1;
+        k := FTemplate.IfLevel;
+        FTemplate.IfLevel := k + 1;
 
       end
       else if (not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) =
         OVER_STATE + 'else')) or (FTemplate.ScriptMode and
         (Trim(FTemplate.TempLines[i]) = 'else')) then
       begin
+        k := Length(FTemplate.IfRecursion);
+        if (FTemplate.IfLevel = (k - 1)) and FTemplate.Skip then
 
-        if FTemplate.IfLevel = (Length(FTemplate.IfRecursion) - 1) then
-
-          FTemplate.Skip := FTemplate.IfRecursion[FTemplate.IfLevel];
+          FTemplate.Skip := FTemplate.IfRecursion[FTemplate.IfLevel]
+        else if (FTemplate.IfLevel = (k - 1)) and (not FTemplate.Skip) then
+          FTemplate.Skip := True;
 
       end
       else if ((not FTemplate.ScriptMode and
@@ -1232,23 +1235,22 @@ begin
         ((Copy(Trim(FTemplate.TempLines[i]), 1, 7) =
         'elseIf' + OVER_ASSOC))))) then
       begin
-        if FTemplate.IfLevel = (Length(FTemplate.IfRecursion) - 1) then
+        k := Length(FTemplate.IfRecursion);
+        if FTemplate.IfLevel = (k - 1) then
           FTemplate.Skip := FTemplate.IfRecursion[FTemplate.IfLevel];
       end
 
       else if ((not FTemplate.ScriptMode) and (Trim(x) =
         OVER_STATE + 'endIf')) or (FTemplate.ScriptMode and (Trim(x) = 'endIf')) then
       begin
-
         if not FTemplate.ForSkip then
         begin
-          if FTemplate.IfLevel = 0 then
-            FTemplate.Skip := False
-          else if (FTemplate.IfLevel = (Length(FTemplate.IfRecursion) -1 )) and (FTemplate.Skip) then
-              FTemplate.Skip := not FTemplate.IfRecursion[FTemplate.IfLevel-1];
-        end;
-        if FTemplate.IfLevel > -1 then
           FTemplate.IfLevel := FTemplate.IfLevel - 1;
+          k := Length(FTemplate.IfRecursion);
+          if (k - 2) = FTemplate.IfLevel then
+            FTemplate.Skip := False;
+
+        end;
 
       end
       else if ((not FTemplate.ScriptMode and (Trim(FTemplate.TempLines[i]) =
