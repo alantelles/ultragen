@@ -7,9 +7,9 @@ interface
 uses
   Classes, SysUtils, math;
 
-function sum(a,b:double):double;
+function sum(var Params:TStringList):extended;
 function sub(a,b:double):double;
-function mult(a,b:double):double;
+function mult(var Params:TStringList):extended;
 function divInt(a,b:double):double;
 function divFloat(a,b:double):double;
 function modNum(a,b:double):int64;
@@ -20,9 +20,20 @@ function root(a:double; b:double=2):double;
 
 implementation
 
-function sum(a,b:double):double;
+function sum(var Params:TStringList):extended;
+var
+  i:integer;
+  Return:extended;
 begin
-  Result := a+b;
+  Return := 0;
+  for i:=0 to Params.Count-1 do
+  begin
+    try
+      Return := Return + StrToFloat(Params[i])
+    except
+    end;
+  end;
+  Result := Return;
 end;
 
 function sub(a,b:double):double;
@@ -30,9 +41,20 @@ begin
   Result := a-b;
 end;
 
-function mult(a,b:double):double;
+function mult(var Params:TStringList):extended;
+var
+  i:integer;
+  Return:extended;
 begin
-  Result := a*b;
+  Return := 1;
+  for i:=0 to Params.Count-1 do
+  begin
+    try
+      Return := Return * StrToFloat(Params[i])
+    except
+    end;
+  end;
+  Result := Return;
 end;
 
 function divInt(a,b:double):double;

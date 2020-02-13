@@ -798,15 +798,9 @@ begin
     { Math functions }
     else if (AFuncName = 'random') and (Params.Count = 1) then
       Return := IntToStr(Random(StrToInt(Params[0])))
-    else if (AFuncName = 'sum') and (Params.Count = 2) then
+    else if (AFuncName = 'sum') and (Params.Count > 0) then
     begin
-      try
-        m := StrToInt(Params[0]);
-        n := StrToInt(Params[1]);
-        Return := FloatToStr(MathFunctions.sum(m, n));
-      except
-        Return := ''
-      end;
+      Return := FloatToStr(MathFunctions.sum(Params));
     end
 
     else if (AFuncName = 'sub') and (Params.Count = 2) then
@@ -820,15 +814,9 @@ begin
       end;
     end
 
-    else if (AFuncName = 'mult') and (Params.Count = 2) then
+    else if (AFuncName = 'mult') and (Params.Count > 0) then
     begin
-      try
-        m := StrToFloat(Params[0]);
-        n := StrToFloat(Params[1]);
-        Return := FloatToStr(MathFunctions.mult(m, n));
-      except
-        Return := ''
-      end;
+      Return := FloatToStr(MathFunctions.mult(Params));
     end
 
     else if (AFuncName = 'intDiv') and (Params.Count = 2) then
@@ -924,6 +912,8 @@ begin
       Return := FileHandlingUtils.PrintFileIfExists(Params[0], '', Params[0])
     else if (AFuncName = 'dir') and (Params.Count = 1) then
       Return := FileHandlingUtils.PrintDirIfExists(Params[0], '', Params[0])
+    else if (AFuncName = 'lastMod') and (Params.Count = 1) then
+      Return := IntToStr(FileAge(Params[0]))
 
     { Booleans Functions }
     else if (AFuncName = 'eq') and (Params.Count > 1) then
