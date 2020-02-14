@@ -134,7 +134,7 @@ begin
   end
   else
     OnlyAllowedChars := True;
-  Result := (OpenPoint < ClosePoint) and OnlyAllowedChars;
+  Result := (OpenPoint <> 0) and (OpenPoint < ClosePoint) and OnlyAllowedChars;
 end;
 
 function TTempParser.IsVari(AToken: string): boolean;
@@ -662,12 +662,13 @@ end;
 function TTempParser.ParseParams(AList: string;
   var ArgsAsList: TStringList): TTempParser;
 var
-  StrOpen, Escaping: boolean;
+  LastStrOpen, StrOpen, Escaping: boolean;
   FuncLevel, i: integer;
   Part, z: string;
 begin
   FuncLevel := 0;
   StrOpen := False;
+  LastStrOpen := False;
   Part := '';
   ArgsAsList.Clear;
   AList := Alist + PARAM_SEP;
@@ -681,16 +682,20 @@ begin
     end;
     if not Escaping then
     begin
+
+      if (AList[i] = STR_ENCLOSE) then
+      begin
+        LastStrOpen := StrOpen;
+        StrOpen := not StrOpen;
+        Part := Part + AList[i];
+        continue;
+      end;
       if not StrOpen then
       begin
         if AList[i] = PARAM_OPEN then
           Inc(FuncLevel);
         if AList[i] = PARAM_CLOSE then
           Dec(FuncLevel);
-      end;
-      if (AList[i] = STR_ENCLOSE) then
-      begin
-        StrOpen := not StrOpen;
       end;
       if (AList[i] = PARAM_SEP) then
       begin
