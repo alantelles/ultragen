@@ -918,7 +918,7 @@ begin
   if Files.Count > 0 then
   begin
     for i := 0 to Files.Count - 1 do
-      SetVariable(AVarName + '[' + IntToStr(i) + ']', Files[i]);
+      SetVariable(AVarName + '[' + IntToStr(i) + ']', Trim(Files[i]));
   end;
   Files.Free;
 end;
