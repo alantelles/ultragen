@@ -1100,6 +1100,8 @@ begin
       Return := ReplaceStr(Params[0], sLineBreak, '<br>' + sLineBreak)
     else if (AFuncName = 'inTag') and (Params.Count > 1) then
       Return := StringsFunctions.InTag(Params)
+    else if (AFuncName = 'selfTag') and (Params.Count > 1) then
+      Return := StringsFunctions.InSelfTag(Params, PureParams)
     // System
     else if (AFuncName = 'tasksRunning') and (Params.Count = 1) then
       Return := IntToStr(GlobalQueue.TasksRunning(Params[0]))

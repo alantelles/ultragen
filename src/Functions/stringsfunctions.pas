@@ -19,6 +19,7 @@ function DropLastLineBreak(s:string):string;
 function Join(var Params:TStringList):string;
 function Explode(var Params:TStringList):string;
 function InTag(var Params:TStringList):string;
+function InSelfTag(var Params:TStringList; var PureParams:TStringList):string;
 function CreateSessionID:string;
 function CreateRandomHash:String;
 function OsDirSep(AStr:string):string;
@@ -162,6 +163,21 @@ begin
   open := open+'>';
   close := '</'+Params[0]+'>';
   Result := open + Params[1] + close;
+end;
+
+function InSelfTag(var Params:TStringList; var PureParams:TStringList):string;
+var
+  Return, open, close:string;
+  i: integer;
+begin
+  open := '<'+Params[0];
+  if Params.Count > 2 then
+    for i:=2 to Params.Count - 1 do
+      open := open +' '+Params[i];
+  if PureParams[1] = LANG_TRUE then
+    open := open+' /';
+  open := open+'>';
+  Result := open;
 end;
 
 function DropLastLineBreak(s:string):string;
