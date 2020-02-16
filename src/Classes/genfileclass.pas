@@ -39,6 +39,7 @@ type
     procedure Prepend(AKey,AValue:string);
     procedure Print;
     procedure ClearValues;
+    procedure CaptureGen(var OutGenFile:TGenFile);
     procedure CopyGen(var OutGenFile:TGenFile);
     //sort
 
@@ -96,6 +97,22 @@ begin
     OutGenFile.SetValue(APair.Key, APair.Value);
   OutGenFile.IfNotFound := FDefault;
   OutGenFile.GenSeparator := FGenSep;
+end;
+
+procedure TGenFile.CaptureGen(var OutGenFile:TGenFile);
+var
+  i, len:integer;
+  AKey:string;
+begin
+  len := Length(OutGenFile.Pairs);
+  if len > 0 then
+  begin
+    for i:=0 to len-1 do
+    begin
+      AKey := OutGenFile.Pairs[i].Key;
+      OutGenFile.SetValue(AKey, GetValue(AKey).Value);
+    end;
+  end;
 end;
 
 function TGenFile.Load(AFullName:string):boolean;

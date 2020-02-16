@@ -214,6 +214,7 @@ type
     procedure SetGenName(var Params: TStringList);
     procedure MapGenKeys(var Params: TStringList; DoMap: boolean);
     procedure GroupKeys(var Params: TStringList);
+    procedure CaptureGen(var Params: TStringList);
     // end gen file handling
     //queue procs
     procedure CreateQueue(var Params:TStringList; var PureParams:TStringList);
@@ -707,6 +708,17 @@ begin
     end;
     FGenFileSet.Add(AGenFile,Params[0]);
   end;
+end;
+
+procedure TTemplate.CaptureGen(var Params: TStringList);
+var
+  i,j:integer;
+begin
+  //captureGen:'dest','src'
+  i := FGenFileSet.IndexOf(Params[0]);
+  j := FGenFileSet.IndexOf(Params[1]);
+  if (j > -1) and (i > -1) then
+    FGenFileSet.GenFiles[j].GenFile.CaptureGen(FGenFileSet.GenFiles[i].GenFile);
 end;
 
 procedure TTemplate.MapGenKeys(var Params: TStringList; DoMap: boolean);
@@ -1594,6 +1606,7 @@ begin
     'saveGen': SaveGen(Params);
     'setGenName': SetGenName(Params);
     'createGen': CreateGen(Params);
+    'captureGen': CaptureGen(Params);
     'unloadGen': UnloadGen(Params);
     'loadGenFolder': LoadGenFolder(Params);
     'mapGenKeys': MapGenKeys(Params, True);
