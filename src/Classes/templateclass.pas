@@ -115,6 +115,7 @@ type
     property RenderBlank: boolean read FOverrides.RenderBlank
       write FOverrides.RenderBlank;
     property DoAbort: boolean read FAbort write FAbort;
+    property Extension: string read FOverrides.Extension write FOverrides.Extension;
     property AddToFunction: boolean read FAddToFunction write FAddToFunction;
     property ForSkip: boolean read FForSkip write FForSkip;
     property LoopTypeLast: string read FLoopTypeLast write FLoopTypeLast;

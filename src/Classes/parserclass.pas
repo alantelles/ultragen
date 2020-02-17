@@ -733,6 +733,8 @@ begin
     { Template attributes }
     if (AFuncName = 'templateName') and (Params.Count = 0) then
       Return := FTemplate.Name
+    else if (AFuncName = 'templateExt') and (Params.Count = 0) then
+      Return := FTemplate.Extension
     else if (AFuncName = 'templatePath') and (Params.Count = 0) then
       Return := FTemplate.FullName
     else if (AFuncName = 'exportLocation') and (Params.Count = 0) then
