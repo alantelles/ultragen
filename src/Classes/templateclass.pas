@@ -586,9 +586,11 @@ var
   AGenFile: TGenFile;
   //Params[0] = Alias
 begin
+  EGenError.Create(E_GEN_ALREADY_EXISTS,FLineNumber,FFullName,FLines[FLineNumber],'',Params[0],-1).TestAliasExists(FGenFileSet).ERaise(False);
   AGenFile := TGenFile.Create;
   if Params.Count = 2 then
   begin
+    EFileError.Create(E_FILE_NOT_FOUND,FLineNumber,FFullName,FLines[FLineNumber],Params[1]).TestFileExists.ERaise(False);
     AGenFile.FullName := Params[1];
     if FileExists(Params[1]) then
       AGenFile.Load(Params[1]);

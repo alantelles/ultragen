@@ -4,12 +4,14 @@ unit GenExceptionsClass;
 interface
 
 uses
-  Classes, SysUtils, ExceptionsFunctions;
+  Classes, SysUtils, ExceptionsFunctions,
+  GenFileSetClass;
 
 const
   E_GEN_NOT_EXIST = 'The referenced gen alias "%%%" does not exist';
   E_FORBIDDEN_KEY_NAME = 'The identifier "%%%" is not a valid key identifier for implicit association.'+sLineBreak+'    Use setValue for this purpose';
   E_FORBIDDEN_ALIAS_NAME = 'The identifier $$$ is not a valid alias name';
+  E_GEN_ALREADY_EXISTS = 'The alias identifier "$$$" is already being used.'+sLineBreak+'    Use unloadGen:''$$$'' to reuse this alias';
 
 type EGenError = class
   private
@@ -28,6 +30,7 @@ type EGenError = class
     property Message:string read FMessage write FMessage;
     constructor Create(EType:string; LineNum:integer; TempName:string; Line:string; AKeyName:string; AnAliasName:string; AnIndex:integer);
     function TestValidKeyName:EGenError;
+    function TestAliasExists(AGenSet:TGenFileSet):EGenError;
     procedure ERaise(CanRaise:boolean = True);
 
 end;
@@ -47,6 +50,27 @@ begin
   FIndex := AnIndex;
   FCanRaise := False;
   ProcessMessage(EType);
+end;
+
+function EGenError.TestAliasExists(AGenSet:TGenFileSet):EGenError;
+var
+  i,len:integer;
+begin
+  len := Length(AGenSet.GenFiles);
+  if len > 0 then
+  begin
+    for i:=0 to len-1 do
+    begin
+      if AGenSet.GenFiles[i].GenAlias = FAliasName then
+      begin
+        FCanRaise := True;
+        break;
+      end;
+    end;
+  end
+  else
+      FCanRaise := False;
+  Result := Self;
 end;
 
 function EGenError.TestValidKeyName:EGenError;
