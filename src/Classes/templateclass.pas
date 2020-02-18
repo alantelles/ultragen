@@ -497,6 +497,7 @@ var
   AJson: TJson2Gen;
   i: integer;
 begin
+  EGenError.Create(E_GEN_ALREADY_EXISTS,FLineNumber,FFullName,FLines[FLineNumber],'',Params[0],-1).TestAliasExists(FGenFileSet).ERaise(False);
   i := FGenFileSet.Add(True, Params[0]);
   if Params.Count = 3 then
     AJson := TJson2Gen.Create(Params[1], FGenFileSet.GenFiles[i].GenFile, Params[2])
@@ -730,6 +731,7 @@ begin
       if Copy(APair.Key,1,Length(Params[1])) = Params[1] then
         AGenFile.SetValue(ReplaceStr(APair.Key,Params[1],''),APair.Value);
     end;
+    EGenError.Create(E_GEN_ALREADY_EXISTS,FLineNumber,FFullName,FLines[FLineNumber],'',Params[0],-1).TestAliasExists(FGenFileSet).ERaise(False);
     FGenFileSet.Add(AGenFile,Params[0]);
   end;
 end;
@@ -2159,9 +2161,7 @@ begin
     EGenError.Create(E_FORBIDDEN_KEY_NAME,FLineNumber,FFullName,FLines[FLineNumber],AKey,AnAlias,-1).TestValidKeyName.ERaise(False);
     i := FGenFileSet.IndexOf(AnAlias);
     if i = -1 then
-    begin
       i := FGenFileSet.Add(True, AnAlias);
-    end;
     FGenFileSet.GenFiles[i].GenFile.SetValue(AKey, AValue);
   end;
 
