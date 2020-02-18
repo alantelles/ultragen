@@ -115,7 +115,9 @@ begin
   FuncName := Trim(Copy(AToken, 1, OpenPoint - 1));
   len := Length(FuncName);
   if (FuncName <> ARROW_OPER) and
-     (FuncName <> '?')and
+     (FuncName <> '?') and
+     (FuncName <> '--') and
+     (FuncName <> '++') and
      (FuncName <> '~') then
   begin
     if len > 0 then
@@ -807,6 +809,18 @@ begin
       Return := IntToStr(Random(StrToInt(Params[0])))
     else if (AFuncName = 'sum') and (Params.Count > 0) then
     begin
+      Return := FloatToStr(MathFunctions.sum(Params));
+    end
+
+    else if (AFuncName = '++') and (Params.Count = 1) then
+    begin
+      Params.Add('1');
+      Return := FloatToStr(MathFunctions.sum(Params));
+    end
+
+    else if (AFuncName = '--') and (Params.Count = 1) then
+    begin
+      Params.Add('-1');
       Return := FloatToStr(MathFunctions.sum(Params));
     end
 
