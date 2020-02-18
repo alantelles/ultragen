@@ -639,7 +639,10 @@ begin
     AGenList.StrictDelimiter := True;
     //GenList is a listable delimited by pipe |
     for AGen in AGenList do
+    begin
+      EFileError.Create(E_FILE_NOT_FOUND,FLineNumber,FFullName,FLines[FLineNumber],AGen).TestFileExists.ERaise(False);
       AGenSet.Add(AGen);
+    end;
     AGenList.Free;
   end;
   if Params.Count > 2 then

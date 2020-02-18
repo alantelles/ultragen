@@ -332,6 +332,7 @@ var
   len:integer;
   AGenObj:TGenFile;
 begin
+
   len := Length(FGenFiles);
   SetLength(FGenFiles,len+1);
   AGenObj := TGenFile.Create;
