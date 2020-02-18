@@ -2115,10 +2115,13 @@ begin
   len := Length(FVariables);
   if ValidVar then
   begin
-    if AttrAccPos = 0 then
-      EVariableError.Create(E_FORBBIDEN_VAR_NAME,FLineNumber,FFullName,FLines[FLineNumber],AKey).TestValidName.ERaise(False)
-    else
-      EVariableError.Create(E_FORBBIDEN_VAR_NAME,FLineNumber,FFullName,FLines[FLineNumber],Copy(AKey,RPos('.',AKey)+1,Length(Akey))).TestValidName.ERaise(False);
+    if Parse then
+    begin
+      if AttrAccPos = 0 then
+        EVariableError.Create(E_FORBBIDEN_VAR_NAME,FLineNumber,FFullName,FLines[FLineNumber],AKey).TestValidName.ERaise(False)
+      else
+        EVariableError.Create(E_FORBBIDEN_VAR_NAME,FLineNumber,FFullName,FLines[FLineNumber],Copy(AKey,RPos('.',AKey)+1,Length(Akey))).TestValidName.ERaise(False);
+    end;
     if len > 0 then
     begin
       for i := 0 to len - 1 do
