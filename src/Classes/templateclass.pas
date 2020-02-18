@@ -110,11 +110,13 @@ type
     FAddToFunction: boolean;
     FOrderReturn: boolean;
     FReturnValue: string;
+    FIncludedAliases: TStringList;
   public
     constructor Create(ATempName: string = ''; AExpLocation: string = '.');
     property RenderBlank: boolean read FOverrides.RenderBlank
       write FOverrides.RenderBlank;
     property DoAbort: boolean read FAbort write FAbort;
+    //property IncludedAliases:TStringList read FIncludedAliases;
     property Extension: string read FOverrides.Extension write FOverrides.Extension;
     property AddToFunction: boolean read FAddToFunction write FAddToFunction;
     property ForSkip: boolean read FForSkip write FForSkip;
@@ -280,6 +282,7 @@ begin
   FOverrides.Stricts := TStringList.Create;
   FCommentBlock := False;
   FScriptMode := False;
+  FIncludedAliases := TStringList.Create;
 
   //FWebVars.Request := TRequest.Create;
   //FWebVars.Response := TResponse.Create;
@@ -835,7 +838,8 @@ begin
     TempAlias := Params[1]
   else
     TempAlias := GetFileName(GetFileName(IncName, False), False);
-  EAliasError.Create(E_FORBIDDEN_ALIAS_NAME,FLineNumber,FFullName,FLines[FLineNumber],TempAlias).TestValidAliasName.ERaise(False);
+  EAliasError.Create(E_INCLUDED_ALIAS_ALREADY_EXISTS,FLineNumber,FFullName,FLines[FLineNumber],TempAlias).TestIncludedAliasExists(FIncludedAliases).ERaise(False);
+  FIncludedAliases.Add(TempAlias);
   ATemp := TTemplate.Create(IncName, FExpLocation);
   ATemp.SetWebVars(FWebVars.SessionId, FWebVars.SessionPath, FWebVars.SessionDuration);
   ATemp.ParseTemplate(FGenFileSet);
@@ -2365,6 +2369,7 @@ begin
       FImported.Objects[i].Free;
   end;
   //FWebVars.Request.Free;
+  FIncludedAliases.Free;
   FSections.Free;
   FImported.Free;
   FLines.Free;

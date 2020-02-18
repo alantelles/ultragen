@@ -4,10 +4,11 @@ unit AliasExceptionClass;
 interface
 
 uses
-  Classes, SysUtils, ExceptionsFunctions;
+  Classes, SysUtils, ExceptionsFunctions, TemplateClass;
 
 const
   E_FORBIDDEN_ALIAS_NAME = 'The identifier "%%%" is not a valid alias name';
+  E_INCLUDED_ALIAS_ALREADY_EXISTS = 'The alias identifier "%%%" is already being used';
 
 type EAliasError = class
   private
@@ -25,6 +26,7 @@ type EAliasError = class
     constructor Create(EType:string; LineNum:integer; TempName:string; Line:string; AnAliasName:string);
     function TestValidAliasName:EAliasError;
     procedure ERaise(CanRaise:boolean = True);
+    function TestIncludedAliasExists(Aliases:TStringList):EAliasError;
 
 end;
 implementation
@@ -67,6 +69,28 @@ begin
       end;
     end;
   end;
+  Result := Self;
+end;
+
+
+function EAliasError.TestIncludedAliasExists(Aliases:TStringList):EAliasError;
+var
+  i,len:integer;
+begin
+  len := Aliases.Count;
+  if len > 0 then
+  begin
+    for i:=0 to len-1 do
+    begin
+      if Aliases[i] = FAliasName then
+      begin
+        FCanRaise := True;
+        break;
+      end;
+    end;
+  end
+  else
+      FCanRaise := False;
   Result := Self;
 end;
 
