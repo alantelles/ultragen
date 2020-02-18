@@ -624,14 +624,24 @@ procedure TTemplate.ProcessTemplate(var Params: TStringList; DoPrint: boolean = 
 var
   ATemplate: TTemplate;
   AGenSet: TGenFileSet;
-  TempPath: string;
+  AGenList: TStringList;
+  TempPath, AGen: string;
   i: integer;
 begin
   TempPath := Params[0];
   ATemplate := TTemplate.Create(TempPath);
   AGenSet := TGenFileSet.Create;
   if Params[1] <> '' then
-    AGenSet.Add(Params[1]);
+  begin
+    AGenList := TStringList.Create;
+    AGenList.Delimiter := GEN_FILES_CALL_SEP;
+    AGenList.DelimitedText := Params[1];
+    AGenList.StrictDelimiter := True;
+    //GenList is a listable delimited by pipe |
+    for AGen in AGenList do
+      AGenSet.Add(AGen);
+    AGenList.Free;
+  end;
   if Params.Count > 2 then
   begin
     for i := 2 to Params.Count - 1 do
