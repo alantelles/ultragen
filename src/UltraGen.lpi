@@ -30,7 +30,7 @@
         <PackageName Value="LazUtils"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="20">
+    <Units Count="25">
       <Unit0>
         <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -130,6 +130,31 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="ThreadedTemplateClass"/>
       </Unit19>
+      <Unit20>
+        <Filename Value="Exceptions/variableexceptionsclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="VariableExceptionsClass"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="Exceptions/exceptionsfunctions.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ExceptionsFunctions"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="Exceptions/genexceptionsclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="GenExceptionsClass"/>
+      </Unit22>
+      <Unit23>
+        <Filename Value="Exceptions/aliasexceptionclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="AliasExceptionClass"/>
+      </Unit23>
+      <Unit24>
+        <Filename Value="Exceptions/fileexceptionclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="FileExceptionClass"/>
+      </Unit24>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -139,7 +164,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="Classes;Functions;Globals;Utils"/>
+      <OtherUnitFiles Value="Classes;Functions;Globals;Utils;Exceptions"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <CodeGeneration>
@@ -147,6 +172,11 @@
         <OptimizationLevel Value="3"/>
       </Optimizations>
     </CodeGeneration>
+    <Linking>
+      <Debugging>
+        <GenerateDebugInfo Value="False"/>
+      </Debugging>
+    </Linking>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="6">

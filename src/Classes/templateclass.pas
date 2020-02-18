@@ -260,7 +260,12 @@ uses FileHandlingUtils,
   ParserClass,
   StringsFunctions, VariablesGlobals,
   fphttpclient, fpopenssl, openssl,
-  JsonToGenClass, Math, QueueListClass;
+  JsonToGenClass, Math, QueueListClass,
+  { ExceptionsClasses }
+  VariableExceptionsClass,
+  GenExceptionsClass,
+  AliasExceptionClass,
+  FileExceptionClass;
 
 constructor TTemplate.Create(ATempName: string = ''; AExpLocation: string = '.');
 begin
@@ -823,10 +828,12 @@ var
   F: TUserFunction;
 begin
   IncName := Params[0];
+  EFileError.Create(E_FILE_NOT_FOUND,FLineNumber,FFullName,FLines[FLineNumber],IncName).TestFileExists.ERaise(False);
   if (Params.Count > 1) and (Params[1] <> '') then
     TempAlias := Params[1]
   else
     TempAlias := GetFileName(GetFileName(IncName, False), False);
+  EAliasError.Create(E_FORBIDDEN_ALIAS_NAME,FLineNumber,FFullName,FLines[FLineNumber],TempAlias).TestValidAliasName.ERaise(False);
   ATemp := TTemplate.Create(IncName, FExpLocation);
   ATemp.SetWebVars(FWebVars.SessionId, FWebVars.SessionPath, FWebVars.SessionDuration);
   ATemp.ParseTemplate(FGenFileSet);
@@ -1901,14 +1908,20 @@ function TTemplate.GetVariable(AVarName: string): string;
 var
   Line: TKVPair;
   Return: string = '';
+  Found:boolean = False;
 begin
   for Line in FVariables do
   begin
     if Line.Key = AVarName then
     begin
+      Found := True;
       Return := Line.Value;
       Break;
     end;
+  end;
+  if not Found then
+  begin
+    EVariableError.Create(E_VAR_NOT_EXIST, FLineNumber, FFullName, FLines[FLineNumber],AVarName).ERaise;
   end;
   Result := Return;
 end;
@@ -2080,7 +2093,7 @@ end;
 
 function TTemplate.SetVariable(AKey, AValue: string; Parse: boolean = False): TTemplate;
 var
-  i, len: integer;
+  i, len, posDot: integer;
   AParser: TTempParser;
   GenValue, ValidVar: boolean;
   GenAliasPos, AttrAccPos: integer;
@@ -2096,6 +2109,10 @@ begin
   len := Length(FVariables);
   if ValidVar then
   begin
+    if AttrAccPos = 0 then
+      EVariableError.Create(E_FORBBIDEN_VAR_NAME,FLineNumber,FFullName,FLines[FLineNumber],AKey).TestValidName.ERaise(False)
+    else
+      EVariableError.Create(E_FORBBIDEN_VAR_NAME,FLineNumber,FFullName,FLines[FLineNumber],Copy(AKey,RPos('.',AKey)+1,Length(Akey))).TestValidName.ERaise(False);
     if len > 0 then
     begin
       for i := 0 to len - 1 do
@@ -2115,7 +2132,9 @@ begin
   else if GenValue then
   begin
     AnAlias := Copy(AKey, 2, AttrAccPos - 2);
+    EAliasError.Create(E_FORBIDDEN_ALIAS_NAME,FLineNumber,FFullName,FLines[FLineNumber],AnAlias).TestValidAliasName.ERaise(False);
     AKey := Copy(AKey, AttrAccPos + 1, Length(AKey));
+    EGenError.Create(E_FORBIDDEN_KEY_NAME,FLineNumber,FFullName,FLines[FLineNumber],AKey,AnAlias,-1).TestValidKeyName.ERaise(False);
     i := FGenFileSet.IndexOf(AnAlias);
     if i = -1 then
     begin
