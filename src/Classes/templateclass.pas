@@ -1619,7 +1619,12 @@ begin
     'limitedListFiles': LimitedListFiles(Params, PureParams);
     'move': Move(Params);
     'copy': TempFileCopy(Params);
-    'del' :  SysUtils.DeleteFile(Params[0]);
+    'del' :
+    begin
+      EFileError.Create(E_FILE_NOT_FOUND,FLineNumber,FFullName,FLines[FLineNumber],Params[0]).TestFileExists.ERaise(False);
+      SysUtils.DeleteFile(Params[0]);
+    end;
+
     'mkdir':
     begin
       if Params.Count = 1 then
