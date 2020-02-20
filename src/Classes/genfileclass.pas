@@ -39,7 +39,7 @@ type
     procedure Prepend(AKey,AValue:string);
     procedure Print;
     procedure ClearValues;
-    procedure CaptureGen(var OutGenFile:TGenFile);
+    procedure CaptureGen(var OutGenFile:TGenFile; ResetMode:boolean);
     procedure CopyGen(var OutGenFile:TGenFile);
     //sort
 
@@ -99,7 +99,7 @@ begin
   OutGenFile.GenSeparator := FGenSep;
 end;
 
-procedure TGenFile.CaptureGen(var OutGenFile:TGenFile);
+procedure TGenFile.CaptureGen(var OutGenFile:TGenFile; ResetMode:boolean);
 var
   i, len:integer;
   AKey:string;
@@ -110,7 +110,13 @@ begin
     for i:=0 to len-1 do
     begin
       AKey := OutGenFile.Pairs[i].Key;
-      OutGenFile.SetValue(AKey, GetValue(AKey).Value);
+      if not ResetMode then
+      begin
+        if HasKey(AKey) then
+            OutGenFile.SetValue(AKey, GetValue(AKey).Value);
+      end
+      else
+        OutGenFile.SetValue(AKey, GetValue(AKey).Value);
     end;
   end;
 end;

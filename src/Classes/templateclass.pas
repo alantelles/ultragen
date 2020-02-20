@@ -837,6 +837,7 @@ end;
 procedure TTemplate.CaptureGen(var Params: TStringList);
 var
   i,j:integer;
+  ResetMode:boolean = True;
   Errorlocation:TErrorLocation;
 begin
 
@@ -854,8 +855,14 @@ begin
   j := FGenFileSet.IndexOf(Params[1]);
   if j < 0 then
     EGenError.Create(E_GEN_NOT_EXIST,ErrorLocation,'',Params[1],-1).ERaise;
+
+  if Params.Count = 3 then
+  begin
+    ResetMode := StrToBoolean(Params[2]);
+  end;
+
   if (j > -1) and (i > -1) then
-    FGenFileSet.GenFiles[j].GenFile.CaptureGen(FGenFileSet.GenFiles[i].GenFile);
+    FGenFileSet.GenFiles[j].GenFile.CaptureGen(FGenFileSet.GenFiles[i].GenFile, ResetMode);
 end;
 
 procedure TTemplate.MapGenKeys(var Params: TStringList; DoMap: boolean);
@@ -887,8 +894,12 @@ begin
     if Params.Count = 2 then
     begin
       VarAlias := Params[1];
-      EAliasError.Create(E_INCLUDED_ALIAS_ALREADY_EXISTS,ErrorLocation,VarAlias).TestIncludedAliasExists(FIncludedAliases).ERaise(False);
-      EAliasError.Create(E_FORBIDDEN_ALIAS_NAME,ErrorLocation,VarAlias).TestValidAliasName.ERaise(False);
+      if VarAlias <> '' then
+      begin
+
+        EAliasError.Create(E_FORBIDDEN_ALIAS_NAME,ErrorLocation,VarAlias).TestValidAliasName.ERaise(False);
+        EAliasError.Create(E_INCLUDED_ALIAS_ALREADY_EXISTS,ErrorLocation,VarAlias).TestIncludedAliasExists(FIncludedAliases).ERaise(False);
+      end;
       if VarAlias <> '' then
         VarAlias := VarAlias + ATTR_ACCESSOR;
     end;
