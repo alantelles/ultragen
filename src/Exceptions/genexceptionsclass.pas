@@ -5,13 +5,14 @@ interface
 
 uses
   Classes, SysUtils, ExceptionsFunctions,
-  GenFileSetClass;
+  GenFileSetClass, GenFileClass, TypesGlobals;
 
 const
-  E_GEN_NOT_EXIST = 'The referenced gen alias "%%%" does not exist';
+  E_GEN_NOT_EXIST = 'The referenced gen alias "$$$" does not exist';
   E_FORBIDDEN_KEY_NAME = 'The identifier "%%%" is not a valid key identifier for implicit association.'+sLineBreak+'    Use setValue for this purpose';
   E_FORBIDDEN_ALIAS_NAME = 'The identifier $$$ is not a valid alias name';
   E_GEN_ALREADY_EXISTS = 'The alias identifier "$$$" is already being used.'+sLineBreak+'    Use unloadGen:''$$$'' to reuse this alias';
+  E_EMPTY_GEN_FULLNAME = 'The referenced gen "$$$" does not has a file path set.';
 
 type EGenError = class
   private
@@ -28,9 +29,11 @@ type EGenError = class
     procedure ProcessMessage(ErrMsg:string);
   public
     property Message:string read FMessage write FMessage;
-    constructor Create(EType:string; LineNum:integer; TempName:string; Line:string; AKeyName:string; AnAliasName:string; AnIndex:integer);
+    constructor Create(EType:string; AnErrorLocation: TErrorLocation; AKeyName:string; AnAliasName:string; AnIndex:integer);
     function TestValidKeyName:EGenError;
     function TestAliasExists(AGenSet:TGenFileSet):EGenError;
+    function TestAliasNotExists(AGenSet:TGenFileSet):EGenError;
+    function TestFullNameEmpty(AFullName:string):EGenError;
     procedure ERaise(CanRaise:boolean = True);
 
 end;
@@ -39,17 +42,26 @@ implementation
 uses ConstantsGlobals, StrUtils;
 
 
-constructor EGenError.Create(EType:string; LineNum:integer; TempName:string; Line:string; AKeyName:string; AnAliasName:string; AnIndex:integer);
+constructor EGenError.Create(EType:string; AnErrorLocation:TErrorLocation; AKeyName:string; AnAliasName:string; AnIndex:integer);
 begin
   FType := 'GenError';
-  FLineNumber := LineNum;
-  FTempName := TempName;
-  FLine := Line;
+  FLineNumber := AnErrorLocation.LineNumber;
+  FTempName := AnErrorLocation.TempName;
+  FLine := AnErrorLocation.Line;
   FKeyName := AKeyName;
   FAliasName := AnAliasName;
   FIndex := AnIndex;
   FCanRaise := False;
   ProcessMessage(EType);
+end;
+
+function EGenError.TestFullNameEmpty(AFullName:string):EGenError;
+begin
+  if trim(AFullName) = '' then
+    FCanRaise := True
+  else
+    FCanRaise := False;
+  Result := Self;
 end;
 
 function EGenError.TestAliasExists(AGenSet:TGenFileSet):EGenError;
@@ -70,6 +82,27 @@ begin
   end
   else
       FCanRaise := False;
+  Result := Self;
+end;
+function EGenError.TestAliasNotExists(AGenSet:TGenFileSet):EGenError;
+var
+  i,len:integer;
+begin
+  len := Length(AGenSet.GenFiles);
+  if len > 0 then
+  begin
+    FCanRaise := True;
+    for i:=0 to len-1 do
+    begin
+      if AGenSet.GenFiles[i].GenAlias = FAliasName then
+      begin
+        FCanRaise := False;
+        break;
+      end;
+    end;
+  end
+  else
+      FCanRaise := True;
   Result := Self;
 end;
 

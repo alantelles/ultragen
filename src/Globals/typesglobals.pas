@@ -20,6 +20,12 @@ type
     ParseOk: boolean;
   end;
 
+  TErrorLocation = record
+    LineNumber:integer;
+    Line:string;
+    TempName:string;
+  end;
+
 
 
 implementation

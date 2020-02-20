@@ -5,7 +5,7 @@ unit VariableExceptionsClass;
 interface
 
 uses
-  Classes, SysUtils, ExceptionsFunctions;
+  Classes, SysUtils, ExceptionsFunctions, TypesGlobals;
 
 const
   E_VAR_NOT_EXIST = 'The referenced variable "%%%" does not exist';
@@ -24,7 +24,7 @@ type EVariableError = class
     procedure ProcessMessage(ErrMsg:string; AVarName:string='');
   public
     property Message:string read FMessage write FMessage;
-    constructor Create(EType:string; LineNum:integer; TempName:string; Line:string; AVarName:string='');
+    constructor Create(EType:string; AnErrorLocation:TErrorLocation; AVarName:string='');
     function TestValidName:EVariableError;
     procedure ERaise(CanRaise:boolean = True);
 
@@ -34,12 +34,12 @@ implementation
 uses ConstantsGlobals, StrUtils;
 
 
-constructor EVariableError.Create(EType:string; LineNum:integer; TempName:string; Line:string; AVarName:string='');
+constructor EVariableError.Create(EType:string; AnErrorLocation:TErrorLocation;  AVarName:string='');
 begin
   FType := 'VariableError';
-  FLineNumber := LineNum;
-  FTempName := TempName;
-  FLine := Line;
+  FLineNumber := AnErrorLocation.LineNumber;
+  FTempName := AnErrorLocation.TempName;
+  FLine := AnErrorLocation.Line;
   FVarName := AVarName;
   FCanRaise := False;
   ProcessMessage(EType,AVarName);

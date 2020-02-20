@@ -18,7 +18,7 @@ begin
   WriteLn;
   WriteLn('==================================');
   WriteLn;
-  WriteLn('The program encountered an unhandled exception at line '+IntToStr(LineNum)+' in '+TempName);
+  WriteLn('An error was encountered at line '+IntToStr(LineNum)+' while running "'+TempName+'"');
   WriteLn('    '+EType+': '+UltraMsg+'. ');
   WriteLn;
   WriteLn('>>>    '+trim(Line));

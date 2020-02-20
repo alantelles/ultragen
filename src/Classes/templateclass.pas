@@ -22,7 +22,7 @@ uses
   WebServerClass, TypesGlobals, ConstantsGlobals,
 
   { Utils }
-  BooleansFunctions,
+  BooleansFunctions, JsonToGenClass,
 
   { Classes }
   GenFileClass, GenFileSetClass;
@@ -262,11 +262,10 @@ uses FileHandlingUtils,
   ParserClass,
   StringsFunctions, VariablesGlobals,
   fphttpclient, fpopenssl, openssl,
-  JsonToGenClass, Math, QueueListClass,
   { ExceptionsClasses }
   VariableExceptionsClass,
   GenExceptionsClass,
-  AliasExceptionClass,
+  AliasExceptionClass,QueueListClass,
   FileExceptionClass;
 
 constructor TTemplate.Create(ATempName: string = ''; AExpLocation: string = '.');
@@ -496,8 +495,17 @@ procedure TTemplate.ParseJson(var Params: TStringList);
 var
   AJson: TJson2Gen;
   i: integer;
+  Errorlocation:TErrorLocation;
 begin
-  EGenError.Create(E_GEN_ALREADY_EXISTS,FLineNumber,FFullName,FLines[FLineNumber],'',Params[0],-1).TestAliasExists(FGenFileSet).ERaise(False);
+
+  with ErrorLocation do
+  begin
+    LineNumber := FLineNumber;
+    TempName := FFullName;
+    Line := FLines[FLineNumber];
+  end;
+  EGenError.Create(E_GEN_ALREADY_EXISTS,ErrorLocation,'',Params[0],-1).TestAliasExists(FGenFileSet).ERaise(False);
+  EAliasError.Create(E_FORBIDDEN_ALIAS_NAME,ErrorLocation,Params[0]);
   i := FGenFileSet.Add(True, Params[0]);
   if Params.Count = 3 then
     AJson := TJson2Gen.Create(Params[1], FGenFileSet.GenFiles[i].GenFile, Params[2])
@@ -526,7 +534,17 @@ begin
 end;
 
 procedure TTemplate.CreateQueue(var Params:TStringList; var PureParams:TStringList);
-begin
+var
+  Errorlocation:TErrorLocation;
+  begin
+
+   with ErrorLocation do
+   begin
+     LineNumber := FLineNumber;
+     TempName := FFullName;
+     Line := FLines[FLineNumber];
+   end;
+  EAliasError.Create(E_FORBIDDEN_ALIAS_NAME,ErrorLocation,Params[0]);
   if Params.Count = 1 then
     GlobalQueue.AddQueue(Params[0],1, False)
   else if Params.Count = 2 then
@@ -588,13 +606,21 @@ end;
 procedure TTemplate.CreateGen(var Params: TStringList);
 var
   AGenFile: TGenFile;
-  //Params[0] = Alias
+  Errorlocation:TErrorLocation;
 begin
-  EGenError.Create(E_GEN_ALREADY_EXISTS,FLineNumber,FFullName,FLines[FLineNumber],'',Params[0],-1).TestAliasExists(FGenFileSet).ERaise(False);
+
+  with ErrorLocation do
+  begin
+    LineNumber := FLineNumber;
+    TempName := FFullName;
+    Line := FLines[FLineNumber];
+  end;
+  EGenError.Create(E_GEN_ALREADY_EXISTS,ErrorLocation,'',Params[0],-1).TestAliasExists(FGenFileSet).ERaise(False);
+  EAliasError.Create(E_FORBIDDEN_ALIAS_NAME,ErrorLocation,Params[0]).TestValidAliasName.ERaise(False);
   AGenFile := TGenFile.Create;
   if Params.Count = 2 then
   begin
-    EFileError.Create(E_FILE_NOT_FOUND,FLineNumber,FFullName,FLines[FLineNumber],Params[1]).TestFileExists.ERaise(False);
+    EFileError.Create(E_FILE_NOT_FOUND,ErrorLocation,Params[1]).TestFileExists.ERaise(False);
     AGenFile.FullName := Params[1];
     if FileExists(Params[1]) then
       AGenFile.Load(Params[1]);
@@ -605,7 +631,16 @@ end;
 procedure TTemplate.UnloadGen(var Params: TStringList);
 var
   AnAlias: string;
+  Errorlocation:TErrorLocation;
 begin
+
+   with ErrorLocation do
+   begin
+     LineNumber := FLineNumber;
+     TempName := FFullName;
+     Line := FLines[FLineNumber];
+   end;
+  EGenError.Create(E_GEN_NOT_EXIST,ErrorLocation,'',Params[0],-1).TestAliasNotExists(FGenFileSet).ERaise(False);
   AnAlias := Params[0];
   FGenFileSet.Drop(AnAlias);
 end;
@@ -628,8 +663,17 @@ var
   AGenList: TStringList;
   TempPath, AGen: string;
   i: integer;
+  Errorlocation:TErrorLocation;
 begin
+
+  with ErrorLocation do
+  begin
+    LineNumber := FLineNumber;
+    TempName := FFullName;
+    Line := FLines[FLineNumber];
+  end;
   TempPath := Params[0];
+  EFileError.Create(E_FILE_NOT_FOUND,ErrorLocation,TempPath).TestFileExists.ERaise(False);
   ATemplate := TTemplate.Create(TempPath);
   AGenSet := TGenFileSet.Create;
   if Params[1] <> '' then
@@ -641,7 +685,7 @@ begin
     //GenList is a listable delimited by pipe |
     for AGen in AGenList do
     begin
-      EFileError.Create(E_FILE_NOT_FOUND,FLineNumber,FFullName,FLines[FLineNumber],AGen).TestFileExists.ERaise(False);
+      EFileError.Create(E_FILE_NOT_FOUND,ErrorLocation,AGen).TestFileExists.ERaise(False);
       AGenSet.Add(AGen);
     end;
     AGenList.Free;
@@ -663,7 +707,16 @@ procedure TTemplate.Move(var Params: TStringList);
 var
   ANewName: string;
   DestFile: string;
-begin
+  Errorlocation:TErrorLocation;
+ begin
+
+   with ErrorLocation do
+   begin
+     LineNumber := FLineNumber;
+     TempName := FFullName;
+     Line := FLines[FLineNumber];
+   end;
+  EFileError.Create(E_FILE_NOT_FOUND,ErrorLocation,Params[0]).TestFileExists.ERaise(False);
   if FileExists(Params[0]) then
   begin
     ANewName := GetFileName(Params[0]);
@@ -682,10 +735,19 @@ procedure TTemplate.InputValue(var Params: TStringList; var PureParams: TStringL
   DoParse: boolean);
 var
   AValue: string;
+  Errorlocation:TErrorLocation;
 begin
+
+  with ErrorLocation do
+  begin
+    LineNumber := FLineNumber;
+    TempName := FFullName;
+    Line := FLines[FLineNumber];
+  end;
   if Params.Count = 2 then
     Write(Params[1] + ' ');
   ReadLn(AValue);
+  EVariableError.Create(E_FORBBIDEN_VAR_NAME,ErrorLocation,PureParams[0]).TestValidName.ERaise(False);
   SetVariable(PureParams[0], AValue, DoParse);
 end;
 
@@ -694,11 +756,23 @@ var
   GenAlias, AKey, AValue, FullGenName: string;
   AGen: TGenFile;
   i: integer;
+  Errorlocation:TErrorLocation;
 begin
+
+  with ErrorLocation do
+  begin
+    LineNumber := FLineNumber;
+    TempName := FFullName;
+    Line := FLines[FLineNumber];
+  end;
   GenAlias := Params[0];
   AKey := Params[1];
   AValue := Params[2];
   i := FGenFileSet.IndexOf(GenAlias);
+  if i = -1 then
+  begin
+    EGenError.Create(E_GEN_NOT_EXIST,ErrorLocation,Akey,GenAlias,i).ERaise();
+  end;
   FGenFileSet.GenFiles[i].GenFile.SetValue(AKey, AValue);
 end;
 
@@ -706,13 +780,29 @@ procedure TTemplate.SaveGen(var Params: TStringList);
 var
   GenAlias, a: string;
   i: integer;
+  Errorlocation:TErrorLocation;
 begin
+
+    with ErrorLocation do
+    begin
+      LineNumber := FLineNumber;
+      TempName := FFullName;
+      Line := FLines[FLineNumber];
+    end;
   GenAlias := Params[0];
   i := FGenFileSet.IndexOf(GenAlias);
-  if Params.Count = 1 then
-    FGenFileSet.GenFiles[i].GenFile.Save
-  else if Params.Count = 2 then
-    FGenFileSet.GenFiles[i].GenFile.Save(Params[1]);
+  if i > -1 then
+  begin
+    if Params.Count = 1 then
+    begin
+      EGenError.Create(E_EMPTY_GEN_FULLNAME,ErrorLocation,'',GenAlias,-1).TestFullNameEmpty(FGenFileSet.GenFiles[i].GenFile.FullName).ERaise(False);
+      FGenFileSet.GenFiles[i].GenFile.Save
+    end
+    else if Params.Count = 2 then
+      FGenFileSet.GenFiles[i].GenFile.Save(Params[1]);
+  end
+  else
+    EGenError.Create(E_GEN_NOT_EXIST,ErrorLocation,'',GenAlias,-1).ERaise(True);
 end;
 
 procedure TTemplate.GroupKeys(var Params: TStringList);
@@ -721,7 +811,15 @@ var
   APair: TKVPair;
   AGenFile:TGenFile;
   //groupKeys:'newAlias','prefix','genAlias'
+   Errorlocation:TErrorLocation;
 begin
+
+  with ErrorLocation do
+  begin
+    LineNumber := FLineNumber;
+    TempName := FFullName;
+    Line := FLines[FLineNumber];
+  end;
   i := FGenFileSet.IndexOf(Params[2]);
   if i > -1 then
   begin
@@ -731,7 +829,7 @@ begin
       if Copy(APair.Key,1,Length(Params[1])) = Params[1] then
         AGenFile.SetValue(ReplaceStr(APair.Key,Params[1],''),APair.Value);
     end;
-    EGenError.Create(E_GEN_ALREADY_EXISTS,FLineNumber,FFullName,FLines[FLineNumber],'',Params[0],-1).TestAliasExists(FGenFileSet).ERaise(False);
+    EGenError.Create(E_GEN_ALREADY_EXISTS,ErrorLocation,'',Params[0],-1).TestAliasExists(FGenFileSet).ERaise(False);
     FGenFileSet.Add(AGenFile,Params[0]);
   end;
 end;
@@ -739,10 +837,23 @@ end;
 procedure TTemplate.CaptureGen(var Params: TStringList);
 var
   i,j:integer;
+  Errorlocation:TErrorLocation;
 begin
+
+ with ErrorLocation do
+ begin
+   LineNumber := FLineNumber;
+   TempName := FFullName;
+   Line := FLines[FLineNumber];
+ end;
   //captureGen:'dest','src'
   i := FGenFileSet.IndexOf(Params[0]);
+  if i < 0 then
+    EGenError.Create(E_GEN_NOT_EXIST,ErrorLocation,'',Params[0],-1).ERaise;
+
   j := FGenFileSet.IndexOf(Params[1]);
+  if j < 0 then
+    EGenError.Create(E_GEN_NOT_EXIST,ErrorLocation,'',Params[1],-1).ERaise;
   if (j > -1) and (i > -1) then
     FGenFileSet.GenFiles[j].GenFile.CaptureGen(FGenFileSet.GenFiles[i].GenFile);
 end;
@@ -752,15 +863,32 @@ var
   i: integer;
   APair: TKVPair;
   VarAlias: string;
+  Errorlocation:TErrorLocation;
 begin
+
+ with ErrorLocation do
+ begin
+   LineNumber := FLineNumber;
+   TempName := FFullName;
+   Line := FLines[FLineNumber];
+ end;
   //mapGenKeys:aGenAlias,aVarPrefix
   i := FGenFileSet.IndexOf(Params[0]);
   if i > -1 then
   begin
+    VarAlias := Params[0];
+    if VarAlias <> '' then
+    begin
+      EAliasError.Create(E_INCLUDED_ALIAS_ALREADY_EXISTS,ErrorLocation,VarAlias).TestIncludedAliasExists(FIncludedAliases).ERaise(False);
+      EAliasError.Create(E_FORBIDDEN_ALIAS_NAME,ErrorLocation,VarAlias).TestValidAliasName.ERaise(False);
+
+    end;
     VarAlias := Params[0] + ATTR_ACCESSOR;
     if Params.Count = 2 then
     begin
       VarAlias := Params[1];
+      EAliasError.Create(E_INCLUDED_ALIAS_ALREADY_EXISTS,ErrorLocation,VarAlias).TestIncludedAliasExists(FIncludedAliases).ERaise(False);
+      EAliasError.Create(E_FORBIDDEN_ALIAS_NAME,ErrorLocation,VarAlias).TestValidAliasName.ERaise(False);
       if VarAlias <> '' then
         VarAlias := VarAlias + ATTR_ACCESSOR;
     end;
@@ -769,7 +897,9 @@ begin
         SetVariable(VarAlias + APair.Key, APair.Value)
       else
         DropVariable(VarAlias + APair.Key);
-  end;
+  end
+  else
+    EGenError.Create(E_GEN_NOT_EXIST,ErrorLocation,'',Params[0],-1).ERaise();
 end;
 
 procedure TTemplate.LoadGenFolder(var Params: TStringList);
@@ -846,14 +976,26 @@ var
   i: integer;
   Dump: TGenFile;
   F: TUserFunction;
+  Errorlocation:TErrorLocation;
 begin
+
+  with ErrorLocation do
+  begin
+    LineNumber := FLineNumber;
+    TempName := FFullName;
+    Line := FLines[FLineNumber];
+  end;
+
+
   IncName := Params[0];
-  EFileError.Create(E_FILE_NOT_FOUND,FLineNumber,FFullName,FLines[FLineNumber],IncName).TestFileExists.ERaise(False);
+  EFileError.Create(E_FILE_NOT_FOUND,ErrorLocation,IncName).TestFileExists.ERaise(False);
   if (Params.Count > 1) and (Params[1] <> '') then
     TempAlias := Params[1]
   else
     TempAlias := GetFileName(GetFileName(IncName, False), False);
-  EAliasError.Create(E_INCLUDED_ALIAS_ALREADY_EXISTS,FLineNumber,FFullName,FLines[FLineNumber],TempAlias).TestIncludedAliasExists(FIncludedAliases).ERaise(False);
+
+  EAliasError.Create(E_INCLUDED_ALIAS_ALREADY_EXISTS,ErrorLocation,TempAlias).TestIncludedAliasExists(FIncludedAliases).ERaise(False);
+  EAliasError.Create(E_FORBIDDEN_ALIAS_NAME,ErrorLocation,TempAlias).TestValidAliasName.ERaise(False);
   FIncludedAliases.Add(TempAlias);
   ATemp := TTemplate.Create(IncName, FExpLocation);
   ATemp.SetWebVars(FWebVars.SessionId, FWebVars.SessionPath, FWebVars.SessionDuration);
@@ -1555,7 +1697,15 @@ var
   Params, PureParams: TStringList;
   i: integer;
   a, b: string;
+  Errorlocation:TErrorLocation;
 begin
+
+  with ErrorLocation do
+  begin
+    LineNumber := FLineNumber;
+    TempName := FFullName;
+    Line := FLines[FLineNumber];
+  end;
   Params := TStringList.Create;
   Params.SkipLastLineBreak := True;
   AParser := TTempParser.Create(Self);
@@ -1621,7 +1771,7 @@ begin
     'copy': TempFileCopy(Params);
     'del' :
     begin
-      EFileError.Create(E_FILE_NOT_FOUND,FLineNumber,FFullName,FLines[FLineNumber],Params[0]).TestFileExists.ERaise(False);
+      EFileError.Create(E_FILE_NOT_FOUND,ErrorLocation,Params[0]).TestFileExists.ERaise(False);
       SysUtils.DeleteFile(Params[0]);
     end;
 
@@ -1935,7 +2085,15 @@ var
   Line: TKVPair;
   Return: string = '';
   Found:boolean = False;
+  Errorlocation:TErrorLocation;
 begin
+
+  with ErrorLocation do
+  begin
+    LineNumber := FLineNumber;
+    TempName := FFullName;
+    Line := FLines[FLineNumber];
+  end;
   for Line in FVariables do
   begin
     if Line.Key = AVarName then
@@ -1947,7 +2105,7 @@ begin
   end;
   if not Found then
   begin
-    EVariableError.Create(E_VAR_NOT_EXIST, FLineNumber, FFullName, FLines[FLineNumber],AVarName).ERaise;
+    EVariableError.Create(E_VAR_NOT_EXIST,ErrorLocation,AVarName).ERaise;
   end;
   Result := Return;
 end;
@@ -2124,7 +2282,15 @@ var
   GenValue, ValidVar: boolean;
   GenAliasPos, AttrAccPos: integer;
   AnAlias: string;
+  Errorlocation:TErrorLocation;
 begin
+
+  with ErrorLocation do
+  begin
+    LineNumber := FLineNumber;
+    TempName := FFullName;
+    Line := FLines[FLineNumber];
+  end;
   AParser := TTempParser.Create(Self);
   if Parse then
     AValue := AParser.ParseToken(AValue);
@@ -2138,9 +2304,9 @@ begin
     if Parse then
     begin
       if AttrAccPos = 0 then
-        EVariableError.Create(E_FORBBIDEN_VAR_NAME,FLineNumber,FFullName,FLines[FLineNumber],AKey).TestValidName.ERaise(False)
+        EVariableError.Create(E_FORBBIDEN_VAR_NAME,ErrorLocation,AKey).TestValidName.ERaise(False)
       else
-        EVariableError.Create(E_FORBBIDEN_VAR_NAME,FLineNumber,FFullName,FLines[FLineNumber],Copy(AKey,RPos('.',AKey)+1,Length(Akey))).TestValidName.ERaise(False);
+        EVariableError.Create(E_FORBBIDEN_VAR_NAME,ErrorLocation,Copy(AKey,RPos('.',AKey)+1,Length(Akey))).TestValidName.ERaise(False);
     end;
     if len > 0 then
     begin
@@ -2161,9 +2327,9 @@ begin
   else if GenValue then
   begin
     AnAlias := Copy(AKey, 2, AttrAccPos - 2);
-    EAliasError.Create(E_FORBIDDEN_ALIAS_NAME,FLineNumber,FFullName,FLines[FLineNumber],AnAlias).TestValidAliasName.ERaise(False);
+    EAliasError.Create(E_FORBIDDEN_ALIAS_NAME,ErrorLocation,AnAlias).TestValidAliasName.ERaise(False);
     AKey := Copy(AKey, AttrAccPos + 1, Length(AKey));
-    EGenError.Create(E_FORBIDDEN_KEY_NAME,FLineNumber,FFullName,FLines[FLineNumber],AKey,AnAlias,-1).TestValidKeyName.ERaise(False);
+    EGenError.Create(E_FORBIDDEN_KEY_NAME,ErrorLocation,AKey,AnAlias,-1).TestValidKeyName.ERaise(False);
     i := FGenFileSet.IndexOf(AnAlias);
     if i = -1 then
       i := FGenFileSet.Add(True, AnAlias);

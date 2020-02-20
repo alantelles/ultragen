@@ -4,7 +4,7 @@ unit FileExceptionClass;
 interface
 
 uses
-  Classes, SysUtils, ExceptionsFunctions;
+  Classes, SysUtils, ExceptionsFunctions, TypesGlobals;
 
 const
   E_FILE_NOT_FOUND = 'The requested file "%%%" could not be found';
@@ -22,7 +22,7 @@ type EFileError = class
     procedure ProcessMessage(ErrMsg:string);
   public
     property Message:string read FMessage write FMessage;
-    constructor Create(EType:string; LineNum:integer; TempName:string; Line:string; AFileName:string);
+    constructor Create(EType:string; AnErrorLocation:TErrorLocation; AFileName:string);
     function TestFileExists:EFileError;
     procedure ERaise(CanRaise:boolean = True);
 
@@ -32,12 +32,12 @@ implementation
 uses ConstantsGlobals, StrUtils;
 
 
-constructor EFileError.Create(EType:string; LineNum:integer; TempName:string; Line:string; AFileName:string);
+constructor EFileError.Create(EType:string; AnErrorLocation:TErrorLocation; AFileName:string);
 begin
   FType := 'FileError';
-  FLineNumber := LineNum;
-  FTempName := TempName;
-  FLine := Line;
+  FLineNumber := AnErrorLocation.LineNumber;
+  FTempName := AnErrorLocation.TempName;
+  FLine := AnErrorLocation.Line;
   FFileName := AFileName;
   FCanRaise := False;
   ProcessMessage(EType);
@@ -68,18 +68,6 @@ begin
   msg := ReplaceStr(msg,'%%%',FFileName);
   FMessage := msg;
 end;
-
-end.
-
-
-{$mode objfpc}{$H+}
-
-interface
-
-uses
-  Classes, SysUtils;
-
-implementation
 
 end.
 

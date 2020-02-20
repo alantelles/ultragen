@@ -4,7 +4,7 @@ unit AliasExceptionClass;
 interface
 
 uses
-  Classes, SysUtils, ExceptionsFunctions, TemplateClass;
+  Classes, SysUtils, ExceptionsFunctions, TemplateClass, TypesGlobals;
 
 const
   E_FORBIDDEN_ALIAS_NAME = 'The identifier "%%%" is not a valid alias name';
@@ -12,6 +12,7 @@ const
 
 type EAliasError = class
   private
+    FErrorLocation:TErrorLocation;
     FType:string;
     FMessage:string;
     FCode:integer;
@@ -23,7 +24,7 @@ type EAliasError = class
     procedure ProcessMessage(ErrMsg:string);
   public
     property Message:string read FMessage write FMessage;
-    constructor Create(EType:string; LineNum:integer; TempName:string; Line:string; AnAliasName:string);
+    constructor Create(EType:string; AnErrorLocation:TErrorLocation; AnAliasName:string);
     function TestValidAliasName:EAliasError;
     procedure ERaise(CanRaise:boolean = True);
     function TestIncludedAliasExists(Aliases:TStringList):EAliasError;
@@ -34,12 +35,12 @@ implementation
 uses ConstantsGlobals, StrUtils;
 
 
-constructor EAliasError.Create(EType:string; LineNum:integer; TempName:string; Line:string; AnAliasName:string);
+constructor EAliasError.Create(EType:string; AnErrorLocation:TErrorLocation; AnAliasName:string);
 begin
   FType := 'AliasError';
-  FLineNumber := LineNum;
-  FTempName := TempName;
-  FLine := Line;
+  FLineNumber := AnErrorLocation.LineNumber;
+  FTempName := AnErrorLocation.TempName;
+  FLine := AnErrorLocation.Line;
   FAliasName := AnAliasName;
   FCanRaise := False;
   ProcessMessage(EType);
