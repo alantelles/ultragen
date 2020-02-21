@@ -1133,6 +1133,9 @@ begin
       Params.Delete(0);
       Return := ParseFunction(a,Params,PureParams);
     end
+    else if (AFuncName = 'execute') and (Params.Count > 0) then
+      Return := StringsFunctions.ExecuteFunctionWithReturn(Params)
+
     else if IsUserFunction(AFuncName,i) > -1 then
       Return := FTemplate.ExecuteFunction(AFuncName,True,Params)
     else

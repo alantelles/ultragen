@@ -24,6 +24,7 @@ function CreateSessionID:string;
 function CreateRandomHash:String;
 function OsDirSep(AStr:string):string;
 function UltraGenCrypt(var Params:TStringList):string;
+function ExecuteFunctionWithReturn(var Params:TStringList):string;
 
 // cast functions
 function ToNumeric(AStr:string):string;
@@ -31,7 +32,7 @@ function ToBoolean(AStr:string):string;
 
 implementation
 
-uses ConstantsGlobals, VariablesGlobals;
+uses ConstantsGlobals, VariablesGlobals, Process;
 
 function CreateRandomHash:string;
 begin
@@ -126,6 +127,47 @@ begin
   if (Dump.Count > index) and (index > -1) then
     Return := Dump[index];
   Dump.Free;
+  Result := Return;
+end;
+
+function ExecuteFunctionWithReturn(var Params:TStringList):string;
+const
+  BUF_SIZE = 2048;
+var
+  AProcess:TProcess;
+  OutStream:TStream;
+  BytesRead:longint;
+  Buffer:array[1..BUF_SIZE] of byte;
+  ProcName:string;
+  Return:string='';
+begin
+  ProcName := Params[0];
+  Params.Delete(0);
+  AProcess := TProcess.Create(nil);
+  AProcess.Executable := ProcName;
+  AProcess.Parameters.AddStrings(Params);
+  AProcess.Options := [poUsePipes, poNoConsole];
+  try
+    AProcess.Execute;
+    OutStream := TMemoryStream.Create;
+    repeat
+      BytesRead := AProcess.Output.Read(Buffer,BUF_SIZE);
+      OutStream.Write(Buffer,BytesRead);
+    until BytesRead = 0;
+    AProcess.Free;
+    with TStringList.Create do
+    begin
+      OutStream.Position := 0;
+      LoadFromStream(OutStream);
+      Return := Text;
+      Free;
+    end;
+    OutStream.Free;
+  except
+    WriteLn('process not found');
+    AProcess.Free;
+    Halt;
+  end;
   Result := Return;
 end;
 
