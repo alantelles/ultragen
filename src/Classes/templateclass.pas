@@ -1741,6 +1741,7 @@ begin
     'overwrite': FOverrides.Overwrite := True;
     'exportAtRoot': FOverrides.ExpAtRoot := True;
     'import': ImportGenFile(Params);
+    'dontSave' : FCanSave := False;
     'include': IncludeTemplate(Params);
     'for': ForPrepare(Params, PureParams);
     'endFor': EndFor;
