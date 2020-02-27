@@ -2057,7 +2057,7 @@ var
   i: longint;
 begin
   if Params[0] = '' then
-    ReadLn
+    Read
   else
   begin
     i := StrToInt(Params[0]);

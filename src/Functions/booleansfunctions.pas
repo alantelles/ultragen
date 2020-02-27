@@ -39,16 +39,40 @@ end;
 function Equal(var Params:TStringList; neg:boolean=False):string;
 var
   Return:string=LANG_TRUE;
+  NoNumeric:boolean;
   i:integer;
+  a,b:double;
 begin
   for i:=0 to Params.count - 2 do
   begin
-    if ((not neg) and (Params[i] <> Params[i+1])) or
-       ((neg) and (Params[i] = Params[i+1])) then
-    begin
-      Return := LANG_FALSE;
-      break;
+    try
+      a := StrToFloat(Params[i]);
+      b := StrToFloat(Params[i+1]);
+      if (Params[i][1] = '0') or (Params[i+1][1] = '0') then
+        NoNumeric := True
+      else
+        NoNumeric := False;
+    except
+      NoNumeric := True;
     end;
+    if NoNumeric then
+    begin
+      if ((not neg) and (Params[i] <> Params[i+1])) or
+         ((neg) and (Params[i] = Params[i+1])) then
+      begin
+        Return := LANG_FALSE;
+        break;
+      end;
+    end
+    else
+    begin
+      if ((not neg) and (a <> b)) or
+         ((neg) and (a = b)) then
+      begin
+        Return := LANG_FALSE;
+        break;
+      end;
+    end
   end;
   Result := Return;
 end;
@@ -56,15 +80,39 @@ end;
 function Greater(var Params:TStringList; neg:boolean=False):string;
 var
   Return:string=LANG_TRUE;
+  NoNumeric:boolean;
   i:integer;
+  a,b:double;
 begin
   for i:=0 to Params.count - 2 do
   begin
-    if ((not neg) and (Params[i] <= Params[i+1])) or
-       ((neg) and (Params[i] >= Params[i+1])) then
+    try
+      a := StrToFloat(Params[i]);
+      b := StrToFloat(Params[i+1]);
+      if (Params[i][1] = '0') or (Params[i+1][1] = '0') then
+        NoNumeric := True
+      else
+        NoNumeric := False;
+    except
+      NoNumeric := True;
+    end;
+    if noNumeric then
     begin
-      Return := LANG_FALSE;
-      break;
+      if ((not neg) and (Params[i] <= Params[i+1])) or
+         ((neg) and (Params[i] >= Params[i+1])) then
+      begin
+        Return := LANG_FALSE;
+        break;
+      end;
+    end
+    else
+    begin
+      if ((not neg) and (a <= b)) or
+         ((neg) and (a >= b)) then
+      begin
+        Return := LANG_FALSE;
+        break;
+      end;
     end;
   end;
   Result := Return;
