@@ -679,9 +679,9 @@ begin
   if Params[1] <> '' then
   begin
     AGenList := TStringList.Create;
-    AGenList.Delimiter := GEN_FILES_CALL_SEP;
-    AGenList.DelimitedText := Params[1];
+    AGenList.Delimiter := GEN_FILES_CALL_SEP;     
     AGenList.StrictDelimiter := True;
+    AGenList.DelimitedText := Params[1];
     //GenList is a listable delimited by pipe |
     for AGen in AGenList do
     begin
