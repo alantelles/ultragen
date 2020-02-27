@@ -83,6 +83,8 @@ begin
   begin
     if FPrefix <> '' then
       Prefix := FPrefix + GEN_SUB_LEVEL;
+    if AStr = 'null' then
+      AStr := '';
     FGenFile.SetValue(Prefix+FKey, AStr);
   end;
 end;
@@ -94,59 +96,66 @@ var
   inVal: boolean = False;
   objLevel, listLevel, AttrPos, len: integer;
   part: string = '';
+
 begin
   len := Length(FListLevels);
   SetLength(FListLevels,len+1);
   FListLevels[len] := 0;
   objLevel := 0;
   listLevel := 0;
-  for c in AStr do
+  if Length(AStr) > 0 then
   begin
-    if ((c = #10) or (c = #13) or (c = ' ')) and (not inStr) then
-      continue;
-    if (c = OBJ_O) then
-      objLevel := objLevel + 1;
-    if (c = OBJ_C) then
-      objLevel := objLevel - 1;
-    if (c = LIST_O) then
-      listLevel := listLevel + 1;
-    if (c = LIST_C) then
-      listLevel := listLevel - 1;
-    if (c = STR_ENC) then
-      inStr := not inStr;
-    if (c = SEP) and (not inStr) and (listLevel = 0) and (objLevel = 0) then
+    for c in AStr do
     begin
-      AttrPos := RPos(GEN_SUB_LEVEL, FKey);
-      if FKey <> '' then
-        FKey := FKey + GEN_SUB_LEVEL + IntToStr(FListLevels[len])
+      if ((c = #10) or (c = #13) or (c = ' ')) and (not inStr) then
+        continue;
+      if (c = OBJ_O) then
+        objLevel := objLevel + 1;
+      if (c = OBJ_C) then
+        objLevel := objLevel - 1;
+      if (c = LIST_O) then
+        listLevel := listLevel + 1;
+      if (c = LIST_C) then
+        listLevel := listLevel - 1;
+      if (c = STR_ENC) then
+        inStr := not inStr;
+      if (c = SEP) and (not inStr) and (listLevel = 0) and (objLevel = 0) then
+      begin
+        AttrPos := RPos(GEN_SUB_LEVEL, FKey);
+        if FKey <> '' then
+          FKey := FKey + GEN_SUB_LEVEL + IntToStr(FListLevels[len])
+        else
+          FKey := IntToStr(FListLevels[len]);
+        ParseValue(Conform(part));
+        //FListIndex := FListIndex + 1;
+        FListLevels[len] := FListLevels[len] + 1;
+        AttrPos := RPos(GEN_SUB_LEVEL, FKey);
+        if AttrPos > 0 then
+          FKey := Copy(FKey, 1, AttrPos - 1)
+        else
+          FKey := '';
+        part := '';
+        inVal := False;
+      end
       else
-        FKey := IntToStr(FListLevels[len]);
-      ParseValue(Conform(part));
-      //FListIndex := FListIndex + 1;
-      FListLevels[len] := FListLevels[len] + 1;
-      AttrPos := RPos(GEN_SUB_LEVEL, FKey);
-      if AttrPos > 0 then
-        FKey := Copy(FKey, 1, AttrPos - 1)
-      else
-        FKey := '';
-      part := '';
-      inVal := False;
-    end
-    else
-      part := part + c;
+        part := part + c;
+    end;
   end;
 
   if FKey <> '' then
     FKey := FKey + GEN_SUB_LEVEL + IntToStr(FListLevels[len])
   else
     FKey := IntToStr(FListLevels[len]);
-  ParseValue(Conform(Part));
-  FListIndex := 0;
-  AttrPos := RPos(GEN_SUB_LEVEL, FKey);
-  if AttrPos > 0 then
-    FKey := Copy(FKey, 1, AttrPos - 1)
-  else
-    FKey := '';
+  if Length(Part) > 0 then
+  begin
+    ParseValue(Conform(Part));
+    FListIndex := 0;
+    AttrPos := RPos(GEN_SUB_LEVEL, FKey);
+    if AttrPos > 0 then
+      FKey := Copy(FKey, 1, AttrPos - 1)
+    else
+      FKey := '';
+  end;
   SetLength(FListLevels,len);
 end;
 
@@ -160,50 +169,55 @@ var
 begin
   objLevel := 0;
   listLevel := 0;
-  for c in AStr do
+  if Length(AStr) > 0 then
   begin
-    if ((c = #10) or (c = #13) or (c = ' ')) and (not inStr) then
-      continue;
-    if inVal and (c = OBJ_O) then
-      objLevel := objLevel + 1;
-    if inVal and (c = OBJ_C) then
-      objLevel := objLevel - 1;
-    if inVal and (c = LIST_O) then
-      listLevel := listLevel + 1;
-    if inVal and (c = LIST_C) then
-      listLevel := listLevel - 1;
-    if (c = STR_ENC) then
-      inStr := not inStr;
-    if (c = ATTR) and (not inVal) and (not inStr) then
+    for c in AStr do
     begin
-      inVal := True;
-      if FKey = '' then
-        FKey := Conform(ReplaceStr(Part,':',''))
+      if ((c = #10) or (c = #13) or (c = ' ')) and (not inStr) then
+        continue;
+      if inVal and (c = OBJ_O) then
+        objLevel := objLevel + 1;
+      if inVal and (c = OBJ_C) then
+        objLevel := objLevel - 1;
+      if inVal and (c = LIST_O) then
+        listLevel := listLevel + 1;
+      if inVal and (c = LIST_C) then
+        listLevel := listLevel - 1;
+      if (c = STR_ENC) then
+        inStr := not inStr;
+      if (c = ATTR) and (not inVal) and (not inStr) then
+      begin
+        inVal := True;
+        if FKey = '' then
+          FKey := Conform(ReplaceStr(Part,':',''))
+        else
+          FKey := FKey + GEN_SUB_LEVEL + Conform(ReplaceStr(Part,':',''));
+        part := '';
+      end
+      else if (c = SEP) and (not inStr) and (listLevel = 0) and (objLevel = 0) then
+      begin
+        ParseValue(Conform(part));
+        AttrPos := RPos(GEN_SUB_LEVEL, FKey);
+        if AttrPos > 0 then
+          FKey := Copy(FKey, 1, AttrPos - 1)
+        else
+          FKey := '';
+        part := '';
+        inVal := False;
+      end
       else
-        FKey := FKey + GEN_SUB_LEVEL + Conform(ReplaceStr(Part,':',''));
-      part := '';
-    end
-    else if (c = SEP) and (not inStr) and (listLevel = 0) and (objLevel = 0) then
-    begin
-      ParseValue(Conform(part));
-      AttrPos := RPos(GEN_SUB_LEVEL, FKey);
-      if AttrPos > 0 then
-        FKey := Copy(FKey, 1, AttrPos - 1)
-      else
-        FKey := '';
-      part := '';
-      inVal := False;
-    end
-    else
-      part := part + c;
+        part := part + c;
+    end;
   end;
-
-  ParseValue(Conform(Part));
-  AttrPos := RPos(GEN_SUB_LEVEL, FKey);
-  if AttrPos > 0 then
-    FKey := Copy(FKey, 1, AttrPos - 1)
-  else
-    FKey := '';
+  if Length(AStr) > 0 then
+  begin
+    ParseValue(Conform(Part));
+    AttrPos := RPos(GEN_SUB_LEVEL, FKey);
+    if AttrPos > 0 then
+      FKey := Copy(FKey, 1, AttrPos - 1)
+    else
+      FKey := '';
+  end;
 end;
 
 function TJson2Gen.IsObj(AStr: string): boolean;
