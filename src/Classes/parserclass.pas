@@ -983,6 +983,10 @@ begin
       Return := StringsFunctions.ToNumeric(Params[0])
     else if (AFuncName = 'bool') and (Params.Count = 1) then
       Return := StringsFunctions.ToBoolean(Params[0])
+    else if (AFuncName = 'char') and (Params.Count = 1) then
+    begin
+      Return := StringsFunctions.ToChar(Params[0]);
+    end
 
     { DateTime Functions }
     else if (AFuncName = 'date') and (Params.Count = 0) then

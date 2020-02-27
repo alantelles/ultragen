@@ -29,6 +29,7 @@ function ExecuteFunctionWithReturn(var Params:TStringList):string;
 // cast functions
 function ToNumeric(AStr:string):string;
 function ToBoolean(AStr:string):string;
+function ToChar(AStr:string):string;
 
 implementation
 
@@ -104,6 +105,20 @@ begin
     Return := 'false'
   else
     Return := 'true';
+  Result := Return;
+end;
+
+function ToChar(AStr:string):string;
+var
+  i:integer;
+  Return:string;
+begin
+  try
+    i := StrToInt(AStr);
+    Return := chr(i);
+  except
+    Return := '';
+  end;
   Result := Return;
 end;
 
