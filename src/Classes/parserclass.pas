@@ -984,9 +984,9 @@ begin
     else if (AFuncName = 'bool') and (Params.Count = 1) then
       Return := StringsFunctions.ToBoolean(Params[0])
     else if (AFuncName = 'char') and (Params.Count = 1) then
-    begin
-      Return := StringsFunctions.ToChar(Params[0]);
-    end
+      Return := StringsFunctions.ToChar(Params[0])
+    else if (AFuncName = 'charNum') and (Params.Count = 1) then
+      Return := StringsFunctions.ToOrd(Params[0])
 
     { DateTime Functions }
     else if (AFuncName = 'date') and (Params.Count = 0) then

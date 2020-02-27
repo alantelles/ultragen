@@ -30,6 +30,7 @@ function ExecuteFunctionWithReturn(var Params:TStringList):string;
 function ToNumeric(AStr:string):string;
 function ToBoolean(AStr:string):string;
 function ToChar(AStr:string):string;
+function ToOrd(AStr:string):string;
 
 implementation
 
@@ -105,6 +106,15 @@ begin
     Return := 'false'
   else
     Return := 'true';
+  Result := Return;
+end;
+
+function ToOrd(AStr:string):string;
+var
+  Return :string = '';
+begin
+  if Length(AStr) = 1 then
+    Return := IntToStr(ord(AStr[1]));
   Result := Return;
 end;
 
