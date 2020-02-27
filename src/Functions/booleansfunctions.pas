@@ -8,6 +8,7 @@ uses
   Classes, SysUtils;
 
 function StrToBoolean(AValue:string):boolean;
+function BooleanToStr(AValue:boolean):string;
 
 //booleans comparisons
 function Equal(var Params:TStringList; neg:boolean=False):string;
@@ -23,6 +24,14 @@ implementation
 
 uses
   ConstantsGlobals;
+
+function BooleanToStr(AValue:boolean):string;
+begin
+  if AValue = True then
+    Result := LANG_TRUE
+  else
+    Result := LANG_FALSE;
+end;
 
 function TernaryPrint(var Params:TStringList):string;
 var

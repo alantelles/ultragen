@@ -52,6 +52,7 @@ type
       function GenKeyByIndex(AnAlias:string;AnIndex:integer):string;
       function GenValueByIndex(AnAlias:string;AnIndex:integer):string;
       function KeysCount(AnAlias:string):string;
+      function HasKey(AKey:string):boolean;
       destructor Destroy; override;
   end;
 
@@ -92,6 +93,22 @@ begin
       OutGenSet.Add(AGenFile,FGenFiles[i].GenAlias);
     end;
   end;
+end;
+
+function TGenFileSet.HasKey(Akey:string):boolean;
+var
+  AGen:TGenFileRecord;
+  Return:boolean = False;
+begin
+  for AGen in FGenFiles do
+  begin
+    if AGen.GenFile.HasKey(AKey) then
+    begin
+      Return := True;
+      break;
+    end;
+  end;
+  Result := Return;
 end;
 
 function TGenFileSet.KeysCount(AnAlias:string):string;

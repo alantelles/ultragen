@@ -799,6 +799,11 @@ begin
       Return := FTemplate.GenFileSet.KeysCount(Params[0])
 		end
 
+    else if (AFuncName = 'hasKey') and (Params.Count = 1) then
+      Return := BooleansFunctions.BooleanToStr(FTemplate.HasKey(Params[0]))
+    else if (AFuncName = 'hasKey') and (Params.Count = 2) then
+      Return := BooleansFunctions.BooleanToStr(FTemplate.HasKey(Params[1],params[0]))
+
     else if (AFuncName = 'fileName') and (Params.Count = 1) then
       Return := GetFileName(Params[0])
     else if (AFuncName = 'fileName') and (Params.Count = 2) then

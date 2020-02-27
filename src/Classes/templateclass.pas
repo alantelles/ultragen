@@ -111,6 +111,7 @@ type
     FOrderReturn: boolean;
     FReturnValue: string;
     FIncludedAliases: TStringList;
+    FErrorLocation:TErrorLocation;
   public
     constructor Create(ATempName: string = ''; AExpLocation: string = '.');
     property RenderBlank: boolean read FOverrides.RenderBlank
@@ -160,6 +161,7 @@ type
     function SetPredefined(AKey, AValue: string): boolean;
     function Load(ATempName: string): TTemplate;
     function Load(ATempList: TStringList; ATempName: string): TTemplate;
+    procedure SetErrorLocation;
     procedure SetFunctionsLength(NewLen: integer);
     procedure LoadText(var Params: TStringList; var PureParams: TStringList);
     function Save: TTemplate;
@@ -169,6 +171,7 @@ type
     function DropVariable(AKey: string): TTemplate;
     function GetImportedValue(AnAlias, AKey: string): string;
     function ImportGenFile(var Params: TStringList): TTemplate;
+    function HasKey(AKey:string; AnAlias:string=''):boolean;
     procedure ExtendTemplate(ATemplate: string; Parent: string = '');
     procedure IncludeTemplate(var Params: TStringList);
     procedure Execute(var Params: TStringList; Async:boolean; silent:boolean=False);
@@ -309,6 +312,16 @@ begin
   begin
     FFullName := ExpandFileName(ATempName);
     Load(FFullName);
+  end;
+end;
+
+procedure TTemplate.SetErrorLocation;
+begin
+  with FErrorLocation do
+  begin
+    LineNumber := FLineNumber;
+    TempName := FFullName;
+    Line := FLines[FLineNumber];
   end;
 end;
 
@@ -602,6 +615,26 @@ begin
   AText.Free;
 end;
 
+function TTemplate.HasKey(AKey:string; AnAlias:string=''):boolean;
+var
+  i :integer;
+  Return:boolean=False;
+begin
+  SetErrorLocation;
+  if AnAlias = '' then
+    Return := FGenFileSet.HasKey(AKey)
+  else
+  begin
+    i := FGenFileSet.IndexOf(AnAlias);
+    if i > -1 then
+    begin
+      Return := FGenFileSet.GenFiles[i].GenFile.HasKey(AKey);
+    end
+    else
+      EGenError.Create(E_GEN_NOT_EXIST,FErrorLocation,AKey,AnAlias,-1).ERaise(True);
+  end;
+  Result := Return;
+end;
 
 procedure TTemplate.CreateGen(var Params: TStringList);
 var
