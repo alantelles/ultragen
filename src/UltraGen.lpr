@@ -109,11 +109,34 @@ begin
   begin
     if ParamStr(2) = GENSET_CALL then
     begin
-      //-gens "f1.gen+g1.gen" -templates teste.ultra.html -l
-      //-gens "f1.gen+g1.gen|f2.gen+g2.gen" -templates teste.ultra.txt
-      //-gens "f1.gen+g1.gen|f2.gen+g2.gen" -templates "t1.ultra.txt|t2.ultra.txt" -default "a string"
-      //[template] [genmode] [genlist] [def] [str def]
+      AuxGens.SkipLastLineBreak := True;
+      AuxGens.StrictDelimiter := True;
+      AuxGens.Delimiter := SET_SEP;
       AuxGens.DelimitedText := ParamStr(3);
+      ATemplate := TTemplate.Create;
+      ATemplate.Load(ParamStr(1));
+      AGenSet := TGenFileSet.Create;
+      for iter in AuxGens do
+      begin
+        AuxGroup.Clear;
+        AuxGroup.SkipLastLineBreak := True;
+        AuxGroup.StrictDelimiter := True;
+        AuxGroup.Delimiter := SET_GROUP;
+        AuxGroup.DelimitedText := iter;
+        AGenSet.ClearSet;
+        for iterA in AuxGroup do
+          AGenSet.Add(iterA);
+        ATemplate.ParseTemplate(AGenSet);
+        if Live then
+          ATemplate.PrintParsed
+        else
+          ATemplate.Save;
+      end;
+      ATemplate.Free;
+
+      //[template] [genmode] [genlist] [def] [str def]
+      //test.ultra -gens zika.gen
+      {AuxGens.DelimitedText := ParamStr(3);
       //f1+g1
       //f2+g2
       AuxTemp.DelimitedText := ParamStr(1);
@@ -131,7 +154,7 @@ begin
         AWork.Live := Live;
         AWork.DoWork(GENSET_TEMPLATE,AuxGroup,AuxTemp,ADefault);
         AWork.Free;
-      end;
+      end;}
     end;
   end
   else if IsGenPathCall then
@@ -168,7 +191,7 @@ begin
 
 
   if not Live then
-    WriteLn('UltraGen processed files in: ',FormatDateTime('ss.zzz',Now-Start));
+    WriteLn('UltraGen processed ',AuxGens.Count,' files in: ',FormatDateTime('ss.zzz',Now-Start));
   AuxGens.Free;
   AuxGroup.Free;
   AuxTemp.Free;
