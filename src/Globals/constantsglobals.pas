@@ -36,8 +36,10 @@ const
   SET_GROUP = '+';
   SET_SEP = '|';
 
-  GENSET_CALL = '-gens';
+  GENSET_CALL = '--gens';
+  GENSET_CALL_S = '-g';
   GENPATH_CALL = '--genpath';
+  GENPATH_CALL_S = '-gp';
   TEMPSET_CALL = '-templates';
   LOOK_SUB_FLAG = '-sub';
   PARAM_SET_DEFAULT = '-default';

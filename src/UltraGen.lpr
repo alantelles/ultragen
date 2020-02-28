@@ -17,18 +17,18 @@ uses
     TypesGlobals, VariablesGlobals, ConstantsGlobals,
 
     { Utils }
-    FileHandlingUtils;
+    FileHandlingUtils, booleansFunctions;
 
 
 
 
 var
-  iter,iterA, ADefault:string;
+  iter,iterA, GenPath, ADefault:string;
   Start:TDateTime;
   FlowLines,AuxGens,AuxGroup,AuxTemp:TStringList;
   AWork:TWork;
   LookSub, Live, AsString, IsGenSetCall, IsGenpathCall:boolean;
-  i, interval:integer;
+  i, j, interval, paramStart:integer;
   Server:TUltraGenServer;
   ATemplate:TTemplate;
   AGenSet:TGenFileSet;
@@ -90,23 +90,34 @@ begin
   Live := True;
 
 
-	if (ParamStr(2) = GENSET_CALL) then
+	if (ParamStr(2) = GENSET_CALL) or (ParamStr(2) = GENSET_CALL_S) then
     IsGenSetCall := True
-  else if (ParamStr(2) = GENPATH_CALL) then
+  else if (ParamStr(2) = GENPATH_CALL) or (ParamStr(2) = GENPATH_CALL_S) then
     IsGenPathCall := True;
 
-  if (ParamStr(ParamCount) = LIVE_CALL) or (ParamStr(ParamCount) = LIVE_CALL_S) then
-    Live := False;
+
 
   if IsGenSetCall then
   begin
-    if ParamStr(2) = GENSET_CALL then
+    if (ParamStr(2) = GENSET_CALL) or (ParamStr(2) = GENSET_CALL_S) then
     begin
+      paramStart := 4;
+      if (ParamStr(4) = LIVE_CALL) or (ParamStr(4) = LIVE_CALL_S) then
+      begin
+        Live := False;
+        paramStart := 5;
+      end;
       AuxGens.SkipLastLineBreak := True;
       AuxGens.StrictDelimiter := True;
       AuxGens.Delimiter := SET_SEP;
       AuxGens.DelimitedText := ParamStr(3);
       ATemplate := TTemplate.Create(ParamStr(1));
+      // uw temp.ultra -g src.gen -p param1 param2 param3
+      if ParamCount >= paramStart then
+      begin
+        for j:=paramStart to ParamCount do
+          ATemplate.SetVariable('param['+IntToStr(j-paramStart)+']',ParamStr(j));
+      end;
       AGenSet := TGenFileSet.Create;
       for iter in AuxGens do
       begin
@@ -130,13 +141,27 @@ begin
   else if IsGenPathCall then
   begin
     //temp.ultra --genpath [folder]
+    paramStart := 4;
     //dummy
     Live := False;
-    FindAllFiles(AuxGens,ParamStr(3),'*.GEN;*.gen',False);
+    LookSub := False;      
+    GenPath := ParamStr(3);
+    if ParamStr(3) = LOOK_SUB_FLAG then
+    begin
+      LookSub := True;
+      paramStart := 5;
+      GenPath := ParamStr(4);
+    end;
+    FindAllFiles(AuxGens,GenPath,'*.GEN;*.gen',LookSub);
     AuxGens.Sort;
     if AuxGens.Count > 0 then
     begin
       ATemplate := TTemplate.Create(ParamStr(1));
+      if ParamCount >= paramStart then
+      begin
+        for j:=paramStart to ParamCount do
+          ATemplate.SetVariable('param['+IntToStr(j-paramStart)+']',ParamStr(j));
+      end;
       AGenSet := TGenFileSet.Create;
       for i:=0 to AuxGens.Count-1 do
       begin
@@ -147,12 +172,42 @@ begin
       end;
       ATemplate.Free;
     end;
+  end
+  else if ParamCount > 0 then
+  begin
+    paramStart := 2;
+    if (ParamStr(2) = LIVE_CALL) or (ParamStr(2) = LIVE_CALL_S) then
+    begin
+      Live := False;
+      paramStart := 3;
+    end;
+    ATemplate := TTemplate.Create(ParamStr(1));
+    if ParamCount >= paramStart then
+    begin
+      for j:=paramStart to ParamCount do
+        ATemplate.SetVariable('param['+IntToStr(j-paramStart)+']',ParamStr(j));
+    end;
+    AGenSet := TGenFileSet.Create;
+    ATemplate.ParseTemplate(AGenSet);
+    if Live then
+      ATemplate.PrintParsed
+    else
+      ATemplate.Save;
+    ATemplate.free;
   end;
 
-  if not Live then
-    WriteLn('UltraGen processed ',AuxGens.Count,' files in: ',FormatDateTime('ss.zzz',Now-Start));
+  if (not Live) and (ParamCount > 0) then
+  begin
+    if AuxGens.Count > 0 then
+      WriteLn('UltraGen processed ',AuxGens.Count,' files in: ',FormatDateTime('ss.zzz',Now-Start))
+    else
+      WriteLn('UltraGen processed 1 file in: ',FormatDateTime('ss.zzz',Now-Start))
+  end;
   AuxGens.Free;
   AuxGroup.Free;
+
+  if ParamCount = 0 then
+    WriteLn('You must provide parameters to execute UltraGen');
 
   GlobalQueue.Free;
   AVerifyThread.Terminate;
