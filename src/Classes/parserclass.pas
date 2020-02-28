@@ -755,6 +755,11 @@ begin
       Return := GetFilePath(FTemplate.GenFileSet.GenFiles[i].GenFile.FullName,
         (StrToInt(Params[1]) * (-1)));
     end
+    else if (AFuncName = 'genName') and (Params.Count = 0) then
+    begin
+      i := FTemplate.GenFileSet.IndexOf('0');
+      Return := GetFileName(FTemplate.GenFileSet.GenFiles[i].GenFile.FullName, False);
+    end
     else if (AFuncName = 'genName') and (Params.Count = 1) then
     begin
       i := FTemplate.GenFileSet.IndexOf(Params[0]);
