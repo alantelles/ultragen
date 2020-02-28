@@ -52,13 +52,6 @@ begin
   randomize;
   AuxGens :=  TStringList.Create;
   AuxGroup :=  TStringList.Create;
-  AuxTemp := TStringList.Create;
-  AuxGens.StrictDelimiter := True;
-  AuxGens.Delimiter := SET_SEP;
-  AuxGroup.StrictDelimiter := True;
-  AuxGroup.Delimiter := SET_GROUP;
-  AuxTemp.StrictDelimiter := True;
-  AuxTemp.Delimiter := SET_SEP;
   //calling modes
   //a set of gens example
   //ultragen -set src1.gen|src2.gen -templates teste.ultra.txt|teste2.ultra.txt
@@ -113,8 +106,7 @@ begin
       AuxGens.StrictDelimiter := True;
       AuxGens.Delimiter := SET_SEP;
       AuxGens.DelimitedText := ParamStr(3);
-      ATemplate := TTemplate.Create;
-      ATemplate.Load(ParamStr(1));
+      ATemplate := TTemplate.Create(ParamStr(1));
       AGenSet := TGenFileSet.Create;
       for iter in AuxGens do
       begin
@@ -133,28 +125,6 @@ begin
           ATemplate.Save;
       end;
       ATemplate.Free;
-
-      //[template] [genmode] [genlist] [def] [str def]
-      //test.ultra -gens zika.gen
-      {AuxGens.DelimitedText := ParamStr(3);
-      //f1+g1
-      //f2+g2
-      AuxTemp.DelimitedText := ParamStr(1);
-      ADefault := DEF_IF_NOT;
-      if ParamCount > 3 then
-      begin
-        if ParamStr(4) = PARAM_SET_DEFAULT then
-          ADefault := ParamStr(5);
-      end;
-      for iterA in AuxGens do
-      begin
-        AuxGroup.Clear;
-        AuxGroup.DelimitedText := iterA;
-        AWork := TWork.Create(AuxGroup);
-        AWork.Live := Live;
-        AWork.DoWork(GENSET_TEMPLATE,AuxGroup,AuxTemp,ADefault);
-        AWork.Free;
-      end;}
     end;
   end
   else if IsGenPathCall then
@@ -167,40 +137,23 @@ begin
     if AuxGens.Count > 0 then
     begin
       ATemplate := TTemplate.Create(ParamStr(1));
+      AGenSet := TGenFileSet.Create;
       for i:=0 to AuxGens.Count-1 do
       begin
+        AGenSet.ClearSet;
         AGenSet.Add(AuxGens[i]);
         ATemplate.ParseTemplate(AGenSet);
         ATemplate.Save;
-        AGenSet.ClearSet;
       end;
       ATemplate.Free;
     end;
-  end
-  else
-  begin
-    AuxGens.Clear;
-    AuxGens.DelimitedText := '';
-    AuxTemp.DelimitedText := ParamStr(1);
-    AWork := TWork.Create(AuxGens);
-    AWork.Live := Live;
-    AWork.DoWork(GENSET_TEMPLATE,AuxGens,AuxTemp,ADefault);
-    AWork.Free;
   end;
-
-
 
   if not Live then
     WriteLn('UltraGen processed ',AuxGens.Count,' files in: ',FormatDateTime('ss.zzz',Now-Start));
   AuxGens.Free;
   AuxGroup.Free;
-  AuxTemp.Free;
 
-  for i:=1 to ParamCount do
-  begin
-    if ParamStr(i) = '-debug' then
-      readln;
-  end;
   GlobalQueue.Free;
   AVerifyThread.Terminate;
 
