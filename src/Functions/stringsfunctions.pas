@@ -25,6 +25,7 @@ function CreateRandomHash:String;
 function OsDirSep(AStr:string):string;
 function UltraGenCrypt(var Params:TStringList):string;
 function ExecuteFunctionWithReturn(var Params:TStringList):string;
+procedure PrintHelp;
 
 // cast functions
 function ToNumeric(AStr:string):string;
@@ -39,6 +40,11 @@ uses ConstantsGlobals, VariablesGlobals, Process;
 function CreateRandomHash:string;
 begin
   Result := CreateSessionID;
+end;
+
+procedure PrintHelp;
+begin
+  WriteLn('Print a help');
 end;
 
 function CreateSessionID:string;

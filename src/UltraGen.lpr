@@ -17,7 +17,7 @@ uses
     TypesGlobals, VariablesGlobals, ConstantsGlobals,
 
     { Utils }
-    FileHandlingUtils, booleansFunctions;
+    FileHandlingUtils, StringsFunctions;
 
 
 
@@ -90,10 +90,12 @@ begin
   Live := True;
 
 
-	if (ParamStr(2) = GENSET_CALL) or (ParamStr(2) = GENSET_CALL_S) then
+  if (ParamStr(2) = GENSET_CALL) or (ParamStr(2) = GENSET_CALL_S) then
     IsGenSetCall := True
   else if (ParamStr(2) = GENPATH_CALL) or (ParamStr(2) = GENPATH_CALL_S) then
-    IsGenPathCall := True;
+    IsGenPathCall := True
+  else if (ParamStr(2) = '--help') then
+    StringsFunctions.PrintHelp;
 
 
 
@@ -207,7 +209,13 @@ begin
   AuxGroup.Free;
 
   if ParamCount = 0 then
+  begin
+    WriteLn('UltraGen advanced script language/template engine');
+    WriteLn('Version: '+VERSION);
     WriteLn('You must provide parameters to execute UltraGen');
+    WriteLn('Run ultragen --help for instructions');
+
+  end;
 
   GlobalQueue.Free;
   AVerifyThread.Terminate;

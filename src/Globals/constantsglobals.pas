@@ -63,6 +63,8 @@ const
 
   MULTI_LINE = ' ++';
 
+  VERSION = '0.7';
+
 
 
 implementation
