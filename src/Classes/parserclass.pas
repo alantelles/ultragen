@@ -641,7 +641,9 @@ begin
     PureParams := TStringList.Create;
     if Length(GenDef) > 0 then
     begin
-      ParseParams(GenDef, Params);   
+      if (GenKey = 'map') then
+        FTemplate.SetVariable('elem','');
+      ParseParams(GenDef, Params);
       PureParams.AddStrings(Params);
       for i := 0 to Params.Count - 1 do
       begin

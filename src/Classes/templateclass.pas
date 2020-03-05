@@ -2342,7 +2342,7 @@ begin
   GenAliasPos := Pos(FROM_GEN_SET, AKey);
   AttrAccPos := Pos(ATTR_ACCESSOR, AKey);
   GenValue := (GenAliasPos = 1) and (AttrAccPos > GenAliasPos + 1);
-  ValidVar := (GenAliasPos = 0);
+  ValidVar := (GenAliasPos = 0) and (AttrAccPos <> 1);
   len := Length(FVariables);
   if ValidVar then
   begin
@@ -2379,7 +2379,9 @@ begin
     if i = -1 then
       i := FGenFileSet.Add(True, AnAlias);
     FGenFileSet.GenFiles[i].GenFile.SetValue(AKey, AValue);
-  end;
+  end
+  else
+    EVariableError.Create(E_FORBBIDEN_VAR_NAME,ErrorLocation,AKey).TestValidName.ERaise(False);
 
   AParser.Free;
   Result := Self;
