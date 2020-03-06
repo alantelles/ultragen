@@ -25,7 +25,7 @@ function CreateRandomHash:String;
 function OsDirSep(AStr:string):string;
 function UltraGenCrypt(var Params:TStringList):string;
 function ExecuteFunctionWithReturn(var Params:TStringList):string;
-procedure PrintHelp;
+procedure PrintHelp(home:string);
 
 // cast functions
 function ToNumeric(AStr:string):string;
@@ -42,9 +42,21 @@ begin
   Result := CreateSessionID;
 end;
 
-procedure PrintHelp;
+procedure PrintHelp(home:string);
+var
+  Help:TStringList;
+  HelpText:string;
 begin
-  WriteLn('Print a help');
+  HelpText := home+DirectorySeparator+'Assets'+DirectorySeparator+'help.txt';
+  if FileExists (HelpText) then
+  begin
+    Help := TStringList.Create;
+    Help.LoadFromFile(HelpText);
+    WriteLn(ReplaceStr(Help.Text,'{{VERSION}}',VERSION));
+    Help.Free;
+  end
+  else
+    WriteLn('Help file not found.');
 end;
 
 function CreateSessionID:string;
