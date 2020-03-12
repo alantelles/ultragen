@@ -47,7 +47,7 @@ var
   Help:TStringList;
   HelpText:string;
 begin
-  HelpText := home+DirectorySeparator+'Assets'+DirectorySeparator+'help.txt';
+  HelpText := home+DirectorySeparator+'assets'+DirectorySeparator+'help.txt';
   if FileExists (HelpText) then
   begin
     Help := TStringList.Create;
