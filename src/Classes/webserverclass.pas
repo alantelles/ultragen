@@ -18,6 +18,7 @@ type
   private
     FDontServe:boolean;
     FPort: word;
+    FMode :string;
     FLoader: string;
     FRoutesAge: int64;
     FConfig, FLocations: TGenFile;
@@ -49,6 +50,7 @@ var
   APair: TKVPair;
 begin
   FDontServe := False;
+  FMode := Mode;
   FPort := APort;
   FLocations := TGenFile.Create;
   FConfig := TGenFile.Create;
@@ -174,8 +176,9 @@ var
 begin
   if FDontServe then
     Exit;
-  WriteLn('Requesting: ', ARequest.URI, '. Return code: ', AResponse.Code,
-    ' ', AResponse.CodeText+#13);
+  if FMode = '--dev' then
+    WriteLn('Requesting: ', ARequest.URI, '. Return code: ', AResponse.Code,
+      ' ', AResponse.CodeText+#13);
   AGenSet := TGenFileSet.Create;
   AGenReq := TGenFile.Create;
 
