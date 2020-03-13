@@ -53,6 +53,8 @@ type
       function GenValueByIndex(AnAlias:string;AnIndex:integer):string;
       function KeysCount(AnAlias:string):string;
       function HasKey(AKey:string):boolean;
+      function GenValuesAsList(AnAlias:string;sep:string=','):string;
+      function GenKeysAsList(AnAlias:string;sep:string=','):string;
       destructor Destroy; override;
   end;
 
@@ -76,6 +78,22 @@ var
 begin
   for iter in AGenFiles do
     Add(iter);
+end;
+
+function TGenFileSet.GenValuesAsList(AnAlias:string;sep:string=','):string;
+var
+  i:integer;
+begin
+  i := IndexOf(AnAlias);
+  Result := FGenFiles[i].GenFile.GenValuesAsList(sep);
+end;
+
+function TGenFileSet.GenKeysAsList(AnAlias:string;sep:string=','):string;
+var
+  i:integer;
+begin
+  i := IndexOf(AnAlias);
+  Result := FGenFiles[i].GenFile.GenKeysAsList(sep);
 end;
 
 procedure TGenFileSet.CopyGenSet(var OutGenSet:TGenFileSet);

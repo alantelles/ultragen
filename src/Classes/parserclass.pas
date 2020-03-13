@@ -777,6 +777,16 @@ begin
     begin
       Return := FTemplate.GenFileSet.GetValue(Params[0]).Value;
     end
+    else if (AFuncName = 'genValuesAsList') and (Params.Count = 1) then
+      Return := FTemplate.GenFileSet.GenValuesAsList(Params[0])
+    else if (AFuncName = 'genValuesAsList') and (Params.Count = 2) then
+      Return := FTemplate.GenFileSet.GenValuesAsList(Params[0],Params[1])
+    else if (AFuncName = 'genKeysAsList') and (Params.Count = 1) then
+      Return := FTemplate.GenFileSet.GenKeysAsList(Params[0])
+    else if (AFuncName = 'genKeysAsList') and (Params.Count = 2) then
+      Return := FTemplate.GenFileSet.GenKeysAsList(Params[0],Params[1])
+
+
     else if (AFuncName = 'genValue') and (Params.Count = 2) then
     begin
       a := FROM_GEN_SET + Params[1] + ATTR_ACCESSOR + Params[0];

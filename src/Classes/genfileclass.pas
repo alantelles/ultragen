@@ -41,13 +41,15 @@ type
     procedure ClearValues;
     procedure CaptureGen(var OutGenFile:TGenFile; ResetMode:boolean);
     procedure CopyGen(var OutGenFile:TGenFile);
+    function GenValuesAsList(sep:string=','):string;
+    function GenKeysAsList(sep:string=','):string;
     //sort
 
   end;
 
 implementation
 uses
-    VariablesGlobals, FileHandlingUtils;
+    VariablesGlobals, FileHandlingUtils, StringsFunctions;
 
 constructor TGenFile.Create;
 begin
@@ -97,6 +99,36 @@ begin
     OutGenFile.SetValue(APair.Key, APair.Value);
   OutGenFile.IfNotFound := FDefault;
   OutGenFile.GenSeparator := FGenSep;
+end;
+
+function TGenFile.GenValuesAsList(sep:string=','):string;
+var
+  AList:TStringList;
+  APair:TKVPair;
+  Return:string;
+begin
+  AList := TStringList.Create;
+  AList.Add(sep);
+  for APair in FPairs do
+    AList.Add(APair.Value);
+  Return := StringsFunctions.Join(AList);
+  AList.Free;
+  Result := Return;
+end;
+
+function TGenFile.GenKeysAsList(sep:string=','):string;
+var
+  AList:TStringList;
+  APair:TKVPair;
+  Return:string;
+begin
+  AList := TStringList.Create;
+  AList.Add(sep);
+  for APair in FPairs do
+    AList.Add(APair.Key);
+  Return := StringsFunctions.Join(AList);
+  AList.Free;
+  Result := Return;
 end;
 
 procedure TGenFile.CaptureGen(var OutGenFile:TGenFile; ResetMode:boolean);
