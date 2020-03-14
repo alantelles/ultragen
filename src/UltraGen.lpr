@@ -62,7 +62,7 @@ begin
   begin
     IsGenSetCall := False;
     IsGenPathCall := False;
-    if not FileExists(GetFileName(ParamStr(2),False)+'.gen') then
+    if not FileExists(ParamStr(2)) then
     begin
       WriteLn('Config App Gen ',GetFileName(ParamStr(2),False),' not found.');
       WriteLn('See docs for details. Exitting');

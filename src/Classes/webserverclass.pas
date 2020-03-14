@@ -54,7 +54,7 @@ begin
   FPort := APort;
   FLocations := TGenFile.Create;
   FConfig := TGenFile.Create;
-  FConfig.Load(GetFileName(AnApp,False) + '.gen');
+  FConfig.Load(AnApp);
   Aux := FConfig.GetValue('_appLoader').Value;
   if Trim(Aux) <> '' then
   begin
