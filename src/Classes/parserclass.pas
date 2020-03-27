@@ -1217,6 +1217,10 @@ begin
     else if (AFuncName = 'execute') and (Params.Count > 0) then
       Return := StringsFunctions.ExecuteFunctionWithReturn(Params)
 
+    { http requests }
+    else if (AFuncName = 'sendGet') and (Params.Count > 0) then
+      Return := FTemplate.RequestRest(Params, PureParams)
+
     else if IsUserFunction(AFuncName,i) > -1 then
       Return := FTemplate.ExecuteFunction(AFuncName,True,Params)
     else

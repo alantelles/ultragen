@@ -242,7 +242,7 @@ type
     procedure DropCookie(var Params: TStringList);
     procedure SetWebVars(ASessionId, ASessionPath: string; ASessionDuration: integer);
     procedure ParseJson(var Params: TStringList);
-    procedure RequestRest(var Params: TStringList; var PureParams: TStringList);
+    function RequestRest(var Params: TStringList; var PureParams: TStringList):string;
     //end web procedures
     function MapElem(var Params:TStringList;var PureParams:TStringList):string;
     procedure StartFunction(var Params: TStringList; var PureParams: TStringList;
@@ -528,7 +528,7 @@ begin
   AJson.Free;
 end;
 
-procedure TTemplate.RequestRest(var Params: TStringList; var PureParams: TStringList);
+function TTemplate.RequestRest(var Params: TStringList; var PureParams: TStringList):string;
 var
   Requirer: TFPHttpClient;
   Return: string = '';
@@ -541,8 +541,7 @@ begin
   Requirer.AddHeader('User-Agent','Mozilla/5.0 (compatible; fpweb)');
   try
     Requirer.AllowRedirect := True;
-    URL := Params[1];
-    Params.Delete(0);
+    URL := Params[0];
     Params.Delete(0);
     Params.LineBreak := '&';
     if Params.Count > 0 then
@@ -553,8 +552,9 @@ begin
     Return := Requirer.Get(URL);
   finally
     Requirer.Free;
-    SetVariable(PureParams[0], Return);
+    //SetVariable(PureParams[0], Return);
   end;
+  Result := Return;
 end;
 
 procedure TTemplate.CreateQueue(var Params:TStringList; var PureParams:TStringList);
@@ -1867,7 +1867,7 @@ begin
     'setRawCookie': SetRawCookie(Params);
     'dropCookie': DropCookie(Params);
     'parseJson': ParseJson(Params);
-    'request': RequestRest(Params, PureParams);
+    'sendGet': RequestRest(Params, PureParams);
     // end web operations
     //queues opers
     'createQueue': CreateQueue(Params, PureParams);
