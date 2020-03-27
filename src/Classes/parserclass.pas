@@ -579,6 +579,7 @@ begin
     AGenSet := TGenFileSet.Create;
     ATemp := TTemplate.Create(Params[0]);
     Params.Delete(0);
+    ATemp.SetVariable('param',Params.Text);
     if Params.Count > 0 then
     begin
       for i:=0 to Params.Count-1 do

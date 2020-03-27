@@ -21,7 +21,7 @@ uses
 var
   iter,iterA, GenPath, ADefault:string;
   Start:TDateTime;
-  FlowLines,AuxGens,AuxGroup,AuxTemp:TStringList;
+  FlowLines,AuxGens,AuxGroup,AuxTemp, ParamDump:TStringList;
   LookSub, Live, AsString, IsGenSetCall, IsGenpathCall, ShowHelp:boolean;
   i, j, interval, paramStart:integer;
   Server:TUltraGenServer;
@@ -120,11 +120,19 @@ begin
         AuxGens.DelimitedText := ParamStr(3);
         ATemplate := TTemplate.Create(ParamStr(1));
         // uw temp.ultra -g src.gen -p param1 param2 param3
+        ParamDump := TStringList.Create;
+        ATemplate.SetVariable('param','');
         if ParamCount >= paramStart then
         begin
+
           for j:=paramStart to ParamCount do
+          begin
             ATemplate.SetVariable('param['+IntToStr(j-paramStart)+']',ParamStr(j));
+            ParamDump.Add(ParamStr(j));
+          end;
+          ATemplate.SetVariable('param',ParamDump.Text);
         end;
+        ParamDump.Free;
         AGenSet := TGenFileSet.Create;
         for iter in AuxGens do
         begin
@@ -164,11 +172,19 @@ begin
       if AuxGens.Count > 0 then
       begin
         ATemplate := TTemplate.Create(ParamStr(1));
+        ParamDump := TStringList.Create;
+        ATemplate.SetVariable('param','');
         if ParamCount >= paramStart then
         begin
+
           for j:=paramStart to ParamCount do
+          begin
             ATemplate.SetVariable('param['+IntToStr(j-paramStart)+']',ParamStr(j));
+            ParamDump.Add(ParamStr(j));
+          end;
+          ATemplate.SetVariable('param',ParamDump.Text);
         end;
+        ParamDump.Free;
         AGenSet := TGenFileSet.Create;
         for i:=0 to AuxGens.Count-1 do
         begin
@@ -189,11 +205,19 @@ begin
         paramStart := 3;
       end;
       ATemplate := TTemplate.Create(ParamStr(1));
+      ParamDump := TStringList.Create;
+      ATemplate.SetVariable('param','');
       if ParamCount >= paramStart then
       begin
+
         for j:=paramStart to ParamCount do
+        begin
           ATemplate.SetVariable('param['+IntToStr(j-paramStart)+']',ParamStr(j));
+          ParamDump.Add(ParamStr(j));
+        end;
+        ATemplate.SetVariable('param',ParamDump.Text);
       end;
+      ParamDump.Free;
       AGenSet := TGenFileSet.Create;
       ATemplate.ParseTemplate(AGenSet);
       if Live then
