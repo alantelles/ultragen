@@ -160,7 +160,7 @@
   <CompilerOptions>
     <Version Value="11"/>
     <Target>
-      <Filename Value="ultragen"/>
+      <Filename Value="../build/bin/ultragen"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>

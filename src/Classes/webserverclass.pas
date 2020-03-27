@@ -25,6 +25,7 @@ type
     FServer: TFPHTTPServer;
     FSessionsPath, FSessionFile:string;
     FSessionDuration:integer;
+    FMode:string;
   public
     property SessionsPath: string read FSessionsPath write FSessionsPath;
     property Port: word read FPort write FPort;
@@ -50,6 +51,7 @@ var
 begin
   FDontServe := False;
   FPort := APort;
+  FMode := Mode;
   FLocations := TGenFile.Create;
   FConfig := TGenFile.Create;
   FConfig.Load(GetFileName(AnApp,False) + '.gen');
@@ -174,8 +176,9 @@ var
 begin
   if FDontServe then
     Exit;
-  WriteLn('Requesting: ', ARequest.URI, '. Return code: ', AResponse.Code,
-    ' ', AResponse.CodeText+#13);
+  if FMode = '--dev' then
+    WriteLn('Requesting: ', ARequest.URI, '. Return code: ', AResponse.Code,
+      ' ', AResponse.CodeText+#13);
   AGenSet := TGenFileSet.Create;
   AGenReq := TGenFile.Create;
 
