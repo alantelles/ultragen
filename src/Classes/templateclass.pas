@@ -243,6 +243,7 @@ type
     procedure SetWebVars(ASessionId, ASessionPath: string; ASessionDuration: integer);
     procedure ParseJson(var Params: TStringList);
     function RequestRest(var Params: TStringList; var PureParams: TStringList):string;
+    function RequestRestPost(var Params: TStringList; var PureParams: TStringList):string;
     //end web procedures
     function MapElem(var Params:TStringList;var PureParams:TStringList):string;
     procedure StartFunction(var Params: TStringList; var PureParams: TStringList;
@@ -528,12 +529,43 @@ begin
   AJson.Free;
 end;
 
+function TTemplate.RequestRestPost(var Params: TStringList; var PureParams: TStringList):string;
+var
+  Requirer: TFPHttpClient;
+  Return: string = '';
+  SS:TStringStream;
+  URL:string;
+begin
+  InitSSLInterface;
+  Requirer := TFPHttpClient.Create(nil);
+  Requirer.AddHeader('User-Agent','Mozilla/5.0 (compatible; fpweb)');
+  try
+    Requirer.AllowRedirect := True;
+    Requirer.AddHeader('Content-Type', 'application/x-www-form-urlencoded');
+    URL := Params[0];
+    Params.Delete(0);
+    Params.SkipLastLineBreak := True;
+    Params.LineBreak := '&';
+    if Params.Count > 0 then
+    begin
+      SS := TStringStream.Create(Params.Text);
+      SS.Position := 0;
+      Requirer.RequestBody := SS;
+    end;
+    Return := Requirer.Post(URL);
+  finally
+    SS.Free;
+    Requirer.Free;
+    //SetVariable(PureParams[0], Return);
+  end;
+  Result := Return;
+end;
+
+
 function TTemplate.RequestRest(var Params: TStringList; var PureParams: TStringList):string;
 var
   Requirer: TFPHttpClient;
   Return: string = '';
-  AStream:TMemoryStream;
-  SS:TStringStream;
   URL, AQuery:string;
 begin
   InitSSLInterface;
