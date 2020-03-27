@@ -532,14 +532,25 @@ procedure TTemplate.RequestRest(var Params: TStringList; var PureParams: TString
 var
   Requirer: TFPHttpClient;
   Return: string = '';
+  AStream:TMemoryStream;
+  SS:TStringStream;
+  URL, AQuery:string;
 begin
-
   InitSSLInterface;
   Requirer := TFPHttpClient.Create(nil);
   Requirer.AddHeader('User-Agent','Mozilla/5.0 (compatible; fpweb)');
   try
     Requirer.AllowRedirect := True;
-    Return := Requirer.Get(Params[1]);
+    URL := Params[1];
+    Params.Delete(0);
+    Params.Delete(0);
+    Params.LineBreak := '&';
+    if Params.Count > 0 then
+    begin
+      URL := URL + '?';
+      URL := URL + Params.Text;
+    end;
+    Return := Requirer.Get(URL);
   finally
     Requirer.Free;
     SetVariable(PureParams[0], Return);

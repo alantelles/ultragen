@@ -39,6 +39,8 @@ type
     function IsFromParent(AToken: string): boolean;
     function IsAnAlias(AToken: string): boolean;
     function IsUserFunction(AFuncName: string; var i:integer): integer;
+    function IsSpread(AToken, opt:String):string;
+    procedure SpreadGen(var ArgsOut:TStringList; AnAlias, Opt:string);
     function GetLiteral(AToken: string): string;
     function GetTimeStr(AToken: string): string;
     function ParseParams(AList: string; var ArgsAsList: TStringList): TTempParser;
@@ -208,6 +210,54 @@ begin
     end;
   end;
   Result := True;
+end;
+
+function TTempParser.IsSpread(AToken, Opt:String):string;
+var
+  May, C:string;
+  Legal:boolean;
+  Ret:string='';
+begin
+
+  May := Copy(AToken,1,Length(Opt));
+  if Opt = May then
+  begin
+    Ret := Copy(AToken, Length(Opt)+1,Length(AToken));
+    if Length(Ret) > 0 then
+    begin
+      for C in Ret do
+      begin
+        if Pos(C, VARS_ALLOWED) = 0 then
+        begin
+          Ret := '';
+          Break;
+        end;
+      end;
+    end;
+  end;
+  Result := Ret;
+end;
+
+procedure TTempParser.SpreadGen(var ArgsOut:TStringList; AnAlias, Opt:string);
+var
+  i:integer;
+  APair:TKVPair;
+  AGen:TGenFile;
+begin
+  i := FTemplate.GenFileSet.IndexOf(AnAlias);
+  if i > -1 then
+  begin
+    AGen := FTemplate.GenFileSet.GenFiles[i].GenFile;
+    for APair in AGen.Pairs do
+    begin
+      if Opt = SPREAD_KEYS then
+        ArgsOut.Add(STR_ENCLOSE+APair.Key+STR_ENCLOSE)
+      else if Opt = SPREAD_VALUES then
+        ArgsOut.Add(STR_ENCLOSE+APair.Value+STR_ENCLOSE)
+      else if Opt = SPREAD_PAIRS then
+        ArgsOut.Add(STR_ENCLOSE+APair.Key+AGen.GenSeparator+APair.Value+STR_ENCLOSE);
+    end;
+  end;
 end;
 
 function TTempParser.IsImported(AToken: string): boolean;
@@ -564,6 +614,7 @@ var
   Params, PureParams: TStringList;
   i, DotPos: integer;
 begin
+
   if IsFromParent(AToken) then
     AToken := ReplaceStr(AToken, 'PARENT.@', '@');
   IsAReserved := IsReserved(AToken);
@@ -667,8 +718,9 @@ function TTempParser.ParseParams(AList: string;
   var ArgsAsList: TStringList): TTempParser;
 var
   LastStrOpen, StrOpen, Escaping: boolean;
-  FuncLevel, i: integer;
-  Part, z: string;
+  FuncLevel, i, GenIndex: integer;
+  Part, z, ToIns: string;
+  Spreads:array[0..2] of string;
 begin
   FuncLevel := 0;
   StrOpen := False;
@@ -705,7 +757,18 @@ begin
       begin
         if (FuncLevel = 0) and (not StrOpen) then
         begin
-          ArgsAsList.Add(Trim(Part));
+          ToIns := Trim(Part);
+          Spreads[0] := IsSpread(ToIns, SPREAD_KEYS);
+          Spreads[1] := IsSpread(ToIns, SPREAD_VALUES);
+          Spreads[2] := IsSpread(ToIns, SPREAD_PAIRS);
+          if Spreads[0] <> '' then
+            SpreadGen(ArgsAsList, Spreads[0], SPREAD_KEYS)
+          else if Spreads[1] <> '' then
+            SpreadGen(ArgsAsList, Spreads[1], SPREAD_VALUES)
+          else if Spreads[2] <> '' then
+            SpreadGen(ArgsAsList, Spreads[2], SPREAD_PAIRS)
+          else
+            ArgsAsList.Add(ToIns);
           Part := '';
           Continue;
         end;
@@ -718,6 +781,7 @@ begin
       Escaping := False;
     end;
   end;
+
   Result := Self;
 end;
 
