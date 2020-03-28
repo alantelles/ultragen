@@ -242,7 +242,8 @@ type
     procedure DropCookie(var Params: TStringList);
     procedure SetWebVars(ASessionId, ASessionPath: string; ASessionDuration: integer);
     procedure ParseJson(var Params: TStringList);
-    procedure RequestRest(var Params: TStringList; var PureParams: TStringList);
+    function RequestRest(var Params: TStringList; var PureParams: TStringList):string;
+    function RequestRestPost(var Params: TStringList; var PureParams: TStringList):string;
     //end web procedures
     function MapElem(var Params:TStringList;var PureParams:TStringList):string;
     procedure StartFunction(var Params: TStringList; var PureParams: TStringList;
@@ -264,7 +265,7 @@ implementation
 uses FileHandlingUtils,
   ParserClass,
   StringsFunctions, VariablesGlobals,
-  fphttpclient, fpopenssl, openssl,
+  fphttpclient, openssl,
   { ExceptionsClasses }
   VariableExceptionsClass,
   GenExceptionsClass,
@@ -528,22 +529,70 @@ begin
   AJson.Free;
 end;
 
-procedure TTemplate.RequestRest(var Params: TStringList; var PureParams: TStringList);
+function TTemplate.RequestRestPost(var Params: TStringList; var PureParams: TStringList):string;
 var
   Requirer: TFPHttpClient;
   Return: string = '';
+  SS:TStringStream;
+  URL:string;
 begin
-
   InitSSLInterface;
   Requirer := TFPHttpClient.Create(nil);
   Requirer.AddHeader('User-Agent','Mozilla/5.0 (compatible; fpweb)');
   try
     Requirer.AllowRedirect := True;
-    Return := Requirer.Get(Params[1]);
+    Requirer.AddHeader('Content-Type', 'application/x-www-form-urlencoded');
+    URL := Params[0];
+    Params.Delete(0);
+    Params.SkipLastLineBreak := True;
+    Params.LineBreak := '&';
+    if Params.Count > 0 then
+    begin
+      SS := TStringStream.Create(Params.Text);
+      SS.Position := 0;
+      Requirer.RequestBody := SS;
+    end;
+    Return := Requirer.Post(URL);
+  finally
+    SS.Free;
+    Requirer.Free;
+    //SetVariable(PureParams[0], Return);
+  end;
+  Result := Return;
+end;
+
+
+function TTemplate.RequestRest(var Params: TStringList; var PureParams: TStringList):string;
+var
+  Requirer: TFPHttpClient;
+  Return: string = '';
+  URL, AQuery:string;
+begin
+  InitSSLInterface;
+  Requirer := TFPHttpClient.Create(nil);
+  Requirer.AddHeader('User-Agent','Mozilla/5.0 (compatible; fpweb)');
+  try
+    Requirer.AllowRedirect := True;
+    URL := Params[0];
+    Params.Delete(0);
+    Params.SkipLastLineBreak := True;
+    Params.LineBreak := '&';
+    if Params.Count > 0 then
+    begin
+      URL := URL + '?';
+      URL := URL + Params.Text;
+    end;
+    try
+      Return := Requirer.Get(URL);
+
+    except
+      WriteLn('Couldn''t load ssl lib');
+    end;
   finally
     Requirer.Free;
-    SetVariable(PureParams[0], Return);
+    //SetVariable(PureParams[0], Return);
   end;
+  Result := Return;
 end;
 
 procedure TTemplate.CreateQueue(var Params:TStringList; var PureParams:TStringList);
@@ -1856,7 +1905,7 @@ begin
     'setRawCookie': SetRawCookie(Params);
     'dropCookie': DropCookie(Params);
     'parseJson': ParseJson(Params);
-    'request': RequestRest(Params, PureParams);
+    'sendGet': RequestRest(Params, PureParams);
     // end web operations
     //queues opers
     'createQueue': CreateQueue(Params, PureParams);

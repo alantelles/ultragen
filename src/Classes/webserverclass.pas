@@ -52,6 +52,7 @@ begin
   FDontServe := False;
   FMode := Mode;
   FPort := APort;
+  FMode := Mode;
   FLocations := TGenFile.Create;
   FConfig := TGenFile.Create;
   FConfig.Load(AnApp);

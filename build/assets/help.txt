@@ -1,0 +1,20 @@
+UltraGen
+Advanced script language/template engine
+Version: {{VERSION}}
+===========================================
+Run guide
+===========================================
+> Simple script
+ultragen myScript.ultra [params...]
+> Passing gen files as input with --gens or short -g
+ultragen myScript.ultra --gens src1.gen [params...]
+> For persisting result add -p or --persist to template name or gen list
+ultragen myScript.ultra --gens src1.gen --persist [params...]
+> Passing a gen path to process all with --genpath or -gp (persist option enabled by default)
+ultragen myScript.ultra --genpath path/to/gens [params...]
+> Starting web server
+ultragen --serve app.gen [port] [mode:--prod|--dev]
+Default port = 2020
+Default mode = --dev
+Runs a UltraGen Web App in defined port and modes
+See http://ultragen.com.br/about/running for details.

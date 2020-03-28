@@ -31,6 +31,10 @@ var
   FULL_DATE:string = DATE_INTERCHANGE_FORMAT;
   PI: double;
 
+  SPREAD_KEYS:string = '.';
+  SPREAD_VALUES:string = '..';
+  SPREAD_PAIRS:string = '...';
+
 
 implementation
 begin
