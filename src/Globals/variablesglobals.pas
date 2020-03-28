@@ -34,6 +34,8 @@ var
   SPREAD_KEYS:string = '.';
   SPREAD_VALUES:string = '..';
   SPREAD_PAIRS:string = '...';
+  SPREAD_LIST_COMMA:string = '*';
+  SPREAD_LIST:string = '**';
 
 
 implementation

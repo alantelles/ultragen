@@ -39,8 +39,10 @@ type
     function IsFromParent(AToken: string): boolean;
     function IsAnAlias(AToken: string): boolean;
     function IsUserFunction(AFuncName: string; var i:integer): integer;
-    function IsSpread(AToken, opt:String):string;
+    function IsGenSpread(AToken, opt:String):string;
+    function IsListSpread(AToken, Opt:string):string;
     procedure SpreadGen(var ArgsOut:TStringList; AnAlias, Opt:string);
+    procedure SpreadList(var ArgsOut:TStringList; Subject:string);
     function GetLiteral(AToken: string): string;
     function GetTimeStr(AToken: string): string;
     function ParseParams(AList: string; var ArgsAsList: TStringList): TTempParser;
@@ -213,7 +215,7 @@ begin
   Result := True;
 end;
 
-function TTempParser.IsSpread(AToken, Opt:String):string;
+function TTempParser.IsGenSpread(AToken, Opt:String):string;
 var
   May, C:string;
   Legal:boolean;
@@ -239,6 +241,41 @@ begin
   Result := Ret;
 end;
 
+function TTempParser.IsListSpread(AToken, Opt:string):string;
+var
+  May, MayGen, C, Sep:string;
+  Legal:boolean;
+  Ret:string='';
+begin
+  May := Copy(AToken,1,Length(Opt));
+
+  if (Opt = May) then
+  begin
+    Ret := Copy(AToken, Length(Opt)+1,Length(AToken));
+    if Length(Ret) > 0 then
+    begin
+      if Opt = SPREAD_LIST then
+      begin
+        Sep := Ret[1];
+        Ret := Copy(Ret,2,Length(Ret))
+      end
+      else
+      begin
+        Sep := ',';
+      end;
+      Ret := Trim(Ret);
+      // *&b.go
+      // *@b
+      // *'list'
+      if Length(Ret) > 0 then
+      begin
+        Ret := ParseToken(Ret);
+      end;
+    end;
+  end;
+  Result := Sep + Ret;
+end;
+
 procedure TTempParser.SpreadGen(var ArgsOut:TStringList; AnAlias, Opt:string);
 var
   i:integer;
@@ -259,6 +296,23 @@ begin
         ArgsOut.Add(STR_ENCLOSE+APair.Key+AGen.GenSeparator+APair.Value+STR_ENCLOSE);
     end;
   end;
+end;
+
+procedure TTempParser.SpreadList(var ArgsOut:TStringList; Subject:string);
+var
+  Sep:char;
+  AStrList:TStringList;
+  S:string;
+begin
+  Sep := Subject[1];
+  Subject := Copy(Subject,2,Length(Subject));
+  AStrList := TStringList.Create;
+  AStrList.SkipLastLineBreak := True;
+  AStrList.Delimiter := Sep;
+  AStrList.DelimitedText := Subject;
+  for S in AStrList do
+    ArgsOut.Add(STR_ENCLOSE+S+STR_ENCLOSE);
+  AStrList.Free;
 end;
 
 function TTempParser.IsImported(AToken: string): boolean;
@@ -722,7 +776,7 @@ var
   LastStrOpen, StrOpen, Escaping: boolean;
   FuncLevel, i, GenIndex: integer;
   Part, z, ToIns: string;
-  Spreads:array[0..2] of string;
+  Spreads:array[0..4] of string;
 begin
   FuncLevel := 0;
   StrOpen := False;
@@ -760,15 +814,21 @@ begin
         if (FuncLevel = 0) and (not StrOpen) then
         begin
           ToIns := Trim(Part);
-          Spreads[0] := IsSpread(ToIns, SPREAD_KEYS);
-          Spreads[1] := IsSpread(ToIns, SPREAD_VALUES);
-          Spreads[2] := IsSpread(ToIns, SPREAD_PAIRS);
+          Spreads[0] := IsGenSpread(ToIns, SPREAD_KEYS);
+          Spreads[1] := IsGenSpread(ToIns, SPREAD_VALUES);
+          Spreads[2] := IsGenSpread(ToIns, SPREAD_PAIRS);
+          Spreads[3] := IsListSpread(ToIns, SPREAD_LIST);
+          Spreads[4] := IsListSpread(ToIns, SPREAD_LIST_COMMA);
           if Spreads[0] <> '' then
             SpreadGen(ArgsAsList, Spreads[0], SPREAD_KEYS)
           else if Spreads[1] <> '' then
             SpreadGen(ArgsAsList, Spreads[1], SPREAD_VALUES)
           else if Spreads[2] <> '' then
             SpreadGen(ArgsAsList, Spreads[2], SPREAD_PAIRS)
+          else if Spreads[3] <> '' then
+            SpreadList(ArgsAsList, Spreads[3])
+          else if Spreads[4] <> '' then
+            SpreadList(ArgsAsList, Spreads[4])
           else
             ArgsAsList.Add(ToIns);
           Part := '';
