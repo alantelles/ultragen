@@ -1279,7 +1279,7 @@ begin
       //syntax
       //^([lines of function])
       Return := FTemplate.ArrowFunction(Params,PureParams)
-    else if (AFuncName = 'callFunction') and (Params.Count > 1) then
+    else if (AFuncName = 'callFunction') and (Params.Count > 0) then
     begin
       a := Params[0];
       Params.Delete(0);

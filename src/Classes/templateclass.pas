@@ -913,7 +913,9 @@ begin
     end;
     EGenError.Create(E_GEN_ALREADY_EXISTS,ErrorLocation,'',Params[0],-1).TestAliasExists(FGenFileSet).ERaise(False);
     FGenFileSet.Add(AGenFile,Params[0]);
-  end;
+  end
+  else
+    EGenError.Create(E_GEN_NOT_EXIST,FErrorLocation,'',Params[2],-1).ERaise(True);
 end;
 
 procedure TTemplate.CaptureGen(var Params: TStringList);
@@ -1147,7 +1149,9 @@ begin
   if Explode.Count > 0 then
   begin
     for i := 0 to Explode.Count - 1 do
+    begin
       SetVariable(PureParams[1] + '[' + IntToStr(i) + ']', Trim(Explode[i]));
+    end;
   end;
   Explode.Free;
 end;
@@ -2120,9 +2124,10 @@ begin
         end;
         ATemplate.ScriptMode := True;
         ATemplate.SetWebVars(FWebVars.SessionId, FWebVars.SessionPath, FWebVars.SessionDuration);
-        AGenSet := TGenFileSet.Create;
-        FGenFileSet.CopyGenSet(AGenSet);
-        Return := ATemplate.ParseTemplate(AGenSet, FParsed);
+        // AGenSet := TGenFileSet.Create;
+        // FGenFileSet.CopyGenSet(AGenSet);
+
+        Return := ATemplate.ParseTemplate(FGenFileSet, FParsed);
         FParsed.AddStrings(ATemplate.ParsedLines);
         ATemplate.ScriptMode := False;
         ATemplate.Free;
