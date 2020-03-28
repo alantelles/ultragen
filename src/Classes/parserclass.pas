@@ -120,6 +120,7 @@ begin
      (FuncName <> '?') and
      (FuncName <> '--') and
      (FuncName <> '++') and
+     (FuncName <> '+') and
      (FuncName <> '~') then
   begin
     if len > 0 then
@@ -1138,7 +1139,7 @@ begin
     { String Manipulation }
     else if ((AFuncName = 'concat') or (AFuncName = '~')) then
       Return := StringsFunctions.Concat(Params)
-    else if (AFuncName = 'join') and (Params.Count > 1) then
+    else if ((AFuncName = 'join') or (AFuncName = '+')) and (Params.Count > 1) then
       Return := StringsFunctions.Join(Params)
     else if (AFuncName = 'lower') and (Params.Count = 1) then
       Return := AnsiLowerCase(Params[0])
