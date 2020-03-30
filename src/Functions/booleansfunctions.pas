@@ -19,6 +19,7 @@ function LogicAnd(var Params:TStringList; neg:boolean=False):string;
 function LogicOr(var Params:TStringList; neg:boolean=False):string;
 function TernaryPrint(var Params:TStringList):string;
 function IsNumeric(var Params:TStringList):string;
+function IsBool(var Params:TStringList):string;
 //end booleans comparisons
 
 implementation
@@ -98,6 +99,14 @@ begin
     Ret := 'false';
   end;
   Result := Ret;
+end;
+
+function IsBool(var Params:TStringList):string;
+begin
+  if (Params[0] = 'false') or (Params[0] = 'true') then
+    Result := 'true'
+  else
+    Result := 'false';
 end;
 
 function Greater(var Params:TStringList; neg:boolean=False):string;
