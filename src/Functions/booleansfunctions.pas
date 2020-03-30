@@ -18,6 +18,7 @@ function Inverter(var Params:TStringList):string;
 function LogicAnd(var Params:TStringList; neg:boolean=False):string;
 function LogicOr(var Params:TStringList; neg:boolean=False):string;
 function TernaryPrint(var Params:TStringList):string;
+function IsNumeric(var Params:TStringList):string;
 //end booleans comparisons
 
 implementation
@@ -84,6 +85,19 @@ begin
     end
   end;
   Result := Return;
+end;
+
+function IsNumeric(var Params:TStringList):string;
+var
+  Ret:string = 'false';
+begin
+  try
+    StrToFloat(Params[0]);
+    Ret := 'true';
+  except
+    Ret := 'false';
+  end;
+  Result := Ret;
 end;
 
 function Greater(var Params:TStringList; neg:boolean=False):string;

@@ -1125,6 +1125,8 @@ begin
       Return := BooleansFunctions.TernaryPrint(Params)
     else if ((AFuncName ='ternary') or (AFuncName ='?')) and (Params.Count = 2) then
       Return := BooleansFunctions.TernaryPrint(Params)
+    else if (AFuncName = 'isNum') and (Params.Count = 1) then
+      Return := BooleansFunctions.IsNumeric(Params)
 
     { Cast Functions }
     else if (AFuncName = 'num') and (Params.Count = 1) then
