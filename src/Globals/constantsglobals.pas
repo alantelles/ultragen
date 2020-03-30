@@ -19,7 +19,7 @@ const
   REFER_VAR = '&';
   FROM_GEN_SET = '&';
   SELF_WORD = 'self';
-  FUNCTION_ALLOWED = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  FUNCTION_ALLOWED = '_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
   VARS_ALLOWED = '_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
   NUMBERS = '1234567890';
   FUNC_SYMBOLS = '._:';
