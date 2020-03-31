@@ -320,12 +320,8 @@ begin
 end;
 
 procedure TTemplate.POCCookie(Params:TStringList);
-var
-  C: TCookie;
 begin
-  C := FWebVars.Response.Cookies.Add;
-  C.Name := Params[0];
-  C.Value := Params[1];
+  FWebVars.Response.SendRedirect('https://google.com');
 end;
 
 procedure TTemplate.SetErrorLocation;
@@ -509,11 +505,8 @@ begin
 end;
 
 procedure TTemplate.RedirectTo(var Params: TStringList);
-var
-  AStr: string;
 begin
-  AStr := '<script>window.location.replace("' + Params[0] + '")</script>';
-  FParsed.Add(AStr);
+  FWebVars.Response.SendRedirect(Params[0]);
 end;
 
 procedure TTemplate.CreateSession(var Params: TStringList);
@@ -1942,6 +1935,7 @@ begin
     //end textsave
     //start web operations
     'abort': ParseAbort(Params);
+    'redirect',
     'goTo': RedirectTo(Params);
     'createSession': CreateSession(Params);
     'destroySession': DestroySession(Params);
