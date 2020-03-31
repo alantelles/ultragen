@@ -40,7 +40,7 @@ end;
 
 procedure TGenDBExtension.CallProc;
 begin
-  if FName = 'findWhere' then
+  if FName = 'find' then
     FindWhere;
 end;
 
