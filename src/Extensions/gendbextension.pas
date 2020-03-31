@@ -60,6 +60,7 @@ procedure TGenDBExtension.FindWhere;
 var
   // APath, AKey, AValue, APrefix: string;
   i: integer=0;
+  a:integer;
   AGenFile:TGenFile;
   Files:TStringList;
   F:string;
@@ -72,7 +73,8 @@ begin
     AGenFile.Load(F);
     if AGenFile.GetValue(FParams[2]).Value = FParams[3] then
     begin
-      FTemplate.GenFileSet.Add(True, F , FParams[1]+GEN_SUB_LEVEL+IntToStr(i));
+      A := FTemplate.GenFileSet.Add(True, FParams[1]+GEN_SUB_LEVEL+IntToStr(i));
+      AGenFile.CopyGen(FTemplate.GenFileSet.GenFiles[A].GenFile);
       i := i + 1;
     end;
   end;
