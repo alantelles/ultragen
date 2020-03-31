@@ -70,9 +70,9 @@ begin
   for F in Files do
   begin
     AGenFile.Load(F);
-    if AGenFile.GetValue(FParams[1]).Value = FParams[2] then
+    if AGenFile.GetValue(FParams[2]).Value = FParams[3] then
     begin
-      FTemplate.GenFileSet.Add(True, F , FParams[3]+GEN_SUB_LEVEL+IntToStr(i));
+      FTemplate.GenFileSet.Add(True, F , FParams[1]+GEN_SUB_LEVEL+IntToStr(i));
       i := i + 1;
     end;
   end;
