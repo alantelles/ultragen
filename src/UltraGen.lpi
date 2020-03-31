@@ -30,7 +30,7 @@
         <PackageName Value="LazUtils"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="27">
+    <Units Count="28">
       <Unit0>
         <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -156,15 +156,19 @@
         <UnitName Value="FileExceptionClass"/>
       </Unit24>
       <Unit25>
-        <Filename Value="Classes/moduleclass.pas"/>
+        <Filename Value="Classes/extensionclass.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ModuleClass"/>
+        <UnitName Value="ExtensionClass"/>
       </Unit25>
       <Unit26>
-        <Filename Value="Modules/pocmodule.pas"/>
+        <Filename Value="Extensions/gendbextension.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="POCModule"/>
+        <UnitName Value="GenDBExtension"/>
       </Unit26>
+      <Unit27>
+        <Filename Value="Extensions/pocextension.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit27>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -174,7 +178,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="Classes;Functions;Globals;Utils;Exceptions;Modules"/>
+      <OtherUnitFiles Value="Classes;Functions;Globals;Utils;Exceptions;Modules;Extensions"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <CodeGeneration>

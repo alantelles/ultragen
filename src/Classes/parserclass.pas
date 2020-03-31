@@ -29,7 +29,7 @@ type
     function ParseToken(AToken: string): string;
     function ParseTemplate(var OutputParsedLines: TStringList): string;
     function IsFunction(AToken: string): boolean;
-    function IsModuleFunction(AToken: string): boolean;
+    function IsExtensionFunction(AToken: string): boolean;
     function IsReserved(AToken: string): boolean;
     function IsVari(AToken: string): boolean;
     function IsLiteralString(AToken: string): boolean;
@@ -65,7 +65,7 @@ uses
   ListFunctions,
   MathFunctions,
   QueueListClass,
-  ModuleClass;
+  ExtensionClass;
 
 constructor TTempParser.Create(var ATemplate: TTemplate);
 begin
@@ -146,7 +146,7 @@ begin
   Result := (OpenPoint <> 0) and (OpenPoint < ClosePoint) and OnlyAllowedChars;
 end;
 
-function TTempParser.IsModuleFunction(AToken: string): boolean;
+function TTempParser.IsExtensionFunction(AToken: string): boolean;
 var
   OpenPoint, ClosePoint, len: integer;
   OnlyAllowedChars: boolean = True;
@@ -160,17 +160,17 @@ begin
   FuncName := Trim(Copy(AToken, 1, OpenPoint - 1));
   PosCount := 0;
   for ch in FuncName do
-    if ch = MODULE_CALL then
+    if ch = EXTENSION_CALL then
       PosCount := PosCount + 1;
-  PosMod := Pos(MODULE_CALL, FuncName);
+  PosMod := Pos(EXTENSION_CALL, FuncName);
   len := Length(FuncName);
-  if (PosMod > 1) and (PosCount = 1) then    // is module call
+  if (PosMod > 1) and (PosCount = 1) then    // is EXTENSION call
   begin
     if len > (PosMod+1) then
     begin
       for c := 1 to len do
       begin
-        if (((c > 1) and (Pos(FuncName[c], FUNCTION_ALLOWED + NUMBERS + FUNC_SYMBOLS + MODULE_CALL) = 0)) or
+        if (((c > 1) and (Pos(FuncName[c], FUNCTION_ALLOWED + NUMBERS + FUNC_SYMBOLS + EXTENSION_CALL) = 0)) or
           ((c = 1) and (Pos(FuncName[c], FUNCTION_ALLOWED) = 0))) then
         begin
           OnlyAllowedChars := False;
@@ -707,7 +707,7 @@ var
   GenVar: TParseResult;
   Return, GenDef, GenKey, TokenLiteral, ImportName, aaa: string;
   IsANumber, IsFromGen, IsAFunction, IsAVari, FirstIsFromGen, IsLiteral,
-  IsTime, IsImportedVal, IsFromAGenSet, IsFromModule, IsAlias, IsAReserved: boolean;
+  IsTime, IsImportedVal, IsFromAGenSet, IsFromExtension, IsAlias, IsAReserved: boolean;
   Params, PureParams: TStringList;
   i, DotPos: integer;
 begin
@@ -723,9 +723,9 @@ begin
   IsANumber := IsNumber(AToken);
   IsFromAGenSet := IsFromGenSet(AToken);
   IsImportedVal := False;//IsImported(AToken) and (not IsLiteral);
-  IsFromModule := IsModuleFunction(AToken);
+  IsFromExtension := IsExtensionFunction(AToken);
   IsFromGen := (not IsAFunction) and (not IsAVari) and (not IsLiteral) and
-    (not IsTime) and (not IsANumber) and (not IsFromModule) and
+    (not IsTime) and (not IsANumber) and (not IsFromExtension) and
     (not IsAlias) and (not IsFromAGenSet) and (not IsAReserved);
   if IsFromGen then
   begin
@@ -781,7 +781,7 @@ begin
   end
   else if IsAVari then
     Return := GetLiteral(AToken)
-  else if IsAFunction or IsFromModule then
+  else if IsAFunction or IsFromExtension then
   begin
     GenKey := Trim(Copy(AToken, 1, Pos(PARAM_OPEN, AToken) - 1));
     GenDef := Copy(AToken, Pos(PARAM_OPEN, AToken) + 1,
@@ -896,17 +896,17 @@ var
   i, j, k, posMod: integer;
   m, n: real;
   Dump: TStringList;
-  AModule:TModuleCaller;
+  AExtension:TExtensionCaller;
 begin
   AFuncName := Trim(AFuncName);
   //if exists a default
   //the value must be inserted at position
-  PosMod := Pos(MODULE_CALL, AFuncname);
+  PosMod := Pos(EXTENSION_CALL, AFuncname);
   if PosMod > 1 then
   begin
-    AModule := TModuleCaller.Create(Copy(AFuncName, 1, Posmod-1), Copy(AFuncName, Posmod+1, Length(AFuncName)), PureParams, Params);
-    Return := AModule.ExecFunc;
-    AModule.Free;
+    AExtension := TExtensionCaller.Create(Copy(AFuncName, 1, Posmod-1), Copy(AFuncName, Posmod+1, Length(AFuncName)), PureParams, Params, FTemplate);
+    Return := AExtension.ExecFunc;
+    AExtension.Free;
   end
   else if {(Pos(ATTR_ACCESSOR, AFuncName) = 0) and} (Pos(EXT_FUNC_SEP, AFuncName) = 0) then
   begin

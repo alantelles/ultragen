@@ -1,19 +1,20 @@
-unit POCModule;
+unit POCExtension;
 
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  Classes, SysUtils, ModuleClass, StrUtils;
+  Classes, SysUtils, ExtensionClass, StrUtils, TemplateClass;
 
 type
-  TPocModule = class
+  TPocExtension = class
     private
       FPureParams, FParams:TStringList;
       FName :string;
+      FTemplate:TTemplate;
     public
-      constructor Create(AProc:string; var APureParams:TStringList; var AParams:TStringList);
+      constructor Create(AProc:string; var APureParams:TStringList; var AParams:TStringList; var ATemplate:TTemplate);
       procedure CallProc;
       function CallFunc:string;
 
@@ -27,14 +28,15 @@ implementation
 uses
   ConstantsGlobals, VariablesGlobals, TypesGlobals;
 
-constructor TPocModule.Create(AProc:string; var APureParams:TStringList; var AParams:TStringList);
+constructor TPocExtension.Create(AProc:string; var APureParams:TStringList; var AParams:TStringList; var ATemplate:TTemplate);
 begin
   FPureParams := APureParams;
   FParams := AParams;
+  FTemplate := ATemplate;
   FName := AProc;
 end;
 
-procedure TPocModule.CallProc;
+procedure TPocExtension.CallProc;
 begin
   if FName = 'print' then
     Writeln ('vc esta printando de dentro do modulo')
@@ -42,7 +44,7 @@ begin
     UpperAll;
 end;
 
-function TPocModule.CallFunc:string;
+function TPocExtension.CallFunc:string;
 begin
   if FName = 'go' then
   begin
@@ -53,7 +55,7 @@ begin
 end;
 
 
-procedure TPocmodule.UpperAll;
+procedure TPocExtension.UpperAll;
 var
   S:string;
 begin

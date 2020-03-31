@@ -77,5 +77,25 @@ begin
   Result := Return;
 end;
 
+procedure TExtensionCaller.GenDBCallProc;
+var
+  AGenDB:TGenDBExtension;
+begin
+  AGenDB := TGenDBExtension.Create(FProcName, FPureParams, FParams, FTemplate);
+  AGenDB.CallProc;
+  AGenDB.Free;
+end;
+
+function TExtensionCaller.GenDBCallFunc:string;
+var
+  AGenDB:TGenDBExtension;
+  Return:string;
+begin
+  AGenDB := TGenDBExtension.Create(FProcName, FPureParams, FParams, FTemplate);
+  Return := AGenDB.CallFunc;
+  AGenDB.Free;
+  Result := Return;
+end;
+
 end.
 

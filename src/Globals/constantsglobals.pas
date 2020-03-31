@@ -24,7 +24,7 @@ const
   NUMBERS = '1234567890';
   FUNC_SYMBOLS = '._:';
   DEF_DELIM = ',';
-  MODULE_CALL = '>';
+  EXTENSION_CALL = '>';
 
   AS_STRING = True;
   GEN_FILES_CALL_SEP = '|';

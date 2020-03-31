@@ -11,7 +11,7 @@ uses
 
     { Classes }
      WebServerClass, TemplateClass, QueueListClass,
-     ThreadedTemplateClass, GenFileSetClass, ParserClass,
+     ThreadedTemplateClass, GenFileSetClass, ParserClass, ExtensionClass,
 
     { Globals }
     TypesGlobals, VariablesGlobals, ConstantsGlobals,

@@ -274,7 +274,7 @@ uses FileHandlingUtils,
   GenExceptionsClass,
   AliasExceptionClass,QueueListClass,
   FileExceptionClass,
-  ModuleClass;
+  ExtensionClass;
 
 constructor TTemplate.Create(ATempName: string = ''; AExpLocation: string = '.');
 begin
@@ -1832,7 +1832,7 @@ var
   i, PosMod: integer;
   a, b: string;
   Errorlocation:TErrorLocation;
-  AModule:TModuleCaller;
+  AExtension:TExtensionCaller;
 begin
 
   with ErrorLocation do
@@ -1857,7 +1857,7 @@ begin
     end;
   end;
   AKey := Trim(AKey);
-  PosMod := Pos(MODULE_CALL, AKey);
+  PosMod := Pos(EXTENSION_CALL, AKey);
   if PosMod = 0 then
   begin
 
@@ -1992,10 +1992,10 @@ begin
   end
   else
   begin
-    //is calling from a module
-    AModule := TModuleCaller.Create(Copy(AKey, 1, PosMod-1), Copy(AKey, PosMod+1, Length(AKey)), PureParams, Params);
-    Amodule.ExecProc;
-    AModule.Free;
+    //is calling from a Extension
+    AExtension := TExtensionCaller.Create(Copy(AKey, 1, PosMod-1), Copy(AKey, PosMod+1, Length(AKey)), PureParams, Params, Self);
+    AExtension.ExecProc;
+    AExtension.Free;
   end;
   PureParams.Free;
   Params.Free;
