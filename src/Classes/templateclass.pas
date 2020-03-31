@@ -1827,6 +1827,7 @@ end;
 function TTemplate.SetPredefined(AKey, AValue: string): boolean;
 var
   Return: boolean = True;
+  Res:boolean;
   AParser: TTempParser;
   Params, PureParams: TStringList;
   i, PosMod: integer;
@@ -1919,8 +1920,25 @@ begin
       begin
         if Params.Count = 1 then
           CreateDirTree(Params[0], False)
-        else if (Params.Count = 2) and (Params[1] = 'FILE') then
-          CreateDirTree(Params[0], True);
+        else if (Params.Count = 2) then
+        begin
+          if (PureParams[1] = LANG_TRUE) then
+            CreateDirTree(Params[0], True)
+          else
+            CreateDirTree(Params[0], True);
+        end;
+      end;
+      'rmdir':
+      begin
+        if Params.Count = 1 then
+          RemoveDir(Params[0])
+        else if (Params.Count = 2) then
+        begin
+          if (PureParams[1] = LANG_TRUE) then
+            Res := DeleteDirectory(Params[0], False)
+          else
+            RemoveDir(Params[0]);
+        end;
       end;
       //end filehandling
       'renderBlank': FOverrides.RenderBlank := True;
