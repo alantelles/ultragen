@@ -1972,6 +1972,12 @@ begin
       'parseJson': ParseJson(Params);
       'sendGet': RequestRest(Params, PureParams);
       'responseType': FWebVars.Response.ContentType := Params[0];
+      'responseCode':
+      begin
+        FWebVars.Response.Code := StrToInt(Params[0]);
+        if Params.Count > 1 then
+          FWebVars.Response.CodeText := Params[1];
+      end;
       // end web operations
       //queues opers
       'createQueue': CreateQueue(Params, PureParams);

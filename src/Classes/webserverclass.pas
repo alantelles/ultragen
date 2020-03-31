@@ -178,9 +178,7 @@ var
 begin
   if FDontServe then
     Exit;
-  if FMode = '--dev' then
-    WriteLn('Requesting: ', ARequest.URI, '. Return code: ', AResponse.Code,
-      ' ', AResponse.CodeText+#13);
+
   AGenSet := TGenFileSet.Create;
   AGenReq := TGenFile.Create;
 
@@ -287,7 +285,9 @@ begin
   DumpTemplate := ATemplate.ParsedLines.Text;
   AGenSet.Free;
   ATemplate.Free;
-
+  if FMode = '--dev' then
+    WriteLn('Requesting: ', ARequest.URI, '. Return code: ', AResponse.Code,
+      ' ', AResponse.CodeText+#13);
   AResponse.Content := DumpTemplate;
 end;
 
