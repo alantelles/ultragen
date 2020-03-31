@@ -258,7 +258,7 @@ type
     function FindFunction(AnAlias:string):integer;
     function ExecuteFunction(FuncName: string; HasRet: boolean;
       var Params: TStringList): string;
-    procedure POCCookie(Params:TStringList);
+    procedure POC(PureParams, Params:TStringList);
 
     destructor Destroy; override;
   end;
@@ -273,7 +273,8 @@ uses FileHandlingUtils,
   VariableExceptionsClass,
   GenExceptionsClass,
   AliasExceptionClass,QueueListClass,
-  FileExceptionClass;
+  FileExceptionClass,
+  ModuleClass;
 
 constructor TTemplate.Create(ATempName: string = ''; AExpLocation: string = '.');
 begin
@@ -319,9 +320,10 @@ begin
   end;
 end;
 
-procedure TTemplate.POCCookie(Params:TStringList);
+procedure TTemplate.POC(PureParams, Params:TStringList);
+
 begin
-  FWebVars.Response.SendRedirect('https://google.com');
+
 end;
 
 procedure TTemplate.SetErrorLocation;
@@ -1827,9 +1829,10 @@ var
   Return: boolean = True;
   AParser: TTempParser;
   Params, PureParams: TStringList;
-  i: integer;
+  i, PosMod: integer;
   a, b: string;
   Errorlocation:TErrorLocation;
+  AModule:TModuleCaller;
 begin
 
   with ErrorLocation do
@@ -1854,132 +1857,145 @@ begin
     end;
   end;
   AKey := Trim(AKey);
-  case (AKey) of
-    'outFileName': FOverrides.OutFileName := Params[0];
-    'copyTo': FOverrides.CopyTo.Add(RemoveLastBackslash(Params[0]));
-    'exportTo': FExpLocation := Params[0];
-    'extension': FOverrides.Extension := Params[0];
-    'overwrite': FOverrides.Overwrite := True;
-    'exportAtRoot': FOverrides.ExpAtRoot := True;
-    'import': ImportGenFile(Params);
-    'dontSave' : FCanSave := False;
-    'include': IncludeTemplate(Params);
-    'for': ForPrepare(Params, PureParams);
-    'endFor': EndFor;
-    'break': BreakFor;
-    'continue': ContinueFor;
-    'loop': LoopPrepare(Params, PureParams);
-    'endLoop': EndLoop;
-    'if': IfPrepare(Params, PureParams, False);
-    'ifNot': IfPrepare(Params, PureParams, True);
-    'elseIf': IfPrepare(Params, PureParams, False);
-    'elseIfNot': IfPrepare(Params, PureParams, True);
-    'else': ElseDecision;
-    'endIf': EndIf;
-    'explode': ExplodeStr(Params, PureParams);
-    'print': PrintLine(Params, True, False);
-    'tee': PrintLine(Params, True, True);
-    'live',
-    'livePrint': PrintLine(Params, False, True);
-    'processTemplate': ProcessTemplate(Params);
-    'clear': clrscr;
-    'tokenEnclosers':
-    begin
-      FTokenOpen := Params[0][1];
-      FTokenClose := Params[0][2];
-    end;
-    'input': InputValue(Params, PureParams, False);
-    //'live': FCanSave := False;
-    'parsedInput': InputValue(Params, PureParams, True);
-    'execute': Execute(Params, False);
-    'execSilent': Execute(Params, False,True);
-    'trigger': Execute(Params, True);
-    'drop': DropVariable(PureParams[0]);
-    'loadText': LoadText(Params, PureParams);
-    //fileHandling
-    'listFiles': ListFiles(Params, PureParams);
-    'listDirs': ListDirs(Params, PureParams);
-    'limitedListFiles': LimitedListFiles(Params, PureParams);
-    'move': Move(Params);
-    'copy': TempFileCopy(Params);
-    'del' :
-    begin
-      EFileError.Create(E_FILE_NOT_FOUND,ErrorLocation,Params[0]).TestFileExists.ERaise(False);
-      SysUtils.DeleteFile(Params[0]);
-    end;
+  PosMod := Pos(MODULE_CALL, AKey);
+  if PosMod = 0 then
+  begin
 
-    'mkdir':
-    begin
-      if Params.Count = 1 then
-        CreateDirTree(Params[0], False)
-      else if (Params.Count = 2) and (Params[1] = 'FILE') then
-        CreateDirTree(Params[0], True);
-    end;
-    //end filehandling
-    'renderBlank': FOverrides.RenderBlank := True;
-    'pause': DoPause(Params);
-    // Gen operations
-    'setValue': SetGenValue(Params);
-    'saveGen': SaveGen(Params);
-    'setGenName': SetGenName(Params);
-    'createGen': CreateGen(Params);
-    'captureGen': CaptureGen(Params);
-    'unloadGen': UnloadGen(Params);
-    'loadGenFolder': LoadGenFolder(Params);
-    'mapGenKeys': MapGenKeys(Params, True);
-    'dropGenMap': MapGenKeys(Params, False);
-    'groupKeys': GroupKeys(Params);
-    // End of Gen operations
-    //textsave functions
-    'log': LogText(Params);
-    //end textsave
-    //start web operations
-    'abort': ParseAbort(Params);
-    'redirect',
-    'goTo': RedirectTo(Params);
-    'createSession': CreateSession(Params);
-    'destroySession': DestroySession(Params);
-    'setSessionVar': SetSessionVar(Params);
-    'dropSessionVar': DropSessionVar(Params);
-    'setCookie': SetCookie(Params);
-    'setGenCookie': SetRawCookie(Params);
-    'dropCookie': DropCookie(Params);
-    'parseJson': ParseJson(Params);
-    'sendGet': RequestRest(Params, PureParams);
-    // end web operations
-    //queues opers
-    'createQueue': CreateQueue(Params, PureParams);
-    'queue':QueueTask(Params);
-    'stopQueue': DestroyQueue(Params);
-    'startQueue': ActivateQueue(Params);
-    //end queues
-    //user functions
-    'function': StartFunction(Params, PureParams, True);
-    'endFunction': EndFunction;
-    'proc': StartFunction(Params, PureParams, False);
-    '_', 'return': FunctionReturn(Params);
-    'endProc': EndFunction;
-    'POC' : POCCookie(Params);
-    'callProc':
-    begin
-      a := Params[0];
-      PureParams.Delete(0);
-      PureParams.LineBreak := ',';
-      b := PureParams.Text;
-      Result := SetPredefined(a, b);
-    end
-    else
-    begin
-      if True then
+    case (AKey) of
+      'outFileName': FOverrides.OutFileName := Params[0];
+      'copyTo': FOverrides.CopyTo.Add(RemoveLastBackslash(Params[0]));
+      'exportTo': FExpLocation := Params[0];
+      'extension': FOverrides.Extension := Params[0];
+      'overwrite': FOverrides.Overwrite := True;
+      'exportAtRoot': FOverrides.ExpAtRoot := True;
+      'import': ImportGenFile(Params);
+      'dontSave' : FCanSave := False;
+      'include': IncludeTemplate(Params);
+      'for': ForPrepare(Params, PureParams);
+      'endFor': EndFor;
+      'break': BreakFor;
+      'continue': ContinueFor;
+      'loop': LoopPrepare(Params, PureParams);
+      'endLoop': EndLoop;
+      'if': IfPrepare(Params, PureParams, False);
+      'ifNot': IfPrepare(Params, PureParams, True);
+      'elseIf': IfPrepare(Params, PureParams, False);
+      'elseIfNot': IfPrepare(Params, PureParams, True);
+      'else': ElseDecision;
+      'endIf': EndIf;
+      'explode': ExplodeStr(Params, PureParams);
+      'print': PrintLine(Params, True, False);
+      'tee': PrintLine(Params, True, True);
+      'live',
+      'livePrint': PrintLine(Params, False, True);
+      'processTemplate': ProcessTemplate(Params);
+      'clear': clrscr;
+      'tokenEnclosers':
       begin
-        if Length(FUserFunctions) > 0 then
-          a := FUserFunctions[0].FunctionName;
-        ExecuteFunction(AKey, False, Params);
+        FTokenOpen := Params[0][1];
+        FTokenClose := Params[0][2];
+      end;
+      'input': InputValue(Params, PureParams, False);
+      //'live': FCanSave := False;
+      'parsedInput': InputValue(Params, PureParams, True);
+      'execute': Execute(Params, False);
+      'execSilent': Execute(Params, False,True);
+      'trigger': Execute(Params, True);
+      'drop': DropVariable(PureParams[0]);
+      'loadText': LoadText(Params, PureParams);
+      //fileHandling
+      'listFiles': ListFiles(Params, PureParams);
+      'listDirs': ListDirs(Params, PureParams);
+      'limitedListFiles': LimitedListFiles(Params, PureParams);
+      'move': Move(Params);
+      'copy': TempFileCopy(Params);
+      'del' :
+      begin
+        EFileError.Create(E_FILE_NOT_FOUND,ErrorLocation,Params[0]).TestFileExists.ERaise(False);
+        SysUtils.DeleteFile(Params[0]);
+      end;
+
+      'mkdir':
+      begin
+        if Params.Count = 1 then
+          CreateDirTree(Params[0], False)
+        else if (Params.Count = 2) and (Params[1] = 'FILE') then
+          CreateDirTree(Params[0], True);
+      end;
+      //end filehandling
+      'renderBlank': FOverrides.RenderBlank := True;
+      'pause': DoPause(Params);
+      // Gen operations
+      'setValue': SetGenValue(Params);
+      'saveGen': SaveGen(Params);
+      'setGenName': SetGenName(Params);
+      'createGen': CreateGen(Params);
+      'captureGen': CaptureGen(Params);
+      'unloadGen': UnloadGen(Params);
+      'loadGenFolder': LoadGenFolder(Params);
+      'mapGenKeys': MapGenKeys(Params, True);
+      'dropGenMap': MapGenKeys(Params, False);
+      'groupKeys': GroupKeys(Params);
+      // End of Gen operations
+      //textsave functions
+      'log': LogText(Params);
+      //end textsave
+      //start web operations
+      'abort': ParseAbort(Params);
+      'redirect',
+      'goTo': RedirectTo(Params);
+      'createSession': CreateSession(Params);
+      'destroySession': DestroySession(Params);
+      'setSessionVar': SetSessionVar(Params);
+      'dropSessionVar': DropSessionVar(Params);
+      'setCookie': SetCookie(Params);
+      'setGenCookie': SetRawCookie(Params);
+      'dropCookie': DropCookie(Params);
+      'parseJson': ParseJson(Params);
+      'sendGet': RequestRest(Params, PureParams);
+      // end web operations
+      //queues opers
+      'createQueue': CreateQueue(Params, PureParams);
+      'queue':QueueTask(Params);
+      'stopQueue': DestroyQueue(Params);
+      'startQueue': ActivateQueue(Params);
+      //end queues
+      //user functions
+      'function': StartFunction(Params, PureParams, True);
+      'endFunction': EndFunction;
+      'proc': StartFunction(Params, PureParams, False);
+      '_', 'return': FunctionReturn(Params);
+      'endProc': EndFunction;
+      'POC' : POC(PureParams, Params);
+      'callProc':
+      begin
+        a := Params[0];
+        PureParams.Delete(0);
+        PureParams.LineBreak := ',';
+        b := PureParams.Text;
+        Result := SetPredefined(a, b);
       end
       else
-        Return := False;
+      begin
+        if True then
+        begin
+          if Length(FUserFunctions) > 0 then
+            a := FUserFunctions[0].FunctionName;
+          ExecuteFunction(AKey, False, Params);
+        end
+        else
+          Return := False;
+      end;
+        //end user functions
     end;
-      //end user functions
+
+  end
+  else
+  begin
+    //is calling from a module
+    AModule := TModuleCaller.Create(Self);
+    AModule.ExecProcedure(Copy(AKey, 1, PosMod-1), Copy(AKey, PosMod+1, Length(AKey)), Params, PureParams);
+    AModule.Free;
   end;
   PureParams.Free;
   Params.Free;

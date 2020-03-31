@@ -30,7 +30,7 @@
         <PackageName Value="LazUtils"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="25">
+    <Units Count="28">
       <Unit0>
         <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -155,6 +155,20 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="FileExceptionClass"/>
       </Unit24>
+      <Unit25>
+        <Filename Value="Classes/moduleclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ModuleClass"/>
+      </Unit25>
+      <Unit26>
+        <Filename Value="Modules/pocmodule.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="POCModule"/>
+      </Unit26>
+      <Unit27>
+        <Filename Value="Classes/parentmoduleclass.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit27>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -164,7 +178,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="Classes;Functions;Globals;Utils;Exceptions"/>
+      <OtherUnitFiles Value="Classes;Functions;Globals;Utils;Exceptions;Modules"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <CodeGeneration>
