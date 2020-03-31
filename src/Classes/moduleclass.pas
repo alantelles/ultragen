@@ -15,8 +15,12 @@ type
   public
     constructor Create(AMod, AName:string; var APureParams:TStringList; var AParams:TStringList);
     procedure ExecProc;
+    function ExecFunc:string;
     { modules procs }
-    procedure PocCall;
+    procedure PocCallProc;
+
+    { modules funcs }
+    function PocCallFunc:string;
 
   end;
 
@@ -39,17 +43,34 @@ end;
 procedure TModuleCaller.ExecProc;
 begin
   if FModuleName = 'POC' then
-    PocCall;
+    PocCallProc;
+end;
+
+function TModuleCaller.ExecFunc:string;
+begin
+  if FModuleName = 'POC' then
+    Result := PocCallFunc;
 end;
 
 { modules callers }
-procedure TModuleCaller.PocCall;
+procedure TModuleCaller.PocCallProc;
 var
   APoc:TPocModule;
 begin
   APoc := TPocModule.Create(FProcName, FPureParams, FParams);
   APoc.CallProc;
   APoc.Free;
+end;
+
+function TModuleCaller.PocCallFunc:string;
+var
+  APoc:TPocModule;
+  Return:string;
+begin
+  APoc := TPocModule.Create(FProcName, FPureParams, FParams);
+  Return := APoc.CallFunc;
+  APoc.Free;
+  Result := Return;
 end;
 
 end.

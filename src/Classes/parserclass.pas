@@ -29,6 +29,7 @@ type
     function ParseToken(AToken: string): string;
     function ParseTemplate(var OutputParsedLines: TStringList): string;
     function IsFunction(AToken: string): boolean;
+    function IsModuleFunction(AToken: string): boolean;
     function IsReserved(AToken: string): boolean;
     function IsVari(AToken: string): boolean;
     function IsLiteralString(AToken: string): boolean;
@@ -63,7 +64,8 @@ uses
   StringsFunctions,
   ListFunctions,
   MathFunctions,
-  QueueListClass;
+  QueueListClass,
+  ModuleClass;
 
 constructor TTempParser.Create(var ATemplate: TTemplate);
 begin
@@ -119,17 +121,56 @@ begin
   FuncName := Trim(Copy(AToken, 1, OpenPoint - 1));
   len := Length(FuncName);
   if (FuncName <> ARROW_OPER) and
-     (FuncName <> '?') and
-     (FuncName <> '--') and
-     (FuncName <> '++') and
-     (FuncName <> '+') and
-     (FuncName <> '~') then
+     (FuncName <> '?') and     // ternary
+     (FuncName <> '--') and    // dec
+     (FuncName <> '++') and    // inc
+     (FuncName <> '+') and     // join
+     (FuncName <> '~') then    // concat
   begin
     if len > 0 then
     begin
       for c := 1 to len do
       begin
         if (((c > 1) and (Pos(FuncName[c], FUNCTION_ALLOWED + NUMBERS + FUNC_SYMBOLS) = 0)) or
+          ((c = 1) and (Pos(FuncName[c], FUNCTION_ALLOWED) = 0))) then
+        begin
+          OnlyAllowedChars := False;
+        end;
+      end;
+    end
+    else
+      OnlyAllowedChars := True;
+  end
+  else
+    OnlyAllowedChars := True;
+  Result := (OpenPoint <> 0) and (OpenPoint < ClosePoint) and OnlyAllowedChars;
+end;
+
+function TTempParser.IsModuleFunction(AToken: string): boolean;
+var
+  OpenPoint, ClosePoint, len: integer;
+  OnlyAllowedChars: boolean = True;
+  c, PosMod, PosCount: integer;
+  FuncName: string;
+  ch: char;
+begin
+  OpenPoint := Pos(PARAM_OPEN, AToken);
+  ClosePoint := RPos(PARAM_CLOSE, AToken);
+
+  FuncName := Trim(Copy(AToken, 1, OpenPoint - 1));
+  PosCount := 0;
+  for ch in FuncName do
+    if ch = MODULE_CALL then
+      PosCount := PosCount + 1;
+  PosMod := Pos(MODULE_CALL, FuncName);
+  len := Length(FuncName);
+  if (PosMod > 1) and (PosCount = 1) then    // is module call
+  begin
+    if len > (PosMod+1) then
+    begin
+      for c := 1 to len do
+      begin
+        if (((c > 1) and (Pos(FuncName[c], FUNCTION_ALLOWED + NUMBERS + FUNC_SYMBOLS + MODULE_CALL) = 0)) or
           ((c = 1) and (Pos(FuncName[c], FUNCTION_ALLOWED) = 0))) then
         begin
           OnlyAllowedChars := False;
@@ -666,7 +707,7 @@ var
   GenVar: TParseResult;
   Return, GenDef, GenKey, TokenLiteral, ImportName, aaa: string;
   IsANumber, IsFromGen, IsAFunction, IsAVari, FirstIsFromGen, IsLiteral,
-  IsTime, IsImportedVal, IsFromAGenSet, IsAlias, IsAReserved: boolean;
+  IsTime, IsImportedVal, IsFromAGenSet, IsFromModule, IsAlias, IsAReserved: boolean;
   Params, PureParams: TStringList;
   i, DotPos: integer;
 begin
@@ -682,8 +723,9 @@ begin
   IsANumber := IsNumber(AToken);
   IsFromAGenSet := IsFromGenSet(AToken);
   IsImportedVal := False;//IsImported(AToken) and (not IsLiteral);
+  IsFromModule := IsModuleFunction(AToken);
   IsFromGen := (not IsAFunction) and (not IsAVari) and (not IsLiteral) and
-    (not IsTime) and (not IsANumber) and (not IsImportedVal) and
+    (not IsTime) and (not IsANumber) and (not IsFromModule) and
     (not IsAlias) and (not IsFromAGenSet) and (not IsAReserved);
   if IsFromGen then
   begin
@@ -739,7 +781,7 @@ begin
   end
   else if IsAVari then
     Return := GetLiteral(AToken)
-  else if IsAFunction then
+  else if IsAFunction or IsFromModule then
   begin
     GenKey := Trim(Copy(AToken, 1, Pos(PARAM_OPEN, AToken) - 1));
     GenDef := Copy(AToken, Pos(PARAM_OPEN, AToken) + 1,
@@ -851,14 +893,22 @@ function TTempParser.ParseFunction(AFuncName: string; var Params: TStringList; v
 var
   Return, a, b: string;
   ExtName, ExtPath: string;
-  i, j, k: integer;
+  i, j, k, posMod: integer;
   m, n: real;
   Dump: TStringList;
+  AModule:TModuleCaller;
 begin
   AFuncName := Trim(AFuncName);
   //if exists a default
   //the value must be inserted at position
-  if {(Pos(ATTR_ACCESSOR, AFuncName) = 0) and} (Pos(EXT_FUNC_SEP, AFuncName) = 0) then
+  PosMod := Pos(MODULE_CALL, AFuncname);
+  if PosMod > 1 then
+  begin
+    AModule := TModuleCaller.Create(Copy(AFuncName, 1, Posmod-1), Copy(AFuncName, Posmod+1, Length(AFuncName)), PureParams, Params);
+    Return := AModule.ExecFunc;
+    AModule.Free;
+  end
+  else if {(Pos(ATTR_ACCESSOR, AFuncName) = 0) and} (Pos(EXT_FUNC_SEP, AFuncName) = 0) then
   begin
     { Template attributes }
     if (AFuncName = 'templateName') and (Params.Count = 0) then

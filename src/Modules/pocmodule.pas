@@ -15,7 +15,12 @@ type
     public
       constructor Create(AProc:string; var APureParams:TStringList; var AParams:TStringList);
       procedure CallProc;
+      function CallFunc:string;
+
+      { procedures }
       procedure UpperAll;
+
+      { functions }
   end;
 
 implementation
@@ -36,6 +41,17 @@ begin
   else if FName = 'upperall' then
     UpperAll;
 end;
+
+function TPocModule.CallFunc:string;
+begin
+  if FName = 'go' then
+  begin
+    FParams.SkipLastLineBreak := True;
+    FParams.LineBreak := ', ';
+    Result := FParams.Text;
+  end;
+end;
+
 
 procedure TPocmodule.UpperAll;
 var
