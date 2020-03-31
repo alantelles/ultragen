@@ -10,30 +10,46 @@ uses
 type
   TModuleCaller = class
   private
-    FTemplate:TTemplate;
+    FPureParams, FParams:TStringList;
+    FModuleName, FProcName:string;
   public
-    property Template:TTemplate read FTemplate write FTemplate;
-    constructor Create(var ATemplate:TTemplate);
-    procedure ExecProcedure(AMod, AName:string; var Params:TStringList; var PureParams:TStringList);
+    constructor Create(AMod, AName:string; var APureParams:TStringList; var AParams:TStringList);
+    procedure ExecProc;
+    { modules procs }
+    procedure PocCall;
+
   end;
 
 
 implementation
 uses
-  ConstantsGlobals, VariablesGlobals, TypesGlobals, ParentModuleClass;
+  ConstantsGlobals, VariablesGlobals, TypesGlobals,
 
-constructor TModuleCaller.Create(var ATemplate:TTemplate);
+  { available modules }
+  POCModule;
+
+constructor TModuleCaller.Create(AMod, AName:string; var APureParams:TStringList; var AParams:TStringList);
 begin
-  FTemplate := ATemplate;
+  FPureParams := APureParams;
+  FParams := AParams;
+  FModulename := AMod;
+  FprocName := AName;
 end;
 
-procedure TModuleCaller.ExecProcedure(AMod, AName:string; var Params:TStringList; var PureParams:TStringList);
-var
-  ACall:TModule;
+procedure TModuleCaller.ExecProc;
 begin
-  ACall := TModule.Create(AMod, AName, Params, PureParams,Self);
-  ACall.ExecProcedure;
-  ACall.Free;
+  if FModuleName = 'POC' then
+    PocCall;
+end;
+
+{ modules callers }
+procedure TModuleCaller.PocCall;
+var
+  APoc:TPocModule;
+begin
+  APoc := TPocModule.Create(FProcName, FPureParams, FParams);
+  APoc.CallProc;
+  APoc.Free;
 end;
 
 end.

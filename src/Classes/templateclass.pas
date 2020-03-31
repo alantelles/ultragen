@@ -1993,8 +1993,8 @@ begin
   else
   begin
     //is calling from a module
-    AModule := TModuleCaller.Create(Self);
-    AModule.ExecProcedure(Copy(AKey, 1, PosMod-1), Copy(AKey, PosMod+1, Length(AKey)), Params, PureParams);
+    AModule := TModuleCaller.Create(Copy(AKey, 1, PosMod-1), Copy(AKey, PosMod+1, Length(AKey)), PureParams, Params);
+    Amodule.ExecProc;
     AModule.Free;
   end;
   PureParams.Free;

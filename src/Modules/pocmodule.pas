@@ -5,29 +5,45 @@ unit POCModule;
 interface
 
 uses
-  Classes, SysUtils, ModuleClass, ParentModuleClass, StrUtils;
+  Classes, SysUtils, ModuleClass, StrUtils;
 
 type
-  TPocModule = class (TModule)
-    constructor Create(AProc:string; var AParams:TStringList; var APureParams:TStringList; var AModule:TModuleCaller);
-    procedure CallProc;
+  TPocModule = class
+    private
+      FPureParams, FParams:TStringList;
+      FName :string;
+    public
+      constructor Create(AProc:string; var APureParams:TStringList; var AParams:TStringList);
+      procedure CallProc;
+      procedure UpperAll;
   end;
 
 implementation
 uses
   ConstantsGlobals, VariablesGlobals, TypesGlobals;
 
-constructor TPocModule.Create(AProc:string; var AParams:TStringList; var APureParams:TStringList; var AModule:TModuleCaller);
+constructor TPocModule.Create(AProc:string; var APureParams:TStringList; var AParams:TStringList);
 begin
-  FUltra := AModule;
-  inherited Create('POC', AProc, AParams, APureParams, AModule);
+  FPureParams := APureParams;
+  FParams := AParams;
+  FName := AProc;
 end;
 
 procedure TPocModule.CallProc;
 begin
   if FName = 'print' then
-    Writeln ('vc esta printando de dentro do modulo');
+    Writeln ('vc esta printando de dentro do modulo')
+  else if FName = 'upperall' then
+    UpperAll;
 end;
+
+procedure TPocmodule.UpperAll;
+var
+  S:string;
+begin
+  WriteLn(Uppercase(FParams.Text));
+end;
+
 
 end.
 

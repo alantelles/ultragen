@@ -30,7 +30,7 @@
         <PackageName Value="LazUtils"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="28">
+    <Units Count="27">
       <Unit0>
         <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -165,10 +165,6 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="POCModule"/>
       </Unit26>
-      <Unit27>
-        <Filename Value="Classes/parentmoduleclass.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit27>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
