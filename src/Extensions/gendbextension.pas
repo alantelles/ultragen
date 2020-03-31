@@ -28,7 +28,7 @@ type
 
 implementation
 uses
-  ConstantsGlobals, VariablesGlobals, TypesGlobals;
+  ConstantsGlobals, VariablesGlobals, TypesGlobals, GenFileClass, FileUtil;
 
 constructor TGenDBExtension.Create(AProc:string; var APureParams:TStringList; var AParams:TStringList; var ATemplate:TTemplate);
 begin
@@ -58,10 +58,26 @@ end;
 
 procedure TGenDBExtension.FindWhere;
 var
-  APath, AKey, AValue, APrefix: string;
-  P:TStringList;
+  // APath, AKey, AValue, APrefix: string;
+  i: integer=0;
+  AGenFile:TGenFile;
+  Files:TStringList;
+  F:string;
 begin
-  FTemplate.LoadGenFolder(Params);
+  AGenFile := TGenFile.Create;
+  Files := TStringList.Create;
+  FindAllFiles(Files, FParams[0], '*.gen;*.GEN', True);
+  for F in Files do
+  begin
+    AGenFile.Load(F);
+    if AGenFile.GetValue(FParams[1]).Value = FParams[2] then
+    begin
+      FTemplate.GenFileSet.Add(True, F , FParams[3]+GEN_SUB_LEVEL+IntToStr(i));
+      i := i + 1;
+    end;
+  end;
+  Files.Free;
+  AGenFile.Free;
 end;
 
 

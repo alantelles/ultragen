@@ -14,20 +14,9 @@ uses
 function PrintCount(AListStr,ADelim:string):string;
 function PrintRange(AnEnd:integer):string;
 function PrintRange(AStart,AnEnd:integer):string;
-function Enlist(Params:TStringList):string;
 
 implementation
 
-function Enlist(Params:TStringList):string;
-var
-  Sep:string;
-begin
-  Sep := Params[0];
-  Params.Delete(0);
-  Params.SkipLastLineBreak := True;
-  Params.LineBreak := Sep;
-  Result := Params.Text;
-end;
 
 function PrintRange(AnEnd:integer):string;
 var

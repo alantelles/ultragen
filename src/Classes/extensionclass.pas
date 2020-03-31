@@ -47,7 +47,9 @@ end;
 procedure TExtensionCaller.ExecProc;
 begin
   if FExtensionName = 'POC' then
-    PocCallProc;
+    PocCallProc
+  else if FExtensionName = 'GenDB' then
+    GenDBCallProc;
 end;
 
 function TExtensionCaller.ExecFunc:string;
