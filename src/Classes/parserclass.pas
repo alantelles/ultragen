@@ -266,12 +266,12 @@ begin
   May := Copy(AToken,1,Length(Opt));
   if Opt = May then
   begin
-    Ret := Copy(AToken, Length(Opt)+1,Length(AToken));
+    Ret := ParseToken(Copy(AToken, Length(Opt)+1,Length(AToken)));
     if Length(Ret) > 0 then
     begin
       for C in Ret do
       begin
-        if Pos(C, VARS_ALLOWED) = 0 then
+        if Pos(C, VARS_ALLOWED+GEN_SUB_LEVEL+NUMBERS) = 0 then
         begin
           Ret := '';
           Break;
@@ -861,12 +861,13 @@ begin
           Spreads[2] := IsGenSpread(ToIns, SPREAD_PAIRS);
           Spreads[3] := IsListSpread(ToIns, SPREAD_LIST);
           Spreads[4] := IsListSpread(ToIns, SPREAD_LIST_COMMA);
-          if Spreads[0] <> '' then
-            SpreadGen(ArgsAsList, Spreads[0], SPREAD_KEYS)
+          if Spreads[2] <> '' then
+            SpreadGen(ArgsAsList, Spreads[2], SPREAD_PAIRS)
           else if Spreads[1] <> '' then
             SpreadGen(ArgsAsList, Spreads[1], SPREAD_VALUES)
-          else if Spreads[2] <> '' then
-            SpreadGen(ArgsAsList, Spreads[2], SPREAD_PAIRS)
+          else if Spreads[0] <> '' then
+            SpreadGen(ArgsAsList, Spreads[0], SPREAD_KEYS)
+
           else if Spreads[3] <> '' then
             SpreadList(ArgsAsList, Spreads[3])
           else if Spreads[4] <> '' then
