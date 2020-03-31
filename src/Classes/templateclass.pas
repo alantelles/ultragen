@@ -56,6 +56,8 @@ type
   TWebVars = record
     SessionId, SessionPath: string;
     SessionDuration: integer;
+    Request: TRequest;
+    Response: TResponse;
   end;
 
   TDefaultParam = record
@@ -240,7 +242,7 @@ type
     procedure SetRawCookie(var Params: TStringList);
     procedure CreateSession(var Params: TStringList);
     procedure DropCookie(var Params: TStringList);
-    procedure SetWebVars(ASessionId, ASessionPath: string; ASessionDuration: integer);
+    procedure SetWebVars(var AWebVars:TWebVars);
     procedure ParseJson(var Params: TStringList);
     function RequestRest(var Params: TStringList; var PureParams: TStringList):string;
     function RequestRestPost(var Params: TStringList; var PureParams: TStringList):string;
@@ -256,6 +258,7 @@ type
     function FindFunction(AnAlias:string):integer;
     function ExecuteFunction(FuncName: string; HasRet: boolean;
       var Params: TStringList): string;
+    procedure POCCookie(Params:TStringList);
 
     destructor Destroy; override;
   end;
@@ -314,6 +317,15 @@ begin
     FFullName := ExpandFileName(ATempName);
     Load(FFullName);
   end;
+end;
+
+procedure TTemplate.POCCookie(Params:TStringList);
+var
+  C: TCookie;
+begin
+  C := FWebVars.Response.Cookies.Add;
+  C.Name := Params[0];
+  C.Value := Params[1];
 end;
 
 procedure TTemplate.SetErrorLocation;
@@ -379,12 +391,10 @@ begin
   Result := Ret;
 end;
 
-procedure TTemplate.SetWebVars(ASessionId, ASessionPath: string;
-  ASessionDuration: integer);
+procedure TTemplate.SetWebVars(var AWebVars:TWebVars);
 begin
-  FWebVars.SessionID := ASessionID;
-  FWebVars.SessionPath := ASessionPath;
-  FWebVars.SessionDuration := ASessionDuration;
+
+  FWebVars := AWebVars;
 end;
 
 procedure TTemplate.SetFunctionsLength(NewLen: integer);
@@ -394,11 +404,12 @@ end;
 
 procedure TTemplate.SetCookie(var Params: TStringList);
 var
-  Expires: string = '';
+  C: TCookie;
 begin
-  if Params.Count = 3 then
-    Expires := '; expires= ' + Params[2];
-  FParsed.Add('<script>document.cookie="' + Params[0] + '=' + Params[1] + Expires + '"</script>');
+  C := FWebVars.Response.Cookies.Add;
+  C.Name := Params[0];
+  C.Value := Params[1];
+  C.Expires := ScanDateTime('yyyy-mm-dd', '2020-10-10');
 end;
 
 procedure TTemplate.SetRawCookie(var Params: TStringList);
@@ -411,9 +422,12 @@ begin
 end;
 
 procedure TTemplate.DropCookie(var Params: TStringList);
+var
+  C: TCookie;
 begin
-  FParsed.Add('<script>document.cookie="' + Params[0] +
-    '= ; expires= Thu, 01 Jan 1970 00:00:00 GMT"</script>');
+  C := FWebVars.Response.Cookies.Add;
+  C.Name := Params[0];
+  C.Expires := ScanDateTime('yyyy-mm-dd', '1970-01-01');
 end;
 
 procedure TTemplate.DestroySession(var Params: TStringList);
@@ -1093,7 +1107,7 @@ begin
   EAliasError.Create(E_FORBIDDEN_ALIAS_NAME,ErrorLocation,TempAlias).TestValidAliasName.ERaise(False);
   FIncludedAliases.Add(TempAlias);
   ATemp := TTemplate.Create(IncName, FExpLocation);
-  ATemp.SetWebVars(FWebVars.SessionId, FWebVars.SessionPath, FWebVars.SessionDuration);
+  ATemp.SetWebVars(FWebVars);
   ATemp.ParseTemplate(FGenFileSet);
   for ALine in ATemp.ParsedLines do
     FParsed.Add(ALine);
@@ -1923,6 +1937,7 @@ begin
     'proc': StartFunction(Params, PureParams, False);
     '_', 'return': FunctionReturn(Params);
     'endProc': EndFunction;
+    'POC' : POCCookie(Params);
     'callProc':
     begin
       a := Params[0];
@@ -2123,7 +2138,7 @@ begin
           Line := ATemplate.UserFunctions[j].Args.Text;
         end;
         ATemplate.ScriptMode := True;
-        ATemplate.SetWebVars(FWebVars.SessionId, FWebVars.SessionPath, FWebVars.SessionDuration);
+        ATemplate.SetWebVars(FWebVars);
         // AGenSet := TGenFileSet.Create;
         // FGenFileSet.CopyGenSet(AGenSet);
 

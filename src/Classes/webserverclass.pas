@@ -174,6 +174,7 @@ var
   i: integer;
   SessionID, ExpireTime, SessionFile:string;
   AnAlias:string;
+  AWebVars:TWebVars;
 begin
   if FDontServe then
     Exit;
@@ -276,7 +277,12 @@ begin
   AGenSet.Add(ASession, 'session');
   AGenSet.Add(AGenReq, 'request');
   ATemplate := TTemplate.Create(FLoader);
-  ATemplate.SetWebVars(SessionId, FSessionsPath, FSessionDuration);
+  AWebVars.SessionId := SessionId;
+  AWebVars.SessionDuration := FSessionDuration;
+  AWebVars.SessionPath := FSessionsPath;
+  AWebVars.Request := ARequest;
+  AWebVars.Response := AResponse;
+  ATemplate.SetWebVars(AWebVars);
   ATemplate.ParseTemplate(AGenSet);
   DumpTemplate := ATemplate.ParsedLines.Text;
   AGenSet.Free;
