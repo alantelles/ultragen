@@ -415,18 +415,38 @@ begin
       C.Expires := ScanDateTime('yyyy-mm-dd hh:nn:ss', Params[2]);
     except
       WriteLn('WARNING: Date given in incorrect format. Cookie won''t have expire date');
-
     end;
   end;
 end;
 
 procedure TTemplate.SetRawCookie(var Params: TStringList);
 var
-  RawPart: string = '';
+  //RawPart: string = '';
+  C: TCookie;
+  i:integer;
 begin
-  if Params.Count = 3 then
-    RawPart := '; ' + Params[2];
-  FParsed.Add('<script>document.cookie="' + Params[0] + '=' + Params[1] + RawPart + '"</script>');
+  C := FWebVars.Response.Cookies.Add;
+  C.Name := Params[0];
+  C.Value := Params[1];
+  if Params.Count > 2 then
+  begin
+    i := FGenFileSet.IndexOf(Params[2]);
+    if i > -1 then
+    begin
+
+      try
+        C.Expires := ScanDateTime('yyyy-mm-dd hh:nn:ss', FGenFileSet.GenFiles[i].GenFile.GetValue('expires').Value);
+      except
+        WriteLn('WARNING: Date given in incorrect format. Cookie won''t have expire date');
+      end;
+      C.Path := FGenFileSet.GenFiles[i].GenFile.GetValue('path', '/').Value;
+      C.Domain := FGenFileSet.GenFiles[i].GenFile.GetValue('domain', '.').Value;
+      C.Secure := StrToBoolean(FGenFileSet.GenFiles[i].GenFile.GetValue('secure').Value);
+    end;
+  end;
+  // if Params.Count = 3 then
+  //  RawPart := '; ' + Params[2];
+  // FParsed.Add('<script>document.cookie="' + Params[0] + '=' + Params[1] + RawPart + '"</script>');
 end;
 
 procedure TTemplate.DropCookie(var Params: TStringList);
@@ -1928,7 +1948,7 @@ begin
     'setSessionVar': SetSessionVar(Params);
     'dropSessionVar': DropSessionVar(Params);
     'setCookie': SetCookie(Params);
-    'setRawCookie': SetRawCookie(Params);
+    'setGenCookie': SetRawCookie(Params);
     'dropCookie': DropCookie(Params);
     'parseJson': ParseJson(Params);
     'sendGet': RequestRest(Params, PureParams);
