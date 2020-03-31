@@ -1971,6 +1971,7 @@ begin
       'dropCookie': DropCookie(Params);
       'parseJson': ParseJson(Params);
       'sendGet': RequestRest(Params, PureParams);
+      'responseType': FWebVars.Response.ContentType := Params[0];
       // end web operations
       //queues opers
       'createQueue': CreateQueue(Params, PureParams);
