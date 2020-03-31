@@ -409,7 +409,15 @@ begin
   C := FWebVars.Response.Cookies.Add;
   C.Name := Params[0];
   C.Value := Params[1];
-  C.Expires := ScanDateTime('yyyy-mm-dd', '2020-10-10');
+  if Params.Count > 2 then
+  begin
+    try
+      C.Expires := ScanDateTime('yyyy-mm-dd hh:nn:ss', Params[2]);
+    except
+      WriteLn('WARNING: Date given in incorrect format. Cookie won''t have expire date');
+
+    end;
+  end;
 end;
 
 procedure TTemplate.SetRawCookie(var Params: TStringList);
