@@ -1211,6 +1211,8 @@ begin
         StrToFloat(Params[1]))
 
     { ListFunctions }
+    else if (AFuncName = 'list') and (Params.Count > 1) then
+      Return := ListFunctions.Enlist(Params)
     else if (AFuncName = 'count') and (Params.Count = 1) then
       Return := ListFunctions.PrintCount(Params[0], LINE_BREAK)
     else if (AFuncName = 'count') and (Params.Count = 2) then
