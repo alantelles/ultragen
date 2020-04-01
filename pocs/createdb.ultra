@@ -1,0 +1,11 @@
+@{
+    createGen: 'users', 'user_model.gen'
+    createGen: 'conn', 'connection.gen'
+    # DB>createTable: 'users'
+    # DB>create: 'conn'
+    q = 'CREATE TABLE users (id INTEGER NOT NULL PRIMARY KEY, name VARCHAR100))'
+    a = 'teste'
+    print: @a
+    print: @q
+    # DB>query: 'conn', @q
+}

@@ -30,7 +30,7 @@
         <PackageName Value="LazUtils"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="28">
+    <Units Count="29">
       <Unit0>
         <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -169,6 +169,11 @@
         <Filename Value="Extensions/pocextension.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit27>
+      <Unit28>
+        <Filename Value="Extensions/dbextension.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="DBExtension"/>
+      </Unit28>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

@@ -1,0 +1,9 @@
+table=users
+collation=utf-8
+use_timestamps=true
+soft_delete=true
+fields=
+id=integer|PK
+name=string|size:100
+username=string|size:100|const:index,unique
+password=string|size:100|const:index

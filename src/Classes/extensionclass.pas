@@ -20,10 +20,12 @@ type
     { Extensions procs }
     procedure PocCallProc;
     procedure GenDBCallProc;
+    procedure DBCallProc;
 
     { Extensions funcs }
     function PocCallFunc:string;
     function GenDBCallFunc:string;
+    function DBCallFunc:string;
 
   end;
 
@@ -33,7 +35,7 @@ uses
   ConstantsGlobals, VariablesGlobals, TypesGlobals,
 
   { available Extensions }
-  POCExtension, GenDBExtension;
+  POCExtension, GenDBExtension, DBExtension;
 
 constructor TExtensionCaller.Create(AMod, AName:string; var APureParams:TStringList; var AParams:TStringList; var ATemplate:TTemplate);
 begin
@@ -49,13 +51,17 @@ begin
   if FExtensionName = 'POC' then
     PocCallProc
   else if FExtensionName = 'GenDB' then
-    GenDBCallProc;
+    GenDBCallProc
+  else if FExtensionName = 'DB' then
+    DBCallProc;
 end;
 
 function TExtensionCaller.ExecFunc:string;
 begin
   if FExtensionName = 'POC' then
-    Result := PocCallFunc;
+    Result := PocCallFunc
+  else if FExtensionName = 'POC' then
+    Result := DBCallFunc;
 end;
 
 { modules callers }
@@ -96,6 +102,26 @@ begin
   AGenDB := TGenDBExtension.Create(FProcName, FPureParams, FParams, FTemplate);
   Return := AGenDB.CallFunc;
   AGenDB.Free;
+  Result := Return;
+end;
+
+procedure TExtensionCaller.DBCallProc;
+var
+  ADB:TDBExtension;
+begin
+  ADB := TDBExtension.Create(FProcName, FPureParams, FParams, FTemplate);
+  ADB.CallProc;
+  ADB.Free;
+end;
+
+function TExtensionCaller.DBCallFunc:string;
+var
+  ADB:TDBExtension;
+  Return:string;
+begin
+  ADB := TDBExtension.Create(FProcName, FPureParams, FParams, FTemplate);
+  Return := ADB.CallFunc;
+  ADB.Free;
   Result := Return;
 end;
 
