@@ -1,13 +1,16 @@
 @{
+    ###
     sel = 'select * from users'
-    &conn.database = 'sqlite3'
-    &conn.path = 'ultrapoc.db'
+    sel = 'select count(id) from users'
+    createGen: 'conn', 'connection.gen'
     DB>query: 'conn', @sel, 'results'
     print: +(LINE, ...'results')
-    #ins = 'INSERT INTO users (id, name) VALUES (6, "João")'
-    #DB>query: 'conn', @ins
-    unloadGen: 'results'
-    DB>query: 'conn', @sel, 'results'
-    print: ''    
-    print: +(LINE, ...'results')
+    ###
+
+    createGen: 'const'
+    lockGenPairs: 'const', true
+    &const.CONN = 'conn'
+    print: CONN
+    &const.CONN22 = 'conn22'
+    print: CONN22
 }

@@ -1,4 +1,7 @@
 @{
+createGen: 'conn', 'connection.gen'
+&dbVars.CONN = 'conn'
+lockGenPairs: 'dbVars', true
 function: typer, arg
     if: not(isNum(@arg))
         _: ~('"', @arg ,'"')
@@ -7,19 +10,24 @@ function: typer, arg
     endIf
 endFunction
 
-proc:insert, table, datagen
+function: nextId
+    DB>query: CONN, 'select count(id) from users', 'r'
+    r = genValue('0:count(id)', 'r')
+    unloadGen: 'r'
+    return: ++(@r)
+endFunction
+
+proc:insert, conn, table, datagen
     for: range(keysCount(@datagen)), i
         key = genKeyByIndex(@datagen, @i)
         value = genValueByIndex(@datagen, @i)
         setValue: @datagen, @key, typer(@value)
     endFor
-    ins = ~('INSERT INTO ', @table,' (', +(', ', .@datagen),') VALUES (', +(', ', ..@datagen),')')
-    print: @ins
+    ins = ~('INSERT INTO ', @table,' (id ,', +(', ', .@datagen),') VALUES ( ',nextId(),', ', +(', ', ..@datagen),')')
+    DB>query: @conn, @ins
 endProc
 
-&data.name = 'Junio'
-&data.id = 7
-
-insert: 'users', 'data'
+&data.name = 'Juliana'
+insert: 'conn', 'users', 'data'
 
 }

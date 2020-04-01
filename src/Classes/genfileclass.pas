@@ -19,11 +19,14 @@ type
     FFullName, FDefault:string;
     FPairs:TDict;
     FGenSep:string;
+    FKeysLocked, FPairsLocked:boolean;
   public
     property FullName:string read FFullName write FFullName;
     property IfNotFound:string read FDefault write FDefault;
     property GenSeparator:string read FGenSep write FGenSep;
     property Pairs:TDict read FPairs write FPairs;
+    property KeysLocked:boolean read FKeysLocked write FKeysLocked;
+    property PairsLocked:boolean read FPairsLocked write FPairsLocked;
     constructor Create;
     function Name:string;
     function OnlyName:string;
@@ -43,6 +46,7 @@ type
     procedure CopyGen(var OutGenFile:TGenFile);
     function GenValuesAsList(sep:string=','):string;
     function GenKeysAsList(sep:string=','):string;
+
     //sort
 
   end;
@@ -55,6 +59,8 @@ constructor TGenFile.Create;
 begin
   FDefault := DEF_IF_NOT;
   FGenSep := GEN_SEP;
+  FPairsLocked := False;
+  FKeysLocked := False;
 end;
 
 procedure TGenFile.ClearValues;
@@ -274,12 +280,22 @@ procedure TGenFile.SetValue(AKey, AValue:string);
 var
   i,len:integer;
 begin
+  if FPairslocked then
+  begin
+    WriteLn('GenError: This gen is "pair locked" and cannot receive new entries');
+    Halt;
+  end;
   len := Length(FPairs);
   if len > 0 then
     for i:=0 to len-1 do
     begin
       if Trim(AKey) = FPairs[i].Key then
       begin
+        if FKeysLocked then
+        begin
+          WriteLn('GenError: This gen is "keys locked" and can''t have its existing values changed');
+          Halt;
+        end;
         FPairs[i].Value := AValue;
         Exit;
       end;
