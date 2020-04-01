@@ -1954,8 +1954,8 @@ begin
       'mapGenKeys': MapGenKeys(Params, True);
       'dropGenMap': MapGenKeys(Params, False);
       'groupKeys': GroupKeys(Params);
-      'lockGenPairs' : FGenFileSet.GenFiles[FGenFileSet.IndexOf(Params[0])].GenFile.PairsLocked := StrToBoolean(Params[1]);
-      'lockGenKeys' : FGenFileSet.GenFiles[FGenFileSet.IndexOf(Params[0])].GenFile.KeysLocked := StrToBoolean(Params[1]);
+      'lockGenPairs' : FGenFileSet.GenFiles[FGenFileSet.IndexOf(Params[0])].GenFile.PairsLocked := StrToBoolean(PureParams[1]);
+      'lockGenKeys' : FGenFileSet.GenFiles[FGenFileSet.IndexOf(Params[0])].GenFile.KeysLocked := StrToBoolean(PureParams[1]);
       // End of Gen operations
       //textsave functions
       'log': LogText(Params);

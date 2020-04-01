@@ -1,0 +1,22 @@
+@{
+    include: 'functionsdb.ultra', 'db'
+
+    createGen: 'table', 'langs.gen'
+    db.createTable: CONN, 'langs', 'table'
+
+    &data.name = 'UltraGen'
+    &data.use = 'Web programming and template processing'
+    db.insert: CONN, 'langs', 'data'
+
+    &data.name = 'Python'
+    &data.use = 'Artificial intelligence and database'
+    db.insert: CONN, 'langs', 'data'
+
+    &data.name = 'PHP'
+    &data.use = 'Web programming'
+    db.insert: CONN, 'langs', 'data'
+
+    &data.name = 'Java'
+    &data.use = 'Corporative use language'
+    db.insert: CONN, 'langs', 'data'
+}

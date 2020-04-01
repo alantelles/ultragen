@@ -8,9 +8,11 @@
     ###
 
     createGen: 'const'
-    lockGenPairs: 'const', true
     &const.CONN = 'conn'
     print: CONN
+
+    lockGenPairs: 'const', true
+    lockGenPairs: 'const', false
     &const.CONN22 = 'conn22'
     print: CONN22
 }

@@ -1,10 +1,10 @@
 @{
-    createGen: 'users', 'user_model.gen'
+    createGen: 'users', 'user_model.gen'    
     createGen: 'conn', 'connection.gen'
     # DB>createTable: 'users'
     # DB>create: 'conn'
     # q = 'CREATE TABLE users (id INTEGER NOT NULL PRIMARY KEY, name VARCHAR(100))'
-    q = 'SELECT * FROM users WHERE name = "Alan"'
+    # q = 'SELECT * FROM users WHERE name = "Alan"'
     nextId = '(SELECT count(id) FROM users) + 1'
     # q = ~('INSERT INTO users (id, name) VALUES (', @nextId, ', "Regina")')
     # a = 'teste'
@@ -12,4 +12,5 @@
     DB>query: 'conn', @q, 'results'
     # saveGen:'results', 'res.gen'
     print: +(LINE, ...'results')
+    ###
 }

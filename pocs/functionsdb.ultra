@@ -1,7 +1,9 @@
 @{
 createGen: 'conn', 'connection.gen'
 &dbVars.CONN = 'conn'
+lockGenPairs: 'conn', true
 lockGenPairs: 'dbVars', true
+
 function: typer, arg
     if: not(isNum(@arg))
         _: ~('"', @arg ,'"')
@@ -10,8 +12,8 @@ function: typer, arg
     endIf
 endFunction
 
-function: nextId
-    DB>query: CONN, 'select count(id) from users', 'r'
+function: nextId, table
+    DB>query: CONN, ~('select count(id) from ', @table), 'r'
     r = genValue('0:count(id)', 'r')
     unloadGen: 'r'
     return: ++(@r)
@@ -23,11 +25,17 @@ proc:insert, conn, table, datagen
         value = genValueByIndex(@datagen, @i)
         setValue: @datagen, @key, typer(@value)
     endFor
-    ins = ~('INSERT INTO ', @table,' (id ,', +(', ', .@datagen),') VALUES ( ',nextId(),', ', +(', ', ..@datagen),')')
+    ins = ~('INSERT INTO ', @table,' (id ,', +(', ', .@datagen),') VALUES ( ',nextId(@table),', ', +(', ', ..@datagen),')')
     DB>query: @conn, @ins
 endProc
 
-&data.name = 'Juliana'
-insert: 'conn', 'users', 'data'
+proc: createTable, conn, name, params
+    v = map(+(',', ...@params),replace('=',' ',@elem))
+    q = ~('CREATE TABLE ', @name,' (', @v,')')
+    DB>query: @conn, @q
+endProc
 
+proc: all, table, results
+    DB>query: CONN, ~('SELECT * FROM ', @table), @results    
+endProc
 }

@@ -1,0 +1,31 @@
+@{
+    exportAtRoot
+    include: 'functionsdb.ultra', 'db'
+    db.all: 'langs', 'langs'    
+}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>UltraGen DB demo</title>
+        <meta charset='utf-8'>
+    </head>
+    <body>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Use</th>
+            </tr>
+        @rows = intDiv(keysCount('langs'), 3)
+        @for: range(@rows), i
+            @groupKeys: 'row', ~(@i,':'), 'langs'
+            <tr>
+                @for: range(keysCount('row')), j
+                    <td>{{ genValueByIndex('row', @j) }}</td>
+                @endFor
+            </tr>
+            @unloadGen: 'row'
+        @endFor
+        </table>
+    </body>
+</html>
