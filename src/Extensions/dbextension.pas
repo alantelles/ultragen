@@ -165,6 +165,7 @@ begin
           FTemplate.GenFileSet.GenFiles[i].GenFile.SetValue(IntToStr(j)+GEN_SUB_LEVEL+F.FieldName, '');
       end;
       j := j+1;
+      AQuery.Next;
     end;
     AQuery.Close;
   end
