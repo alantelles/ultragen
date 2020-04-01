@@ -1,0 +1,13 @@
+@{
+    sel = 'select * from users'
+    &conn.database = 'sqlite3'
+    &conn.path = 'ultrapoc.db'
+    DB>query: 'conn', @sel, 'results'
+    print: +(LINE, ...'results')
+    #ins = 'INSERT INTO users (id, name) VALUES (6, "João")'
+    #DB>query: 'conn', @ins
+    unloadGen: 'results'
+    DB>query: 'conn', @sel, 'results'
+    print: ''    
+    print: +(LINE, ...'results')
+}

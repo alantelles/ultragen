@@ -93,6 +93,11 @@ var
   i:integer;
 begin
   i := IndexOf(AnAlias);
+  if i = -1 then
+  begin
+    WriteLn('GenError: Gen for referrenced alias does not exists');
+    Halt;
+  end;
   Result := FGenFiles[i].GenFile.GenKeysAsList(sep);
 end;
 

@@ -110,31 +110,27 @@ var
 begin
   //'CREATE TABLE users (id INTEGER NOT NULL PRIMARY KEY, name VARCHAR(100))';
   i := FTemplate.GenFileSet.IndexOf(FParams[0]);
-  if i > -1 then
-  begin
-    AGen := TGenFile.Create;
-    FTemplate.GenFileSet.GenFiles[i].GenFile.CopyGen(AGen);
-    AGen.Free;
-  end;
+  AGen := TGenFile.Create;
+  FTemplate.GenFileSet.GenFiles[i].GenFile.CopyGen(AGen);
+  AGen.Free;
 end;
 
 procedure TDBExtension.DirectQuery;
 var
-  AConn:TSQLite3Connection;
+  //AConn:TSQLite3Connection;
+  AConn:TSQLConnection;
   ATrans:TSQLTransaction;
   AQuery: TSQLQuery;
   F: TField;
-  AQ, Val, ADBName:string;
+  AQ, Val, ADBName, ADBS:string;
   g, i, j:integer;
   Added:boolean=False;
 begin
   g := FTemplate.GenFileSet.IndexOf(FParams[0]);
-  if g > -1 then
-  begin
-    ADBName := FTemplate.GenFileSet.GenFiles[g].GenFile.GetValue('path').Value;
-
-  end;
-  AConn := TSQLite3Connection.Create(nil);
+  ADBName := FTemplate.GenFileSet.GenFiles[g].GenFile.GetValue('path').Value;
+  ADBS := FTemplate.GenFileSet.GenFiles[g].GenFile.GetValue('database').Value;
+  if ADBS = SQLITE3_DB then
+    AConn := TSQLite3Connection.Create(nil);
   ATrans := TSQLTransaction.Create(nil);
   AConn.DatabaseName := ADBName;
   AConn.Transaction := ATrans;

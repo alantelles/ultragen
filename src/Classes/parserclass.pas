@@ -117,8 +117,9 @@ var
   FuncName: string;
 
 begin
-  if (AToken[1] = STR_ENCLOSE) or (AToken[Length(AToken)] = STR_ENCLOSE) then
-    Result := False;
+  if Length(AToken) > 0 then
+    if (AToken[1] = STR_ENCLOSE) or (AToken[Length(AToken)] = STR_ENCLOSE) then
+      Result := False;
   OpenPoint := Pos(PARAM_OPEN, AToken);
   ClosePoint := RPos(PARAM_CLOSE, AToken);
   FuncName := Trim(Copy(AToken, 1, OpenPoint - 1));
@@ -157,8 +158,9 @@ var
   FuncName: string;
   ch: char;
 begin
-  if (AToken[1] = STR_ENCLOSE) or (AToken[Length(AToken)] = STR_ENCLOSE) then
-    Result := False;
+  if Length(AToken) > 0 then
+    if (AToken[1] = STR_ENCLOSE) or (AToken[Length(AToken)] = STR_ENCLOSE) then
+      Result := False;
   OpenPoint := Pos(PARAM_OPEN, AToken);
   ClosePoint := RPos(PARAM_CLOSE, AToken);
 

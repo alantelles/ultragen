@@ -1,0 +1,25 @@
+@{
+function: typer, arg
+    if: not(isNum(@arg))
+        _: ~('"', @arg ,'"')
+    else
+        _: @arg
+    endIf
+endFunction
+
+proc:insert, table, datagen
+    for: range(keysCount(@datagen)), i
+        key = genKeyByIndex(@datagen, @i)
+        value = genValueByIndex(@datagen, @i)
+        setValue: @datagen, @key, typer(@value)
+    endFor
+    ins = ~('INSERT INTO ', @table,' (', +(', ', .@datagen),') VALUES (', +(', ', ..@datagen),')')
+    print: @ins
+endProc
+
+&data.name = 'Junio'
+&data.id = 7
+
+insert: 'users', 'data'
+
+}

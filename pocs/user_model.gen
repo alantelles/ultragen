@@ -1,9 +1,5 @@
-table=users
-collation=utf-8
-use_timestamps=true
-soft_delete=true
-fields=
+_tableSettings=name:users|collation=utf-8|useTimestamps=true|softDelete=true
 id=integer|PK
-name=string|size:100
+name=string|const:index,unique
 username=string|size:100|const:index,unique
 password=string|size:100|const:index
