@@ -115,7 +115,10 @@ var
   OnlyAllowedChars: boolean = True;
   c: integer;
   FuncName: string;
+
 begin
+  if (AToken[1] = STR_ENCLOSE) or (AToken[Length(AToken)] = STR_ENCLOSE) then
+    Result := False;
   OpenPoint := Pos(PARAM_OPEN, AToken);
   ClosePoint := RPos(PARAM_CLOSE, AToken);
   FuncName := Trim(Copy(AToken, 1, OpenPoint - 1));
@@ -154,6 +157,8 @@ var
   FuncName: string;
   ch: char;
 begin
+  if (AToken[1] = STR_ENCLOSE) or (AToken[Length(AToken)] = STR_ENCLOSE) then
+    Result := False;
   OpenPoint := Pos(PARAM_OPEN, AToken);
   ClosePoint := RPos(PARAM_CLOSE, AToken);
 
@@ -181,7 +186,7 @@ begin
       OnlyAllowedChars := True;
   end
   else
-    OnlyAllowedChars := True;
+    OnlyAllowedChars := False;
   Result := (OpenPoint <> 0) and (OpenPoint < ClosePoint) and OnlyAllowedChars;
 end;
 
