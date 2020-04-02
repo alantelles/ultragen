@@ -1,0 +1,6 @@
+name=genValueByIndex
+category=dataget
+signatures=genValueByIndex(<b>string|int</b> alias, <b>int</b> index)
+description=Retorna o valor de posição int em um gen descrito em alias. Um bom caso de uso é sua utilização com genKeyByIndex para iterar pelos pares de um gen sem se importar com os nomes das chaves.
+related=/docs/functions:genKeyByIndex
+ warning=Caso não existam o gen ou a chave será retornada uma string vazia.

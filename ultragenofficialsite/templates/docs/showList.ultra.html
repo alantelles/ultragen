@@ -1,0 +1,21 @@
+@extend:templates/bases/base.ultra.html
+@section:content
+<h1>Lista de {{ genValue(_param1,'replaces') }}</h1>
+@{
+    count=&gendocs.count
+    if:bool(@count)
+        for:range(@count),i             
+            alias=concat('gendocs:',@i)
+            mapGenKeys:@alias,''
+            link=concat('/',_param0,'/',_param1,'/',lower(@name))
+            link=concat('href="',@link,'"')
+            cats = map(@category,genValue(@elem))
+            livePrint:inTag('a',concat(@name,' <br>&nbsp;&nbsp;&nbsp;[<i>',@cats,'</i>]<br>'),@link)
+            livePrint:'<br>'
+            dropGenMap:@alias,''
+        endFor
+    else
+        livePrint:'Nenhum arquivo encontrado'
+    endIf
+}
+@endSection

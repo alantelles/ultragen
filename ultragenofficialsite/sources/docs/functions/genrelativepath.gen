@@ -1,0 +1,7 @@
+name=genRelativePath
+category=genattr
+signatures=genRelativePath(<b>string|int</b> alias, <b>int</b> back)
+description=Retorna o caminho relativo de um gen <i>back</i> níveis para trás.
+related=/docs/functions/genpath:genPath
+examples=
+warning=Se o gen não existir ou não tiver nome uma string vazia será retornada.

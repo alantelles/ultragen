@@ -1,0 +1,6 @@
+@{
+    include:'helpers/loaders.ultra'
+    proc:e404
+        loaders.render:'errors.e404'
+    endProc
+}

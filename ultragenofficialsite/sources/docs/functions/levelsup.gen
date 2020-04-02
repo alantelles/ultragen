@@ -1,0 +1,6 @@
+name=levelsUp
+category=explorer
+signatures=levelsUp(<b>string</b> path, <b>int</b> up)
+description=Imprime o caminho dado em <i>path</i> até <i>up</i> níveis acima. Se <i>up</i>=0, é impresso o caminho completo de <i>path</i>
+examples=levelsUp('/home/user/path/to/file.txt', 2)|/home/user/path
+related=

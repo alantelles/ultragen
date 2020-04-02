@@ -1,0 +1,6 @@
+name=templatePath
+category=tempattr
+signatures=templatePath()
+description=Imprime o caminho completo do template utilizado. O nome impresso será o do template do escopo atual. Se você tiver incluído um template o nome impresso será o do template incluído.
+related=/docs/functions:templateName
+warning=

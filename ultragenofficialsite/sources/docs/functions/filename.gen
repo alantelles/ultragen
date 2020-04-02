@@ -1,0 +1,6 @@
+name=fileName
+category=dataget,explorer
+signatures=fileName(<b>string</b> file)&fileName(<b>string</b> file, <b>bool</b> showExt)
+description=Retorna o nome de um arquivo. O parâmetro showExt ajustado como 'true' faz com que a extensão do arquivo seja retornada junto a seu nome.
+related=/docs/functions:file()
+warning=

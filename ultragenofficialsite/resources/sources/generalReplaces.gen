@@ -1,0 +1,12 @@
+functions=Funções
+docs=Documentação
+procs=Procedimentos
+categories=Daqui pra baixo temos categorias de funções
+tempattr=Atributos de templates
+genattr=Atributos de arquivos gen
+dataget=Obtenção ou registro de dados
+explorer=Manipulação de sistemas de arquivos
+strproc=Processamento de strings
+regex=Regex básico
+math=Funções matemáticas
+logic=Funções lógicas

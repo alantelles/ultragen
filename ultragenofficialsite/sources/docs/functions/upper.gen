@@ -1,0 +1,6 @@
+name=upper
+category=strproc
+signatures=upper(<b>string</b> str)
+description=Imprime o texto em <b>str</b> transformado para caixa alta.
+examples=upper('parse a Template')|PARSE A TEMPLATE
+related=/docs/functions/lower:lower

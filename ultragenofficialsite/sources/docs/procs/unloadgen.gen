@@ -1,0 +1,6 @@
+name=unloadGen
+category=genattr
+signatures=unloadGen: <b>str</b> alias
+description=Retira o gen dado em alias do gen set. Este procedimento é muito usado em conjunto com groupKeys para iterar sobre gens-listas.
+related=/docs/procs:groupKeys
+warning=Se o gen não existir um erro será emitido.

@@ -1,0 +1,6 @@
+name=genKeyByIndex
+category=dataget
+signatures=genKeyByIndex(<b>string|int</b> alias, <b>int</b> index)
+description=Retorna a chave de posição int em um gen descrito em alias.
+related=/docs/functions:genValueByIndex&/docs/functions:genKeyByValue
+warning=Caso não existam o gen ou a chave será retornada uma string vazia.

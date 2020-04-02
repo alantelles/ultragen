@@ -1,0 +1,18 @@
+@{  
+    include:dirSep('helpers\loaders.ultra')
+
+    proc:index      
+        setValue:'request','textToLoad',dirSep('sources\readme.md')
+        loaders.render:'docs.index'
+    endProc
+
+    proc:downloads
+        setValue:'request','textToLoad',dirSep('sources\downloads.md')
+        loaders.render:'docs.showMdText'
+    endProc
+
+    proc:showMdText
+        setValue:'request','textToLoad',dirSep(concat('sources\',_param0,'\',_param1,'.md'))
+        loaders.render:'docs.showMdText'
+    endProc
+}

@@ -1,0 +1,9 @@
+startCore=The section between startCore and endCore must be declared.
+_appLoader=index.ultra
+_sessionsPath=core/sessions
+_locations=core/locations.gen
+_sessionDuration=120
+_mimeTypesFile=core/mime-types.txt
+endCore=The below declarations are optionals. These values have global scope. You can use it through all your application.
+appTitle=UltraGen - site oficial
+ptbrFolder=sources/pt-br

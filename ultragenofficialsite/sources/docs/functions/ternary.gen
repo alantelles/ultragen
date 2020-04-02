@@ -1,0 +1,8 @@
+name=ternary
+category=logic
+signatures=ternary (<b>bool</b> test, <b>any</b> ifTrue)&ternary (<b>bool</b> test, <b>any</b> ifTrue, <b>any</b> ifFalse,)
+description=Como um operador ternário, retorna ifTrue valor caso test avalie como verdadeiro ou ifFalse caso test avalie como falso. Se ifFalse não for informado retorna uma string vazia caso test seja falso.
+
+Esta função tem um alias: <code>?</code>
+related=
+warning=

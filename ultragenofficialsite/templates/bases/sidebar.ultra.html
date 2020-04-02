@@ -1,0 +1,42 @@
+        <!-- Sidebar  -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <div class='d-flex justify-content-center'>
+                    <img src='/images/logo/logo-redbg-medium.png'>
+                </div>
+            </div>
+
+            <ul class="list-unstyled components">
+                @listFiles:'resources/sources/sidebar-links',sblinks,'*.gen;*.GEN',FALSE,ASC
+                @for:@sblinks,sb,LINE
+                    @createGen:'linkGen',@sb
+                    <li>
+                        @if:or(not(bool(protected)),bool(@param[0]))
+                            @if:eq(length(sub),0)
+                            <a href="/{{ link }}">{{ text }}</a>
+                            @else
+                            <a href="#{{ link }}Submenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">{{ text }}</a>
+                            <ul class="collapse list-unstyled" id="{{ link }}Submenu">
+                                @for:sub,sc
+                                <li>
+                                    @explode:@sc,s,'|'
+                                    <a href="/{{ link }}/{{ @s[0] }}">{{ @s[1] }}</a>
+                                </li>
+                                @endFor
+                            </ul>
+                            @endIf
+                        @endIf
+                    </li>
+                    @unloadGen:'linkGen'
+                @endFor
+            </ul>
+            <ul class="list-unstyled CTAs">
+                <li>
+                    <a href="https://github.com/alantelles/ultragen" target='_blank' class="download"><i class="fab fa-github"></i>UltraGen on GitHub</a>
+                </li>
+                <li>
+                    <a href="https://lazarus-ide.org" target='_blank' class="article">Lazarus IDE Project</a>
+                </li>
+            </ul>
+            <p style='text-align: center'>Site construído em<br><strong>UltraGen</strong></p>
+        </nav>

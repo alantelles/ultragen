@@ -1,0 +1,20 @@
+@{
+    include:dirSep('helpers/loaders.ultra')
+    proc:login
+        if:eq(_method,'POST')
+            createGen:'password','resources/password.gen'
+            if:eq(_post:password,myPass)
+                createSession
+                setSessionVar:'login',true
+            else
+                goTo:'/login'
+            endIf
+        endIf
+        loaders.render:'users.login'
+    endProc
+
+    proc:logout
+        destroySession
+        goTo:'/'
+    endProc
+}

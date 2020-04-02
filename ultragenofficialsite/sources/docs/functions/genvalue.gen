@@ -1,0 +1,6 @@
+name=genValue
+category=dataget
+signatures=genValue(<b>string</b> key)&genValue(<b>string</b> key, <b>string</b> alias)&genValue(<b>string</b> key, <b>int</b> index)&genValue(<b>string</b> key, <b>string</b> alias, <b>int</b> index, <b>string</b> ifNotFound)
+description=Retorna um valor gen com mais possibilidades de acesso do que o acesso simples utilizando apenas a chave ou combinação de alias e chave.
+related=/docs/functions/genkeybyindex:genKeyByIndex|/docs/functions/genvaluebyindex:genValueByIndex
+warning=

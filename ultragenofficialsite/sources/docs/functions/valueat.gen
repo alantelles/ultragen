@@ -1,0 +1,6 @@
+name=valueAt
+category=dataget
+signatures=valueAt(<b>list</b> list, <b>int</b> index)&valueAt(<b>list</b> list, <b>int</b> index, <b>char</b> separator)
+description=Retorna o elemento de list no índice index dado. O separador utilizado no listable é dado em separator.
+related=/docs/functions:count
+warning=Se o índice não existir uma string vazia será retornada, o que pode causar um falso negativo. O ideal é testar se o índice é menor que o tamanho da lista através de count.

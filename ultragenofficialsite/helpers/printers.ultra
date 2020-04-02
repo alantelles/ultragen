@@ -1,0 +1,15 @@
+@{
+    function:style,href
+        return:concat('<link type="text/css" rel="stylesheet" href="/styles/',@href,'">')
+    endFunction
+
+    function:script,src
+        return:concat('<script src="/scripts/',@src,'"></script>')
+    endFunction
+
+    function:enableEdit,link
+        out=concat('<a href="',@link,'/edit"><button class="btn btn-primary">Editar</button></a>')
+        return:@out
+    endFunction
+
+}

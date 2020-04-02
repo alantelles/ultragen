@@ -1,0 +1,14 @@
+@{  
+    include:dirSep('helpers/loaders.ultra')
+    createGen:'routes','resources/routes.gen'
+    createGen:'replaces','resources/sources/generalReplaces.gen'
+    rm=concat(_method,':',_route)
+    setValue:'request','_matched',routeMatch(@rm,'routes','errors.e404')
+    explode:_route,routeExp,'/'
+    for:_route,rp,'/'
+        if:gt(@rp.i,0)
+            setValue:'request',concat('_param',sub(@rp.i,1)),@rp
+        endIf
+    endFor
+    loaders.loadPage:_matched    
+}

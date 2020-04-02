@@ -1,0 +1,6 @@
+name=lower
+category=strproc
+signatures=lower(<b>string</b> str)
+description=Imprime o texto em <b>str</b> transformado para caixa baixa.
+examples=lower('UltraGen 2020')|#ultragen 2020
+related=/docs/functions/upper:upper

@@ -1,0 +1,6 @@
+name=genName
+category=genattr
+signatures=genName(<b>string|int</b> alias)
+description=Retorna o nome do gen identificado por <i>alias</i>. Pode ser uma string ou um inteiro representando o índice do gen no <i>gen set</i>
+related=/docs/functions/genpath:genPath
+warning=Se o gen não existir ou não tiver nome será retornada uma string vazia.

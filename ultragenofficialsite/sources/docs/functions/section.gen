@@ -1,0 +1,6 @@
+name=section
+category=dataget,tempattr
+signatures=section(<b>str</b> alias)
+description=Retorna no template estendido uma seção delimitada por section no template chamado.
+related=docs/procs:section&docs/procs:extend
+warning=Nada é impresso se a seção dada em alias não existir.

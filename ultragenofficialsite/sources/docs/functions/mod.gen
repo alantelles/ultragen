@@ -1,0 +1,6 @@
+name=mod
+category=math
+signatures=mod(<b>int</b> a, <b>int</b> b)
+description=Retorna o resto da divisao inteira de a por b.
+related=/docs/functions:intDiv
+warning=Caso forem usados números não-inteiros ou b=0 uma string vazia será retornada.

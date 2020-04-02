@@ -1,0 +1,10 @@
+@extend:templates/bases/base.ultra.html
+@section:content
+    
+    @if:not(eq(file(textToLoad),''))
+    <div class='md_text'>{{ nl2br(text(textToLoad)) }}</div>
+    @else
+    <h1 class='display-1'>=/</h1>
+    <h3>Infelizmente ainda não temos documentação disponível para este assunto.</h3>   
+    @endIf
+@endSection

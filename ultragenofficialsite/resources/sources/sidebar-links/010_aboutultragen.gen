@@ -1,0 +1,3 @@
+text=Sobre <b>UltraGen</b>
+link=about
+sub=concepts|Conceitos,gen_sources|Estruturas Gen,syntax|Sintaxe,data_types|Tipos de dados,funcs_procs|Funções e Procedimentos,runtimes|Runtimes,metaprog|Metaprogramação

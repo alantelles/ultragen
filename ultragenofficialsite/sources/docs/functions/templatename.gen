@@ -1,0 +1,6 @@
+name=templateName
+category=tempattr
+signatures=templateName()
+description=Imprime o nome do template utilizado. O nome impresso será o do template do escopo atual. Se você tiver incluído um template e chamar a função de dentro deste template, o nome impresso será o do template incluído.
+related=/docs/functions:templatePath
+warning=

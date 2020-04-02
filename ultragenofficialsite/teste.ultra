@@ -1,0 +1,9 @@
+@{
+    print:selfTag('meta',false,'charset="utf-8"')
+    print:selfTag('img',true,'src="/images/zika.jpg"', 'class="minha-imagem"')
+    print:inTag('script','','src="/scripts/script.js"')
+    title = 'Meu blog bolado'
+    h1 = inTag('h1',@title,'class="display-1"')
+    div = inTag('div',@h1,'class="row"')
+    print:@div
+}

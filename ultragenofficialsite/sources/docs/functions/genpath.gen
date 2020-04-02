@@ -1,0 +1,7 @@
+name=genPath
+category=genattr
+signatures=genPath(<b>string|int</b> alias)&genPath(<b>string|int</b> alias, <b>int</b> up)
+description=Imprime o caminho do gen definido em <i>alias</i> até o nível dado em <i>up</i>. Se <i>up</i> não é fornecido, é assumido como 0. Alias pode ser uma string ou um inteiro, o que fará com que o gen seja procurado pelo seu índice na lista <i>gen set</i>.
+examples=genPath(0)|some/path/to/file.gen&genPath('myGen',2)|some/path
+related=
+warning=Se o gen for criado em tempo de execução e não tiver um caminho completo definido você terá uma string vazia como resposta.

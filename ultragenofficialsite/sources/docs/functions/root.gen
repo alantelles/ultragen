@@ -1,0 +1,6 @@
+name=root
+category=math
+signatures=root(<b>num</b> radical)&root(<b>num</b> radical, <b>num</b> indice)
+description=Retorna o resultado da raiz indice de radical. Se indice é omitido é considerado 2 (raiz quadrada).
+related=/docs/functions:root
+warning=Caso radical seja negativo e o indice seja par uma string vazia será retornada.

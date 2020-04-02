@@ -1,0 +1,6 @@
+name=text
+category=explorer
+signatures=text(<b>str</b> path)
+description=
+related=
+warning=Se o arquivo não existir, uma string vazia será retornada.

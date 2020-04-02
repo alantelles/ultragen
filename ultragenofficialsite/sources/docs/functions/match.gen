@@ -1,0 +1,4 @@
+name=match
+category=regex
+signatures=match(<b>string</b> search,<b>string</b> genAlias)&match(<b>string</b> search,<b>string</b> genAlias,<b>string</b> ifNotFound)
+description=Verifica se existe correspondência de uma chave em um gen permitindo o uso do coringa '*' significando "zero ou mais caracteres".

@@ -1,0 +1,6 @@
+name=indexOf
+category=dataget
+signatures=indexOf(<b>str</b> str, <b>str</b> search)
+description=Retorna o índice de search em str.
+related=
+warning=Se str não contiver search, é retornado -1.

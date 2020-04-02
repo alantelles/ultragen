@@ -1,0 +1,6 @@
+name=sub
+category=math
+signatures=sum(<b>num</b> a, <b>num</b> b)
+description=Retorna a subtração a-b.
+related=/docs/functions:sum
+warning=Não é necessário declarar um '-' para que ocorra uma subtração. Em verdade, recomendamos o uso da função sub exclusivamente para fins de legibilidade.

@@ -1,0 +1,6 @@
+name=groupKeys
+category=genattr
+signatures=groupKeys: <b>str</b> grouped, <b>str</b> prefix, <b>str</b> source
+description=Cria um novo gen com o alias dado em grouped utilizando os valores que iniciem pelo prefixo dado em prefix no gen de alias source.
+related=/docs/procs:unloadGen
+warning=O gen dado em grouped não pode existir.

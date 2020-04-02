@@ -1,0 +1,8 @@
+name=concat
+category=strproc
+signatures=concat(<b>any</b> args...)
+description=Concatena todas os parâmetros dados em args.
+
+Esta função tem um alias: <code>~</code>
+related=/docs/procs:print&/docs/procs:livePrint
+warning=

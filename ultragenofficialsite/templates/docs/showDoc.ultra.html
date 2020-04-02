@@ -1,0 +1,40 @@
+@extend:templates/bases/base.ultra.html
+@section:content
+    @include:dirSep('helpers/printers.ultra')
+    <h2>{{ name }}</h2>
+    #<p><b>Categoria: </b>{{ genValue(category) }}</p>
+    <p><b>Categoria: </b>{{ map(category,',',', ',genValue(@elem)) }}</p>
+    <p><b>Assinaturas:</b></p>
+    @for:signatures,sign,'&'
+        {{ concat('&nbsp;&nbsp;&nbsp;&nbsp;',inTag('code',concat(@sign,'<br>'))) }}
+    @endFor
+    <br>
+    <p><b>Descrição: </b></p>
+    <p>{{ nl2br(description) }}</p>
+    <p><b>Advertências: </b></p>
+    <p>{{ nl2br(warning) }}</p>
+    <p><b>Relacionado: </b></p>
+    @{
+        function:makeLink,t
+            link = lower(replace(':','/',@t))
+            _:inTag('a',valueAt(@t,1,':'),concat('href="',@link,'"'))
+        endFunction
+    }
+    <p>{{ map(related,'&','<br>', makeLink(@elem)) }}</p>
+    <p><b>Exemplos</b></p>
+    @if:not(eq(examples,''))
+        <div class='md_text'>{{ nl2br(text(examples)) }}</div>
+    @else
+        <p class='my-warning'>Não existem exemplos para este tópico</p>
+    @endIf
+    @if:not(eq(fulldoc,''))
+        <h3>Documentação detalhada</h3>
+        <div class='md_text'>{{ nl2br(text(fulldoc)) }}</div>
+    @else
+        <p class='my-warning'>Não existe documentação detalhada para este tópico.</p class='my-warning'>
+    @endIf
+    <br>
+    <div>{{ ternary(_session:login,printers.enableEdit(_route)) }}</div>
+    
+    <a href="/docs/{{ _param1 }}">Voltar a <b>{{ genValue(_param1,'replaces') }}</b></a>
+@endSection

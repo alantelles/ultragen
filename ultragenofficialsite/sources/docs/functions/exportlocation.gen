@@ -1,0 +1,6 @@
+name=exportLocation
+category=tempattr
+signatures=exportLocation()
+description=Imprime o local de exportação definido para o template. O local impresso será o do escopo do template sendo executado no momento.
+related=
+warning=

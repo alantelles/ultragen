@@ -1,0 +1,68 @@
+@extend:templates/bases/base.ultra.html
+@section:content
+#name category signatures description related warning
+<div class='form-group'>
+    <form action='' method="post">
+        <div class="form-group">
+            <label for="name">Nome da função/procedimento:</label>
+            <input type="text" value="{{ name }}" class="form-control" name="name" id="name">
+        </div>
+        <div class="form-check-inline">
+            <label class="form-check-label">
+                <input type="radio" class="form-check-input" 
+                {{ ?(bool(indexOf(_route,'/functions/')),'checked ') }}
+                {{ ?(bool(name),'readonly') }}
+                 value='functions' name="typedoc"> Função
+            </label>
+        </div>
+        <div class="form-check-inline">
+            <label class="form-check-label">
+                <input type="radio" class="form-check-input" 
+                {{ ?(bool(indexOf(_route,'/procs/')),'checked') }}
+                {{ ?(bool(name),'readonly') }}
+                value='procs' name="typedoc"> Procedimento
+            </label>
+        </div>
+        <br><br>
+        <div class="form-group form-check">
+            <label>Categorias:</label><br>
+            @for:range(4,keysCount('replaces')),i
+                <label class='form-check-label'>
+                    @key=genKeyByIndex('replaces',@i)
+                    @value=genValueByIndex('replaces',@i)
+                    @hasCat=gt(indexOf(category,@key),-1)
+                    <input {{ ?(@hasCat,'checked') }} 
+                        type='checkbox' name='category:{{ @i.i }}' 
+                        value="{{ @key }}" class='form-check-input'> 
+                    {{ @value }}
+                </label><br>
+            @endFor
+        </div>
+        <div class="form-group">
+            <label for="signatures">Assinaturas:</label>
+            <input type="text" value="{{ signatures }}" class="form-control" name="signatures" id="signatures">
+        </div>
+        <div class="form-group">
+            <label for="description">Descrição:</label><br>
+            <textarea class='form-control' name='description' id='description'>{{ description }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="name">Relacionado:</label>
+            <input type="text" value="{{ related }}" class="form-control" name="related" id="related">
+        </div>
+        <div class="form-group">
+            <label for="name">Advertências:</label>
+            <input type="text" value="{{ warning }}" class="form-control" name="warning" id="warning">
+        </div>
+        <div class="form-group">
+            <label for="deeper_doc">Documentação detalhada (em markdown):</label>
+            <textarea class='form-control' name='deeper_doc' id='deeper_doc'>{{ &deeper.doc }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="deeper_examples">Exemplos (em markdown):</label>
+            <textarea class='form-control' name='deeper_examples' id='deeper_examples'>{{ &deeper.examples }}</textarea>
+        </div>
+        <button class="btn btn-primary" type='submit'>Enviar</button>
+    </form>
+</div>
+@endSection

@@ -1,0 +1,6 @@
+name=mult
+category=math
+signatures=mult(<b>num</b> args...)
+description=Retorna o produtório dos números em args.
+related=/docs/functions:div&/docs/functions:intDiv
+warning=

@@ -1,0 +1,13 @@
+GET:/=pages.index
+GET:=pages.index
+GET:/write/docs/new=docs.newDoc
+GET:/about/:str=pages.showMdText
+GET:/docs/:str=docs.showList
+GET:/docs/:str/:str=docs.showDoc
+GET:/docs/:str/:str/edit=docs.edit
+POST:/docs/:str/:str/edit=docs.edit
+POST:/write/docs/new=docs.edit
+GET:/downloads=pages.downloads
+GET:/login=users.login
+POST:/login=users.login
+GET:/logout=users.logout

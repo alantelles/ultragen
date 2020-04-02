@@ -1,0 +1,6 @@
+name=keysCount
+category=dataget
+signatures=keysCount(<b>string|int</b> alias)
+description=Retorna o número de chaves no gen dado em alias.
+related=
+warning=Se alias não existir é retornado -1 para que não haja ambiguidade em relação a um gen com 0 chaves.

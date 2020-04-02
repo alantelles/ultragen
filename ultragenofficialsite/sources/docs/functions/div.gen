@@ -1,0 +1,6 @@
+name=div
+category=math
+signatures=div(<b>int</b> a, <b>int</b> b)
+description=Retorna o resultado real da divisao de a por b.
+related=/docs/functions:intDiv&/docs/functions:mod
+warning=Caso b=0 uma string vazia será retornada.

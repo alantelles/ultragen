@@ -1,0 +1,84 @@
+@{  
+    include:dirSep('helpers\loaders.ultra')
+    
+    proc:showList
+        path=dirSep(concat('sources/',_param0,'/',_param1))
+        loadGenFolder:'gendocs',@path
+        loaders.render:'docs.showList'
+    endProc
+
+    proc:showDoc
+        path=dirSep(concat('sources/',_param0,'/',_param1,'/',_param2,'.gen'))
+        if:bool(file(@path))
+            createGen:'doc',@path
+            setValue:'doc','fulldoc',file(dirSep(concat('sources/',_param0,'/',_param1,'/full_docs/',_param2,'.md')))
+            setValue:'doc','examples',file(dirSep(concat('sources/',_param0,'/',_param1,'/examples/',_param2,'.md')))
+            loaders.render:'docs.showDoc'
+        else
+            loaders.render:'errors.e404'
+        endIf
+    endProc
+
+    proc:_setDocValues,savePath
+        createGen:'doc','models/function.gen'
+        setValue:'doc','name',_post:name
+        setValue:'doc','signatures',_post:signatures
+        setValue:'doc','description',_post:description
+        setValue:'doc','related',_post:related
+        setValue:'doc','warning',_post:warning
+        cat = ''
+        groupKeys:'categories','_post:category:','request'
+        for:range(keysCount('categories')),i
+            cat = join(',',@cat,genValueByIndex('categories',@i.i))
+        endFor
+        setValue:'doc','category',substring(@cat,1)
+        saveGen:'doc',@savePath
+        unloadGen:'doc'
+    endProc
+
+    proc:edit
+        explode:_route,elem,'/'
+        fileLoc = slice(_route,1,lastIndexOf(_route,'/'))
+        fileLoc = concat('sources/',@fileLoc,'.gen')
+        if:eq(_method,'GET')
+            createGen:'doc',@fileLoc
+            if:bool(file(@fileLoc))
+                examLoc = concat('sources/docs/',@elem[2],'/examples/',lower(@elem[3]),'.md')
+                fullLoc = concat('sources/docs/',@elem[2],'/full_docs/',lower(@elem[3]),'.md')
+                &deeper.doc = text(@fullLoc)
+                &deeper.examples = text(@examLoc)
+            endIf
+            loaders.render:'docs.docForm'
+        else
+            fullLoc = concat('sources/docs/',_post:typedoc,'/examples/',lower(_post:name),'.md')
+            if:bool(_post:deeper_doc)
+                log:_post:deeper_doc,@fullLoc,true
+            else
+                if:bool(file(@fullLoc))
+                    del:@fullLoc
+                endIf
+            endIf
+            examLoc = concat('sources/docs/',_post:typedoc,'/full_docs/',lower(_post:name),'.md')
+            if:bool(_post:deeper_examples)
+                log:_post:deeper_examples,@examLoc,true
+            else
+                if:bool(file(@examLoc))
+                    del:@examLoc
+                endIf
+            endIf
+            if:bool(file(@fileLoc))
+                savePath = @fileLoc                                
+                redir = slice(_route,0,lastIndexOf(_route,'/'))
+            else
+                savePath = concat('sources/docs/',_post:typedoc,'/',lower(_post:name),'.gen')
+                redir = concat('/docs/',_post:typedoc,'/',lower(_post:name))
+            endIf
+            _setDocValues:@savePath
+            goTo:@redir
+        endIf
+    endProc
+
+    proc:newDoc
+        loaders.render:'docs.docForm'
+    endProc
+}

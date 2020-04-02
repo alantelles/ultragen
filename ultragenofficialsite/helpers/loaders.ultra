@@ -1,0 +1,11 @@
+@{
+proc:loadPage,action
+    include:dirSep(concat('controllers/',valueAt(@action,0,'.'),'.ultra'))
+    callProc:@action
+endProc
+
+proc:render,template
+    include:dirSep(concat('templates/',replace('.','/',@template),'.ultra.html'))
+endProc
+
+}

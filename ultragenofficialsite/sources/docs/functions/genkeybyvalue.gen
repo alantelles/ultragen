@@ -1,0 +1,6 @@
+name=genKeyByValue
+category=dataget
+signatures=genKeyByValue(<b>string|int</b> alias, <b>string</b> value)
+description=Retorna a chave do valor descrito em value no gen alias.
+related=
+warning=Se não existirem a chave ou o gen uma string vazia será retornada. Atenção com espaços em branco em torno do valor. Eles são levados em conta e podem fazer com que uma chave não seja encontrada.

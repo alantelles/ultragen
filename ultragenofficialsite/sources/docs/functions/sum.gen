@@ -1,0 +1,6 @@
+name=sum
+category=math
+signatures=sum(<b>num</b> args...)
+description=Retorma a somatório dos números em args.
+related=/docs/functions:sub
+warning=

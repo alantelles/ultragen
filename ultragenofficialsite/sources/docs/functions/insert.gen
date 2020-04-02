@@ -1,0 +1,6 @@
+name=insert
+category=tempattr
+signatures=insert(<b>str</b> path, <b>str</b> params...)
+description=Retorna um template interpretado dado em path utilizando os elementos dados em params internamente.
+related=/docs/procs:include
+warning=Se o template dado em path não existir é retornada uma string vazia.
