@@ -1,18 +1,6 @@
 @{
-    ###
     sel = 'select * from users'
     sel = 'select count(id) from users'
     createGen: 'conn', 'connection.gen'
     DB>query: 'conn', @sel, 'results'
     print: +(LINE, ...'results')
-    ###
-
-    createGen: 'const'
-    &const.CONN = 'conn'
-    print: CONN
-
-    lockGenPairs: 'const', true
-    lockGenPairs: 'const', false
-    &const.CONN22 = 'conn22'
-    print: CONN22
-}

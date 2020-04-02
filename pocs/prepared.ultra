@@ -1,0 +1,15 @@
+@{
+    include: 'functionsdb.ultra', 'db'
+    &p0.value = 1
+    &p0.field = 'id'
+    &p0.type = 'integer'
+    
+    &p1.value = '%and%'
+    &p1.field = 'use'
+    &p1.type = 'string'
+    
+
+    q = 'SELECT * FROM langs WHERE (id = :id) AND (use LIKE :use)'
+    DB>paramQuery: CONN, @q, 'p', 'results'
+    print: +(LINE, ...'results')
+}

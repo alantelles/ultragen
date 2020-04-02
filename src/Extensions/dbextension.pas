@@ -25,6 +25,7 @@ type
       procedure CreateDatabase;
       procedure CreateTable;
       procedure DirectQuery;
+      procedure DirectParametrized;
 
 
       { functions }
@@ -33,6 +34,7 @@ type
 implementation
 uses
   ConstantsGlobals, VariablesGlobals, TypesGlobals, GenFileClass, FileUtil,
+  Dateutils,
   { DB Units }
   SQLDB, sqlite3conn, db;
 
@@ -51,6 +53,8 @@ begin
     CreateTable
   else if FName = 'query' then
     DirectQuery
+  else if FName = 'paramQuery' then
+    DirectParametrized
   else if FName = 'create' then
     CreateDataBase;
 
@@ -70,7 +74,7 @@ var
   AGen:TGenFile;
   i:integer;
   AQText:string;
-  TempText:string='';
+
 begin
   i := FTemplate.GenFileSet.IndexOf(FParams[0]);
   if i > -1 then
@@ -104,7 +108,7 @@ procedure TDBExtension.CreateTable;
 var
   AGen:TGenFile;
   i:integer;
-  AQText:string;
+
   TempText:string='';
   //table settings
 begin
@@ -115,6 +119,96 @@ begin
   AGen.Free;
 end;
 
+procedure TDBExtension.DirectParametrized;
+var
+  //AConn:TSQLite3Connection;
+  AConn:TSQLConnection;
+  ATrans:TSQLTransaction;
+  AQuery: TSQLQuery;
+  F: TField;
+  AType, AField, AValue, AnAlias:string;
+  AQ, Val, ADBName, ADBS:string;
+  g, i, j:integer;
+  Added:boolean=False;
+  AGenFile:TGenFile;
+begin
+  g := FTemplate.GenFileSet.IndexOf(FParams[0]);
+  ADBName := FTemplate.GenFileSet.GenFiles[g].GenFile.GetValue('path').Value;
+  ADBS := FTemplate.GenFileSet.GenFiles[g].GenFile.GetValue('database').Value;
+  if ADBS = SQLITE3_DB then
+    AConn := TSQLite3Connection.Create(nil);
+  ATrans := TSQLTransaction.Create(nil);
+  AConn.DatabaseName := ADBName;
+  AConn.Transaction := ATrans;
+  AConn.Connected := True;
+
+  AQuery := TSQLQuery.Create(nil);
+  AQuery.DataBase := AConn;
+  AQ := Trim(FParams[1]);
+  AQuery.SQL.Text := AQ;
+  AQuery.Prepare;
+  //set query params
+  AGenFile := TGenFile.Create;
+  for i:=0 to Length(FTemplate.GenFileSet.GenFiles)-1 do
+  begin
+    AnAlias := FTemplate.GenFileSet.GenFiles[i].GenAlias;
+    if Pos(FParams[2], AnAlias) > 0 then
+    begin
+      AGenFile.ClearValues;
+      FTemplate.GenFileSet.GenFiles[i].GenFile.CopyGen(AGenFile);
+      AType := AGenFile.GetValue('type').Value;
+      AValue := AGenFile.GetValue('value').Value;
+      AField := AGenFile.GetValue('field').Value;
+      if Lowercase(AType) = 'string' then
+        AQuery.Params.ParamByName(AField).AsString := AValue
+      else if Lowercase(AType) = 'integer' then
+        AQuery.Params.ParamByName(AField).AsInteger := StrToInt(AValue)
+      else if Lowercase(AType) = 'datetime' then
+        AQuery.Params.ParamByName(AField).AsDateTime := ScanDateTime('yyyy-mm-dd hh:nn:ss', AValue)
+      else if Lowercase(AType) = 'time' then
+        AQuery.Params.ParamByName(AField).AsTime := ScanDateTime('hh:nn:ss', AValue)
+      else if Lowercase(AType) = 'date' then
+        AQuery.Params.ParamByName(AField).AsDate := ScanDateTime('yyyy-mm-dd', AValue);
+    end;
+  end;
+  AGenFile.Free;
+  if FParams.Count > 3 then
+  begin
+
+    AQuery.Open;
+
+    j := 0;
+    while not AQuery.EOF do
+    begin
+      if not Added then
+      begin
+        i := FTemplate.GenFileSet.Add(True, FParams[3]);
+        Added := True;
+      end;
+      for F in AQuery.Fields do
+      begin
+        if not F.IsNull then
+          FTemplate.GenFileSet.GenFiles[i].GenFile.SetValue(IntToStr(j)+GEN_SUB_LEVEL+F.FieldName, F.Value)
+        else
+          FTemplate.GenFileSet.GenFiles[i].GenFile.SetValue(IntToStr(j)+GEN_SUB_LEVEL+F.FieldName, '');
+      end;
+      j := j+1;
+      AQuery.Next;
+    end;
+    AQuery.Close;
+  end
+  else
+  begin
+    AConn.StartTransaction;
+    AQuery.ExecSQL;
+    ATrans.Commit;
+    AConn.EndTransaction;
+  end;
+
+  AQuery.Free;
+  AConn.Free;
+end;
+
 procedure TDBExtension.DirectQuery;
 var
   //AConn:TSQLite3Connection;
@@ -122,9 +216,14 @@ var
   ATrans:TSQLTransaction;
   AQuery: TSQLQuery;
   F: TField;
-  AQ, Val, ADBName, ADBS:string;
+  AQ, Val, ADBName, ADBS, AnAlias:string;
+
   g, i, j:integer;
   Added:boolean=False;
+  //[0] = connection
+  //[1] = query
+  //[2] = prefix
+  //[3] = results
 begin
   g := FTemplate.GenFileSet.IndexOf(FParams[0]);
   ADBName := FTemplate.GenFileSet.GenFiles[g].GenFile.GetValue('path').Value;
@@ -138,6 +237,8 @@ begin
   AConn.StartTransaction;
   AQuery := TSQLQuery.Create(nil);
   AQ := Trim(FParams[1]);
+
+  //end set query params
 
   AQuery.DataBase := AConn;
   if FParams.Count > 2 then
