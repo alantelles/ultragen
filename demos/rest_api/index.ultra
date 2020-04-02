@@ -1,0 +1,11 @@
+@{    
+    include: 'controller.ultra'
+    &main.routes = 'routes'
+    createGen: routes, 'routes.gen'
+    route = +(':', _method, _route)
+    &main.notFound = 'errors.e404'
+    &main.match = routeMatch(@route, routes, notFound)
+    action = ~('controller.', substring(match, 0, indexOf(match, '.')))
+    object = substring(match, ++(indexOf(match, '.')))
+    live: callFunction(@action, @object)
+}

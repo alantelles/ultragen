@@ -1,0 +1,43 @@
+@{
+function: typer, v
+    _: ternary(nor(isNum(@v), isBool(@v)), ~('"', @v, '"'), @v)
+endFunction
+
+proc: printGen, src
+    for:@src, pair, LINE
+        explode: @pair, kv, '='    
+        k = @kv[0]
+        if: lt(indexOf(@k, ':'), 0)
+            v = typer(@kv[1])
+            print: +(':', typer(@k), @v)
+        else
+            prefix = substring(@k, 0, ++(indexOf(@k, ':')))
+            groupKeys:'sub', @prefix, 'src'
+                print: +('|', ...sub)
+            unloadGen: 'sub'
+        endIf
+
+    endFor
+endProc
+
+createGen: 'src', '0.gen'
+printGen: +(LINE, ...src)
+
+}
+###
+id=1
+name=Leanne Graham
+username=Bret
+email=Sincere@april.biz
+address:street=Kulas Light
+address:suite=Apt. 556
+address:city=Gwenborough
+address:zipcode=92998-3874
+address:geo:lat=-37.3159
+address:geo:lng=81.1496
+phone=1-770-736-8031 x56442
+website=hildegard.org
+company:name=Romaguera-Crona
+company:catchPhrase=Multi-layered client-server neural-net
+company:bs=harness real-time e-markets
+###

@@ -508,7 +508,12 @@ end;
 
 procedure TTemplate.RedirectTo(var Params: TStringList);
 begin
-  FWebVars.Response.SendRedirect(Params[0]);
+  //FWebVars.Response.Method := 'GET';
+
+  //FWebVars.Response.Code := 303;
+  //FWebVars.Response.SendRedirect(Params[0]);
+  FWebVars.Response.Code := 303;
+  FWebVars.Response.Location := Params[0];
 end;
 
 procedure TTemplate.CreateSession(var Params: TStringList);

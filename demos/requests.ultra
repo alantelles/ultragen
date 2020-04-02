@@ -1,0 +1,23 @@
+@{
+    ###
+
+    Requisições básicas http com get ou post    
+
+    ###
+
+    url = 'http://localhost:9000'
+
+    # Sem dados no corpo
+
+    print: sendGet(@url)
+    print: sendPost(@url)
+
+    # Enviando dados no corpo da requisição:
+    # é necessário fazer um spread de pares de um gen contendo os dados
+
+    &body.param1 = 'My parameter 1'
+    &body.param2 = 'My parameter 2'
+
+    print: sendGet(@url, ...body)
+    print: sendPost(@url, ...body)
+}

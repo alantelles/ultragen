@@ -1,0 +1,2 @@
+GET:/users=list.users
+GET:/posts=list.posts

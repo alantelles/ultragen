@@ -1,0 +1,30 @@
+@{
+    ###
+
+        Gen spread:
+
+        . faz spread das chaves
+        .. faz spread dos valores
+        ... faz spread dos pares
+
+    ###
+
+    &data.key1 = 'value 1'
+    &data.key2 = 'value 2'
+    &data.key3 = 'value 3'
+
+    print: join(',', .data)
+    print: join(',', ..data)
+    print: +(',', ...data)
+
+    # + é um alias para join
+
+    # Este recurso pode ser usado para corpo de requisições http
+
+    r = sendGet('http://localhost', ...data)
+
+    # faz um get em
+    # "http://localhost?key1=value 1&key2=value 2&key3=value 3"
+
+    
+}

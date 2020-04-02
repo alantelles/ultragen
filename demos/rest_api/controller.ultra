@@ -1,0 +1,32 @@
+@{
+        
+    function: addId, word, id
+        return:  ~(--(@id), ':', @word)
+    endFunction
+
+    function: addPair, alias, pair
+        explode: @pair, kv, '='
+        if: gt(count(@kv), 0)
+            setValue: @alias, @kv[0], @kv[1]
+        endIf
+        return: ''
+    endFunction
+    
+    function:list, obj
+        path = ~('./objects/', @obj)
+        listFiles: @path, gens, '*.gen', false, ASC        
+        createGen:'result'
+        for: @gens, g, LINE            
+            createGen: 'obj', @g
+            params = keysCount('obj')
+            ids = map(+('|', ...obj), '|', '|', addId(@elem, &obj.id))
+            x = map(@ids, '|', LINE, addPair('result', @elem))
+            unloadGen: 'obj'
+        endFor
+        res = insert('jsonifylist.ultra', 'result', count(@gens, LINE), @params, @obj)
+        unloadGen:'result'
+        _: @res
+    endFunction
+
+    print: list('posts')
+}

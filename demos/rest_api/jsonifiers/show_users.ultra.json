@@ -1,0 +1,14 @@
+@tokenEnclosers:'<>'
+{
+   "id" : << id >>,
+   "name" : "<< name >>",
+   "username" : "<< username >>",
+   "email" : "<< email >>",
+   "address" : {
+        "street" : "<< address:street >>",
+        "suite" : "<< address:suite >>",
+        "city" : "<< address:city >>",
+        "zipcode" : "<< address:zipcode >>"
+   \},
+   "phone" : "<< phone >>"
+\}

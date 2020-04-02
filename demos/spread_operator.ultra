@@ -1,0 +1,39 @@
+@{
+    ###
+
+    operador spread para preencher argumentos
+    sintaxe:
+
+        *[valor]
+            Decompõe utilizando vírgula como separador
+            
+        **[caractere][valor]
+            Decompõe utilizando o caractere dado como separador
+
+        Exemplo na função replace
+
+        Esta função substitui as ocorrências das strings nos argumentos de
+        0 até o antepenúltimo pelo penúltimo na string dada como último argumento
+
+    ###
+
+    print:'Sem spread:'
+    troca = '.'
+    frase = 'eu-estou-testa>ndo+minha<função'
+    print: replace('-', '+', '<', '>', @troca, @frase)
+    print:
+    print:'Com spread'
+    busca = '-,+,<,>'
+    print: replace(*@busca, @troca, @frase)
+
+    # Fatorial de N utilizando o operador spread
+
+    function:fat,n
+        n = range(1,++(@n))
+        return: mult(*@n)
+    endFunction
+    
+    print: fat(10)
+
+    # imprime 
+}

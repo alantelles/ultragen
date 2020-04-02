@@ -1,0 +1,7 @@
+@tokenEnclosers:'<>'
+{
+   "id" : << id >>,
+   "userId" : << userId >>,
+   "title" : "<< title >>",
+   "body" : "<< body >>"
+\}

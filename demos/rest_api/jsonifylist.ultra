@@ -1,0 +1,15 @@
+[
+@{
+    count = @param[1]
+    keys = @param[2]
+    obj = @param[3]
+    r = ''
+    for: range(@count), gen
+        groupKeys: 'now', ~(@gen,':'), 'param0'
+        page = ~('./jsonifiers/show_', @obj,'.ultra.json')
+        r = join(',', @r, insert(@page , 'now'))
+        unloadGen: 'now'
+    endFor
+    live: substring(@r, 1)
+}
+]
