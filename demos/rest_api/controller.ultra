@@ -19,7 +19,7 @@
         for: @gens, g, LINE            
             createGen: 'obj', @g
             params = keysCount('obj')
-            ids = map(+('|', ...obj), '|', '|', addId(@elem, &obj.id))
+            ids = map(+('|', ...'obj'), '|', '|', addId(@elem, &obj.id))
             x = map(@ids, '|', LINE, addPair('result', @elem))
             unloadGen: 'obj'
         endFor
@@ -28,5 +28,7 @@
         _: @res
     endFunction
 
-    print: list('posts')
+    function: errors, code
+        return:  ~('{"error":"', substring(@code, 1), '"}')
+    endFunction
 }

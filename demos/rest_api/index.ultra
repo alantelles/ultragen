@@ -7,5 +7,6 @@
     &main.match = routeMatch(@route, routes, notFound)
     action = ~('controller.', substring(match, 0, indexOf(match, '.')))
     object = substring(match, ++(indexOf(match, '.')))
+    responseType: 'application/json;charset=utf-8'
     live: callFunction(@action, @object)
 }

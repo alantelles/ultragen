@@ -18,6 +18,6 @@
     &body.param1 = 'My parameter 1'
     &body.param2 = 'My parameter 2'
 
-    print: sendGet(@url, ...body)
-    print: sendPost(@url, ...body)
+    print: sendGet(@url, ...'body')
+    print: sendPost(@url, ...'body')
 }
