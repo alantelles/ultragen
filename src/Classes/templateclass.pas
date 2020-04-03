@@ -1124,8 +1124,15 @@ begin
   end;
 
 
-  IncName := Params[0];
-  EFileError.Create(E_FILE_NOT_FOUND,ErrorLocation,IncName).TestFileExists.ERaise(False);
+
+
+  if FileExists(Params[0]) then
+    IncName := Params[0]
+  else
+    IncName := U_HOME+DirectorySeparator+BUILTIN_MODULES+DirectorySeparator+Params[0];
+
+
+  //EFileError.Create(E_FILE_NOT_FOUND,ErrorLocation,IncName).TestFileExists.ERaise(False);
   if (Params.Count > 1) and (Params[1] <> '') then
     TempAlias := Params[1]
   else

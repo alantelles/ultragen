@@ -8,6 +8,9 @@ uses
     Classes, SysUtils, ConstantsGlobals, TemplateClass, QueueListClass;
 
 var
+  { envvars }
+  U_HOME:string = 'ULTRAGEN_HOME';
+
   TOKEN_OPEN:string = '{';
   TOKEN_CLOSE:string = '}';
   GEN_SEP:char = '=';
@@ -22,6 +25,7 @@ var
   MAX_TRIES:integer = 40;
   PROCESSORS_FOLDER:string = 'Processors';
   EXTENSIONS_FOLDER:string = 'Extensions';
+  BUILTIN_MODULES:string = 'modules';
   TIME_STR:array of string;
   EXT_ACCEPTED:array[0..3] of string;
   PREDEF_OVERR:array[0..5] of string;
@@ -39,6 +43,8 @@ var
 
 
 implementation
+uses
+  dos;
 begin
   SetLength(TIME_STR,2);
   TIME_STR[0] := 'NOW';
@@ -64,6 +70,8 @@ begin
   RESERVED_WORDS[5] := 'UTC_FORMAT';
 
   PI := System.Pi();
+
+  U_HOME := GetEnv(U_HOME);
 
 
 end.

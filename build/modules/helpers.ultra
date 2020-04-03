@@ -1,0 +1,5 @@
+@{
+    function: test, arg
+        return: upper(replace(*range(10), '', @arg))
+    endFunction
+}

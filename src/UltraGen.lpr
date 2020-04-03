@@ -31,7 +31,7 @@ var
   UHome:string;
 
 begin
-  UHome := GetEnv('ULTRAGEN_HOME');
+  UHome := U_HOME;
   Start := now;
   GlobalQueue := TQueueSet.Create;
   AVerifyThread := TThreadVerify.Create;
