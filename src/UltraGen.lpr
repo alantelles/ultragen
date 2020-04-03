@@ -97,7 +97,7 @@ begin
     IsGenPathCall := True
   else if (ParamStr(1) = '--help') then
   begin
-    StringsFunctions.PrintHelp(UHome+DirectorySeparator+'ultragen');
+    StringsFunctions.PrintHelp(UHome);
     ShowHelp := True;
   end;
 

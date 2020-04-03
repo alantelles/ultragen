@@ -1,0 +1,8 @@
+body{
+    font-family: sans-serif
+}
+table td, th {
+    border-bottom: solid 1px #000;
+    text-align: left;
+    padding: 10px;
+}
