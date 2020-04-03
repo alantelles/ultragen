@@ -5,7 +5,7 @@ unit WebServerClass;
 interface
 
 uses
-  Classes, SysUtils, httpdefs, httproute, fphttpapp, fphttpserver, fpwebfile,
+  Classes, SysUtils, httpdefs, httproute, fphttpapp, fphttpserver, fpwebfile, dos,
 
   { Classes }
   GenFileSetClass, GenFileClass,
@@ -46,7 +46,7 @@ uses
 
 constructor TUltraGenServer.Create(APort: word; AnApp: string; Mode:string);
 var
-  Aux:string;
+  Aux, UHome:string;
   APair: TKVPair;
 begin
   FDontServe := False;
@@ -128,7 +128,7 @@ begin
     WriteLn('Using 120 minutes.');
     FSessionDuration := 120;
   end;
-
+  UHome := GetEnv('ULTRAGEN_HOME');
   Aux := FConfig.GetValue('_mimeTypesFile').Value;
   if Trim(Aux) <> '' then
   begin
@@ -136,12 +136,22 @@ begin
       MimeTypesFile := Aux
     else
     begin
-      WriteLn('MimeTypesFile doesn''t exist. Using default static load.');
+      WriteLn('MimeTypesFile declared in gen doesn''t exist. Using default mime-types load.');
+      Aux := UHome+DirectorySeparator+'assets\mime-types.txt';
+      if FileExists(Aux) then
+        MimeTypesFile := Aux
+      else
+        WriteLn('Default MimeTypesFile not found. Using default static load.');
     end;
   end
   else
   begin
-    WriteLn('Mime Types File not defined. Using default static load.');
+    WriteLn('MimeTypesFile not declared in gen. Using default mime-types load.');
+    Aux := UHome+DirectorySeparator+'assets\mime-types.txt';
+    if FileExists(Aux) then
+      MimeTypesFile := Aux
+    else
+      WriteLn('Default MimeTypesFile not found. Using default static load.');
   end;
   HTTPRouter.RegisterRoute('*', @ExecuteAction);
 end;
