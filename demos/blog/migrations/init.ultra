@@ -1,0 +1,15 @@
+@{
+    # run from own folder
+    
+    createGen: 'model', 'models/post.gen'
+    import: 'ultradb'
+
+    ultradb.connect: 'connection.gen'
+    ultradb.createTable: 'posts', 'model'
+
+    #&data.username = 'helainesabino'
+    #&data.name = 'Helaine Sabino'
+    #&data.password = 'helaine'
+
+    #ultradb.insert: 'users', 'data'
+}

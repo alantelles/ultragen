@@ -8,6 +8,9 @@ uses
   Classes, SysUtils;
 
 const
+  LANG_EXT = '.ultra';
+  INIT_MODULE = '_init.ultra';
+
   EXT_SEP = '.';
   PARAM_OPEN = '(';
   PARAM_CLOSE = ')';

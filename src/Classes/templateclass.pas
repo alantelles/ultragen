@@ -175,6 +175,7 @@ type
     function ImportGenFile(var Params: TStringList): TTemplate;
     function HasKey(AKey:string; AnAlias:string=''):boolean;
     procedure ExtendTemplate(ATemplate: string; Parent: string = '');
+    procedure ImportModule(var Params: TStringList; var PureParams: TStringList);
     procedure IncludeTemplate(var Params: TStringList);
     procedure Execute(var Params: TStringList; Async:boolean; silent:boolean=False);
     procedure InputValue(var Params: TStringList;
@@ -1105,6 +1106,41 @@ begin
     WriteLn(Return+#13);
 end;
 
+procedure TTemplate.ImportModule(var Params: TStringList; var PureParams: TStringList);
+var
+  Files, IParams:TStringList;
+  APath, AMod, F: string;
+begin
+  Files := TStringList.Create;
+  IParams := TStringList.Create;
+  AMod := Params[0];
+  if Params.Count > 1 then
+    APath := Params[1] + DirectorySeparator + AMod
+  else
+    APath := U_HOME + DirectorySeparator + BUILTIN_MODULES + DirectorySeparator + AMod;
+
+  if FileExists(APath + DirectorySeparator + INIT_MODULE) then
+  begin
+    IParams.Add(APath + DirectorySeparator + INIT_MODULE);
+    IParams.Add(GetFileName(APath, False));
+    IncludeTemplate(IParams);
+  end
+  else
+  begin
+    FindAllFiles(Files, APath, '*.ultra.*;*.ultra', False);
+    for F in Files do
+    begin
+    {{ TODO: implement module import }}
+      IParams.Clear;
+      IParams.Add(F);
+      IncludeTemplate(IParams);
+    {{ parei aqui }}
+    end;
+  end;
+  Files.Free;
+  IParams.Free;
+end;
+
 procedure TTemplate.IncludeTemplate(var Params: TStringList);
 var
   ATemp: TTemplate;
@@ -1881,9 +1917,10 @@ begin
       'extension': FOverrides.Extension := Params[0];
       'overwrite': FOverrides.Overwrite := True;
       'exportAtRoot': FOverrides.ExpAtRoot := True;
-      'import': ImportGenFile(Params);
+      //'import': ImportGenFile(Params);
       'dontSave' : FCanSave := False;
       'include': IncludeTemplate(Params);
+      'import':ImportModule(Params, PureParams);
       'for': ForPrepare(Params, PureParams);
       'endFor': EndFor;
       'break': BreakFor;

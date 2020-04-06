@@ -1,0 +1,13 @@
+@{
+    # run from own folder
+    
+    import: 'ultradb'
+    createGen: 'user_model', 'models/user.gen'
+    ultradb.connect: 'connection.gen'
+    ultradb.select: 'users', 'results', ''
+    print: &results.1:name
+    unloadGen: 'results'
+    ultradb.select: 'users', 'results', 'name = "Alan Telles"'
+    print: &results.0:name
+
+}

@@ -1,0 +1,53 @@
+@{
+proc: connect, dbgen
+    createGen: 'ULTRADB_CONN', @dbgen
+endProc
+
+proc: unplug
+    unloadGen: 'ULTRADB_CONN'
+endProc
+
+function: typer, arg
+    if: not(isNum(@arg))
+        _: ~('"', @arg ,'"')
+    else
+        _: @arg
+    endIf
+endFunction
+
+function: nextId, table
+    DB>query: 'ULTRADB_CONN', ~('select id from ', @table,' ORDER BY id DESC'), 'r'
+    r = genValue('0:id', 'r')
+    unloadGen: 'r'
+    return: ++(@r)
+endFunction
+
+proc:insert, table, datagen
+    for: range(keysCount(@datagen)), i
+        key = genKeyByIndex(@datagen, @i)
+        value = genValueByIndex(@datagen, @i)
+        setValue: @datagen, @key, typer(@value)
+    endFor
+    ins = ~('INSERT INTO ', @table,' (id ,', +(', ', .@datagen),') VALUES ( ',nextId(@table),', ', +(', ', ..@datagen),')')
+    DB>query: 'ULTRADB_CONN', @ins
+endProc
+
+proc: createTable, name, params
+    # params is a gen
+    v = map(+(',', ...@params),replace('=',' ',@elem))
+    q = ~('CREATE TABLE ', @name,' (', @v,')')
+    DB>query: 'ULTRADB_CONN', @q
+endProc
+
+proc: all, table, results
+    DB>query: 'ULTRADB_CONN', ~('SELECT * FROM ', @table), @results    
+endProc
+
+proc: select, table, results, cond
+    q = ~('SELECT * FROM ', @table)
+    if: gt(length(@cond), 0)
+        q = ~(@q,' WHERE (', @cond,')')
+    endIf
+    DB>query: 'ULTRADB_CONN', @q, @results
+endProc
+}

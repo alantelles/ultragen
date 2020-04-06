@@ -1,0 +1,5 @@
+@{
+    proc: roll
+        print: 'roll'
+    endProc
+}
