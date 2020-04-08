@@ -1,0 +1,4 @@
+@{
+	print: 'inserter'
+	print: insert('inserted.ultra', 'param 0', 'baholeros')
+}

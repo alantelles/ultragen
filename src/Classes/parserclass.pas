@@ -682,7 +682,8 @@ begin
     AGenSet := TGenFileSet.Create;
     ATemp := TTemplate.Create(Params[0]);
     Params.Delete(0);
-    ATemp.SetVariable('param',Params.Text);
+    Params.SkipLastLineBreak := True;
+    ATemp.SetVariable('param', Params.Text);
     if Params.Count > 0 then
     begin
       for i:=0 to Params.Count-1 do
@@ -1011,6 +1012,9 @@ begin
       Return := GetFileName(Params[0], StrToBoolean(Params[1]))
 
     { Math functions }
+    {else if (AFuncName = 'math') and (Params.Count = 1) then
+      Return := MathFunctions.EvalExpr(Params[0])}
+
     else if (AFuncName = 'random') and (Params.Count = 1) then
       Return := IntToStr(Random(StrToInt(Params[0])))
     else if (AFuncName = 'sum') and (Params.Count > 0) then

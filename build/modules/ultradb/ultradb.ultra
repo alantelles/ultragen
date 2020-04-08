@@ -16,9 +16,12 @@ function: typer, arg
 endFunction
 
 function: nextId, table
+    r = 0
     DB>query: 'ULTRADB_CONN', ~('select id from ', @table,' ORDER BY id DESC'), 'r'
-    r = genValue('0:id', 'r')
-    unloadGen: 'r'
+    if: gt(keysCount('r'), 0)
+        r = genValue('0:id', 'r')
+        unloadGen: 'r'
+    endIf   
     return: ++(@r)
 endFunction
 

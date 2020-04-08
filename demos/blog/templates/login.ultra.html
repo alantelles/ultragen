@@ -9,3 +9,23 @@
 
 </form>
 @endSection
+
+@section:content2
+@{
+    import: 'ultradb'
+    ultradb.connect: 'migrations\connection.gen'
+    # ultradb.all: 'posts', 'results'
+    q = 'SELECT posts.*, users.name AS author FROM posts INNER JOIN users ON users.id = posts.user_id'
+    DB>query: 'ULTRADB_CONN', @q, 'results'
+}
+@fields = 5
+
+@for: range(intDiv(keysCount('results'), @fields)), i
+    @groupKeys: 'post', ~(@i,':'), 'results'
+    <h2>{{ &post.title }}</h2>
+    <small>{{ &post.author }}</small>
+    <p>{{ &post.body }}</p>
+    <p>Permalink: <a href="/post/{{ &post.id }}">Post {{ &post.id }}</a></p>
+    @unloadGen: 'post'
+@endFor
+@endSection

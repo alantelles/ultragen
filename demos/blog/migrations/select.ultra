@@ -1,5 +1,6 @@
 @{
-    # run from own folder
+    # run from project folder
+    
     
     import: 'ultradb'
     createGen: 'user_model', 'models/user.gen'

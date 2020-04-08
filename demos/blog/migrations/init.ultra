@@ -5,11 +5,15 @@
     import: 'ultradb'
 
     ultradb.connect: 'connection.gen'
-    ultradb.createTable: 'posts', 'model'
+    #ultradb.createTable: 'posts', 'model'
 
     #&data.username = 'helainesabino'
     #&data.name = 'Helaine Sabino'
     #&data.password = 'helaine'
 
-    #ultradb.insert: 'users', 'data'
+    &data.title = 'Meu primeiro post'
+    &data.body = 'Este é meu primeiro post. Ele é apenas para testar o fluxo'
+    &data.user_id = 1
+
+    ultradb.insert: 'posts', 'data'
 }

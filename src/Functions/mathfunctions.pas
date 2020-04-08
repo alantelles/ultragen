@@ -5,7 +5,7 @@ unit MathFunctions;
 interface
 
 uses
-  Classes, SysUtils, math;
+  Classes, SysUtils, math, fpexprpars;
 
 function sum(var Params:TStringList):extended;
 function sub(a,b:double):double;
@@ -15,10 +15,24 @@ function divFloat(a,b:double):double;
 function modNum(a,b:double):int64;
 function pow(a:double;b:double=2):double;
 function root(a:double; b:double=2):double;
+function EvalExpr(Expr: string):string;
 
 
 
 implementation
+
+function EvalExpr(Expr: string):string;
+var
+  AParser: TFPExpressionParser;
+  ARes: TFPExpressionResult;
+begin
+  AParser := TFPExpressionParser.Create(nil);
+  AParser.BuiltIns := [bcMath, bcBoolean, bcStrings];
+  AParser.Expression := Expr;
+  ARes := AParser.Evaluate;
+  AParser.Free;
+  Result := FloatToStr(ARes.ResFloat);
+end;
 
 function sum(var Params:TStringList):extended;
 var

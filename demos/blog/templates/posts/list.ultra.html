@@ -1,0 +1,10 @@
+<h2>{{ @param[1] }}</h2>
+@{
+    fields = 4
+    count = intDiv(keysCount('param0'), @fields)
+    for: range(@count), i
+        groupKeys: 'post', ~(@i,':'), 'param0'
+        live: insert(dirSep('templates/posts/list_one.ultra.html'), 'post')
+        unloadGen: 'post'
+    endFor
+}
