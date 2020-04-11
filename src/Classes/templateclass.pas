@@ -172,8 +172,6 @@ type
     function GetVariable(AVarName: string): string;
     function SetVariable(AKey, AValue: string; Parse: boolean = False): TTemplate;
     function DropVariable(AKey: string): TTemplate;
-    function GetImportedValue(AnAlias, AKey: string): string;
-    function ImportGenFile(var Params: TStringList): TTemplate;
     function HasKey(AKey:string; AnAlias:string=''):boolean;
     procedure ExtendTemplate(ATemplate: string; Parent: string = '');
     procedure ImportModule(var Params: TStringList; var PureParams: TStringList);
@@ -1706,35 +1704,6 @@ begin
   end;
 end;
 
-function TTemplate.ImportGenFile(var Params: TStringList): TTemplate;
-var
-  GenName: string;
-  DefValue: string;
-  GenAlias: string;
-  GenSep: string;
-  i: integer;
-begin
-  GenName := Params[0];
-  DefValue := DEF_IF_NOT;
-  GenAlias := ReplaceStr(ReplaceStr(GetFileName(Params[0], False), '.', ''), '-', '');
-  GenSep := GEN_SEP;
-  if Params.Count > 1 then
-    GenAlias := Params[1];
-  if Params.Count > 2 then
-    DefValue := Params[2];
-  if Params.Count = 4 then
-    GenSep := Params[3];
-  FGenImport := TGenFile.Create;
-  FGenImport.IfNotFound := DefValue;
-  FGenImport.GenSeparator := GenSep;
-  FGenImport.Load(GenName);
-  i := FImported.IndexOf(GenAlias);
-  if i = -1 then
-    FImported.AddObject(GenAlias, FGenImport)
-  else
-    FImported.Objects[i] := FGenImport;
-  Result := Self;
-end;
 
 procedure TTemplate.IfPrepare(var Params: TStringList; var PureParams: TStringList;
   IfNot: boolean);
@@ -2375,24 +2344,6 @@ begin
   if not Found then
   begin
     EVariableError.Create(E_VAR_NOT_EXIST,ErrorLocation,AVarName).ERaise;
-  end;
-  Result := Return;
-end;
-
-
-function TTemplate.GetImportedValue(AnAlias, AKey: string): string;
-var
-  i: integer;
-  Return: string;
-  AParser: TTempParser;
-begin
-  Return := '';
-  i := FImported.IndexOf(AnAlias);
-  if i > -1 then
-  begin
-    AParser := TTempParser.Create(Self);
-    Return := TGenFile(FImported.Objects[i]).GetValue(AKey).Value;
-    AParser.Free;
   end;
   Result := Return;
 end;
