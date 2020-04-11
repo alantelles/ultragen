@@ -585,7 +585,8 @@ begin
       Return := FTemplate.GetVariable(Copy(Temp, Pos(OVER_STATE, Temp) + 1,
         Length(Temp)))
     else if (Temp[1] <> STR_ENCLOSE) and (Temp[Length(Temp)] <> STR_ENCLOSE) then
-      Return := FTemplate.GenFile.GetValue(Temp).Value;
+      //Return := FTemplate.GenFile.GetValue(Temp).Value;
+      Return := FTemplate.GetVariable(Temp);
   end
   else
     Return := '';
@@ -726,15 +727,16 @@ begin
   IsAlias := IsAnAlias(AToken);
   IsTime := IsTimeStr(AToken);
   IsAFunction := IsFunction(AToken);
-  IsAVari := IsVari(AToken);
+  //IsAVari := IsVari(AToken);
   IsLiteral := IsLiteralString(AToken);
   IsANumber := IsNumber(AToken);
   IsFromAGenSet := IsFromGenSet(AToken);
   IsImportedVal := False;//IsImported(AToken) and (not IsLiteral);
   IsFromExtension := IsExtensionFunction(AToken);
-  IsFromGen := (not IsAFunction) and (not IsAVari) and (not IsLiteral) and
+  IsAVari := (not IsAFunction) and (not IsLiteral) and
     (not IsTime) and (not IsANumber) and (not IsFromExtension) and
     (not IsAlias) and (not IsFromAGenSet) and (not IsAReserved);
+  isFromGen := False;
   if IsFromGen then
   begin
     AToken := Trim(AToken);
