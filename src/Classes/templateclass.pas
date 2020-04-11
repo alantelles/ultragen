@@ -1097,7 +1097,16 @@ procedure TTemplate.PrintLine(var Params: TStringList; ToConsole, ToOutput: bool
 var
   Return: string = '';
   P: string;
+  i:integer;
+  AParser : TTempParser;
 begin
+  AParser := TTempParser.Create(Self);
+  if Params.Count > 0 then
+  begin
+    for i:=0 to Params.Count - 1 do
+      Params[i] := AParser.ParseToken(Params[i]);
+  end;
+  AParser.Free;
   for P in Params do
     Return := Return + P;
   if ToOutput then
@@ -1753,6 +1762,8 @@ begin
     Clear;
     FFullname := ATempName;
     FOverrides.Extension := Copy(FFullName, RPos(EXT_SEP, FFullName), Length(FFullName));
+    if FOverrides.Extension = '.ultra' then
+      FScriptMode := True;
     WillAdd := '';
     for Line in Temp do
     begin
@@ -1897,14 +1908,14 @@ begin
   PureParams := TStringList.Create;
   PureParams.SkipLastLineBreak := True;
   PureParams.AddStrings(Params);
-  if Params.Count > 0 then
+  {if Params.Count > 0 then
   begin
     for i := 0 to Params.Count - 1 do
     begin
       a := AParser.ParseToken(Params[i]);
       Params[i] := a;
     end;
-  end;
+  end;}
   AKey := Trim(AKey);
   PosMod := Pos(EXTENSION_CALL, AKey);
   if PosMod = 0 then
@@ -2114,9 +2125,13 @@ begin
 end;
 
 procedure TTemplate.FunctionReturn(var Params: TStringList);
+var
+  AParser:TTempParser;
 begin
   FOrderReturn := True;
-  FReturnValue := Params[0];
+  AParser := TTempParser.Create(Self);
+  FReturnValue := AParser.ParseToken(Params[0]);
+  AParser.Free;
 end;
 
 procedure TTemplate.EndFunction;
