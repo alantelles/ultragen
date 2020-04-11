@@ -1922,7 +1922,7 @@ begin
   begin
 
     case (AKey) of
-      'outFileName': FOverrides.OutFileName := Params[0];
+      'outFileName': FOverrides.OutFileName := AParser.ParseToken(Params[0]);
       'copyTo': FOverrides.CopyTo.Add(RemoveLastBackslash(Params[0]));
       'exportTo': FExpLocation := Params[0];
       'extension': FOverrides.Extension := Params[0];
