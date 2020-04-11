@@ -194,7 +194,7 @@ end;
 
 function TTempParser.IsVari(AToken: string): boolean;
 begin
-  Result := Pos(OVER_STATE, AToken) = 1;
+  Result := Pos(FROM_GEN_SET, AToken) = 1;
 end;
 
 function TTempParser.IsLiteralString(AToken: string): boolean;
@@ -580,10 +580,13 @@ begin
     else if (IsLiteralString(AToken)) then
       //It's a string literal
       Return := Copy(Temp, 2, Length(Temp) - 2)
-    else if (Copy(Temp, 1, Length(OVER_STATE)) = OVER_STATE) then
-      //It's a value from a variable
-      Return := FTemplate.GetVariable(Copy(Temp, Pos(OVER_STATE, Temp) + 1,
-        Length(Temp)))
+    else if (Copy(Temp, 1, Length(FROM_GEN_SET)) = FROM_GEN_SET) then
+      //It's a value from a gen set
+      //Return := FTemplate.GetVariable(Copy(Temp, Pos(OVER_STATE, Temp) + 1,
+        //Length(Temp)))
+      Return := FTemplate.GenFile.GetValue(Copy(Temp, Pos(FROM_GEN_SET, Temp) + 1,
+        Length(Temp))).Value
+
     else if (Temp[1] <> STR_ENCLOSE) and (Temp[Length(Temp)] <> STR_ENCLOSE) then
       //Return := FTemplate.GenFile.GetValue(Temp).Value;
       Return := FTemplate.GetVariable(Temp);
@@ -727,19 +730,20 @@ begin
   IsAlias := IsAnAlias(AToken);
   IsTime := IsTimeStr(AToken);
   IsAFunction := IsFunction(AToken);
-  //IsAVari := IsVari(AToken);
+  IsFromGen := IsVari(AToken);
   IsLiteral := IsLiteralString(AToken);
   IsANumber := IsNumber(AToken);
   IsFromAGenSet := IsFromGenSet(AToken);
   IsImportedVal := False;//IsImported(AToken) and (not IsLiteral);
   IsFromExtension := IsExtensionFunction(AToken);
-  IsAVari := (not IsAFunction) and (not IsLiteral) and
+  IsAVari := (not IsAFunction) and (not IsLiteral) and (not IsFromGen) and
     (not IsTime) and (not IsANumber) and (not IsFromExtension) and
     (not IsAlias) and (not IsFromAGenSet) and (not IsAReserved);
-  isFromGen := False;
+
   if IsFromGen then
   begin
     AToken := Trim(AToken);
+    AToken := Copy(AToken, Length(FROM_GEN_SET)+1, Length(AToken));
     if Pos(PARAM_SEP, AToken) = 0 then
     begin
       GenVar := FTemplate.GenFileSet.GetValue(AToken);
