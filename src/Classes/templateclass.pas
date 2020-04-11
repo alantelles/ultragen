@@ -114,6 +114,7 @@ type
     FReturnValue: string;
     FIncludedAliases: TStringList;
     FErrorLocation:TErrorLocation;
+    procedure ParseTokens(indexes: array of integer; var AParams:TStringList);
   public
     constructor Create(ATempName: string = ''; AExpLocation: string = '.');
     property RenderBlank: boolean read FOverrides.RenderBlank
@@ -165,7 +166,7 @@ type
     function Load(ATempList: TStringList; ATempName: string): TTemplate;
     procedure SetErrorLocation;
     procedure SetFunctionsLength(NewLen: integer);
-    procedure LoadText(var Params: TStringList; var PureParams: TStringList);
+    procedure LoadText(var Params: TStringList);
     function Save: TTemplate;
     procedure ProcessTemplate(var Params: TStringList; DoPrint: boolean = False);
     function GetVariable(AVarName: string): string;
@@ -319,6 +320,36 @@ begin
     FFullName := ExpandFileName(ATempName);
     Load(FFullName);
   end;
+end;
+
+procedure TTemplate.ParseTokens(indexes: array of integer; var AParams:TStringList);
+var
+  i:integer;
+  AParser:TTempParser;
+begin
+  AParser := TTempParser.Create(self);
+  if Length(indexes) = 0 then
+  begin
+    if AParams.Count > 0 then
+    begin
+      for i:=0 to AParams.Count - 1 do
+        AParams[i] := AParser.ParseToken(AParams[i]);
+    end;
+  end
+  else
+  begin
+    for i:=0 to Length(indexes) do
+    begin
+      try
+        AParams[i] := AParser.ParseToken(AParams[i]);
+      except
+        WriteLn('Index does not exist');
+        AParser.Free;
+        Halt;
+      end;
+    end;
+  end;
+  AParser.Free;
 end;
 
 procedure TTemplate.POC(PureParams, Params:TStringList);
@@ -797,6 +828,7 @@ begin
     TempName := FFullName;
     Line := FLines[FLineNumber];
   end;
+  ParseTokens([], Params);
   TempPath := Params[0];
   EFileError.Create(E_FILE_NOT_FOUND,ErrorLocation,TempPath).TestFileExists.ERaise(False);
   ATemplate := TTemplate.Create(TempPath);
@@ -1098,15 +1130,8 @@ var
   Return: string = '';
   P: string;
   i:integer;
-  AParser : TTempParser;
 begin
-  AParser := TTempParser.Create(Self);
-  if Params.Count > 0 then
-  begin
-    for i:=0 to Params.Count - 1 do
-      Params[i] := AParser.ParseToken(Params[i]);
-  end;
-  AParser.Free;
+  ParseTokens([], Params);
   for P in Params do
     Return := Return + P;
   if ToOutput then
@@ -1401,21 +1426,22 @@ begin
   Files.Free;
 end;
 
-procedure TTemplate.LoadText(var Params: TStringList; var PureParams: TStringList);
+procedure TTemplate.LoadText(var Params: TStringList);
 var
   AText: TStringList;
   i: integer;
 begin
   AText := TStringList.Create;
   AText.SkipLastLineBreak := True;
-  if FileExists(Params[0]) then
+  ParseTokens([1], Params);
+  if FileExists(Params[1]) then
   begin
-    AText.LoadFromFile(Params[0]);
+    AText.LoadFromFile(Params[1]);
     if AText.Count > 0 then
     begin
-      SetVariable(PureParams[1], AText.Text);
+      SetVariable(Params[0], AText.Text);
       for i := 0 to AText.Count - 1 do
-        SetVariable(PureParams[1] + '[' + IntToStr(i) + ']', AText[i]);
+        SetVariable(Params[0] + '[' + IntToStr(i) + ']', AText[i]);
     end;
   end;
   AText.Free;
@@ -1923,9 +1949,9 @@ begin
 
     case (AKey) of
       'outFileName': FOverrides.OutFileName := AParser.ParseToken(Params[0]);
-      'copyTo': FOverrides.CopyTo.Add(RemoveLastBackslash(Params[0]));
-      'exportTo': FExpLocation := Params[0];
-      'extension': FOverrides.Extension := Params[0];
+      'copyTo': FOverrides.CopyTo.Add(RemoveLastBackslash(AParser.ParseToken(Params[0])));
+      'exportTo': FExpLocation := AParser.ParseToken(Params[0]);
+      'extension': FOverrides.Extension := AParser.ParseToken(Params[0]);
       'overwrite': FOverrides.Overwrite := True;
       'exportAtRoot': FOverrides.ExpAtRoot := True;
       //'import': ImportGenFile(Params);
