@@ -251,6 +251,7 @@ type
       HasRet: boolean);
     function ArrowFunction(var Params: TStringList; var PureParams: TStringList):string;
     procedure MakeFunctionsRoom;
+    procedure InitializeVars(var Params: TStringList; SelfAssign:boolean=False);
     procedure FunctionReturn(var Params: TStringList);
     procedure EndFunction;
     procedure AddLineToFunction(ALine: string);
@@ -634,6 +635,17 @@ begin
   Result := Return;
 end;
 
+procedure TTemplate.InitializeVars(var Params: TStringList; SelfAssign:boolean=False);
+var
+  s:string;
+begin
+  if SelfAssign then
+    for s in Params do
+      SetVariable(s, s)
+  else
+    for s in Params do
+      SetVariable(s, StringsFunctions.CreateRandomHash);
+end;
 
 function TTemplate.RequestRest(var Params: TStringList; var PureParams: TStringList):string;
 var
@@ -2058,6 +2070,10 @@ begin
       'proc': StartFunction(Params, PureParams, False);
       '_', 'return': FunctionReturn(Params);
       'endProc': EndFunction;
+      //initializers
+      'init' : InitializeVars(Params);
+      'assign' : InitializeVars(Params, True);
+      //end init
       'POC' : POC(PureParams, Params);
       'callProc':
       begin
