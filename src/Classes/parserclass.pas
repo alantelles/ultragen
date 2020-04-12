@@ -785,14 +785,6 @@ begin
   begin
     Return := AToken;
   end
-  else if IsImportedVal then
-  begin
-    AToken := Trim(AToken);
-    DotPos := Pos(ATTR_ACCESSOR, AToken);
-    ImportName := Copy(AToken, 1, DotPos - 1);
-    GenKey := Copy(AToken, DotPos + 1, Length(AToken));
-    Return := FTemplate.GetImportedValue(ImportName, ParseToken(GenKey));
-  end
   else if IsAVari then
     Return := GetLiteral(AToken)
   else if IsAFunction or IsFromExtension then

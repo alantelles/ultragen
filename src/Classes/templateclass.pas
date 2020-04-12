@@ -114,7 +114,7 @@ type
     FReturnValue: string;
     FIncludedAliases: TStringList;
     FErrorLocation:TErrorLocation;
-    procedure ParseTokens(indexes: array of integer; var AParams:TStringList);
+
   public
     constructor Create(ATempName: string = ''; AExpLocation: string = '.');
     property RenderBlank: boolean read FOverrides.RenderBlank
@@ -159,6 +159,7 @@ type
     property UserFunctions: TUserFunctions read FUserFunctions write FUserFunctions;
     property OrderReturn: boolean read FOrderReturn write FOrderReturn;
     property ReturnValue: string read FReturnValue;
+    procedure ParseTokens(indexes: array of integer; var AParams:TStringList);
 
     function Name: string;
     function SetPredefined(AKey, AValue: string): boolean;
@@ -174,11 +175,10 @@ type
     function DropVariable(AKey: string): TTemplate;
     function HasKey(AKey:string; AnAlias:string=''):boolean;
     procedure ExtendTemplate(ATemplate: string; Parent: string = '');
-    procedure ImportModule(var Params: TStringList; var PureParams: TStringList);
+    procedure ImportModule(var Params: TStringList);
     procedure IncludeTemplate(var Params: TStringList);
     procedure Execute(var Params: TStringList; Async:boolean; silent:boolean=False);
-    procedure InputValue(var Params: TStringList;
-      var PureParams: TStringList; DoParse: boolean);
+    procedure InputValue(var Params: TStringList; DoParse: boolean);
     function ParseTemplate(var AGen: TGenFileSet): string;
     function ParseTemplate(var AGen: TGenFileSet; var OutputParsed: TStringList): string;
     function ParseTemplate(var AGen: TGenFile): string;
@@ -190,13 +190,11 @@ type
     procedure PrintLine(var Params: TStringList; ToConsole, ToOutput: boolean);
     procedure ParseAbort(var Params: TStringList);
     procedure PrintParsed;
-    procedure ForPrepare(var Params: TStringList; var PureParams: TStringList;
-      ForLoop: boolean = True);
+    procedure ForPrepare(var Params: TStringList; ForLoop: boolean = True);
     procedure BreakFor;
     procedure ContinueFor;
     procedure EndFor;
-    procedure LoopPrepare(var Params: TStringList; var PureParams: TStringList;
-      ForLoop: boolean = True);
+    procedure LoopPrepare(var Params: TStringList;var PureParams: TStringList; ForLoop: boolean = True);
     procedure EndLoop;
     function EvalFilter: boolean;
     function EvalBypass: boolean;
@@ -248,6 +246,7 @@ type
     function RequestRestPost(var Params: TStringList; var PureParams: TStringList):string;
     //end web procedures
     function MapElem(var Params:TStringList;var PureParams:TStringList):string;
+    { parei a mudança de parse aqui }
     procedure StartFunction(var Params: TStringList; var PureParams: TStringList;
       HasRet: boolean);
     function ArrowFunction(var Params: TStringList; var PureParams: TStringList):string;
@@ -336,14 +335,12 @@ begin
   end
   else
   begin
-    for i:=0 to Length(indexes) do
+    for i:=0 to Length(indexes)-1 do
     begin
       try
-        AParams[i] := AParser.ParseToken(AParams[i]);
+        AParams[indexes[i]] := AParser.ParseToken(AParams[indexes[i]]);
       except
-        WriteLn('Index does not exist');
-        AParser.Free;
-        Halt;
+
       end;
     end;
   end;
@@ -434,6 +431,7 @@ procedure TTemplate.SetCookie(var Params: TStringList);
 var
   C: TCookie;
 begin
+  ParseTokens([], Params);
   C := FWebVars.Response.Cookies.Add;
   C.Name := Params[0];
   C.Value := Params[1];
@@ -453,6 +451,7 @@ var
   C: TCookie;
   i:integer;
 begin
+  ParseTokens([], Params);
   C := FWebVars.Response.Cookies.Add;
   C.Name := Params[0];
   C.Value := Params[1];
@@ -481,6 +480,7 @@ procedure TTemplate.DropCookie(var Params: TStringList);
 var
   C: TCookie;
 begin
+  ParseTokens([], Params);
   C := FWebVars.Response.Cookies.Add;
   C.Name := Params[0];
   C.Expires := ScanDateTime('yyyy-mm-dd', '1970-01-01');
@@ -490,6 +490,7 @@ procedure TTemplate.DestroySession(var Params: TStringList);
 var
   ParamsC: TStringList;
 begin
+  ParseTokens([], Params);
   ParamsC := TStringList.Create;
   ParamsC.Add('sessionID');
   DropCookie(ParamsC);
@@ -507,6 +508,7 @@ var
   SessionFile: string;
   i: integer;
 begin
+  ParseTokens([], Params);
   if FWebVars.SessionId <> '' then
   begin
     SessionFile := FWebVars.SessionPath + DirectorySeparator + FWebVars.SessionId + '.gen';
@@ -526,6 +528,7 @@ var
   SessionFile: string;
   i: integer;
 begin
+  ParseTokens([],Params);
   SessionFile := FWebVars.SessionPath + DirectorySeparator + FWebVars.SessionId + '.gen';
   AGenFile := TGenFile.Create;
   AGenFile.Load(SessionFile);
@@ -538,10 +541,7 @@ end;
 
 procedure TTemplate.RedirectTo(var Params: TStringList);
 begin
-  //FWebVars.Response.Method := 'GET';
-
-  //FWebVars.Response.Code := 303;
-  //FWebVars.Response.SendRedirect(Params[0]);
+  ParseTokens([], Params);
   FWebVars.Response.Code := 303;
   FWebVars.Response.Location := Params[0];
 end;
@@ -583,7 +583,7 @@ var
   i: integer;
   Errorlocation:TErrorLocation;
 begin
-
+  ParseTokens([], Params);
   with ErrorLocation do
   begin
     LineNumber := FLineNumber;
@@ -608,6 +608,7 @@ var
   SS:TStringStream;
   URL:string;
 begin
+  ParseTokens([], Params);
   InitSSLInterface;
   Requirer := TFPHttpClient.Create(nil);
   Requirer.AddHeader('User-Agent','Mozilla/5.0 (compatible; fpweb)');
@@ -640,6 +641,7 @@ var
   Return: string = '';
   URL, AQuery:string;
 begin
+  ParseTokens([], Params);
   InitSSLInterface;
   Requirer := TFPHttpClient.Create(nil);
   Requirer.AddHeader('User-Agent','Mozilla/5.0 (compatible; fpweb)');
@@ -671,7 +673,7 @@ procedure TTemplate.CreateQueue(var Params:TStringList; var PureParams:TStringLi
 var
   Errorlocation:TErrorLocation;
   begin
-
+   ParseTokens([0,1], Params);
    with ErrorLocation do
    begin
      LineNumber := FLineNumber;
@@ -689,11 +691,13 @@ end;
 
 procedure TTemplate.DestroyQueue(var Params:TStringList);
 begin
+  ParseTokens([], Params);
   GlobalQueue.StopQueue(Params[0]);
 end;
 
 procedure TTemplate.ActivateQueue(var Params:TStringList);
 begin
+  ParseTokens([], Params);
   GlobalQueue.ActivateQueue(Params[0]);
 end;
 
@@ -705,6 +709,7 @@ var
   AFunc:TUserFunction;
   AParams:TStringList;
 begin
+  ParseTokens([], Params);
   AFuncName := Params[1];
   AQueue := Params[0];
   Params.Delete(0);
@@ -723,6 +728,7 @@ procedure TTemplate.LogText(var Params:TStringList);
 var
   AText:TStringList;
 begin
+  ParseTokens([], Params);
   AText := TStringList.Create;
   AText.SkipLastLineBreak := True;
   if FileExists(Params[1]) then
@@ -762,7 +768,7 @@ var
   AGenFile: TGenFile;
   Errorlocation:TErrorLocation;
 begin
-
+  ParseTokens([], Params);
   with ErrorLocation do
   begin
     LineNumber := FLineNumber;
@@ -787,7 +793,7 @@ var
   AnAlias: string;
   Errorlocation:TErrorLocation;
 begin
-
+   ParseTokens([], Params);
    with ErrorLocation do
    begin
      LineNumber := FLineNumber;
@@ -864,7 +870,7 @@ var
   DestFile: string;
   Errorlocation:TErrorLocation;
  begin
-
+   ParseTokens([], Params);
    with ErrorLocation do
    begin
      LineNumber := FLineNumber;
@@ -886,12 +892,12 @@ var
   end;
 end;
 
-procedure TTemplate.InputValue(var Params: TStringList; var PureParams: TStringList;
-  DoParse: boolean);
+procedure TTemplate.InputValue(var Params: TStringList; DoParse: boolean);
 var
   AValue: string;
   Errorlocation:TErrorLocation;
 begin
+  ParseTokens([1], Params);
 
   with ErrorLocation do
   begin
@@ -902,8 +908,8 @@ begin
   if Params.Count = 2 then
     Write(Params[1] + ' ');
   ReadLn(AValue);
-  EVariableError.Create(E_FORBBIDEN_VAR_NAME,ErrorLocation,PureParams[0]).TestValidName.ERaise(False);
-  SetVariable(PureParams[0], AValue, DoParse);
+  EVariableError.Create(E_FORBBIDEN_VAR_NAME,ErrorLocation,Params[0]).TestValidName.ERaise(False);
+  SetVariable(Params[0], AValue, DoParse);
 end;
 
 procedure TTemplate.SetGenValue(var Params: TStringList);
@@ -913,7 +919,7 @@ var
   i: integer;
   Errorlocation:TErrorLocation;
 begin
-
+  ParseTokens([], Params);
   with ErrorLocation do
   begin
     LineNumber := FLineNumber;
@@ -937,7 +943,7 @@ var
   i: integer;
   Errorlocation:TErrorLocation;
 begin
-
+    ParseTokens([], Params);
     with ErrorLocation do
     begin
       LineNumber := FLineNumber;
@@ -968,7 +974,7 @@ var
   //groupKeys:'newAlias','prefix','genAlias'
    Errorlocation:TErrorLocation;
 begin
-
+  ParseTokens([], Params);
   with ErrorLocation do
   begin
     LineNumber := FLineNumber;
@@ -997,7 +1003,7 @@ var
   ResetMode:boolean = True;
   Errorlocation:TErrorLocation;
 begin
-
+ ParseTokens([], Params);
  with ErrorLocation do
  begin
    LineNumber := FLineNumber;
@@ -1029,7 +1035,7 @@ var
   VarAlias: string;
   Errorlocation:TErrorLocation;
 begin
-
+ ParseTokens([], Params);
  with ErrorLocation do
  begin
    LineNumber := FLineNumber;
@@ -1075,6 +1081,7 @@ var
   AGenList: TStringList;
   s: string;
 begin
+  ParseTokens([], Params);
   AGenList := TStringList.Create;
   FindAllFiles(AGenList, Params[1], '*.gen;*.GEN', False);
   AGenList.Sort;
@@ -1086,6 +1093,7 @@ procedure TTemplate.TempFileCopy(var Params: TStringList);
 var
   ANewName: string;
 begin
+  ParseTokens([], Params);
   if FileExists(Params[0]) then
   begin
     ANewName := GetFileName(Params[0]);
@@ -1103,6 +1111,7 @@ var
   AProcess: TProcess;
   i: integer;
 begin
+  ParseTokens([], Params);
   AProcess := TProcess.Create(nil);
   try
     AProcess.Executable := Params[0];
@@ -1138,11 +1147,12 @@ begin
     WriteLn(Return+#13);
 end;
 
-procedure TTemplate.ImportModule(var Params: TStringList; var PureParams: TStringList);
+procedure TTemplate.ImportModule(var Params: TStringList);
 var
   Files, IParams:TStringList;
   APath, AMod, F: string;
 begin
+  ParseTokens([], Params);
   Files := TStringList.Create;
   IParams := TStringList.Create;
   AMod := Params[0];
@@ -1183,23 +1193,17 @@ var
   F: TUserFunction;
   Errorlocation:TErrorLocation;
 begin
-
+  ParseTokens([], Params);
   with ErrorLocation do
   begin
     LineNumber := FLineNumber;
     TempName := FFullName;
     Line := FLines[FLineNumber];
   end;
-
-
-
-
   if FileExists(Params[0]) then
     IncName := Params[0]
   else
     IncName := U_HOME+DirectorySeparator+BUILTIN_MODULES+DirectorySeparator+Params[0];
-
-
   //EFileError.Create(E_FILE_NOT_FOUND,ErrorLocation,IncName).TestFileExists.ERaise(False);
   if (Params.Count > 1) and (Params[1] <> '') then
     TempAlias := Params[1]
@@ -1246,6 +1250,7 @@ begin
   Explode := TStringList.Create;
   Explode.SkipLastLineBreak := True;
   Explode.StrictDelimiter := True;
+  ParseTokens([0, 2], Params);
   if Params.Count > 2 then
     Explode.Delimiter := Params[2][1]
   else
@@ -1289,6 +1294,7 @@ begin
   LookSub := False;
   //ADelimiter := FILES_SECURE_SEP;
   //listFiles:path,vari,filter,sub,order
+  ParseTokens([0, 2], Params);
   APath := Params[0];
   AVarName := PureParams[1];
   if Params.Count > 2 then
@@ -1336,6 +1342,7 @@ begin
   LookSub := False;
   //ADelimiter := FILES_SECURE_SEP;
   //listFiles:path,vari,filter,sub,order
+  ParseTokens([0, 2], Params);
   APath := Params[0];
   AVarName := PureParams[1];
   if Params.Count > 2 then
@@ -1431,15 +1438,15 @@ var
 begin
   AText := TStringList.Create;
   AText.SkipLastLineBreak := True;
-  ParseTokens([1], Params);
-  if FileExists(Params[1]) then
+  ParseTokens([0], Params);
+  if FileExists(Params[0]) then
   begin
-    AText.LoadFromFile(Params[1]);
+    AText.LoadFromFile(Params[0]);
     if AText.Count > 0 then
     begin
-      SetVariable(Params[0], AText.Text);
+      SetVariable(Params[1], AText.Text);
       for i := 0 to AText.Count - 1 do
-        SetVariable(Params[0] + '[' + IntToStr(i) + ']', AText[i]);
+        SetVariable(Params[1] + '[' + IntToStr(i) + ']', AText[i]);
     end;
   end;
   AText.Free;
@@ -1510,20 +1517,19 @@ begin
 end;
 
 
-procedure TTemplate.ForPrepare(var Params: TStringList; var PureParams: TStringList;
-  ForLoop: boolean = True);
+procedure TTemplate.ForPrepare(var Params: TStringList; ForLoop: boolean = True);
 var
   Values: TStringList;
   ParamAsStr, Iterated, j: string;
   len, i, x: int64;
   EmptyList: boolean;
 begin
-
+  ParseTokens([0, 2], Params);
   FLoopTypeLast := FLoopType;
   FLoopType := FORDEV;
   FForLevel := FForLevel + 1;
   SetLength(FForLoops, FForLevel + 1);
-  FForLoops[FForLevel].ControlVar := PureParams[1];
+  FForLoops[FForLevel].ControlVar := Params[1];
   FForLoops[FForLevel].GoToLine := FLineNumber + 2;
 
   FForLoops[FForLevel].List := TStringList.Create;
@@ -1561,9 +1567,9 @@ begin
 
   if Params.Count = 4 then
   begin
-    if PureParams[3] = ASC then
+    if Params[3] = ASC then
       FForLoops[FForLevel].List.Sort
-    else if PureParams[3] = DESC then
+    else if Params[3] = DESC then
     begin
       FForLoops[FForLevel].List.Sort;
       ReverseList(FForLoops[FForLevel].List);
@@ -1639,10 +1645,12 @@ var
   len, i, Times, Pause: integer;
 begin
   //loop:[times],[control var],[pause (ms)]
-  //loop:30,500,'i'
-  //loop:0,'i',500 (infinite loop)
+  //loop: 0 -- no control var
+  //loop: 0, i -- no pause
+  //loop: 0, i, 500 (infinite loop) -- valid call
   FLoopTypeLast := FLoopType;
   FLoopType := LOOPDEV;
+  ParseTokens([0, 2], Params);
   Times := StrToInt(Params[0]);
   FForLevel := FForLevel + 1;
   SetLength(FForLoops, FForLevel + 1);
@@ -1651,19 +1659,12 @@ begin
   if Times = 0 then
     FForLoops[FForLevel].Infinite := True;
   if Params.Count = 2 then
-  begin
-    try
-      Pause := StrToInt(Params[1]);
-      FForLoops[FForLevel].PauseTime := Pause;
-    except
-      FForLoops[FForLevel].ControlVar := PureParams[1];
-    end;
-  end;
+    FForLoops[FForLevel].ControlVar := PureParams[1];
   if Params.Count = 3 then
   begin
-    Pause := StrToInt(Params[1]);
+    Pause := StrToInt(Params[2]);
     FForLoops[FForLevel].PauseTime := Pause;
-    FForLoops[FForLevel].ControlVar := PureParams[2];
+    FForLoops[FForLevel].ControlVar := PureParams[1];
   end;
   FForLoops[FForLevel].GoToLine := FLineNumber + 2;
   FForLoops[FForLevel].Limit := Times;
@@ -1717,6 +1718,7 @@ begin
   FLoopType := IFDEV;
   if IfLevel = Length(FIfTests) then
   begin
+    ParseTokens([0], Params);
     a := Params[0];
     Logic := StrToBoolean(a);
     //FSkip := not ((Logic and (not IfNot)) or ((not Logic) and IfNot));   //teste passou
@@ -1926,8 +1928,8 @@ begin
       //'import': ImportGenFile(Params);
       'dontSave' : FCanSave := False;
       'include': IncludeTemplate(Params);
-      'import':ImportModule(Params, PureParams);
-      'for': ForPrepare(Params, PureParams);
+      'import':ImportModule(Params);
+      'for': ForPrepare(Params);
       'endFor': EndFor;
       'break': BreakFor;
       'continue': ContinueFor;
@@ -1951,14 +1953,14 @@ begin
         FTokenOpen := Params[0][1];
         FTokenClose := Params[0][2];
       end;
-      'input': InputValue(Params, PureParams, False);
+      'input': InputValue(Params, False);
       //'live': FCanSave := False;
-      'parsedInput': InputValue(Params, PureParams, True);
+      'parsedInput': InputValue(Params, True);
       'execute': Execute(Params, False);
       'execSilent': Execute(Params, False,True);
       'trigger': Execute(Params, True);
       'drop': DropVariable(PureParams[0]);
-      'loadText': LoadText(Params, PureParams);
+      'loadText': LoadText(Params);
       //fileHandling
       'listFiles': ListFiles(Params, PureParams);
       'listDirs': ListDirs(Params, PureParams);
@@ -2120,13 +2122,10 @@ begin
 end;
 
 procedure TTemplate.FunctionReturn(var Params: TStringList);
-var
-  AParser:TTempParser;
 begin
   FOrderReturn := True;
-  AParser := TTempParser.Create(Self);
-  FReturnValue := AParser.ParseToken(Params[0]);
-  AParser.Free;
+  ParseTokens([0], Params);
+  FReturnValue := Params[0];
 end;
 
 procedure TTemplate.EndFunction;
@@ -2151,10 +2150,12 @@ begin
   //Params[1] = a separator
   //Params[2] = ret separator
   //PureParams[3] = an arrow function
+
   AListable := Params[0];
   Params.Delete(0);
   if Params.Count = 3 then
   begin
+    ParseTokens([0, 1, 2], Params);
 
     ASep := Params[0];
     Params.Delete(0);
@@ -2166,6 +2167,7 @@ begin
   end
   else
   begin
+    ParseTokens([0], Params);
     ASep := ',';
     ARetSep := ', ';
     AFunc := PureParams[1];
@@ -2214,6 +2216,8 @@ var
   Return, Line, a, b: string;
   AGenSet:TGenFileSet;
 begin
+  if not HasRet then
+    ParseTokens([], Params);
   Len := Length(FUserFunctions);
   if Len > 0 then
   begin
@@ -2282,6 +2286,7 @@ procedure TTemplate.DoPause(var Params: TStringList);
 var
   i: longint;
 begin
+  ParseTokens([], Params);
   if Params[0] = '' then
     Read
   else
@@ -2490,6 +2495,7 @@ procedure TTemplate.SetGenName(var Params: TStringList);
 var
   i: integer;
 begin
+  ParseTokens([], Params);
   i := FGenFileSet.IndexOf(Params[0]);
   if i > -1 then
     FGenFileSet.GenFiles[i].GenFile.FullName := Params[1];
