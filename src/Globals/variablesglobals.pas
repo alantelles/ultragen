@@ -68,6 +68,7 @@ begin
   RESERVED_WORDS[3] := LINE_BREAK;
   RESERVED_WORDS[4] := 'FULL_DATE';
   RESERVED_WORDS[5] := 'UTC_FORMAT';
+  RESERVED_WORDS[6] := 'COMMA';
 
   PI := System.Pi();
 

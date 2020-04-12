@@ -15,6 +15,7 @@ const
   PARAM_OPEN = '(';
   PARAM_CLOSE = ')';
   PARAM_SEP = ',';
+  COMMA = 'COMMA';
   STR_ENCLOSE = '''';
   ESCAPER = '\';
   ATTR_ACCESSOR = '.';

@@ -571,7 +571,9 @@ begin
     begin                    
       Return := AToken;
       if AToken = LINE_BREAK then
-        Return := sLineBreak
+        Return := sLineBreak;
+      if AToken = COMMA then
+        Return := ',';
     end
     else if IsNumber(AToken) then
       Return := AToken

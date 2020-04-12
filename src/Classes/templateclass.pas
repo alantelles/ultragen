@@ -1210,11 +1210,19 @@ begin
   else
     TempAlias := GetFileName(GetFileName(IncName, False), False);
 
+
   EAliasError.Create(E_INCLUDED_ALIAS_ALREADY_EXISTS,ErrorLocation,TempAlias).TestIncludedAliasExists(FIncludedAliases).ERaise(False);
   EAliasError.Create(E_FORBIDDEN_ALIAS_NAME,ErrorLocation,TempAlias).TestValidAliasName.ERaise(False);
   FIncludedAliases.Add(TempAlias);
   ATemp := TTemplate.Create(IncName, FExpLocation);
   ATemp.SetWebVars(FWebVars);
+  if Params.Count > 2 then
+  begin
+    Params.Delete(0);
+    Params.Delete(0);
+    for i:=0 to Params.Count - 1 do
+      ATemp.SetVariable('param['+IntToStr(i)+']',Params[i]);
+  end;
   ATemp.ParseTemplate(FGenFileSet);
   for ALine in ATemp.ParsedLines do
     FParsed.Add(ALine);
@@ -2168,8 +2176,8 @@ begin
   else
   begin
     ParseTokens([0], Params);
-    ASep := ',';
-    ARetSep := ', ';
+    ASep := PARAM_SEP;
+    ARetSep := PARAM_SEP;
     AFunc := PureParams[1];
   end;
 
