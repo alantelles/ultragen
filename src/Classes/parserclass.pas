@@ -868,7 +868,9 @@ begin
           Spreads[1] := IsGenSpread(ToIns, SPREAD_VALUES);
           Spreads[2] := IsGenSpread(ToIns, SPREAD_PAIRS);
           Spreads[3] := IsListSpread(ToIns, SPREAD_LIST);
-          Spreads[4] := IsListSpread(ToIns, SPREAD_LIST_COMMA);
+          Spreads[4] := '';
+          if Spreads[3]  = '' then
+            Spreads[4] := IsListSpread(ToIns, SPREAD_LIST_COMMA);
           if Spreads[2] <> '' then
             SpreadGen(ArgsAsList, Spreads[2], SPREAD_PAIRS)
           else if Spreads[1] <> '' then

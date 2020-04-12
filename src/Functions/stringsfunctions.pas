@@ -39,7 +39,7 @@ uses ConstantsGlobals, VariablesGlobals, Process;
 
 function CreateRandomHash:string;
 begin
-  Result := CreateSessionID;
+  Result := '_'+CreateSessionID;
 end;
 
 procedure PrintHelp(home:string);
