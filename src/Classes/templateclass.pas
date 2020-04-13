@@ -171,7 +171,7 @@ type
     function Save: TTemplate;
     procedure ProcessTemplate(var Params: TStringList; DoPrint: boolean = False);
     function GetVariable(AVarName: string): string;
-    function SetVariable(AKey, AValue: string; Parse: boolean = False): TTemplate;
+    function SetVariable(AKey, AValue: string; Parse: boolean = False; IsConst:boolean = False): TTemplate;
     function DropVariable(AKey: string): TTemplate;
     function HasKey(AKey:string; AnAlias:string=''):boolean;
     procedure ExtendTemplate(ATemplate: string; Parent: string = '');
@@ -187,7 +187,7 @@ type
     function GetWild(ASearch, AnAlias: string): string;
     function RouteMatch(ASearch, AnAlias: string; ADefault: string = ''): string;
     procedure Print;
-    procedure PrintLine(var Params: TStringList; ToConsole, ToOutput: boolean);
+    procedure PrintLine(var Params: TStringList; ToConsole, ToOutput: boolean; SameLine:boolean = False);
     procedure ParseAbort(var Params: TStringList);
     procedure PrintParsed;
     procedure ForPrepare(var Params: TStringList; ForLoop: boolean = True);
@@ -641,10 +641,10 @@ var
 begin
   if SelfAssign then
     for s in Params do
-      SetVariable(s, s)
+      SetVariable(s, s, False)
   else
     for s in Params do
-      SetVariable(s, StringsFunctions.CreateRandomHash);
+      SetVariable(s, StringsFunctions.CreateRandomHash, False);
 end;
 
 function TTemplate.RequestRest(var Params: TStringList; var PureParams: TStringList):string;
@@ -1144,7 +1144,7 @@ begin
 end;
 
 
-procedure TTemplate.PrintLine(var Params: TStringList; ToConsole, ToOutput: boolean);
+procedure TTemplate.PrintLine(var Params: TStringList; ToConsole, ToOutput: boolean; SameLine:boolean = False);
 var
   Return: string = '';
   P: string;
@@ -1156,7 +1156,12 @@ begin
   if ToOutput then
     FParsed.Add(Return);
   if ToConsole then
-    WriteLn(Return+#13);
+  begin
+    if SameLine then
+      Write(Return)
+    else
+      WriteLn(Return+#13);
+  end;
 end;
 
 procedure TTemplate.ImportModule(var Params: TStringList);
@@ -1963,6 +1968,7 @@ begin
       'endIf': EndIf;
       'explode': ExplodeStr(Params, PureParams);
       'print': PrintLine(Params, True, False);
+      'inline': PrintLine(Params, True, False, True);
       'tee': PrintLine(Params, True, True);
       'live',
       'livePrint': PrintLine(Params, False, True);
@@ -2071,8 +2077,8 @@ begin
       '_', 'return': FunctionReturn(Params);
       'endProc': EndFunction;
       //initializers
-      'init' : InitializeVars(Params);
-      'assign' : InitializeVars(Params, True);
+      'initRand' : InitializeVars(Params);
+      'init' : InitializeVars(Params, True);
       //end init
       'POC' : POC(PureParams, Params);
       'callProc':
@@ -2525,7 +2531,7 @@ begin
     FGenFileSet.GenFiles[i].GenFile.FullName := Params[1];
 end;
 
-function TTemplate.SetVariable(AKey, AValue: string; Parse: boolean = False): TTemplate;
+function TTemplate.SetVariable(AKey, AValue: string; Parse: boolean = False; IsConst:boolean = False): TTemplate;
 var
   i, len, posDot: integer;
   AParser: TTempParser;
@@ -2571,6 +2577,7 @@ begin
       end;
     end;
     SetLength(FVariables, len + 1);
+    FVariables[len].Constant := IsConst;
     FVariables[len].Key := AKey;
     FVariables[len].Value := AValue;
   end

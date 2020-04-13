@@ -11,6 +11,7 @@ uses
 type
   TKVPair = record
     Key, Value: AnsiString;
+    Constant: boolean;
   end;
 
   TDict = array of TKVPair;
