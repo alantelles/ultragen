@@ -1160,7 +1160,7 @@ begin
     if SameLine then
       Write(Return)
     else
-      WriteLn(Return+#13);
+      Write(Return+sLineBreak);
   end;
 end;
 
