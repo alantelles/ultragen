@@ -212,6 +212,7 @@ type
     procedure TempFileCopy(var Params: TStringList);
     procedure DoPause(var Params: TStringList);
     //Gen file handling
+    procedure ChangeGenAlias(var Params:TStringList);
     procedure SetGenValue(var Params: TStringList);
     procedure SaveGen(var Params: TStringList);
     procedure CreateGen(var Params: TStringList);
@@ -947,6 +948,23 @@ begin
     EGenError.Create(E_GEN_NOT_EXIST,ErrorLocation,Akey,GenAlias,i).ERaise();
   end;
   FGenFileSet.GenFiles[i].GenFile.SetValue(AKey, AValue);
+end;
+
+procedure TTemplate.ChangeGenAlias(var Params:TStringList);
+var
+  GenAlias: string;
+  i: integer;
+
+begin
+  ParseTokens([], Params);
+  SetErrorLocation;
+  GenAlias := Params[0];
+  i := FGenFileSet.IndexOf(GenAlias);
+  if i = -1 then
+  begin
+    EGenError.Create(E_GEN_NOT_EXIST,FErrorLocation,'',GenAlias,i).ERaise();
+  end;
+  FGenFileSet.GenFiles[i].GenAlias := Params[1];
 end;
 
 procedure TTemplate.SaveGen(var Params: TStringList);
@@ -2027,6 +2045,7 @@ begin
       'renderBlank': FOverrides.RenderBlank := True;
       'pause': DoPause(Params);
       // Gen operations
+      'changeAlias' : ChangeGenAlias(Params);
       'setValue': SetGenValue(Params);
       'saveGen': SaveGen(Params);
       'setGenName': SetGenName(Params);
