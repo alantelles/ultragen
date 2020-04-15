@@ -1025,6 +1025,13 @@ begin
   end
   else
     EGenError.Create(E_GEN_NOT_EXIST,FErrorLocation,'',Params[2],-1).ERaise(True);
+  // pass a 4th parameter do a gen/variables mapping using the prefix given in 4th parameter
+  if Params.Count = 4 then
+  begin
+    Params.Delete(1);
+    Params.Delete(1);
+    MapGenKeys(Params, True);
+  end;
 end;
 
 procedure TTemplate.CaptureGen(var Params: TStringList);
@@ -1062,7 +1069,7 @@ procedure TTemplate.MapGenKeys(var Params: TStringList; DoMap: boolean);
 var
   i: integer;
   APair: TKVPair;
-  VarAlias: string;
+  VarAlias, VarName: string;
   Errorlocation:TErrorLocation;
 begin
  ParseTokens([], Params);
@@ -1097,10 +1104,15 @@ begin
         VarAlias := VarAlias + ATTR_ACCESSOR;
     end;
     for APair in FGenFileSet.GenFiles[i].GenFile.Pairs do
+    begin
+      VarName := VarAlias + APair.Key;
+      if Pos(VarName[1], VARS_ALLOWED) = 0 then
+        VarName := '_' + VarName;
       if DoMap then
-        SetVariable(VarAlias + APair.Key, APair.Value)
+        SetVariable(VarName, APair.Value)
       else
-        DropVariable(VarAlias + APair.Key);
+        DropVariable(VarName + APair.Key);
+    end;
   end
   else
     EGenError.Create(E_GEN_NOT_EXIST,ErrorLocation,'',Params[0],-1).ERaise();
@@ -2337,7 +2349,7 @@ var
 begin
   ParseTokens([], Params);
   if Params[0] = '' then
-    Read
+    ReadLn
   else
   begin
     i := StrToInt(Params[0]);
