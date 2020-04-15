@@ -21,7 +21,7 @@ const
   ATTR_ACCESSOR = '.';
   EXT_FUNC_SEP = ':';
   REFER_VAR = '&';
-  FROM_GEN_SET = '&';
+  FROM_GEN_SET = '$';
   SELF_WORD = 'self';
   FUNCTION_ALLOWED = '_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
   VARS_ALLOWED = '_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -34,7 +34,7 @@ const
   GEN_FILES_CALL_SEP = '|';
   SCRIPT_MODE_ENTER = '@{';
   SCRIPT_MODE_EXIT = '}';
-  GEN_SUB_LEVEL = ':';
+  GEN_SUB_LEVEL = '.';
   ARROW_OPER = '^';
 
   { calling modes }

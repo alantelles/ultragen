@@ -2045,7 +2045,7 @@ begin
       'renderBlank': FOverrides.RenderBlank := True;
       'pause': DoPause(Params);
       // Gen operations
-      'changeAlias' : ChangeGenAlias(Params);
+      'setGenAlias' : ChangeGenAlias(Params);
       'setValue': SetGenValue(Params);
       'saveGen': SaveGen(Params);
       'setGenName': SetGenName(Params);
