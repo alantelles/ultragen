@@ -1031,6 +1031,7 @@ begin
     Params.Delete(1);
     Params.Delete(1);
     MapGenKeys(Params, True);
+    FGenFileSet.Drop(Params[0]);
   end;
 end;
 
@@ -2216,7 +2217,7 @@ begin
   Params.Delete(0);
   if Params.Count = 3 then
   begin
-    ParseTokens([0, 1, 2], Params);
+    //ParseTokens([0, 1, 2], Params);
 
     ASep := Params[0];
     Params.Delete(0);
@@ -2228,7 +2229,7 @@ begin
   end
   else
   begin
-    ParseTokens([0], Params);
+    //ParseTokens([0], Params);
     ASep := PARAM_SEP;
     ARetSep := PARAM_SEP;
     AFunc := PureParams[1];
@@ -2240,8 +2241,8 @@ begin
   Mapped.SkipLastLineBreak := True;
   if ASep <> LINE_BREAK then
   begin
+    Mapped.StrictDelimiter := True;      
     Mapped.Delimiter := ASep[1];
-    Mapped.StrictDelimiter := True;
     Mapped.DelimitedText := AListable;
   end
   else

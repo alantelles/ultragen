@@ -44,7 +44,7 @@ type
       procedure Add(AGenFile, ASeparator:string);
       procedure Add(AGenFile, ASeparator, ADefault:string);
       procedure Add(var AGenFile:TGenFile; AnAlias:string);
-      procedure Drop(var AnAlias:string);
+      procedure Drop(AnAlias:string);
       procedure SetDefault(AValue:String);
       function GetValue(AKey:string):TParseResult;
       function GetValue(AKey,ADefault:string):TParseResult;
@@ -231,7 +231,7 @@ begin
 	Result := Return;
 end;
 
-procedure TGenFileSet.Drop(var AnAlias:string);
+procedure TGenFileSet.Drop(AnAlias:string);
 var i: integer;
 begin
   i := IndexOf(AnAlias);

@@ -581,7 +581,7 @@ begin
       Return := GetTimeStr(AToken)
     else if (IsLiteralString(AToken)) then
       //It's a string literal
-      Return := Copy(Temp, 2, Length(Temp) - 2)
+      Return := Copy(Temp, 2, Length(AToken) - 2)
     else if (Copy(Temp, 1, Length(FROM_GEN_SET)) = FROM_GEN_SET) then
       //It's a value from a gen set
       //Return := FTemplate.GetVariable(Copy(Temp, Pos(OVER_STATE, Temp) + 1,
