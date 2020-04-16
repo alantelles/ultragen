@@ -864,19 +864,26 @@ begin
         if (FuncLevel = 0) and (not StrOpen) then
         begin
           ToIns := Trim(Part);
-          Spreads[0] := IsGenSpread(ToIns, SPREAD_KEYS);
-          Spreads[1] := IsGenSpread(ToIns, SPREAD_VALUES);
-          Spreads[2] := IsGenSpread(ToIns, SPREAD_PAIRS);
+          Spreads[0] := IsGenSpread(ToIns, SPREAD_PAIRS);
+          Spreads[1] := '';
+          Spreads[2] := '';
+          if Spreads[0]  = '' then
+          begin
+            Spreads[1] := IsGenSpread(ToIns, SPREAD_VALUES);
+            if Spreads[1] = '' then
+              Spreads[2] := IsGenSpread(ToIns, SPREAD_KEYS);
+          end;
           Spreads[3] := IsListSpread(ToIns, SPREAD_LIST);
           Spreads[4] := '';
           if Spreads[3]  = '' then
             Spreads[4] := IsListSpread(ToIns, SPREAD_LIST_COMMA);
-          if Spreads[2] <> '' then
-            SpreadGen(ArgsAsList, Spreads[2], SPREAD_PAIRS)
+
+          if Spreads[0] <> '' then
+            SpreadGen(ArgsAsList, Spreads[0], SPREAD_PAIRS)
           else if Spreads[1] <> '' then
             SpreadGen(ArgsAsList, Spreads[1], SPREAD_VALUES)
-          else if Spreads[0] <> '' then
-            SpreadGen(ArgsAsList, Spreads[0], SPREAD_KEYS)
+          else if Spreads[2] <> '' then
+            SpreadGen(ArgsAsList, Spreads[2], SPREAD_KEYS)
 
           else if Spreads[3] <> '' then
             SpreadList(ArgsAsList, Spreads[3])
