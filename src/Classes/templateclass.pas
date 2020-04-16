@@ -2217,19 +2217,23 @@ begin
   Params.Delete(0);
   if Params.Count = 3 then
   begin
-    //ParseTokens([0, 1, 2], Params);
-
     ASep := Params[0];
     Params.Delete(0);
-
     ARetSep := Params[0];
     if ARetSep = LINE_BREAK then
       ARetSep := sLineBreak;
     AFunc := PureParams[3];
   end
+  else if Params.Count = 2 then
+  begin
+    ASep := Params[0];
+    ARetSep := Params[0];
+    if ARetSep = LINE_BREAK then
+      ARetSep := sLineBreak;
+    AFunc := PureParams[2];
+  end
   else
   begin
-    //ParseTokens([0], Params);
     ASep := PARAM_SEP;
     ARetSep := PARAM_SEP;
     AFunc := PureParams[1];

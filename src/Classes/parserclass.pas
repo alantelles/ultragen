@@ -581,7 +581,7 @@ begin
       Return := GetTimeStr(AToken)
     else if (IsLiteralString(AToken)) then
       //It's a string literal
-      Return := Copy(Temp, 2, Length(AToken) - 2)
+      Return := Copy(Temp, 2, Length(Temp) - 2)
     else if (Copy(Temp, 1, Length(FROM_GEN_SET)) = FROM_GEN_SET) then
       //It's a value from a gen set
       //Return := FTemplate.GetVariable(Copy(Temp, Pos(OVER_STATE, Temp) + 1,
@@ -1236,13 +1236,7 @@ begin
       Return := ListFunctions.PrintRange(StrToInt(Params[0]), StrToInt(Params[1]))
     else if (AFuncName = 'index') and (Params.Count = 2) then
       Return := FTemplate.GetVariable(Params[0] + '[' + Params[1] + ']')
-    else if (AFuncName = 'map') and (Params.Count = 4) then
-      //Params[0] = a listable
-      //Params[1] = a separator
-      //Params[2] = ret separator
-      //Params[3] = a function
-      Return := FTemplate.MapElem(Params, PureParams)
-    else if (AFuncName = 'map') and (Params.Count = 2) then
+    else if (AFuncName = 'map') and ((Params.Count > 1) and (Params.Count <= 4)) then
       //Params[0] = a listable
       //Params[1] = a separator
       //Params[2] = ret separator
