@@ -564,6 +564,7 @@ begin
     ASession.SetValue('_session:expiresAt', FormatDateTime(
       DATE_INTERCHANGE_FORMAT, IncMinute(Now, FWebVars.SessionDuration)));
     ASession.FullName := FWebVars.SessionPath + DirectorySeparator + SessionId + '.gen';
+    FileHandlingUtils.CreateDirTree(ASession.FullName);
     ASession.Save;
     ASession.Free;
     ParamsC := TStringList.Create;

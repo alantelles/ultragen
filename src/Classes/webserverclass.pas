@@ -46,8 +46,9 @@ uses
 
 constructor TUltraGenServer.Create(APort: word; AnApp: string; Mode:string);
 var
-  Aux, UHome:string;
+  Aux, UHome, prefStatic:string;
   APair: TKVPair;
+  i:integer=0;
 begin
   FDontServe := False;
   FMode := Mode;
@@ -85,6 +86,7 @@ begin
       for APair in FLocations.Pairs do
       begin
         CreateDirTree(APair.Value,False);
+        WriteLn('Registering location "'+APair.Value+'" for "'+APair.Key+'".');
         RegisterFileLocation(APair.Key, APair.Value);
       end;
     end
@@ -97,7 +99,20 @@ begin
   end
   else
   begin
-    WriteLn('Locations gen not defined. No static file will be served.');
+    WriteLn('Locations gen not defined. Getting locations by "_locations" prefix.');
+    for APair in FConfig.Pairs do
+    begin
+      if (Copy(APair.Key, 1, Length('_locations.')) = '_locations.') then
+      begin
+        i := i + 1;
+        PrefStatic := Copy(Trim(APair.Key), Length('_locations.')+1, Length(APair.Key));
+        WriteLn('Registering location "'+APair.Value+'" for "'+PrefStatic+'".');
+        CreateDirTree(APair.Value,False);
+        RegisterFileLocation(PrefStatic , APair.Value);
+      end;
+    end;
+    if i = 0 then
+      WriteLn('No locations registered. No static file will be served');
     WriteLn('See docs for details.');
   end;
 
@@ -110,7 +125,6 @@ begin
     WriteLn('Using "./sessions"');
     FSessionsPath := 'sessions';
   end;
-  CreateDirTree(FSessionsPath+DirectorySeparator,False);
 
   Aux := FConfig.GetValue('_sessionDuration').Value;
   if (Trim(Aux) <> '') then

@@ -1,4 +1,6 @@
 @{
+    live: 'Hello, world'
+    ###
     # include: dirSep('templates/login.ultra.html')
     createGen: 'routes', 'config/routes.gen'
     route = ~(_method, ':', _route)
@@ -7,4 +9,5 @@
     action = substring(@route, ++(indexOf(@route, '.')))
     include: dirSep(~('controllers/', @controller, '.ultra'))
     callProc: +('.', @controller, @action)
+    ###
 }

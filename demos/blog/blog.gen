@@ -1,3 +1,7 @@
 _appLoader=index.ultra
 _appName=Blog
 _locations=config/locations.gen
+_locations.static=static
+_locations.styles=static/styles
+_locations.images=static/images
+_locations.scripts=static/scripts
