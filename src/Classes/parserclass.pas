@@ -26,6 +26,8 @@ type
     property LineTime: TDateTime read FLineTime;
     class function IsInToken(Line, Test: string): boolean; static;
     function ParseLine(Line: string): TParseResult;
+    procedure PreParseScript;
+    function InSet(c, chars:string; allowed:boolean):boolean;
     function ParseToken(AToken: string): string;
     function ParseTemplate(var OutputParsedLines: TStringList): string;
     function IsFunction(AToken: string): boolean;
@@ -439,6 +441,50 @@ begin
   Line := ATemplate.ParsedLines.Text;
   OutputParsed.Free;
   Result := Line;
+end;
+
+function TTempParser.InSet(c, chars:string; allowed:boolean):boolean;
+var
+  occurs:integer;
+  Return:boolean;
+begin
+  // true = allowed
+  // false = forbidden
+  if Length(chars) > 0 then
+  begin
+    occurs := Pos(c, chars);
+    if allowed and (occurs > 0) then
+      Result := True
+    else
+      Result := False;
+  end
+  else
+    Return := allowed;
+end;
+
+procedure TTempParser.PreParseScript;
+var
+  symbols:string;
+  AScript, allowed, forbidden, line:string;
+  c:char;
+  strOpen, strDqOpen, canEof:boolean;
+  funcLevel, lineLen:integer;
+begin
+  allowed := '';
+  forbidden := '';
+  FTemplate.TempLines.LineBreak := #10;
+  AScript := FTemplate.TempLines.Text;
+  FTemplate.TempLines.Clear;
+  line := '';
+  lineLen := Length(line);
+  for c in AScript do
+  begin
+    if lineLen = 0 then
+    begin
+      allowed := '';
+      forbidden := '';
+    end;
+  end;
 end;
 
 function TTempParser.ParseLine(Line: string): TParseResult;

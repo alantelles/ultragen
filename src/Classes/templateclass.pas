@@ -611,7 +611,7 @@ var
   SS:TStringStream;
   URL:string;
 begin
-  ParseTokens([], Params);
+  //ParseTokens([], Params);
   InitSSLInterface;
   Requirer := TFPHttpClient.Create(nil);
   Requirer.AddHeader('User-Agent','Mozilla/5.0 (compatible; fpweb)');
@@ -655,7 +655,7 @@ var
   Return: string = '';
   URL, AQuery:string;
 begin
-  ParseTokens([], Params);
+  //ParseTokens([], Params);
   InitSSLInterface;
   Requirer := TFPHttpClient.Create(nil);
   Requirer.AddHeader('User-Agent','Mozilla/5.0 (compatible; fpweb)');
@@ -1002,7 +1002,7 @@ var
   i:integer;
   APair: TKVPair;
   AGenFile:TGenFile;
-  //groupKeys:'newAlias','prefix','genAlias'
+  //groupKeys:'genAlias','prefix','newAlias'
    Errorlocation:TErrorLocation;
 begin
   ParseTokens([], Params);
@@ -1012,7 +1012,7 @@ begin
     TempName := FFullName;
     Line := FLines[FLineNumber];
   end;
-  i := FGenFileSet.IndexOf(Params[2]);
+  i := FGenFileSet.IndexOf(Params[0]);
   if i > -1 then
   begin
     AGenFile := TGenFile.Create;
@@ -1021,18 +1021,17 @@ begin
       if Copy(APair.Key,1,Length(Params[1])) = Params[1] then
         AGenFile.SetValue(ReplaceStr(APair.Key,Params[1],''),APair.Value);
     end;
-    EGenError.Create(E_GEN_ALREADY_EXISTS,ErrorLocation,'',Params[0],-1).TestAliasExists(FGenFileSet).ERaise(False);
-    FGenFileSet.Add(AGenFile,Params[0]);
+    EGenError.Create(E_GEN_ALREADY_EXISTS,ErrorLocation,'',Params[2],-1).TestAliasExists(FGenFileSet).ERaise(False);
+    FGenFileSet.Add(AGenFile,Params[2]);
   end
   else
-    EGenError.Create(E_GEN_NOT_EXIST,FErrorLocation,'',Params[2],-1).ERaise(True);
+    EGenError.Create(E_GEN_NOT_EXIST,FErrorLocation,'',Params[0],-1).ERaise(True);
   // pass a 4th parameter do a gen/variables mapping using the prefix given in 4th parameter
   if Params.Count = 4 then
   begin
-    Params.Delete(1);
-    Params.Delete(1);
+    Params.Delete(0);
+    Params.Delete(0);
     MapGenKeys(Params, True);
-    FGenFileSet.Drop(Params[0]);
   end;
 end;
 
@@ -1819,6 +1818,7 @@ begin
     if FOverrides.Extension = '.ultra' then
       FScriptMode := True;
     WillAdd := '';
+    // PreParse must be at this point
     for Line in Temp do
     begin
       if Pos(OVER_STATE + 'extend' + OVER_ASSOC, Trim(Line)) = 1 then
@@ -2070,7 +2070,11 @@ begin
       'mapGenKeys': MapGenKeys(Params, True);
       'dropGenMap': MapGenKeys(Params, False);
       'groupKeys': GroupKeys(Params);
-      'lockGenPairs' : FGenFileSet.GenFiles[FGenFileSet.IndexOf(Params[0])].GenFile.PairsLocked := StrToBoolean(PureParams[1]);
+      'lockGenPairs' :
+      begin
+        ParseTokens([], Params);
+        FGenFileSet.GenFiles[FGenFileSet.IndexOf(Params[0])].GenFile.PairsLocked := StrToBoolean(Params[1]);
+      end;
       'lockGenKeys' : FGenFileSet.GenFiles[FGenFileSet.IndexOf(Params[0])].GenFile.KeysLocked := StrToBoolean(PureParams[1]);
       // End of Gen operations
       //textsave functions
