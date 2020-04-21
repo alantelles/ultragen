@@ -1,4 +1,3 @@
-@{
     ###
 
         Gen spread:
@@ -9,9 +8,9 @@
 
     ###
 
-    &data.key1 = 'value 1'
-    &data.key2 = 'value 2'
-    &data.key3 = 'value 3'
+    $data.key1 = 'value 1'
+    $data.key2 = 'value 2'
+    $data.key3 = 'value 3'
 
     print: join(',', .'data')
     print: join(',', ..'data')
@@ -25,6 +24,3 @@
 
     # faz um get em
     # "http://localhost?key1=value 1&key2=value 2&key3=value 3"
-
-    
-}

@@ -1,13 +1,8 @@
-@{
-    live: 'Hello, world'
-    ###
-    # include: dirSep('templates/login.ultra.html')
-    createGen: 'routes', 'config/routes.gen'
-    route = ~(_method, ':', _route)
-    route = routeMatch(@route, 'routes', 'errors.e404')
-    controller = substring(@route, 0, indexOf(@route, '.'))
-    action = substring(@route, ++(indexOf(@route, '.')))
-    include: dirSep(~('controllers/', @controller, '.ultra'))
-    callProc: +('.', @controller, @action)
-    ###
-}
+init: routes
+createGen: routes, 'config\routes.gen'
+route = routeMatch(~($_method, ':', $_route), routes, 'errors.e404')
+explode: route, ca, '.'
+controller = ca[0]
+action = ca[1]
+include: dirSep(~('controllers/', controller, '.ultra'))
+callProc: route

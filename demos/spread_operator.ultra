@@ -1,4 +1,4 @@
-@{
+
     ###
 
     operador spread para preencher argumentos
@@ -20,20 +20,20 @@
     print:'Sem spread:'
     troca = '.'
     frase = 'eu-estou-testa>ndo+minha<função'
-    print: replace('-', '+', '<', '>', @troca, @frase)
+    print: replace('-', '+', '<', '>', troca, frase)
     print:
-    print:'Com spread'
+    print: 'Com spread'
     busca = '-,+,<,>'
-    print: replace(*@busca, @troca, @frase)
+    print: replace(*busca, troca, frase)
 
     # Fatorial de N utilizando o operador spread
 
     function:fat,n
-        n = range(1,++(@n))
-        return: mult(*@n)
+        n = range(1,++(n))
+        return: mult(*n)
     endFunction
     
     print: fat(10)
 
-    # imprime 
-}
+    # imprime 3628800
+

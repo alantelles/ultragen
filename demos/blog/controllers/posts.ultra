@@ -1,14 +1,13 @@
-@{
-    import: 'ultradb'
-    proc: listAll
-        ultradb.connect: 'migrations/connection.gen'
-        #ultradb.all: 'posts', 'results'
-        q = 'SELECT posts.id, title, body, users.name AS author FROM posts INNER JOIN users ON posts.user_id=users.id'
-        DB>query: 'ULTRADB_CONN', @q, 'results'
-        live: insert(dirSep('templates/bases/base.ultra.html'), 'posts', 'list', 'results')
-    endProc
+proc: listAll
+    createGen: 'conn', 'migrations\connection.gen'
+    #q = 'SELECT posts.id, title, body, users.name AS author FROM posts INNER JOIN users ON posts.user_id=users.id'
+    q = 'SELECT * FROM posts'
+    $conn.path = 'migrations\blog.db'
+    DB>query: 'conn', q, 'results'
+    mapGenKeys: 'results', 'post'
+    live: post._0.title
+endProc
 
-    proc: new
-        live: insert(dirSep('templates/bases/base.ultra.html'), 'posts', 'new_post')
-    endProc
-}
+proc: new
+    live: insert(dirSep('templates/bases/base.ultra.html'), 'posts', 'new_post')
+endProc

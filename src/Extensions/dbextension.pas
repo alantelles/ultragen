@@ -76,6 +76,7 @@ var
   AQText:string;
 
 begin
+  FTemplate.ParseTokens([], FParams);
   i := FTemplate.GenFileSet.IndexOf(FParams[0]);
   if i > -1 then
   begin
@@ -225,6 +226,8 @@ var
   //[2] = prefix
   //[3] = results
 begin
+  FTemplate.ParseTokens([], FParams);
+  AnAlias := FParams[0];
   g := FTemplate.GenFileSet.IndexOf(FParams[0]);
   ADBName := FTemplate.GenFileSet.GenFiles[g].GenFile.GetValue('path').Value;
   ADBS := FTemplate.GenFileSet.GenFiles[g].GenFile.GetValue('database').Value;

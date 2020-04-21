@@ -1003,6 +1003,7 @@ var
   APair: TKVPair;
   AGenFile:TGenFile;
   //groupKeys:'genAlias','prefix','newAlias'
+  //groupKeys+mapGenKeys: 'genAlias', 'prefix', 'newAlias', 'varPrefix', 'destroyAfter'
    Errorlocation:TErrorLocation;
 begin
   ParseTokens([], Params);
@@ -1032,6 +1033,13 @@ begin
     Params.Delete(0);
     Params.Delete(0);
     MapGenKeys(Params, True);
+    if Params.Count = 3 then
+    begin
+      if not (Params[2] = LANG_FALSE) then
+        FGenFileSet.Drop(Params[0]);
+    end
+    else
+      FGenFileSet.Drop(Params[0]);
   end;
 end;
 
@@ -2120,6 +2128,7 @@ begin
       'POC' : POC(PureParams, Params);
       'callProc':
       begin
+        ParseTokens([0], Params);
         a := Params[0];
         PureParams.Delete(0);
         PureParams.LineBreak := ',';
