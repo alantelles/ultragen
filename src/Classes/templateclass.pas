@@ -2080,6 +2080,10 @@ begin
       'renderBlank': FOverrides.RenderBlank := True;
       'pause': DoPause(Params);
       // Gen operations
+      'setGenDefaultSeparator' : begin
+        ParseTokens([], Params);
+        VariablesGlobals.GEN_SEP := Params[0][1]
+      end;
       'setGenAlias' : ChangeGenAlias(Params);
       'setValue': SetGenValue(Params);
       'saveGen': SaveGen(Params);
