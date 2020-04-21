@@ -782,6 +782,11 @@ var
   AGenFile: TGenFile;
   Errorlocation:TErrorLocation;
 begin
+  //Params:
+  //0: alias name
+  //?1: gen file
+  //?2: gen sep
+  //?3: gen default
   ParseTokens([], Params);
   with ErrorLocation do
   begin
@@ -792,12 +797,20 @@ begin
   EGenError.Create(E_GEN_ALREADY_EXISTS,ErrorLocation,'',Params[0],-1).TestAliasExists(FGenFileSet).ERaise(False);
   EAliasError.Create(E_FORBIDDEN_ALIAS_NAME,ErrorLocation,Params[0]).TestValidAliasName.ERaise(False);
   AGenFile := TGenFile.Create;
-  if Params.Count = 2 then
+  if Params.Count > 1 then
   begin
     EFileError.Create(E_FILE_NOT_FOUND,ErrorLocation,Params[1]).TestFileExists.ERaise(False);
     AGenFile.FullName := Params[1];
     if FileExists(Params[1]) then
+    begin
+      if Params.Count > 2 then
+      begin
+        AGenFile.GenSeparator := Params[2][1];
+        if Params.Count = 4 then
+          AGenFile.IfNotFound := Params[3];
+      end;
       AGenFile.Load(Params[1]);
+    end;
   end;
   FGenFileSet.Add(AGenFile, Params[0]);
 end;
