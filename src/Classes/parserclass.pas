@@ -1188,7 +1188,7 @@ begin
       a := Params[0];
       Return := InsertTemplate(Params[0]);
     end                               }
-    else if (AFuncName = 'insert') and (Params.Count > 0) then
+    else if (AFuncName = 'render') and (Params.Count > 0) then
       Return := InsertTemplate(Params, PureParams)
     else if (AFuncName = 'section') and (Params.Count = 1) then
       Return := PrintSection(Params[0])
