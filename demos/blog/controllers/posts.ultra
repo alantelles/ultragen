@@ -1,13 +1,13 @@
 proc: listAll
-    createGen: 'conn', 'migrations\connection.gen'
-    #q = 'SELECT posts.id, title, body, users.name AS author FROM posts INNER JOIN users ON posts.user_id=users.id'
-    q = 'SELECT * FROM posts'
+    init: conn
+    createGen: conn, 'migrations\connection.gen'
+    q = 'SELECT posts.id, title, body, users.name AS author FROM posts INNER JOIN users ON posts.user_id=users.id'
+    #q = 'SELECT * FROM posts'
     $conn.path = 'migrations\blog.db'
-    DB>query: 'conn', q, 'results'
-    mapGenKeys: 'results', 'post'
-    live: post._0.title
+    DB>query: conn, q, 'results'
+    live: render('templates/bases/base.ultra.html', 'posts', 'list', 'results')
 endProc
 
 proc: new
-    live: insert(dirSep('templates/bases/base.ultra.html'), 'posts', 'new_post')
+    live: render(dirSep('templates/bases/base.ultra.html'), 'posts', 'new_post')
 endProc

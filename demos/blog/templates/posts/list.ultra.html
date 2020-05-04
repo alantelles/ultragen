@@ -1,10 +1,13 @@
-<h2>{{ @param[1] }}</h2>
-@{
-    fields = 4
-    count = intDiv(keysCount('param0'), @fields)
-    for: range(@count), i
-        groupKeys: 'post', ~(@i,':'), 'param0'
-        live: insert(dirSep('templates/posts/list_one.ultra.html'), 'post')
-        unloadGen: 'post'
-    endFor
-}
+<div class='row'>
+    <div class='col-lg-12'>
+        {{ inTag('h1', param[1]) }}
+    </div>
+    <div class='col-lg-12'>
+        @for: range(intDiv(keysCount('param0'), 4)), i
+            @groupKeys: 'param0', ~(i, '.'), 'post'
+            <h3>{{ $title }}</h3>
+            <p>{{ $body }}</p>
+            <small>{{ $author }}</small>
+        @endFor
+    </div>
+</div>
