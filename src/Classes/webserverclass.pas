@@ -151,7 +151,7 @@ begin
     else
     begin
       WriteLn('MimeTypesFile declared in gen doesn''t exist. Using default mime-types load.');
-      Aux := UHome+DirectorySeparator+'assets\mime-types.txt';
+      Aux := UHome+DirectorySeparator+'assets'+DirectorySeparator+'mime-types.txt';
       if FileExists(Aux) then
         MimeTypesFile := Aux
       else
@@ -161,7 +161,7 @@ begin
   else
   begin
     WriteLn('MimeTypesFile not declared in gen. Using default mime-types load.');
-    Aux := UHome+DirectorySeparator+'assets\mime-types.txt';
+    Aux := UHome+DirectorySeparator+'assets'+DirectorySeparator+'mime-types.txt';
     if FileExists(Aux) then
       MimeTypesFile := Aux
     else
