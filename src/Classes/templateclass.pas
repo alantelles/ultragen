@@ -216,7 +216,7 @@ type
     procedure SetGenValue(var Params: TStringList);
     procedure SaveGen(var Params: TStringList);
     procedure CreateGen(var Params: TStringList);
-    procedure UnloadGen(var Params: TStringList);
+    procedure UnloadGen(var Params: TStringList; DoEval:boolean = True);
     procedure LoadGenFolder(var Params: TStringList);
     procedure SetGenName(var Params: TStringList);
     procedure MapGenKeys(var Params: TStringList; DoMap: boolean);
@@ -237,10 +237,10 @@ type
     procedure DestroySession(var Params: TStringList);
     procedure SetSessionVar(var Params: TStringList);
     procedure DropSessionVar(var Params: TStringList);
-    procedure SetCookie(var Params: TStringList);
+    procedure SetCookie(var Params: TStringList; DoEval:boolean = True);
     procedure SetRawCookie(var Params: TStringList);
     procedure CreateSession(var Params: TStringList);
-    procedure DropCookie(var Params: TStringList);
+    procedure DropCookie(var Params: TStringList; DoEval:boolean = True);
     procedure SetWebVars(var AWebVars:TWebVars);
     procedure ParseJson(var Params: TStringList);
     function RequestRest(var Params: TStringList; var PureParams: TStringList):string;
@@ -429,11 +429,12 @@ begin
   SetLength(FUserFunctions, NewLen);
 end;
 
-procedure TTemplate.SetCookie(var Params: TStringList);
+procedure TTemplate.SetCookie(var Params: TStringList; DoEval:boolean = True);
 var
   C: TCookie;
 begin
-  ParseTokens([], Params);
+  if DoEval then
+    ParseTokens([], Params);
   C := FWebVars.Response.Cookies.Add;
   C.Name := Params[0];
   C.Value := Params[1];
@@ -478,11 +479,12 @@ begin
   // FParsed.Add('<script>document.cookie="' + Params[0] + '=' + Params[1] + RawPart + '"</script>');
 end;
 
-procedure TTemplate.DropCookie(var Params: TStringList);
+procedure TTemplate.DropCookie(var Params: TStringList; DoEval:boolean = True);
 var
   C: TCookie;
 begin
-  ParseTokens([], Params);
+  if DoEval then
+    ParseTokens([], Params);
   C := FWebVars.Response.Cookies.Add;
   C.Name := Params[0];
   C.Expires := ScanDateTime('yyyy-mm-dd', '1970-01-01');
@@ -495,10 +497,10 @@ begin
   ParseTokens([], Params);
   ParamsC := TStringList.Create;
   ParamsC.Add('sessionID');
-  DropCookie(ParamsC);
+  DropCookie(ParamsC, False);
   ParamsC.Clear;
   ParamsC.Add('session');
-  UnloadGen(ParamsC);
+  UnloadGen(ParamsC, False);
   ParamsC.Free;
   SysUtils.DeleteFile(FWebVars.SessionPath + DirectorySeparator + FWebVars.SessionId + '.gen');
 
@@ -570,7 +572,7 @@ begin
     ParamsC := TStringList.Create;
     ParamsC.Add('sessionID');
     ParamsC.Add(SessionId);
-    SetCookie(ParamsC);
+    SetCookie(ParamsC, False);
     ParamsC.Free;
     i := FGenFileSet.IndexOf('session');
     FGenFileSet.GenFiles[i].GenFile.Load(FWebVars.SessionPath +
@@ -815,12 +817,13 @@ begin
   FGenFileSet.Add(AGenFile, Params[0]);
 end;
 
-procedure TTemplate.UnloadGen(var Params: TStringList);
+procedure TTemplate.UnloadGen(var Params: TStringList; DoEval:boolean = True);
 var
   AnAlias: string;
   Errorlocation:TErrorLocation;
 begin
-   ParseTokens([], Params);
+  if DoEval then
+     ParseTokens([], Params);
    with ErrorLocation do
    begin
      LineNumber := FLineNumber;

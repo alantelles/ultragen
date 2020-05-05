@@ -5,6 +5,7 @@ proc: login
         $render.main = render(loaders.tempPath('users.login'))
     else
         createSession
+        setSessionVar: 'isLogged', true
     endIf
 endProc
 

@@ -4,8 +4,10 @@ route = routeMatch(~($_method, ':', $_route), routes, 'errors.e404')
 explode: route, ca, '.'
 controller = ca[0]
 action = ca[1]
+
+live: +('<br>', ...'session')
 if: neq(route, 'users.login')
-    if: bool($_session.isLogged)
+    if: bool(genValue('_session.isLogged', 'session'))
         include: dirSep(~('controllers/', controller, '.ultra'))
         callProc: route
     else
