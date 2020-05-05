@@ -314,8 +314,8 @@ begin
     SessionFile := FSessionsPath+DirectorySeparator+SessionId+'.gen';
     if not FileExists(SessionFile) then
     begin
-      ASession.SetValue('_session'+ GEN_SUB_LEVEL +'sessionID',SessionId);
-      ASession.SetValue('_session'+ GEN_SUB_LEVEL +'expiresAt',FormatDateTime(
+      ASession.SetValue('sessionID',SessionId);
+      ASession.SetValue('expiresAt',FormatDateTime(
           DATE_INTERCHANGE_FORMAT,IncMinute(Now,FSessionDuration)
       ));
       ASession.Save(FSessionsPath+DirectorySeparator+SessionID+'.gen');

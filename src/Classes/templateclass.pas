@@ -518,7 +518,7 @@ begin
     SessionFile := FWebVars.SessionPath + DirectorySeparator + FWebVars.SessionId + '.gen';
     AGenFile := TGenFile.Create;
     AGenFile.Load(SessionFile);
-    AGenFile.SetValue('_session' + GEN_SUB_LEVEL + Params[0], Params[1]);
+    AGenFile.SetValue(Params[0], Params[1]);
     AGenFile.Save;
     AGenFile.Free;
     i := FGenFileSet.IndexOf('session');
@@ -536,7 +536,7 @@ begin
   SessionFile := FWebVars.SessionPath + DirectorySeparator + FWebVars.SessionId + '.gen';
   AGenFile := TGenFile.Create;
   AGenFile.Load(SessionFile);
-  AGenFile.DropKey('_session' + GEN_SUB_LEVEL + Params[0]);
+  AGenFile.DropKey(Params[0]);
   AGenFile.Save;
   AGenFile.Free;
   i := FGenFileSet.IndexOf('session');
@@ -562,8 +562,8 @@ begin
     SessionId := CreateSessionId;
     FwebVars.SessionId := SessionId;
     ASession := TGenFile.Create;
-    ASession.SetValue('_session'+ GEN_SUB_LEVEL +'sessionID', SessionId);
-    ASession.SetValue('_session'+ GEN_SUB_LEVEL +'expiresAt', FormatDateTime(
+    ASession.SetValue('sessionID', SessionId);
+    ASession.SetValue('expiresAt', FormatDateTime(
       DATE_INTERCHANGE_FORMAT, IncMinute(Now, FWebVars.SessionDuration)));
     ASession.FullName := FWebVars.SessionPath + DirectorySeparator + SessionId + '.gen';
     FileHandlingUtils.CreateDirTree(ASession.FullName);

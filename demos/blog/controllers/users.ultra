@@ -9,6 +9,11 @@ proc: login
     endIf
 endProc
 
+proc: logout
+    dropSessionVar: 'isLogged'
+    redirect: '/login'
+endProc
+
 proc: new
     if: eq($_method, 'GET')
         init: conn

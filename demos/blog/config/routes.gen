@@ -7,3 +7,4 @@ GET:/login=users.login
 POST:/login=users.login
 POST:/post/new=posts.new
 POST:/user/new=users.new
+GET:/logout=users.logout
