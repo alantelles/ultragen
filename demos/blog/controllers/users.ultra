@@ -4,13 +4,26 @@ proc: login
     if: eq($_method, 'GET')
         $render.main = render(loaders.tempPath('users.login'))
     else
-        createSession
-        setSessionVar: 'isLogged', true
+        loginSuccessful = false
+        createGen: 'conn', dirSep('migrations/connection.gen')
+        $conn.path = dirSep($conn.path)
+        groupKeys: 'request', '_post.', 'post'
+        q = ~('SELECT * FROM users WHERE username="', $post.username,'" AND password="', $post.password,'"')
+        DB>query: 'conn', q, 'user', true
+        loginSuccessful = bool(--(keysCount('user')))
+        if: loginSuccessful
+            createSession
+            setSessionVar: 'idUser', $user.id
+            setSessionVar: 'usernameUser', $user.username
+            setSessionVar: 'nameUser', $user.name
+            setSessionVar: 'isLogged', true
+            redirect: '/'
+        endIf
     endIf
 endProc
 
 proc: logout
-    dropSessionVar: 'isLogged'
+    destroySession
     redirect: '/login'
 endProc
 
@@ -31,4 +44,26 @@ proc: new
         DB>query: conn, q
         redirect: '/'
     endIf
+endProc
+
+proc: show
+    id = valueAt($_route, 2, '/')
+    q = ~('SELECT * FROM users WHERE id=', id)
+    createGen: 'conn', dirSep('migrations/connection.gen')
+    $conn.path = dirSep($conn.path)
+    DB>query: 'conn', q, 'user', true
+    $render.main = render(loaders.tempPath('users.show'), 'user')
+endProc
+
+proc: listAll
+    init: conn
+    createGen: conn, dirSep('migrations/connection.gen')
+    q = 'SELECT * FROM users  ORDER BY name ASC'
+    $conn.path = dirSep('migrations\blog.db')
+    DB>query: conn, q, 'results'
+    usersCount = intDiv(keysCount('results'), 4)
+    
+    $render.pageTitle = 'Todos os usuários'
+    $render.main = render(loaders.tempPath('users.list'), 'results', $render.pageTitle, usersCount)
+    
 endProc

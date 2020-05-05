@@ -1,0 +1,7 @@
+# gen data, pageTitle, coun
+<h2>{{ param[1] }}</h2>
+@for: range(param[2]), i
+    @groupKeys: 'param0', ~(i, '.'), 'user'
+    <p><a href="/user/{{ $user.id }}">{{ $user.name }}</a></p>
+    @unloadGen: 'user'
+@endFor

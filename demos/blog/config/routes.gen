@@ -8,3 +8,5 @@ POST:/login=users.login
 POST:/post/new=posts.new
 POST:/user/new=users.new
 GET:/logout=users.logout
+GET:/user/:int=users.show
+GET:/users=users.listAll
