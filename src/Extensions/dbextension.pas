@@ -218,7 +218,7 @@ var
   AQuery: TSQLQuery;
   F: TField;
   AQ, Val, ADBName, ADBS, AnAlias:string;
-
+  SingleResult:boolean = False;
   g, i, j:integer;
   Added:boolean=False;
   //[0] = connection
@@ -246,6 +246,12 @@ begin
   AQuery.DataBase := AConn;
   if FParams.Count > 2 then
   begin
+    if FParams.Count = 4 then
+      if FParams[3] = LANG_TRUE then
+      begin
+        SingleResult := True;
+        AQ := AQ + ' LIMIT 1';
+      end;
     AQuery.SQL.Text := AQ;
     AQuery.Open;
 
@@ -257,12 +263,25 @@ begin
         i := FTemplate.GenFileSet.Add(True, FParams[2]);
         Added := True;
       end;
-      for F in AQuery.Fields do
+      if not SingleResult then
       begin
-        if not F.IsNull then
-          FTemplate.GenFileSet.GenFiles[i].GenFile.SetValue(IntToStr(j)+GEN_SUB_LEVEL+F.FieldName, F.Value)
-        else
-          FTemplate.GenFileSet.GenFiles[i].GenFile.SetValue(IntToStr(j)+GEN_SUB_LEVEL+F.FieldName, '');
+        for F in AQuery.Fields do
+        begin
+          if not F.IsNull then
+            FTemplate.GenFileSet.GenFiles[i].GenFile.SetValue(IntToStr(j)+GEN_SUB_LEVEL+F.FieldName, F.Value)
+          else
+            FTemplate.GenFileSet.GenFiles[i].GenFile.SetValue(IntToStr(j)+GEN_SUB_LEVEL+F.FieldName, '');
+        end;
+      end
+      else
+      begin
+        for F in AQuery.Fields do
+        begin
+          if not F.IsNull then
+            FTemplate.GenFileSet.GenFiles[i].GenFile.SetValue(F.FieldName, F.Value)
+          else
+            FTemplate.GenFileSet.GenFiles[i].GenFile.SetValue(F.FieldName, '');
+        end;
       end;
       j := j+1;
       AQuery.Next;

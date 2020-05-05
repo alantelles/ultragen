@@ -15,9 +15,9 @@ proc: show
     init: conn
     createGen: conn, dirSep('migrations/connection.gen')
     $conn.path = dirSep('migrations\blog.db')
-    q = ~('SELECT posts.id, title, body, users.name AS author FROM posts INNER JOIN users ON posts.user_id=users.id WHERE posts.id=', valueAt($_route, 2, '/'))
-    DB>query: conn, q, 'posts'    
-    groupKeys: 'posts', '0.', 'post'    
+    q = ~('SELECT posts.id, title, body, users.name AS author FROM posts  ++
+    INNER JOIN users ON posts.user_id=users.id WHERE posts.id=', valueAt($_route, 2, '/'))
+    DB>query: conn, q, 'post', true
     $render.main = render(dirSep('templates/posts/show_post.ultra.html'), 'post')
 endProc
 
