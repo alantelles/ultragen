@@ -1,0 +1,3 @@
+function: tempPath, name    
+    return: dirSep(~('templates/', replace('.', PATH, name), '.ultra.html'))
+endFunction

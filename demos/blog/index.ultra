@@ -4,8 +4,17 @@ route = routeMatch(~($_method, ':', $_route), routes, 'errors.e404')
 explode: route, ca, '.'
 controller = ca[0]
 action = ca[1]
-include: dirSep(~('controllers/', controller, '.ultra'))
-callProc: route
+if: neq(route, 'users.login')
+    if: bool($_session.isLogged)
+        include: dirSep(~('controllers/', controller, '.ultra'))
+        callProc: route
+    else
+        redirect: '/login'
+    endIf
+else
+    include: dirSep(~('controllers/', controller, '.ultra'))
+    users.login
+endIf
 if: bool(genIndex('render'))
     include: dirSep('templates/bases/base.ultra.html')
 endIf

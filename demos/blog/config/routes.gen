@@ -3,5 +3,7 @@ GET:/posts=posts.listAll
 GET:/=posts.listAll
 GET:/post/new=posts.new
 GET:/user/new=users.new
+GET:/login=users.login
+POST:/login=users.login
 POST:/post/new=posts.new
 POST:/user/new=users.new

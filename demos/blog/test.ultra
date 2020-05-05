@@ -1,2 +1,0 @@
-createGen: 'tesla'
-print: bool(genIndex('tesela'))

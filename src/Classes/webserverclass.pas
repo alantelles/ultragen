@@ -33,6 +33,7 @@ type
     property Handler: TFPCustomFileModule read FHandler write FHandler;
     constructor Create(APort: word; AnApp: string; Mode:string);
     procedure ExecuteAction(ARequest: TRequest; AResponse: TResponse);
+    procedure LoadFavIcon(ARequest: TRequest; AResponse: TResponse);
     function RunServer:boolean;
   end;
 
@@ -167,6 +168,7 @@ begin
     else
       WriteLn('Default MimeTypesFile not found. Using default static load.');
   end;
+  HTTPRouter.RegisterRoute('/favicon.ico', @LoadFavIcon);
   HTTPRouter.RegisterRoute('*', @ExecuteAction);
 end;
 
@@ -186,6 +188,44 @@ begin
     Result := False;
 end;
 
+{
+AResponse.ContentStream := TMemoryStream.Create;
+
+try
+  AResponse.ContentStream.LoadFromFile('/tmp/sample.tiff');
+  AResponse.ContentType := 'image/tiff'; //or whatever MIME type you want to send
+// to do: there is an fpweb example that gets the mime type from the file extension...
+  AResponse.ContentLength:=AResponse.ContentStream.Size; //apparently doesn't happen automatically?
+  AResponse.SendContent;
+finally
+  AResponse.ContentStream.Free;
+end;
+}
+
+procedure TUltraGenServer.LoadFavIcon(ARequest: TRequest;AResponse: TResponse);
+var
+  AStream: TMemoryStream;
+begin
+  if FileExists('./favicon.ico') then
+  begin
+    AStream := TMemoryStream.Create;
+    AStream.LoadFromFile('./favicon.ico');
+    AResponse.ContentStream := TMemoryStream.Create;
+    AResponse.ContentStream := AStream;
+    AResponse.ContentType := 'image/x-icon';
+    AResponse.ContentLength:=AResponse.ContentStream.Size;
+    AResponse.SendContent;
+    AResponse.ContentStream.Free;
+    AStream.Free;
+    AResponse.Code := 200;
+    WriteLn('favicon.ico found')
+  end
+  else
+  begin
+    AResponse.Code := 404;
+    WriteLn('favicon.ico not found')
+  end;
+end;
 
 procedure TUltraGenServer.ExecuteAction(ARequest: TRequest;AResponse: TResponse);
 var
@@ -274,8 +314,8 @@ begin
     SessionFile := FSessionsPath+DirectorySeparator+SessionId+'.gen';
     if not FileExists(SessionFile) then
     begin
-      ASession.SetValue('_session:sessionID',SessionId);
-      ASession.SetValue('_session:expiresAt',FormatDateTime(
+      ASession.SetValue('_session'+ GEN_SUB_LEVEL +'sessionID',SessionId);
+      ASession.SetValue('_session'+ GEN_SUB_LEVEL +'expiresAt',FormatDateTime(
           DATE_INTERCHANGE_FORMAT,IncMinute(Now,FSessionDuration)
       ));
       ASession.Save(FSessionsPath+DirectorySeparator+SessionID+'.gen');

@@ -1,3 +1,13 @@
+include: dirSep('helpers/loaders.ultra')
+
+proc: login
+    if: eq($_method, 'GET')
+        $render.main = render(loaders.tempPath('users.login'))
+    else
+        createSession
+    endIf
+endProc
+
 proc: new
     if: eq($_method, 'GET')
         init: conn
