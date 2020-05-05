@@ -131,6 +131,7 @@ begin
      (FuncName <> '--') and    // dec
      (FuncName <> '++') and    // inc
      (FuncName <> '+') and     // join
+     (FuncName <> '/') and     // path join
      (FuncName <> '~') then    // concat
   begin
     if len > 0 then
@@ -620,6 +621,8 @@ begin
         Return := sLineBreak;
       if AToken = COMMA then
         Return := ',';
+      if AToken = LANG_PATH_TOKEN then
+        Return := DirectorySeparator;
     end
     else if IsNumber(AToken) then
       Return := AToken
@@ -661,65 +664,6 @@ begin
   end;
   Result := Return;
 end;
-{
-function TTempParser.InsertTemplate(ATempName, AGenName: string): string;
-var
-  Return, Line: string;
-  AGen: TGenFileSet;
-  ATemp: TTemplate;
-begin
-  Return := '';
-  AGen := TGenFileSet.Create;
-  AGen.Add(AGenName);
-  ATemp := TTemplate.Create(ATempName);
-  ATemp.ParseTemplate(AGen);
-  ATemp.ParsedLines.SkipLastLineBreak := True;
-  for Line in ATemp.ParsedLines do
-  begin
-    if ATemp.ParsedLines.IndexOf(Line) = 0 then
-      Return := Return + Line + sLineBreak
-    else
-      Return := Return + RepeatStr(' ', FTokenPos) + Line + sLineBreak;
-  end;
-  ATemp.Free;
-  AGen.Free;
-  //Return := Copy(Return, 1, Length(Return) - 2);
-  Return := DropLastLineBreak(Return);
-  Result := Return;
-end;
-
-function TTempParser.InsertTemplate(var Params: TStringList): string;
-var
-  Return, Line: string;
-  AGen: TGenFileSet;
-  ATemp: TTemplate;
-  i: integer;
-begin
-  Return := '';
-  ATemp := TTemplate.Create(Params[0]);
-  for i := 2 to Params.Count - 1 do
-  begin
-    ATemp.SetVariable('param[' + IntToStr(i - 2) + ']', Params[i]);     {back}
-  end;
-  AGen := TGenFileSet.Create;
-  if Params[1] <> '' then
-    AGen.Add(Params[1]);
-  ATemp.ParseTemplate(AGen);
-  ATemp.ParsedLines.SkipLastLineBreak := True;
-  for Line in ATemp.ParsedLines do
-  begin
-    if ATemp.ParsedLines.IndexOf(Line) = 0 then
-      Return := Return + Line + sLineBreak
-    else
-      Return := Return + RepeatStr(' ', FTokenPos) + Line + sLineBreak;
-  end;
-  ATemp.Free;
-  AGen.Free;
-  //Return := Copy(Return, 1, Length(Return) - 2);
-  Return := DropLastLineBreak(Return);
-  Result := Return;
-end;
-}
 function TTempParser.InsertTemplate(var Params: TStringList; var PureParams: TStringList): string;
 var
   Return: string;
@@ -1317,6 +1261,11 @@ begin
       Return := StringsFunctions.Concat(Params)
     else if ((AFuncName = 'join') or (AFuncName = '+')) and (Params.Count > 1) then
       Return := StringsFunctions.Join(Params)
+    else if ((AFuncName = 'path') or (AFuncName = '/')) and (Params.Count > 1) then
+    begin
+      Params.Insert(0, DirectorySeparator);
+      Return := StringsFunctions.Join(Params)
+    end
     else if (AFuncName = 'lower') and (Params.Count = 1) then
       Return := AnsiLowerCase(Params[0])
     else if (AFuncName = 'upper') and (Params.Count = 1) then

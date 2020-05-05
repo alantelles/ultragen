@@ -1,5 +1,5 @@
 init: routes
-createGen: routes, 'config\routes.gen'
+createGen: routes, join(PATH, 'config','routes.gen')
 route = routeMatch(~($_method, ':', $_route), routes, 'errors.e404')
 explode: route, ca, '.'
 controller = ca[0]

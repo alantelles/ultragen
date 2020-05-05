@@ -213,7 +213,7 @@ begin
   if ARequest.QueryFields.Count > 0 then
   begin
     for i := 0 to ARequest.QueryFields.Count - 1 do
-      AGenReq.SetValue('_get:' + ARequest.QueryFields.Names[i],
+      AGenReq.SetValue('_get' + GEN_SUB_LEVEL + ARequest.QueryFields.Names[i],
         ARequest.QueryFields.ValueFromIndex[i]);
   end;
 
@@ -226,7 +226,7 @@ begin
       AFileGen.SetValue('fileName',ARequest.Files[i].FileName);
       AFileGen.SetValue('size',IntToStr(ARequest.Files[i].Size));
       AFileGen.SetValue('tempName',ARequest.Files[i].LocalFileName);
-      AnAlias := '_files:'+ARequest.Files[i].FieldName+':'+IntToStr(i);
+      AnAlias := '_files' + GEN_SUB_LEVEL + ARequest.Files[i].FieldName+ GEN_SUB_LEVEL +IntToStr(i);
       AGenSet.Add(AFileGen,AnAlias);
     end;
     {
@@ -245,7 +245,7 @@ begin
   begin
     for i := 0 to ARequest.ContentFields.Count - 1 do
     begin
-      AGenReq.SetValue('_post:' + ARequest.ContentFields.Names[i],
+      AGenReq.SetValue('_post' + GEN_SUB_LEVEL + ARequest.ContentFields.Names[i],
         ARequest.ContentFields.ValueFromIndex[i]);
     end;
   end;
@@ -253,8 +253,7 @@ begin
   if ARequest.CookieFields.Count > 0 then
   begin
     for i := 0 to ARequest.CookieFields.Count - 1 do
-      AGenReq.SetValue('_cookie:' + ARequest.CookieFields.Names[i],
-        ARequest.CookieFields.ValueFromIndex[i]);
+      AGenReq.SetValue('_cookie' + GEN_SUB_LEVEL + ARequest.CookieFields.Names[i], ARequest.CookieFields.ValueFromIndex[i]);
   end;
 
   i := Pos('?',ARequest.URI);

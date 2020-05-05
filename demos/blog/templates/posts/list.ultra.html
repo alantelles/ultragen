@@ -2,12 +2,21 @@
     <div class='col-lg-12'>
         {{ inTag('h1', param[1]) }}
     </div>
-    <div class='col-lg-12'>
-        @for: range(intDiv(keysCount('param0'), 4)), i
+    <div class='col-lg-12'>        
+        @for: range(param[2]), i
+        <div class='card'>            
             @groupKeys: 'param0', ~(i, '.'), 'post'
-            <h3>{{ $title }}</h3>
-            <p>{{ $body }}</p>
-            <small>{{ $author }}</small>
+            <div class="card-body">
+                <h3>{{ $title }}</h3>
+                <p>{{ substring($body, 0, 100) }}</p>
+                <small>{{ $author }}</small>
+                
+            </div>        
+            <div class="card-footer">
+                <a href="/post/{{ $id }}"><button class='btn btn-primary btn-sm'>+ Ler mais</button></a>
+            </div>
+            @unloadGen: 'post'
+        </div>
         @endFor
     </div>
 </div>

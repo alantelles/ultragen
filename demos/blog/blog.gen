@@ -5,3 +5,4 @@ _locations.static=static
 _locations.styles=static/styles
 _locations.images=static/images
 _locations.scripts=static/scripts
+_mimeTypesFile=config/mime-types.txt

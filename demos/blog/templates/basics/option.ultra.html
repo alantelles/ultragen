@@ -1,0 +1,7 @@
+@{
+    field = 'name'
+    if: gt(count(param), 1)
+        field = param[1]
+    endIf
+}
+<option value="{{ $param0.id }}">{{ genValue(field, 'param0') }}</option>

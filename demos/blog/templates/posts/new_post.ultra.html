@@ -1,1 +1,24 @@
-<h3>Novo post</h3>
+<div class='row'>
+    <div class="col-lg-12">
+        <h3>Novo post</h3>
+    </div>
+    <div class="col-lg-12">
+        <form action="" method="post">
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input class="form-control" name="title" id="title" />
+            </div>
+            <div class="form-group">
+                <label for="body">Body</label>
+                <textarea class="form-control" id="body" name="body"></textarea>                
+            </div>
+            <div class="form-group">
+                <label for="author">Author</label>
+                <select name="user_id" class='form-control'>
+                    {{ param[1] }}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Enviar</button>
+        </form>
+    </div>
+</div>

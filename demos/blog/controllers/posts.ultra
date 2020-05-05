@@ -1,13 +1,55 @@
 proc: listAll
     init: conn
-    createGen: conn, 'migrations\connection.gen'
-    q = 'SELECT posts.id, title, body, users.name AS author FROM posts INNER JOIN users ON posts.user_id=users.id'
+    createGen: conn, dirSep('migrations/connection.gen')
+    q = 'SELECT posts.id, title, body, users.name AS author FROM posts  ++
+    INNER JOIN users ON posts.user_id=users.id ORDER BY title ASC'
     #q = 'SELECT * FROM posts'
-    $conn.path = 'migrations\blog.db'
+    $conn.path = dirSep('migrations\blog.db')
     DB>query: conn, q, 'results'
-    live: render('templates/bases/base.ultra.html', 'posts', 'list', 'results')
+    postsCount = intDiv(keysCount('results'), 4)
+    $render.main = render(dirSep('templates/posts/list.ultra.html'), 'results', 'Todos os posts', postsCount)
+    $render.pageTitle = 'Todos os posts'
+    $render.side = render(dirSep('templates/posts/related.ultra.html'), 'results', postsCount)
+    include: dirSep('templates/bases/base.ultra.html')
+endProc
+
+proc: show
+    init: conn
+    createGen: conn, dirSep('migrations/connection.gen')
+    $conn.path = dirSep('migrations\blog.db')
+    q = ~('SELECT posts.id, title, body, users.name AS author FROM posts INNER JOIN users ON posts.user_id=users.id WHERE posts.id=', valueAt($_route, 2, '/'))
+    DB>query: conn, q, 'posts'    
+    groupKeys: 'posts', '0.', 'post'    
+    $render.main = render(dirSep('templates/posts/show_post.ultra.html'), 'post')
+    include: dirSep('templates/bases/base.ultra.html')
 endProc
 
 proc: new
-    live: render(dirSep('templates/bases/base.ultra.html'), 'posts', 'new_post')
+    if: eq($_method, 'GET')
+        q = 'select * from users'
+        init: conn
+        createGen: conn, dirSep('migrations/connection.gen')
+        $conn.path = dirSep('migrations\blog.db')
+        DB>query: conn, q, 'users'
+        count = range(intDiv(keysCount('users'), 4))
+        list = ''
+        for: count, u
+            groupKeys: 'users', ~(u, '.'), 'user'
+            list = +(LINE, list, render('templates/basics/option.ultra.html', 'user'))
+            unloadGen: 'user'
+        endFor
+        $render.main = render(dirSep('templates/posts/new_post.ultra.html'), 'users', list)
+        include: dirSep('templates/bases/base.ultra.html')
+    else
+        groupKeys: 'request', '_post.', 'postData'
+        values = +(COMMA, ..'postData')
+        $postData.body = ~('"', $body, '"')
+        $postData.title = ~('"', $title, '"')
+        q = ~('INSERT INTO posts (body, title, user_id) VALUES (', +(COMMA, $body, $title, $user_id) ,')')
+        init: conn
+        createGen: conn, dirSep('migrations/connection.gen')
+        $conn.path = dirSep('migrations\blog.db')
+        DB>query: conn, q
+        redirect: '/'
+    endIf
 endProc

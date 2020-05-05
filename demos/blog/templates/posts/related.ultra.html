@@ -1,0 +1,9 @@
+@{
+    function: link, i
+        return: ~('<a href="/post/', genValue(~(i, '.id'), 'param0'),'"><p>', genValue(~(i, '.title'), 'param0'),'</p></a>')
+    endFunction
+}
+<h4>Relacionados</h4>
+@count = range(param[1])
+
+{{ map(count, ',', LINE, inTag('p', link(elem))) }}

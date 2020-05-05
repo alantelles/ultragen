@@ -32,6 +32,8 @@ var
   RESERVED_WORDS: array [0..13] of string;
   LOOP_FUNCTION:string = 'LOOP';
   LINE_BREAK:string = 'LINE';
+  LANG_PATH_TOKEN:string = 'PATH';
+
   FULL_DATE:string = DATE_INTERCHANGE_FORMAT;
   PI: double;
 
@@ -69,10 +71,13 @@ begin
   RESERVED_WORDS[4] := 'FULL_DATE';
   RESERVED_WORDS[5] := 'UTC_FORMAT';
   RESERVED_WORDS[6] := 'COMMA';
+  RESERVED_WORDS[7] := LANG_PATH_TOKEN;
+
+
+
+  U_HOME := GetEnv('ULTRAGEN_HOME');
 
   PI := System.Pi();
-
-  U_HOME := GetEnv(U_HOME);
 
 
 end.

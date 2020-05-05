@@ -2,3 +2,4 @@ GET:/post/:int=posts.show
 GET:/posts=posts.listAll
 GET:/=posts.listAll
 GET:/post/new=posts.new
+POST:/post/new=posts.new
