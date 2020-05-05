@@ -1,0 +1,18 @@
+proc: new
+    if: eq($_method, 'GET')
+        init: conn
+        createGen: conn, dirSep('migrations/connection.gen')
+        $conn.path = dirSep($conn.path)
+        $render.main = render(dirSep('templates/users/new_user.ultra.html'))
+    else
+        groupKeys: 'request', '_post.', 'postData'
+        values = map(+(COMMA, ..'postData'), ~('"', elem,'"'))
+        q = ~('INSERT INTO users (', +(COMMA, .'postData'),') VALUES (', values ,')')
+        init: conn
+        createGen: conn, dirSep('migrations/connection.gen')
+        $conn.path = dirSep('migrations\blog.db')
+        live: q
+        DB>query: conn, q
+        redirect: '/'
+    endIf
+endProc

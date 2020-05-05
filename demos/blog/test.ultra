@@ -1,7 +1,2 @@
-init: model, conn
-createGen: model, 'migrations/models/post.gen'
-params = replace('=', ' ', +(COMMA, ...model))
-q = ~('CREATE TABLE posts (', params, ')')
-createGen: conn, 'migrations/connection.gen'
-$conn.path = dirSep($conn.path)
-DB>query: conn, q
+createGen: 'tesla'
+print: bool(genIndex('tesela'))

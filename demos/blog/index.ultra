@@ -6,3 +6,6 @@ controller = ca[0]
 action = ca[1]
 include: dirSep(~('controllers/', controller, '.ultra'))
 callProc: route
+if: bool(genIndex('render'))
+    include: dirSep('templates/bases/base.ultra.html')
+endIf

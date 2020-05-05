@@ -995,6 +995,10 @@ begin
     begin
       Return := FTemplate.GenFileSet.GenValueByIndex(Params[0],StrToInt(Params[1]))
 		end
+    else if (AFuncName = 'genIndex') and (Params.Count = 1) then
+    begin
+      Return := IntToStr(FTemplate.GenFileSet.IndexOf(Params[0]))
+    end
     else if (AFuncName = 'keysCount') and (Params.Count = 1) then
     begin
       Return := FTemplate.GenFileSet.KeysCount(Params[0])

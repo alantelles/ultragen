@@ -3,14 +3,12 @@ proc: listAll
     createGen: conn, dirSep('migrations/connection.gen')
     q = 'SELECT posts.id, title, body, users.name AS author FROM posts  ++
     INNER JOIN users ON posts.user_id=users.id ORDER BY title ASC'
-    #q = 'SELECT * FROM posts'
     $conn.path = dirSep('migrations\blog.db')
     DB>query: conn, q, 'results'
     postsCount = intDiv(keysCount('results'), 4)
     $render.main = render(dirSep('templates/posts/list.ultra.html'), 'results', 'Todos os posts', postsCount)
     $render.pageTitle = 'Todos os posts'
-    $render.side = render(dirSep('templates/posts/related.ultra.html'), 'results', postsCount)
-    include: dirSep('templates/bases/base.ultra.html')
+    $render.side = render(dirSep('templates/posts/related.ultra.html'), 'results', postsCount)    
 endProc
 
 proc: show
@@ -21,12 +19,11 @@ proc: show
     DB>query: conn, q, 'posts'    
     groupKeys: 'posts', '0.', 'post'    
     $render.main = render(dirSep('templates/posts/show_post.ultra.html'), 'post')
-    include: dirSep('templates/bases/base.ultra.html')
 endProc
 
 proc: new
     if: eq($_method, 'GET')
-        q = 'select * from users'
+        q = 'select * from users ORDER BY name ASC'
         init: conn
         createGen: conn, dirSep('migrations/connection.gen')
         $conn.path = dirSep('migrations\blog.db')
@@ -39,7 +36,6 @@ proc: new
             unloadGen: 'user'
         endFor
         $render.main = render(dirSep('templates/posts/new_post.ultra.html'), 'users', list)
-        include: dirSep('templates/bases/base.ultra.html')
     else
         groupKeys: 'request', '_post.', 'postData'
         values = +(COMMA, ..'postData')
