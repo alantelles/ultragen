@@ -2438,11 +2438,11 @@ end;
 
 function TTemplate.RouteMatch(ASearch, AnAlias: string; ADefault: string = ''): string;
 var
-  i, j: integer;
+  i, j, DotPos: integer;
   Exp, Inp: TStringList;
   APair: TKVPair;
   Match: boolean = False;
-  Return: string;
+  Return, ParamType: string;
 begin
   // :int - for match with integers
   // :str - for match with strings
@@ -2475,26 +2475,34 @@ begin
           begin
             Match := True;
           end
-          else if Exp[j] = ':int' then
+          else if Exp[j][1] = ':' then
           begin
-            try
-              StrToInt(Inp[j]);
-              Match := True
-            except
-              Match := False;
-            end;
-          end
-          else if Exp[j] = ':str' then
-          begin
-            try
-              StrToInt(Inp[j]);
-              Match := False
-            except
+            Exp[j] := Trim(Exp[j]);
+            ParamType := 'any';
+            DotPos := Pos('.', Exp[j]);
+            if DotPos > 1 then
+              ParamType := lowercase(Copy(Exp[j], DotPos+1, Length(Exp[j])));
+            if ParamType = 'int' then
+            begin
+              try
+                StrToInt(Inp[j]);
+                Match := True
+              except
+                Match := False;
+              end;
+            end
+            else if ParamType = 'str' then
+            begin
+              try
+                StrToInt(Inp[j]);
+                Match := False
+              except
+                Match := True;
+              end;
+            end
+            else if ParamType = 'any' then
               Match := True;
-            end;
-          end
-          else if Exp[j] = ':any' then
-            Match := True;
+          end;
           if Match = False then
             break;
         end;

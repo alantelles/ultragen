@@ -1,0 +1,8 @@
+clear
+print: 'Test improved router'
+init: routes
+createGen: routes, 'routesImp.gen'
+route = 'GET:/user/baholeros'
+print: routeMatch(route, routes, 'Not found')
+route = 'GET:/user/3'
+print: routeMatch(route, routes, 'Not found')
