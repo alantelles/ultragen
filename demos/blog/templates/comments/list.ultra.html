@@ -1,0 +1,9 @@
+@count = intDiv(keysCount('param0'), 2)
+@for: range(count), i
+    @groupKeys: 'param0', ~(i, '.'), 'comment'
+    <div class="highlight">
+        <p>{{ $comment.body }}</p>
+        <small>{{ $comment.author }}</small>
+    </div>
+    @unloadGen: 'comment'
+@endFor

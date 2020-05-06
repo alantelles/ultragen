@@ -1,4 +1,5 @@
 include: +(PATH,'helpers', 'loaders.ultra')
+
 proc: listAll
     init: conn
     createGen: conn, dirSep('migrations/connection.gen')
@@ -15,12 +16,18 @@ endProc
 
 proc: show
     init: conn
+    postId = valueAt($_route, 2, '/')
     createGen: conn, dirSep('migrations/connection.gen')
     $conn.path = dirSep('migrations\blog.db')
     q = ~('SELECT posts.id, title, body, users.name AS author FROM posts  ++
-    INNER JOIN users ON posts.user_id=users.id WHERE posts.id=', valueAt($_route, 2, '/'))
+    INNER JOIN users ON posts.user_id=users.id WHERE posts.id=', postId)
     DB>query: conn, q, 'post', true
-    $render.main = render(dirSep('templates/posts/show_post.ultra.html'), 'post')
+    q = ~('SELECT body, users.name AS author FROM comments  ++
+    INNER JOIN users ON comments.user_id=users.id WHERE post_id=', postId, ' ORDER BY comments.id ASC')
+    DB>query: 'conn', q, 'comments'
+    comments = render(loaders.tempPath('comments.list'), 'comments')
+    newComment = render(loaders.tempPath('comments.new'), postId)
+    $render.main = render(loaders.tempPath('posts.show_post'), 'post', comments, newComment)
 endProc
 
 proc: new

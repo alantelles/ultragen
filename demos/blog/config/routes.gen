@@ -10,3 +10,4 @@ POST:/user/new=users.new
 GET:/logout=users.logout
 GET:/user/:int=users.show
 GET:/users=users.listAll
+POST:/comments/new=comments.new

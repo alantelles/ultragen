@@ -1,0 +1,7 @@
+init: comments
+createGen: comments, 'migrations/models/comment.gen'
+defs = replace('=', ' ', +(COMMA, ...comments))
+q = ~('CREATE TABLE ', comments,' (', defs,')')
+createGen: 'conn', 'migrations/connection.gen'
+$conn.path = dirSep($conn.path)
+DB>query: 'conn', q

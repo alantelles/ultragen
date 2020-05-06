@@ -1,0 +1,10 @@
+<div class='highlight'>
+    <form action="/comments/new" method="post">
+        <div class="form-group">
+            <label for="body">Deixe seu comentário</label>
+            <textarea name="body" id="body" class="form-control"></textarea>
+        </div>
+        <input name="post_id" type="hidden" value="{{ param[0] }}" />
+        <button class="btn btn-primary">Enviar</button>
+    </form>
+</div>

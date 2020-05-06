@@ -1560,35 +1560,6 @@ begin
     else
     begin
       Part := Line;
-      {if (Pos(OVER_STATE, Trim(Line)) = 1) then
-      begin
-        VarName := Copy(Trim(Line), Pos(OVER_STATE, Line) + Length(OVER_STATE),
-          Length(Trim(Line)) - Length(OVER_ASSOC));
-        if (Pos(OVER_ASSOC, Line) > 0) then
-          VarName := Copy(VarName, 1, Pos(OVER_ASSOC, Line) - Length(OVER_ASSOC) - 1);
-        if Parent <> '' then
-          Parent := Parent + ATTR_ACCESSOR;
-        for IncName in PREDEF_OVERR do
-          if VarName = IncName then
-          begin
-            IsPredef := True;
-            Continue;
-          end;
-        if not IsPredef then
-        begin
-          Vars.Add(VarName);
-          Part := Copy(Line, Pos(OVER_STATE, Line) + Length(OVER_STATE), Length(Line));
-          Part := OVER_STATE + Parent + TempAlias + ATTR_ACCESSOR + Part;
-        end;
-      end
-      else
-      begin
-        for AVar in Vars do
-        begin
-          Part := ReplaceStr(Part, OVER_STATE + AVar, OVER_STATE + Parent +
-            TempAlias + ATTR_ACCESSOR + AVar);
-        end;
-      end;   }
       FLines.Add(Part);
     end;
   end;
@@ -2144,6 +2115,7 @@ begin
       //initializers
       'initRand' : InitializeVars(Params);
       'init' : InitializeVars(Params, True);
+
       //end init
       'POC' : POC(PureParams, Params);
       'callProc':

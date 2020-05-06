@@ -2,3 +2,5 @@
 <small>{{ $author }}</small>
 @explode: $body, lines, LINE
 {{ map(lines, LINE, ~('<p>', elem,'</p>')) }}
+{{ param[2] }}
+{{ param[1] }}
