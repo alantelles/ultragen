@@ -1,8 +1,16 @@
 clear
 print: 'Test improved router'
-init: routes
+init: routes, params
 createGen: routes, 'routesImp.gen'
-route = 'GET:/user/baholeros'
-print: routeMatch(route, routes, 'Not found')
-route = 'GET:/user/3'
-print: routeMatch(route, routes, 'Not found')
+
+route = 'GET:/posts/7/user/alan'
+error = 'errors.e404'
+action = 'posts.listAll'
+
+$params.user = 7
+$params.name = 'alantelles'
+$params.noparam = 'other param'
+
+print: 'Action for route: ', routeMatch(route, routes, error)
+
+print: 'Url for action: ', urlFor(action, routes, params)

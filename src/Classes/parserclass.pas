@@ -1259,6 +1259,10 @@ begin
     begin
       Return := FTemplate.RouteMatch(Params[0], Params[1], Params[2]);
     end
+    else if (AFuncName = 'urlFor') and (Params.Count = 2) then
+      Return := FTemplate.UrlFor(Params[0], Params[1])
+    else if (AFuncName = 'urlFor') and (Params.Count = 3) then
+      Return := FTemplate.UrlFor(Params[0], Params[1], Params[2])
 
     { String Manipulation }
     else if ((AFuncName = 'concat') or (AFuncName = '~')) then
