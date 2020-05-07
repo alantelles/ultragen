@@ -1,3 +1,6 @@
+x = @juri
+
+###
 function: sep
     _: repeat('=', 40)
 endFunction
@@ -26,7 +29,6 @@ print: urlForGen(action, routes, params)
 x = map(urlForGen(action, routes, params), LINE, ', ', elem)
 print: x
 print: sep()
-###
 print: 'Action for route: ', routeMatch(route, routes, error)
 params2 = +('&', 'user=7', 'name=alantelles', 'noparam=other   param 2020')
 print: +(', ', **&params2)

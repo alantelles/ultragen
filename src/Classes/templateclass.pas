@@ -678,7 +678,10 @@ begin
       Return := Requirer.Get(URL);
 
     except
-      WriteLn('Couldn''t load ssl lib');
+      On E:Exception do
+      begin
+        WriteLn(E.Message);
+      end;
     end;
   finally
     Requirer.Free;
