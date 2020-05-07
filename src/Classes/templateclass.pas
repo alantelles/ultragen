@@ -2522,7 +2522,9 @@ begin
         end;
       end;
     end;
-
+    Routes.SkipLastLineBreak := True;
+    Return := Routes.Text;
+    Routes.Free;
 
   end
   else
@@ -2530,97 +2532,98 @@ begin
     SetErrorLocation;
     EGenError.Create(E_GEN_NOT_EXIST,FErrorLocation,'',ASource,-1).ERaise();
   end;
-  Routes.SkipLastLineBreak := True;
-  Return := Routes.Text;
-  Routes.Free;
+
   Result := Return;
 end;
 
 function TTemplate.UrlForGen(AnAction, ASource:string; NamedGen:string=''):string;
 var
   SrcI, NamedI, DotPos, i:integer;
-  APair:TKVPair;
+  APair, APair2:TKVPair;
   AParam, ParamName:string;
   GetParams:string = '';
   Return:string = '/';
-  RouteParams:TStringList;
+  RouteParams, Routes:TStringList;
   AGen:TGenFile;
 begin
   SrcI := FGenFileSet.IndexOf(ASource);
+
   if SrcI > -1 then
   begin
-    // outro baile
+    Routes := TStringList.Create;
+    Routes.SkipLastLineBreak := True;
     for APair in FGenFileSet.GenFiles[SrcI].GenFile.Pairs do
     begin
       if APair.Value = AnAction then
       begin
-        Return := Copy(APair.Key, Pos('/', APair.Key), Length(APair.Key));
-        Break;
-      end;
-    end;
-    if NamedGen <> '' then
-    begin
-      NamedI := FGenFileSet.IndexOf(NamedGen);
-      if NamedI > -1 then
-      begin
-        // segue o baile
-        try
-          RouteParams := TStringList.Create;
-          RouteParams.SkipLastLineBreak := True;
-          RouteParams.Delimiter := '/';
-          RouteParams.DelimitedText := Return;
-          RouteParams.Delete(0);
-          AGen := TGenFile.Create;
-          FGenFileSet.GenFiles[NamedI].GenFile.CopyGen(AGen);
-          for i:=0 to RouteParams.Count - 1 do
+        Routes.Add(Copy(APair.Key, Pos('/', APair.Key), Length(APair.Key)));
+        if NamedGen <> '' then
+        begin
+          NamedI := FGenFileSet.IndexOf(NamedGen);
+          if NamedI > -1 then
           begin
-
+            // segue o baile
             try
-              if RouteParams[i][1] = ':' then
+              RouteParams := TStringList.Create;
+              RouteParams.SkipLastLineBreak := True;
+              RouteParams.Delimiter := '/';
+              RouteParams.DelimitedText := Routes[Routes.Count-1];
+              RouteParams.Delete(0);
+              AGen := TGenFile.Create;
+              FGenFileSet.GenFiles[NamedI].GenFile.CopyGen(AGen);
+              for i:=0 to RouteParams.Count - 1 do
               begin
-                DotPos := Pos('.', RouteParams[i]);
-                ParamName := Copy(RouteParams[i], 2, length(RouteParams[i]));
-                if DotPos > 2 then
-                begin
-                  try
-                    ParamName := Copy(RouteParams[i], 2, DotPos-2);
-                  except
 
+                try
+                  if RouteParams[i][1] = ':' then
+                  begin
+                    DotPos := Pos('.', RouteParams[i]);
+                    ParamName := Copy(RouteParams[i], 2, length(RouteParams[i]));
+                    if DotPos > 2 then
+                    begin
+                      try
+                        ParamName := Copy(RouteParams[i], 2, DotPos-2);
+                      except
+
+                      end;
+                    end;
+                    AParam := AGen.GetValue(ParamName).Value;
+                    RouteParams[i] := HttpEncode(AGen.GetValue(ParamName).Value);
+                    AGen.DropKey(ParamName);
                   end;
+                finally
                 end;
-                AParam := AGen.GetValue(ParamName).Value;
-                RouteParams[i] := HttpEncode(AGen.GetValue(ParamName).Value);
-                AGen.DropKey(ParamName);
               end;
+              RouteParams.LineBreak := '/';
+              Routes[Routes.Count-1] := '/' + RouteParams.Text;
+              RouteParams.Clear;
+              RouteParams.LineBreak := '&';
+              for APair2 in AGen.Pairs do
+                RouteParams.Add(APair2.Key + '=' + HttpEncode(APair2.Value));
+              if RouteParams.Count > 0 then
+                Return := Routes[Routes.Count-1] + '?' +  RouteParams.Text;
             finally
+              AGen.Free;
+              RouteParams.Free;
             end;
+          end
+          else
+          begin
+            SetErrorLocation;
+            EGenError.Create(E_GEN_NOT_EXIST,FErrorLocation,'',NamedGen,-1).ERaise();
           end;
-          RouteParams.LineBreak := '/';
-          Return := '/' + RouteParams.Text;
-          RouteParams.Clear;
-          RouteParams.LineBreak := '&';
-          for APair in AGen.Pairs do
-            RouteParams.Add(APair.Key + '=' + HttpEncode(APair.Value));
-          if RouteParams.Count > 0 then
-            Return := Return + '?' +  RouteParams.Text;
-        finally
-          AGen.Free;
-          RouteParams.Free;
         end;
-      end
-      else
-      begin
-        SetErrorLocation;
-        EGenError.Create(E_GEN_NOT_EXIST,FErrorLocation,'',NamedGen,-1).ERaise();
       end;
-    end
-    else
-    begin
-      SetErrorLocation;
-      EGenError.Create(E_GEN_NOT_EXIST,FErrorLocation,'',ASource,-1).ERaise();
     end;
-
+    Return := Routes.Text;
+    Routes.Free;
+  end
+  else
+  begin
+    SetErrorLocation;
+    EGenError.Create(E_GEN_NOT_EXIST,FErrorLocation,'',ASource,-1).ERaise();
   end;
+
   Result := Return;
 end;
 
