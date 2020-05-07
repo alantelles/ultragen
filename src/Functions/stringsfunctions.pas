@@ -158,11 +158,11 @@ var
 begin
   Dump := TStringList.Create;
   Dump.SkipLastLineBreak := True;
+  Dump.StrictDelimiter := True;
   if Params.Count = 3 then
     Dump.Delimiter := Params[2][1]
   else
     Dump.Delimiter := DEF_DELIM;
-  Dump.StrictDelimiter := True;
   Dump.DelimitedText := Params[0];
 
   //Return := Dump.text;

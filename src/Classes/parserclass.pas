@@ -358,6 +358,7 @@ begin
   Sep := Subject[1];
   Subject := Copy(Subject,2,Length(Subject));
   AStrList := TStringList.Create;
+  AStrList.StrictDelimiter := True;
   AStrList.SkipLastLineBreak := True;
   AStrList.Delimiter := Sep;
   AStrList.DelimitedText := Subject;
