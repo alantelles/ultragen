@@ -1,4 +1,4 @@
-GET:/post/:int=posts.show
+GET:/post/:id.int=posts.show
 GET:/posts=posts.listAll
 GET:/=posts.listAll
 GET:/post/new=posts.new
@@ -12,4 +12,5 @@ GET:/user/:i.int=users.show
 GET:/users=users.listAll
 POST:/comments/new=comments.new
 GET:/posts/user/:user=posts.fromUser
+GET:/posts/:name.str/user/:user.int=posts.fromUser
 GET:/posts/:user.int/user/:name.str=posts.fromUser

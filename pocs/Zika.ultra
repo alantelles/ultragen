@@ -13,12 +13,15 @@ $params.noparam = 'other param'
 
 print: 'Action for route: ', routeMatch(route, routes, error)
 
-params = +('&', 'user=7', 'name=alantelles', 'noparam=other param 2020')
+params = +('&', 'user=7', 'name=alantelles', 'noparam=other   param 2020')
 
 function: routeNum, action, routes, params, index
     return: valueAt(urlFor(action, routes, **&params), index, LINE)
 endFunction
 
-print: 'Url 1 for action: ', valueAt(urlFor(action, routes, **&params), 0, LINE)
+print: +(', ', **&params)
+_routes = urlFor(action, routes, **&params)
+for: _routes, r, LINE
+    print: 'Url ', ++(r.i),' for action: ', r
+endFor
 
-print: 'Url 2 for action: ', routeNum(action, routes, params, 1)

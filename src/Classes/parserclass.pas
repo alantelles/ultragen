@@ -299,7 +299,7 @@ var
   Ret:string='';
 begin
   May := Copy(AToken,1,Length(Opt));
-
+  Sep := '';
   if (Opt = May) then
   begin
     Ret := Copy(AToken, Length(Opt)+1,Length(AToken));
