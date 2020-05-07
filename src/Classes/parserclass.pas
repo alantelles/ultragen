@@ -1259,10 +1259,18 @@ begin
     begin
       Return := FTemplate.RouteMatch(Params[0], Params[1], Params[2]);
     end
-    else if (AFuncName = 'urlFor') and (Params.Count = 2) then
-      Return := FTemplate.UrlFor(Params[0], Params[1])
-    else if (AFuncName = 'urlFor') and (Params.Count = 3) then
-      Return := FTemplate.UrlFor(Params[0], Params[1], Params[2])
+    else if (AFuncName = 'urlForGen') and (Params.Count = 2) then
+      Return := FTemplate.UrlForgen(Params[0], Params[1])
+    else if (AFuncName = 'urlForGen') and (Params.Count = 3) then
+      Return := FTemplate.UrlForGen(Params[0], Params[1], Params[2])
+    else if (AFuncName = 'urlFor') and (Params.Count > 0) then
+    begin
+      a := Params[0];
+      b := Params[1];
+      Params.Delete(0);
+      Params.Delete(0);
+      Return := FTemplate.UrlFor(a, b, Params)
+    end
 
     { String Manipulation }
     else if ((AFuncName = 'concat') or (AFuncName = '~')) then

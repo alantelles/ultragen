@@ -11,4 +11,5 @@ GET:/logout=users.logout
 GET:/user/:i.int=users.show
 GET:/users=users.listAll
 POST:/comments/new=comments.new
+GET:/posts/user/:user=posts.fromUser
 GET:/posts/:user.int/user/:name.str=posts.fromUser

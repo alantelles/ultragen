@@ -186,7 +186,8 @@ type
     function GetWild(ASearch, AnAlias, ADefault: string): string;
     function GetWild(ASearch, AnAlias: string): string;
     function RouteMatch(ASearch, AnAlias: string; ADefault: string = ''): string;
-    function UrlFor(AnAction, ASource:string; NamedGen:string=''):string;
+    function UrlForGen(AnAction, ASource:string; NamedGen:string=''):string;
+    function UrlFor(AnAction, ASource: string; AParams: TStringList):string;
     procedure Print;
     procedure PrintLine(var Params: TStringList; ToConsole, ToOutput: boolean; SameLine:boolean = False);
     procedure ParseAbort(var Params: TStringList);
@@ -2437,7 +2438,105 @@ begin
   Result := GetWild(ASearch, AnAlias, ADefault);
 end;
 
-function TTemplate.UrlFor(AnAction, ASource:string; NamedGen:string=''):string;
+function TTemplate.UrlFor(AnAction, ASource:string; AParams:TSTringList):string;
+var
+  SrcI, DotPos, i:integer;
+  APair, APair2:TKVPair;
+  AParam, ParamName, K, V:string;
+  GetParams:string = '';
+  Return:string = '/';
+  RouteParams, Routes:TStringList;
+  AGen:TGenFile;
+begin
+  SrcI := FGenFileSet.IndexOf(ASource);
+  if SrcI > -1 then
+  begin
+    Routes := TStringList.Create;
+    // outro baile
+    for APair in FGenFileSet.GenFiles[SrcI].GenFile.Pairs do
+    begin
+      if APair.Value = AnAction then
+      begin
+        ParamName := Copy(APair.Key, Pos('/', APair.Key), Length(APair.Key));
+        Routes.Add(ParamName);
+        if AParams.Count > 0 then
+        begin
+          AGen := TGenFile.Create;
+          for i := 0 to AParams.Count - 1 do
+          begin
+            DotPos := Pos('=', AParams[i]);
+            K := AParams[i];
+            V := '';
+            if DotPos > 0 then
+            begin
+              K := Copy(AParams[i], 1, DotPos-1);
+              V := Copy(AParams[i], DotPos+1, Length(AParams[i]))
+            end;
+            AGen.SetValue(K, V);
+          end;
+          try
+            RouteParams := TStringList.Create;
+            RouteParams.StrictDelimiter := True;
+            RouteParams.SkipLastLineBreak := True;
+            RouteParams.Delimiter := '/';
+            RouteParams.DelimitedText := Routes[Routes.Count-1];
+            RouteParams.Delete(0);
+            if RouteParams.Count > 0 then
+            begin
+              for i:=0 to RouteParams.Count - 1 do
+              begin
+                ParamName := RouteParams[i];
+                try
+                  if RouteParams[i][1] = ':' then
+                  begin
+                    DotPos := Pos('.', RouteParams[i]);
+                    ParamName := Copy(RouteParams[i], 2, length(RouteParams[i]));
+                    if DotPos > 2 then
+                    begin
+                      try
+                        ParamName := Copy(RouteParams[i], 2, DotPos-2);
+                      except
+
+                      end;
+                    end;
+                    AParam := AGen.GetValue(ParamName).Value;
+                    RouteParams[i] := HttpEncode(AGen.GetValue(ParamName).Value);
+                    AGen.DropKey(ParamName);
+                  end;
+                finally
+                end;
+              end;
+            end;
+            RouteParams.LineBreak := '/';
+            Routes[Routes.Count-1] := '/' + RouteParams.Text;
+            RouteParams.Clear;
+            RouteParams.LineBreak := '&';
+            for APair2 in AGen.Pairs do
+              RouteParams.Add(APair2.Key + '=' + HttpEncode(APair2.Value));
+            if RouteParams.Count > 0 then
+              Routes[Routes.Count-1] := Routes[Routes.Count-1] + '?' +  RouteParams.Text;
+          finally
+            AGen.Free;
+            RouteParams.Free;
+          end;
+        end;
+      end;
+    end;
+
+
+  end
+  else
+  begin
+    SetErrorLocation;
+    EGenError.Create(E_GEN_NOT_EXIST,FErrorLocation,'',ASource,-1).ERaise();
+  end;
+  Routes.SkipLastLineBreak := True;
+  Return := Routes.Text;
+  Routes.Free;
+  Result := Return;
+end;
+
+function TTemplate.UrlForGen(AnAction, ASource:string; NamedGen:string=''):string;
 var
   SrcI, NamedI, DotPos, i:integer;
   APair:TKVPair;

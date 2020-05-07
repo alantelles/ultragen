@@ -5,7 +5,7 @@ createGen: routes, 'routesImp.gen'
 
 route = 'GET:/posts/7/user/alan'
 error = 'errors.e404'
-action = 'posts.listAll'
+action = 'posts.fromUser'
 
 $params.user = 7
 $params.name = 'alantelles'
@@ -13,4 +13,12 @@ $params.noparam = 'other param'
 
 print: 'Action for route: ', routeMatch(route, routes, error)
 
-print: 'Url for action: ', urlFor(action, routes, params)
+params = +('&', 'user=7', 'name=alantelles', 'noparam=other param 2020')
+
+function: routeNum, action, routes, params, index
+    return: valueAt(urlFor(action, routes, **&params), index, LINE)
+endFunction
+
+print: 'Url 1 for action: ', valueAt(urlFor(action, routes, **&params), 0, LINE)
+
+print: 'Url 2 for action: ', routeNum(action, routes, params, 1)
