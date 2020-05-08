@@ -186,8 +186,8 @@ type
     function GetWild(ASearch, AnAlias, ADefault: string): string;
     function GetWild(ASearch, AnAlias: string): string;
     function RouteMatch(ASearch, AnAlias: string; ADefault: string = ''): string;
-    function UrlForGen(AnAction, ASource:string; NamedGen:string=''):string;
-    function UrlFor(AnAction, ASource: string; AParams: TStringList):string;
+    function UrlForGen(AnAction, ASource:string; NamedGen:string=''; Order:integer = 0):string;
+    function UrlFor(AnAction, ASource: string; AParams: TStringList; Order:integer = 0):string;
     procedure Print;
     procedure PrintLine(var Params: TStringList; ToConsole, ToOutput: boolean; SameLine:boolean = False);
     procedure ParseAbort(var Params: TStringList);
@@ -2449,7 +2449,7 @@ begin
   Result := GetWild(ASearch, AnAlias, ADefault);
 end;
 
-function TTemplate.UrlFor(AnAction, ASource:string; AParams:TSTringList):string;
+function TTemplate.UrlFor(AnAction, ASource:string; AParams:TSTringList; Order:integer = 0):string;
 var
   SrcI, DotPos, i:integer;
   APair, APair2:TKVPair;
@@ -2531,10 +2531,15 @@ begin
             RouteParams.Free;
           end;
         end;
+        if Order = 0 then
+          break;
       end;
     end;
     Routes.SkipLastLineBreak := True;
-    Return := Routes.Text;
+    if Order < Routes.Count then
+      Return := Routes[Order]
+    else
+      Return := Routes[0];
     Routes.Free;
 
   end
@@ -2547,7 +2552,7 @@ begin
   Result := Return;
 end;
 
-function TTemplate.UrlForGen(AnAction, ASource:string; NamedGen:string=''):string;
+function TTemplate.UrlForGen(AnAction, ASource:string; NamedGen:string=''; Order:integer = 0):string;
 var
   SrcI, NamedI, DotPos, i:integer;
   APair, APair2:TKVPair;
@@ -2624,9 +2629,14 @@ begin
             EGenError.Create(E_GEN_NOT_EXIST,FErrorLocation,'',NamedGen,-1).ERaise();
           end;
         end;
+        if Order = 0 then
+          break;
       end;
     end;
-    Return := Routes.Text;
+    if Order < Routes.Count then
+      Return := Routes[Order]
+    else
+      Return := Routes[0];
     Routes.Free;
   end
   else
@@ -2634,7 +2644,6 @@ begin
     SetErrorLocation;
     EGenError.Create(E_GEN_NOT_EXIST,FErrorLocation,'',ASource,-1).ERaise();
   end;
-
   Result := Return;
 end;
 

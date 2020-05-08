@@ -1260,6 +1260,25 @@ begin
     begin
       Return := FTemplate.RouteMatch(Params[0], Params[1], Params[2]);
     end
+
+    else if (AFuncName = 'urlNForGen') and (Params.Count = 3) then
+      //urlNForGen('myaction', 'myRoutesGen', 0)
+      Return := FTemplate.UrlForgen(Params[0], Params[1], '', StrToInt(Params[2]))
+    else if (AFuncName = 'urlNForGen') and (Params.Count = 4) then
+      //urlNForGen('myaction', 'myRoutesGen', 0, 'myNamedParamsGen')
+      Return := FTemplate.UrlForGen(Params[0], Params[1], Params[3], StrToInt(Params[2]))
+    else if (AFuncName = 'urlNFor') and (Params.Count > 2) then
+    begin
+      //urlNForGen('myaction', 'myRoutesGen', 0, ...'key=values')
+      a := Params[0];
+      Params.Delete(0);
+      b := Params[0];
+      Params.Delete(0);
+      k := StrToInt(Params[0]);
+      Params.Delete(0);
+      Return := FTemplate.UrlFor(a, b, Params, k)
+    end
+
     else if (AFuncName = 'urlForGen') and (Params.Count = 2) then
       Return := FTemplate.UrlForgen(Params[0], Params[1])
     else if (AFuncName = 'urlForGen') and (Params.Count = 3) then
