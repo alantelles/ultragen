@@ -325,8 +325,9 @@ end;
 
 procedure TTemplate.ParseTokens(indexes: array of integer; var AParams:TStringList);
 var
-  i:integer;
+  i, x:integer;
   AParser:TTempParser;
+  zika:string;
 begin
   AParser := TTempParser.Create(self);
   if Length(indexes) = 0 then
@@ -339,12 +340,19 @@ begin
   end
   else
   begin
-    for i:=0 to Length(indexes)-1 do
+    if Length(indexes) > 0 then
     begin
-      try
-        AParams[indexes[i]] := AParser.ParseToken(AParams[indexes[i]]);
-      except
+      x := Length(indexes);
+      for i:=0 to Length(indexes)-1 do
+      begin
+        try
+          x := indexes[i];
+          zika := AParams[indexes[i]];
 
+          AParams[indexes[i]] := AParser.ParseToken(AParams[indexes[i]]);
+        except
+
+        end;
       end;
     end;
   end;
