@@ -67,7 +67,9 @@ uses
   ListFunctions,
   MathFunctions,
   QueueListClass,
-  ExtensionClass;
+  ExtensionClass,
+  { others }
+  httpprotocol;
 
 constructor TTempParser.Create(var ATemplate: TTemplate);
 begin
@@ -1395,6 +1397,22 @@ begin
 
     else if (AFuncName = 'sendPost') and (Params.Count > 0) then
       Return := FTemplate.RequestRestPost(Params, PureParams)
+
+    else if (AFuncName = 'urlEncode') and (Params.Count = 1) then
+      Return := HttpEncode(Params[0])
+    else if (AFuncName = 'urlDecode') and (Params.Count = 1) then
+      Return := HttpDecode(Params[0])
+    else if (AFuncName = 'bodyEncode') and (Params.Count = 1) then
+    begin
+      Return := ReplaceStr(HttpEncode(Params[0]), '%3D', '=');
+      Return := ReplaceStr(Return, '%0D', '')
+    end
+    else if (AFuncName = 'bodyEncode') and (Params.Count = 2) then
+    begin
+      Return := ReplaceStr(HttpEncode(Params[0]), '%3D', '=');
+      if Params[1] = LANG_TRUE then
+        Return := ReplaceStr(Return, '%0D', '')
+    end
 
     else if IsUserFunction(AFuncName,i) > -1 then
       Return := FTemplate.ExecuteFunction(AFuncName,True,Params)
