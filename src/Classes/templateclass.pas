@@ -2637,6 +2637,7 @@ var
   APair: TKVPair;
   Match: boolean = False;
   Return, ParamType: string;
+  deb:string;
 begin
   // :int - for match with integers
   // :str - for match with strings
@@ -2665,11 +2666,12 @@ begin
         for j := 0 to Exp.Count - 1 do
         begin
           Match := False;
+          deb := Exp[j];
           if Exp[j] = Inp[j] then
           begin
             Match := True;
           end
-          else if Exp[j][1] = ':' then
+          else if (Length(Exp[j]) > 0) and (Exp[j][1] = ':') then
           begin
             Exp[j] := Trim(Exp[j]);
             ParamType := 'any';
