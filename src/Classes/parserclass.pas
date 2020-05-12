@@ -205,12 +205,24 @@ end;
 function TTempParser.IsLiteralString(AToken: string): boolean;
 var
   Part: string;
+  Look: string = '';
   StrStart, StrEnd, NoQuotesInside: boolean;
 begin
-  StrStart := Pos(STR_ENCLOSE, AToken) = 1;
-  StrEnd := RPos(STR_ENCLOSE, AToken) = Length(AToken);
-  Part := Copy(AToken, 2, Length(AToken) - 2);
-  NoQuotesInside := Pos(STR_ENCLOSE, Part) = 0;
+  StrStart := False;
+  StrEnd := False;
+  NoQuotesInside := False;
+  if (Pos(STR_ENCLOSE, AToken) = 1) and (RPos(STR_ENCLOSE, AToken) = Length(AToken)) then
+    Look := STR_ENCLOSE
+  else if (Pos(D_STR_ENCLOSE, AToken) = 1) and (RPos(D_STR_ENCLOSE, AToken) = Length(AToken)) then
+    Look := D_STR_ENCLOSE;
+  if Look <> '' then
+  begin
+    StrStart := Pos(Look, AToken) = 1;
+    StrEnd := RPos(Look, AToken) = Length(AToken);
+    Part := Copy(AToken, 2, Length(AToken) - 2);
+    NoQuotesInside := Pos(Look, Part) = 0;
+  end;
+
   Result := StrStart and StrEnd and NoQuotesInside;
 end;
 
@@ -641,7 +653,8 @@ begin
       Return := FTemplate.GenFile.GetValue(Copy(Temp, Pos(FROM_GEN_SET, Temp) + 1,
         Length(Temp))).Value
 
-    else if (Temp[1] <> STR_ENCLOSE) and (Temp[Length(Temp)] <> STR_ENCLOSE) then
+    else if ((Temp[1] <> STR_ENCLOSE) and (Temp[Length(Temp)] <> STR_ENCLOSE)) or
+         ((Temp[1] <> D_STR_ENCLOSE) and (Temp[Length(Temp)] <> D_STR_ENCLOSE)) then
       //Return := FTemplate.GenFile.GetValue(Temp).Value;
       Return := FTemplate.GetVariable(Temp);
   end
