@@ -55,6 +55,7 @@ type
     //function InsertTemplate(ATempName: string): string;
     function InsertTemplate(var Params: TStringList; var PureParams: TStringList): string;
     function PrintPlainText(AFileName: string): string;
+    function DropEscapes(AStr:string):string;
   end;
 
 implementation
@@ -74,6 +75,41 @@ uses
 constructor TTempParser.Create(var ATemplate: TTemplate);
 begin
   FTemplate := ATemplate;
+end;
+function TTempParser.DropEscapes(AStr:string):string;
+var
+  c:char;
+  last:string;
+  outStr:string = '';
+begin
+  last := '';
+  for c in AStr do
+  begin
+    if c <> ESCAPER then
+    begin
+      if (c = 'n') and (Last = ESCAPER) then
+      begin
+        last := c;
+        outStr := outStr + sLineBreak;
+      end
+      else
+      begin
+        last := c;
+        outStr := outStr + c;
+      end;
+    end
+    else
+    begin
+      if last = ESCAPER then
+      begin
+        outStr := outStr + c;
+        last := c
+      end
+      else
+        last := ESCAPER;
+    end;
+  end;
+  Result := outStr;
 end;
 
 function TTempParser.IsAnAlias(AToken: string): boolean;
@@ -207,6 +243,8 @@ var
   Part: string;
   Look: string = '';
   StrStart, StrEnd, NoQuotesInside: boolean;
+  Last, c:String;
+
 begin
   StrStart := False;
   StrEnd := False;
@@ -220,7 +258,18 @@ begin
     StrStart := Pos(Look, AToken) = 1;
     StrEnd := RPos(Look, AToken) = Length(AToken);
     Part := Copy(AToken, 2, Length(AToken) - 2);
-    NoQuotesInside := Pos(Look, Part) = 0;
+    Last := '';
+    NoQuotesInside := True;
+    for c in Part do
+    begin
+      if (c = Look) and (Last <> ESCAPER) then
+      begin
+        NoQuotesInside := False;
+        Break
+      end;
+      Last := c;
+    end;
+    // NoQuotesInside := Pos(Look, Part) = 0;
   end;
 
   Result := StrStart and StrEnd and NoQuotesInside;
@@ -645,7 +694,7 @@ begin
       Return := GetTimeStr(AToken)
     else if (IsLiteralString(AToken)) then
       //It's a string literal
-      Return := Copy(Temp, 2, Length(Temp) - 2)
+      Return := DropEscapes(Copy(Temp, 2, Length(Temp) - 2))
     else if (Copy(Temp, 1, Length(FROM_GEN_SET)) = FROM_GEN_SET) then
       //It's a value from a gen set
       //Return := FTemplate.GetVariable(Copy(Temp, Pos(OVER_STATE, Temp) + 1,

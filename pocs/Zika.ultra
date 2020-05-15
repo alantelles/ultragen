@@ -1,2 +1,3 @@
-createGen: "alias", "site.gen"
-print: ..."alias"
+clear
+h = "string\ncom\ndiversas\nlinhas"
+print: h
