@@ -1,3 +1,0 @@
-clear
-h = "string\ncom\ndiversas\nlinhas"
-print: h

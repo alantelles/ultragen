@@ -87,15 +87,18 @@ begin
   begin
     if c <> ESCAPER then
     begin
-      if (c = 'n') and (Last = ESCAPER) then
+      if (Last = ESCAPER) then
       begin
-        last := c;
-        outStr := outStr + sLineBreak;
+        if (c = 'n') then
+          outStr := outStr + sLineBreak
+        else if (c = 't') then
+          outStr := outStr + #9;
+        last := '';
       end
       else
       begin
-        last := c;
         outStr := outStr + c;
+        last := c;
       end;
     end
     else
@@ -103,7 +106,7 @@ begin
       if last = ESCAPER then
       begin
         outStr := outStr + c;
-        last := c
+        last := ''
       end
       else
         last := ESCAPER;
@@ -168,9 +171,6 @@ begin
      (FuncName <> '?') and     // ternary
      (FuncName <> '--') and    // dec
      (FuncName <> '++') and    // inc
-     (FuncName <> '+') and     // join
-     (FuncName <> '/') and     // path join
-     (FuncName <> '~') then    // concat
   begin
     if len > 0 then
     begin
@@ -1357,11 +1357,11 @@ begin
     end
 
     { String Manipulation }
-    else if ((AFuncName = 'concat') or (AFuncName = '~')) then
+    else if (AFuncName = 'concat') then
       Return := StringsFunctions.Concat(Params)
-    else if ((AFuncName = 'join') or (AFuncName = '+')) and (Params.Count > 1) then
+    else if (AFuncName = 'join') and (Params.Count > 1) then
       Return := StringsFunctions.Join(Params)
-    else if ((AFuncName = 'path') or (AFuncName = '/')) and (Params.Count > 1) then
+    else if (AFuncName = 'path') and (Params.Count > 1) then
     begin
       Params.Insert(0, DirectorySeparator);
       Return := StringsFunctions.Join(Params)

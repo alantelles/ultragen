@@ -1,0 +1,10 @@
+init: router, template, page
+ext = '.ultra.html'
+route = substring($_route, 1)
+if: eq(route, '')
+    route = 'form'
+endIf
+template = concat(route, ext)
+print: template, ':', page
+include: template, page
+include: dirSep('base.ultra.html')
