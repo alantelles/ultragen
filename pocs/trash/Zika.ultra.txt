@@ -1,0 +1,8 @@
+@{
+    createGen: 'c', 'connection.gen'
+    print: join("\n", ...'c')
+    print: $c.path
+    print: $path
+    tre = 22
+}
+os campos da tabela são {{ ? (bool($path), 'existe') }}

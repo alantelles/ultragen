@@ -189,6 +189,7 @@ type
     function UrlForGen(AnAction, ASource:string; NamedGen:string=''; Order:integer = 0):string;
     function UrlFor(AnAction, ASource: string; AParams: TStringList; Order:integer = 0):string;
     procedure Print;
+    function Echo(AStr:string):string;
     procedure PrintLine(var Params: TStringList; ToConsole, ToOutput: boolean; SameLine:boolean = False);
     procedure ParseAbort(var Params: TStringList);
     procedure PrintParsed;
@@ -1211,6 +1212,23 @@ begin
   AProcess.Free;
 end;
 
+function TTemplate.Echo(AStr:string):string;
+var
+  AParams:TStringList;
+  AParser:TTempParser;
+  Par:string;
+  Return:string='';
+begin
+  AParams := TStringList.Create;
+  AParser := TTempParser.Create(Self);
+  AParser.ParseParams(AStr, AParams);
+  for Par in AParams do
+    Return := Return + AParser.ParseToken(Par);
+  AParams.Free;
+  AParser.Free;
+  Result := Return;
+
+end;
 
 procedure TTemplate.PrintLine(var Params: TStringList; ToConsole, ToOutput: boolean; SameLine:boolean = False);
 var

@@ -1,5 +1,0 @@
-clear
-frases = "Esta vida que levo,Este pao que como,Este tudo que amo"
-broke = replace(',', '\n', frases)
-print: broke
-print: '\t', replace(',', '\n\t', frases)

@@ -170,9 +170,9 @@ begin
   if (FuncName <> ARROW_OPER) and
      (FuncName <> '?') and     // ternary
      (FuncName <> '--') and    // dec
-     (FuncName <> '++') and    // inc
+     (FuncName <> '++') then   // inc
   begin
-    if len > 0 then
+  if len > 0 then
     begin
       for c := 1 to len do
       begin
@@ -562,7 +562,9 @@ var
   i: integer;
   StrOpen, tkOpen, Maybe, EscapeNext: boolean;
   Return: TParseResult;
+
 begin
+
   StrOpen := F;
   tkOpen := F;
   Maybe := F;
@@ -600,8 +602,8 @@ begin
       Token := Token + Line[i];
       Token := Copy(Token, 3, Length(Token) - Length(FTemplate.TokenOpen) *
         2 - Length(FTemplate.TokenClose) * 2);
-
-      ParsedLine := ParsedLine + ParseToken(Trim(Token));
+      Token := FTemplate.Echo(Token);
+      ParsedLine := ParsedLine + Token;
       Token := '';
       continue;
     end;
