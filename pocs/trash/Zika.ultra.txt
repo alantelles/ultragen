@@ -1,13 +1,13 @@
-@section: secao1.css
-esta eh a secao 1
+@section: style.css
+@a = "#fff"
+body {
+    background-color: << a >>
+}
 @endSection
 
-@section: secao2.css
-esta eh a secao 2
+@section: page.html
+@b = "zika"
+<body>{{ b }}</body>
 @endSection
 
-@section: icantwaoit
-don't because cause i can't wait
-@endSection
-
-{{ sections("it") }}
+{{ sections() }}

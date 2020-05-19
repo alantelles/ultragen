@@ -1842,9 +1842,10 @@ function TTemplate.Load(ATempName: string): TTemplate;
 var
   Temp: TStringList;
   SectionLines: TStringList;
-  Line, Part, WillAdd: string;
+  Line, Part, WillAdd, PartExt: string;
   SectionOpen: boolean = False;
   IsMulti:boolean;
+  PartPos:integer;
 begin
   Temp := TStringList.Create;
   Temp.SkipLastLineBreak := True;
@@ -1868,13 +1869,28 @@ begin
       else if Pos(OVER_STATE + 'section' + OVER_ASSOC, Trim(Line)) = 1 then
       begin
         SectionOpen := True;
-        Part := Trim(Copy(Line, Pos(OVER_ASSOC, Line) + Length(OVER_ASSOC), Length(Line)));
+        Part := Trim(Copy(Line, Pos(OVER_ASSOC, Line) + Length(OVER_ASSOC), Length(Line))); // section name
         SectionLines := TStringList.Create;
+        PartPos := Pos('.', Part);
+        if PartPos > 0 then
+        begin
+          PartExt := Copy(Part, RPos('.', Part), Length(Part));
+          if (lowercase(PartExt) = '.css') or
+             (lowercase(PartExt) = '.json') or
+             (lowercase(PartExt) = '.js') then
+          begin
+            SectionLines.Add('@tokenEnclosers:<>');
+          end;
+        end;
+
         FSections.AddObject(Part, SectionLines);
       end
       else if (Pos(OVER_STATE + 'endSection', Trim(Line)) = 1) and
         (Length(Trim(Line)) = Length(OVER_STATE + 'endSection')) then
+      begin
+        TStringList(FSections.Objects[FSections.IndexOf(Part)]).Add('@tokenEnclosers:{}');
         SectionOpen := False
+      end
       else if SectionOpen then
         TStringList(FSections.Objects[FSections.IndexOf(Part)]).Add(Line)
       else
