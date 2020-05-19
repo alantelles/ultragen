@@ -329,12 +329,12 @@ end;
 procedure TTemplate.SetGuessTokenEnclosers;
 begin
   if (lowercase(FOverrides.Extension) = '.css') or
-     (lowercase(FOverrides.Extension) = '.json') then
+     (lowercase(FOverrides.Extension) = '.json') or
+     (lowercase(FOverrides.Extension) = '.js') then
   begin
     FTokenOpen := '<';
     FTokenClose := '>';
-  end
-  else if
+  end;
 end;
 
 procedure TTemplate.ParseTokens(indexes: array of integer; var AParams:TStringList);
