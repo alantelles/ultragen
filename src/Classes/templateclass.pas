@@ -250,6 +250,7 @@ type
     function RequestRestPost(var Params: TStringList; var PureParams: TStringList):string;
     //end web procedures
     function MapElem(var Params:TStringList;var PureParams:TStringList):string;
+    procedure EachElem(var Params:TStringList;var PureParams:TStringList);
     { parei a mudança de parse aqui }
     procedure StartFunction(var Params: TStringList; var PureParams: TStringList;
       HasRet: boolean);
@@ -2178,7 +2179,7 @@ begin
 
       //end init
       'POC' : POC(PureParams, Params);
-      'each' : WriteLn('TODO');
+      'each' : EachElem(Params, PureParams);
       'callProc':
       begin
         ParseTokens([0], Params);
@@ -2263,6 +2264,41 @@ begin
     FuserFunctions[Length(FUserFunctions) - 1].Lines.Count - 1
     );
   FAddToFunction := False;
+end;
+
+procedure TTemplate.EachElem(var Params:TStringList;var PureParams:TStringList);
+// syntax
+// each: [listable], [separator], procname(Pure), params
+var
+  LParams:TStringList;
+  AProc, AList, ASep: string;
+  i: integer;
+begin
+  ParseTokens([0, 1], Params);
+  AList := Params[0];
+  ASep := Params[1];
+  Aproc := PureParams[2];
+  PureParams.Delete(0); // drop list
+  PureParams.Delete(0); // drop sep
+  PureParams.Delete(0); // drop proc
+  PureParams.LineBreak := ',';
+  LParams := TStringList.Create;
+  Lparams.SkipLastLineBreak := True;
+  LParams.StrictDelimiter := True;
+  LParams.Delimiter := ASep[1];
+  LParams.DelimitedText := AList;
+  if LParams.Count > 0 then
+  begin
+    for i:=0 to LParams.Count - 1 do
+    begin
+      SetVariable('elem', Lparams[i]);
+      SetVariable('elem.i', IntToStr(i));
+      SetPredefined(AProc, PureParams.Text);
+    end;
+  end;
+  DropVariable('elem');
+  DropVariable('elem.i');
+  LParams.Free;
 end;
 
 function TTemplate.MapElem(var Params:TStringList; var PureParams:TStringList):string;

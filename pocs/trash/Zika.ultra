@@ -1,0 +1,9 @@
+proc: addKey, key, value
+    setValue: "teste", key, value
+endProc
+
+l = "item1!item2!item3"
+createGen: "teste"
+each: l, "!", addKey, ++(elem.i), upper(elem)
+print: join("\n", ..."teste")
+saveGen: "teste", "teste.gen"
