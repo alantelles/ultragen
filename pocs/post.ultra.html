@@ -1,2 +1,8 @@
-@live:'<pre>'
-@live: $request._post.name
+@section:content
+    <div>
+        {{ 'robert o\'hara' }}
+    </div>
+@endSection
+
+
+@$content.main = section('content')

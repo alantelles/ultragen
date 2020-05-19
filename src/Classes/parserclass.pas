@@ -92,8 +92,11 @@ begin
         if (c = 'n') then
           outStr := outStr + sLineBreak
         else if (c = 't') then
-          outStr := outStr + #9;
-        last := '';
+          outStr := outStr + #9
+        else
+          outStr := outStr + c;
+        last := ''
+
       end
       else
       begin
@@ -403,11 +406,11 @@ begin
     for APair in AGen.Pairs do
     begin
       if Opt = SPREAD_KEYS then
-        ArgsOut.Add(STR_ENCLOSE+APair.Key+STR_ENCLOSE)
+        ArgsOut.Add(STR_ENCLOSE+ReplaceStr(APair.Key, STR_ENCLOSE, ESCAPER+STR_ENCLOSE)+STR_ENCLOSE)
       else if Opt = SPREAD_VALUES then
-        ArgsOut.Add(STR_ENCLOSE+APair.Value+STR_ENCLOSE)
+        ArgsOut.Add(STR_ENCLOSE+ReplaceStr(APair.Value, STR_ENCLOSE, ESCAPER+STR_ENCLOSE)+STR_ENCLOSE)
       else if Opt = SPREAD_PAIRS then
-        ArgsOut.Add(STR_ENCLOSE+APair.Key+AGen.GenSeparator+APair.Value+STR_ENCLOSE);
+        ArgsOut.Add(STR_ENCLOSE+ReplaceStr(APair.Key, STR_ENCLOSE, ESCAPER+STR_ENCLOSE)+AGen.GenSeparator+ReplaceStr(APair.Value, STR_ENCLOSE, ESCAPER+STR_ENCLOSE)+STR_ENCLOSE);
     end;
   end;
 end;
@@ -562,7 +565,7 @@ var
   i: integer;
   StrOpen, tkOpen, Maybe, EscapeNext: boolean;
   Return: TParseResult;
-
+  NowStrEnclose: string = '';
 begin
 
   StrOpen := F;
@@ -574,6 +577,11 @@ begin
   for i := 1 to length(Line) do
   begin
     k := Line[i];
+    if (NowStrEnclose = '') then
+    begin
+      if (k = D_STR_ENCLOSE) or (k = STR_ENCLOSE) then
+        NowStrEnclose := k;
+    end;
     if (Line[i] = ESCAPER) and (not EscapeNext) and (not StrOpen) then
     begin
       EscapeNext := V;
@@ -607,9 +615,11 @@ begin
       Token := '';
       continue;
     end;
-    if (Line[i] = STR_ENCLOSE) and tkOpen then
+    if (Line[i] = NowStrEnclose) and tkOpen and (not EscapeNext) then
     begin
       StrOpen := not StrOpen;
+      if not StrOpen then
+        NowStrEnclose := '';
     end;
     if (Expected = ANY) and (Line[i] = FTemplate.TokenOpen) and (not StrOpen) then
     begin
@@ -884,6 +894,8 @@ var
   FuncLevel, i, GenIndex: integer;
   Part, z, ToIns: string;
   Spreads:array[0..4] of string;
+  NowStr: string = '';
+  NowStrEncloser:string = '';
 begin
   FuncLevel := 0;
   StrOpen := False;
@@ -895,17 +907,38 @@ begin
   for i := 1 to Length(AList) do
   begin
     z := AList[i];
-    if (AList[i] = ESCAPER) and (not Escaping) and (not StrOpen) then
-    begin
-      Escaping := True;
-    end;
+
     if not Escaping then
     begin
+      if (AList[i] = ESCAPER) {and (not Escaping) and (not StrOpen)} then
+      begin
+        Escaping := True;
+        Part := Part + AList[i];
+        continue;
+      end;
+    end
+    else
+    begin
+      Part := Part + AList[i];
+      Escaping := False;
+      continue
+    end;
 
-      if (AList[i] = STR_ENCLOSE) then
+    if True then
+    begin
+      if (NowStrEncloser = '') then
+      begin
+        if (AList[i] = STR_ENCLOSE) then
+          NowStrEncloser := STR_ENCLOSE;
+        if (AList[i] = D_STR_ENCLOSE) then
+          NowStrEncloser := D_STR_ENCLOSE;
+      end;
+      if (AList[i] = NowStrEncloser) then
       begin
         LastStrOpen := StrOpen;
         StrOpen := not StrOpen;
+        if not StrOpen then
+          NowStrEncloser := '';
         Part := Part + AList[i];
         continue;
       end;

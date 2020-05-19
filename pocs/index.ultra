@@ -5,6 +5,5 @@ if: eq(route, '')
     route = 'form'
 endIf
 template = concat(route, ext)
-print: template, ':', page
 include: template, page
-include: dirSep('base.ultra.html')
+include: 'base.ultra.html'

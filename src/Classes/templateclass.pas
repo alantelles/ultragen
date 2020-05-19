@@ -262,6 +262,7 @@ type
     function FindFunction(AnAlias:string):integer;
     function ExecuteFunction(FuncName: string; HasRet: boolean;
       var Params: TStringList): string;
+    procedure SetGuessTokenEnclosers;
     procedure POC(PureParams, Params:TStringList);
 
     destructor Destroy; override;
@@ -322,6 +323,18 @@ begin
     FFullName := ExpandFileName(ATempName);
     Load(FFullName);
   end;
+  SetGuessTokenEnclosers;
+end;
+
+procedure TTemplate.SetGuessTokenEnclosers;
+begin
+  if (lowercase(FOverrides.Extension) = '.css') or
+     (lowercase(FOverrides.Extension) = '.json') then
+  begin
+    FTokenOpen := '<';
+    FTokenClose := '>';
+  end
+  else if
 end;
 
 procedure TTemplate.ParseTokens(indexes: array of integer; var AParams:TStringList);
