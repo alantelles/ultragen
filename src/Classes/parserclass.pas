@@ -50,6 +50,7 @@ type
     function GetTimeStr(AToken: string): string;
     function ParseParams(AList: string; var ArgsAsList: TStringList): TTempParser;
     function PrintSection(ASection: string): string;
+    function PrintSections(NamePart:string; Position:integer): string;
     function ParseFunction(AFuncName: string; var Params: TStringList; var PureParams: TStringList): string;
     //function InsertTemplate(ATempName, AgenName: string): string;
     //function InsertTemplate(ATempName: string): string;
@@ -509,6 +510,39 @@ begin
   Line := ATemplate.ParsedLines.Text;
   OutputParsed.Free;
   Result := Line;
+end;
+
+function TTempParser.PrintSections(NamePart:string; Position:integer): string;
+var
+  sec, Return: string;
+  NamePos:integer;
+  endsWith, startsWith, contains:boolean;
+  RetLines:TStringList;
+begin
+  // 0 : suffix
+  // 1 : prefix
+  // 2 : contains
+  // 3 : all
+  RetLines := TStringList.Create;
+  RetLines.SkipLastLineBreak := True;
+  for sec in FTemplate.Sections do
+  begin
+    NamePos := Pos(NamePart, sec);
+    if (Position <> 3) and (NamePos = 0) then
+      continue;
+    // teste
+    // teste.css 6,
+    endsWith := (Position = 0) and (Copy(sec, NamePos, Length(sec)) = NamePart);
+    startsWith := (Position = 1) and (Copy(sec, 1, Length(NamePart)) = NamePart);
+    contains :=  (Position = 2);
+    if endsWith or startsWith or contains or (Position = 3) then
+    begin
+      RetLines.Add(PrintSection(sec));
+    end;
+  end;
+  Return := RetLines.Text;
+  RetLines.Free;
+  Result := Return;
 end;
 
 function TTempParser.InSet(c, chars:string; allowed:boolean):boolean;
@@ -1240,6 +1274,21 @@ begin
       Return := InsertTemplate(Params, PureParams)
     else if (AFuncName = 'section') and (Params.Count = 1) then
       Return := PrintSection(Params[0])
+    else if (AFuncName = 'sections') and (Params.Count = 0) then
+      Return := PrintSections('', 3)
+    else if (AFuncName = 'sections') and (Params.Count = 1) then
+      Return := PrintSections(Params[0], 0)
+    else if (AFuncName = 'sections') and (Params.Count = 2) then
+    begin
+      if Params[1] = 'suffix' then
+        Return := PrintSections(Params[0], 0)
+      else if Params[1] = 'prefix' then
+        Return := PrintSections(Params[0], 1)
+      else if Params[1] = 'contains' then
+        Return := PrintSections(Params[0], 2)
+      else
+        Return := PrintSections(Params[0], 0);
+    end
     else if (AFuncName = 'text') and (Params.Count = 1) then
       Return := PrintPlainText(Params[0])
     else if (AFuncName = 'file') and (Params.Count = 1) then

@@ -1,0 +1,13 @@
+@section: secao1.css
+esta eh a secao 1
+@endSection
+
+@section: secao2.css
+esta eh a secao 2
+@endSection
+
+@section: icantwaoit
+don't because cause i can't wait
+@endSection
+
+{{ sections("it") }}

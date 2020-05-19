@@ -1,5 +1,0 @@
-@color = "black,white,brown"
-
-{
-    "colors": [<< map(color, concat('\"', elem, '\"')) >>]
-\}

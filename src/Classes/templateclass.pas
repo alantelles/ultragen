@@ -1868,7 +1868,7 @@ begin
       else if Pos(OVER_STATE + 'section' + OVER_ASSOC, Trim(Line)) = 1 then
       begin
         SectionOpen := True;
-        Part := Copy(Line, Pos(OVER_ASSOC, Line) + Length(OVER_ASSOC), Length(Line));
+        Part := Trim(Copy(Line, Pos(OVER_ASSOC, Line) + Length(OVER_ASSOC), Length(Line)));
         SectionLines := TStringList.Create;
         FSections.AddObject(Part, SectionLines);
       end
@@ -2162,6 +2162,7 @@ begin
 
       //end init
       'POC' : POC(PureParams, Params);
+      'each' : WriteLn('TODO');
       'callProc':
       begin
         ParseTokens([0], Params);

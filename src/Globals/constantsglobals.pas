@@ -34,7 +34,7 @@ const
   AS_STRING = True;
   GEN_FILES_CALL_SEP = '|';
   SCRIPT_MODE_ENTER = '@{';
-  SCRIPT_MODE_EXIT = '}';
+  SCRIPT_MODE_EXIT = '@}';
   GEN_SUB_LEVEL = '.';
   ARROW_OPER = '^';
 
