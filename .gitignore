@@ -13,6 +13,7 @@
 *.a
 *.bat
 
+ultragen_fcgi
 ultragen
 ultragen-web
 ultragen-web-nodebug
