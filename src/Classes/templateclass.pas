@@ -2083,12 +2083,14 @@ begin
       'copy': TempFileCopy(Params);
       'del' :
       begin
+        ParseTokens([], Params);
         EFileError.Create(E_FILE_NOT_FOUND,ErrorLocation,Params[0]).TestFileExists.ERaise(False);
         SysUtils.DeleteFile(Params[0]);
       end;
 
       'mkdir':
       begin
+        ParseTokens([], Params);
         if Params.Count = 1 then
           CreateDirTree(Params[0], False)
         else if (Params.Count = 2) then
@@ -2101,6 +2103,7 @@ begin
       end;
       'rmdir':
       begin
+        ParseTokens([], Params);
         if Params.Count = 1 then
           RemoveDir(Params[0])
         else if (Params.Count = 2) then
@@ -2156,6 +2159,7 @@ begin
       'responseType': FWebVars.Response.ContentType := Params[0];
       'responseCode':
       begin
+        ParseTokens([], Params);
         FWebVars.Response.Code := StrToInt(Params[0]);
         if Params.Count > 1 then
           FWebVars.Response.CodeText := Params[1];
