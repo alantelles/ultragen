@@ -161,6 +161,7 @@ type
     property ReturnValue: string read FReturnValue;
     procedure ParseTokens(indexes: array of integer; var AParams:TStringList);
 
+    function IsVarSet(VarName:string):boolean;
     function Name: string;
     function SetPredefined(AKey, AValue: string): boolean;
     function Load(ATempName: string): TTemplate;
@@ -373,6 +374,22 @@ begin
     end;
   end;
   AParser.Free;
+end;
+
+function TTemplate.IsVarSet(VarName:string):boolean;
+var
+  APair: TKVPair;
+  Return: boolean = False;
+begin
+  for APair in FVariables do
+  begin
+    if APair.Key = VarName then
+    begin
+      Return := True;
+      break;
+    end;
+  end;
+  Result := Return;
 end;
 
 procedure TTemplate.POC(PureParams, Params:TStringList);

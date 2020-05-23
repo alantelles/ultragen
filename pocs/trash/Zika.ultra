@@ -1,4 +1,6 @@
-a = "oneline\notherline"
-b = "\nthis {{ 'inside' }} is another"
-c = "{{ a, b }}"
-print: c
+b = "baholeros"
+if: isset('b')
+    print: "b existe"
+else
+    print: "b nao existe"
+endIf

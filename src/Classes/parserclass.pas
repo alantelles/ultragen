@@ -1264,13 +1264,10 @@ begin
     end
 
     { Interaction manipulations }
-    {else if (AFuncName = 'insert') and (Params.Count = 2) then
-      Return := InsertTemplate(Params[0], Params[1])
-    else if (AFuncName = 'insert') and (Params.Count = 1) then
+    else if (AFuncName = 'isset') and (Params.Count = 1) then
     begin
-      a := Params[0];
-      Return := InsertTemplate(Params[0]);
-    end                               }
+      Return := BooleanToStr(FTemplate.IsVarSet(Params[0]))
+    end
     else if (AFuncName = 'render') and (Params.Count > 0) then
       Return := InsertTemplate(Params, PureParams)
     else if (AFuncName = 'section') and (Params.Count = 1) then
