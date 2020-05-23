@@ -21,6 +21,8 @@ var
   FILES_SECURE_SEP:string = '|';
   OVER_EXTRA:string = '>';
   COMMENT_TOKEN:string = '#';
+  COMMENT_OPEN:string = '###';
+  COMMENT_CLOSE:string = '###!';
   DEF_IF_NOT:string = '';
   MAX_TRIES:integer = 40;
   PROCESSORS_FOLDER:string = 'Processors';

@@ -1750,11 +1750,13 @@ begin
       LineTrim := Trim(FTemplate.TempLines[i]);
       if Length(LineTrim) > 0 then
       begin
+
         if (Copy(LineTrim, 1, Length(COMMENT_TOKEN)) = COMMENT_TOKEN) or
-          (LineTrim = RepeatStr(COMMENT_TOKEN, 3)) or (FTemplate.CommentBlock) then
+          (LineTrim = COMMENT_OPEN) or (FTemplate.CommentBlock) then
         begin
-          if LineTrim = RepeatStr(COMMENT_TOKEN, 3) then
-            FTemplate.CommentBlock := not FTemplate.CommentBlock;
+          FTemplate.CommentBlock := True;
+          if LineTrim = COMMENT_CLOSE then
+            FTemplate.CommentBlock := False;
           i := i + 1;
           continue;
         end;
