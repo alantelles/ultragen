@@ -1,6 +1,4 @@
-a = "baholeros"
-print: "antes comm"
-###
-print: a
-###!
-print: "depois comm"
+createGen: 'res', 'connection.gen'
+groupKeys: "res", "session", "session"
+print: $session.path
+print: $session.key

@@ -224,6 +224,7 @@ type
     procedure SetGenName(var Params: TStringList);
     procedure MapGenKeys(var Params: TStringList; DoMap: boolean);
     procedure GroupKeys(var Params: TStringList);
+    procedure GroupKeysRaw(var Params: TStringList; DoParse:boolean=True);
     procedure CaptureGen(var Params: TStringList);
     // end gen file handling
     //queue procs
@@ -1042,6 +1043,13 @@ begin
 end;
 
 procedure TTemplate.GroupKeys(var Params: TStringList);
+begin
+  ParseTokens([], Params);
+  Params[1] := Params[1] + GEN_SUB_LEVEL;
+  GroupKeysRaw(Params, False);
+end;
+
+procedure TTemplate.GroupKeysRaw(var Params: TStringList; DoParse:boolean=True);
 var
   i:integer;
   APair: TKVPair;
@@ -1050,7 +1058,8 @@ var
   //groupKeys+mapGenKeys: 'genAlias', 'prefix', 'newAlias', 'varPrefix', 'destroyAfter'
    Errorlocation:TErrorLocation;
 begin
-  ParseTokens([], Params);
+  if DoParse then
+    ParseTokens([], Params);
   with ErrorLocation do
   begin
     LineNumber := FLineNumber;
@@ -2133,6 +2142,7 @@ begin
       'mapGenKeys': MapGenKeys(Params, True);
       'dropGenMap': MapGenKeys(Params, False);
       'groupKeys': GroupKeys(Params);
+      'groupKeysRaw': GroupKeysRaw(Params);
       'lockGenPairs' :
       begin
         ParseTokens([], Params);
