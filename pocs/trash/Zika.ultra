@@ -1,4 +1,4 @@
-createGen: 'res', 'connection.gen'
-groupKeys: "res", "session", "session"
-print: $session.path
-print: $session.key
+a = "oneline\notherline"
+b = "\nthis {{ 'inside' }} is another"
+c = "{{ a, b }}"
+print: c
