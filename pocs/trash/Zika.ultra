@@ -1,6 +1,6 @@
-b = "baholeros"
-if: isset('b')
-    print: "b existe"
-else
-    print: "b nao existe"
-endIf
+# teste
+###
+bloco de comentários
+###!
+a = "Esta string será interpolada"
+b = "Inter: {{ a }}"

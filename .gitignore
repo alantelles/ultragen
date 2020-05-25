@@ -35,3 +35,7 @@ lib/
 
 # Application bundle for Mac OS
 *.app/
+
+
+# ruby files to test synhil
+*.rb
