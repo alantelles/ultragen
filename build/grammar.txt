@@ -1,0 +1,60 @@
+INTEGER : {Number}+
+FLOAT : {Number}+ '.' {Number}+
+ID : {letter}+{alpha}
+
+factor : PLUS factor
+    | MINUS factor 
+    | NOT factor
+    | FLOAT 
+    | INTEGER 
+    | LPAREN LogicEval RPAREN
+    | variable
+    | string
+    | boolean
+
+string : S_QT {printable-newline} S_QT
+    | D_QT {printable-newline} D_QT
+    | LONG_QT {printable} LONG_QT
+
+term : factor 
+    | term (MULT|DIV) factor
+
+
+expr : term 
+    | expr (PLUS|MINUS) term
+
+logicExpr : expr
+    | logicExpr (AND|OR) expr
+
+logicEval : logicExpr 
+    | logicEval (GT|LT|GEQ|LEQ|EQ|NEQ) logicExpr
+
+
+program : statements
+
+statements : statement | statement nl statements
+
+statement : assignment 
+    | functionBlock
+    | funcCall
+    |
+
+funcCall : ID LPAREN args RPAREN
+
+args : logicEval | logicEval COMMA args
+
+functionBlock : 'function' ID LPAREN defParams RPAREN statements 'end'
+
+defParams: defParam | defParam COMMA defParams
+
+defParam: ID
+
+inBlockStatements : inBlockStatement | inBlockStatement nl inBlockStatements
+
+inBlockStatement : assignment
+
+assignment : variable '=' logicEval
+
+variable : ID
+
+boolean : 'true' | 'false'
