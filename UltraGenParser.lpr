@@ -26,6 +26,7 @@ begin
   LogLevel := '';
   clrscr;
   DecimalSeparator := '.';
+
   if ParamCount > 0 then
   begin
     if ParamCount > 1 then
@@ -33,7 +34,9 @@ begin
       if ParamStr(2) = '--debug' then
         LogLevel := DEBUG
       else if ParamStr(2) = '--inter' then
-        LogLevel := INTER;
+        LogLevel := INTER
+      else if ParamStr(2) = '--parser' then
+        LogLevel := 'PARSER';
     end;
     ASource := TStringList.Create;
     ASource.SkipLastLineBreak := False;
@@ -44,7 +47,7 @@ begin
     ABuilder := TSymbolTablebuilder.Create(ATree);
     //ABuilder.Interpret;
     AInter := TInterpreter.Create(ATree);
-    // AOut := AInter.Interpret;
+    AOut := AInter.Interpret;
     // AInter.Free;
 
   end

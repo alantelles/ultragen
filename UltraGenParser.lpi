@@ -31,7 +31,7 @@
         <PackageName Value="LazUtils"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="20">
+    <Units Count="22">
       <Unit0>
         <Filename Value="UltraGenParser.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -131,6 +131,16 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="ARClass"/>
       </Unit19>
+      <Unit20>
+        <Filename Value="src\Core\corefunctionsclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="CoreFunctionsClass"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="src\Utils\coreutils.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="CoreUtils"/>
+      </Unit21>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -141,7 +151,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="src\Units;src\ASTs;src\Symbols;src\Exceptions;src\ActRecords"/>
+      <OtherUnitFiles Value="src\Units;src\ASTs;src\Symbols;src\Exceptions;src\ActRecords;src\Core;src\Utils"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
   </CompilerOptions>

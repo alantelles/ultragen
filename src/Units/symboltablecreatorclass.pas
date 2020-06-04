@@ -8,11 +8,12 @@ uses
       Classes, SysUtils, ASTClass,
       BinOpClass, NumClass, UnaryOpClass, BinLogicOpClass, UnaryLogicopClass,
       Tokens, ImpParserClass, StrUtils, LoggingClass,
-      SymbolTableClass, SymbolsClass;
+      SymbolTableClass, SymbolsClass, CoreFunctionsClass;
 
 type
   TSymbolTableBuilder = class
     private
+      FCore:TCoreFunction;
       FCurrentScope: TSymbolTable;
       FTree: TAST;
     public
@@ -29,8 +30,8 @@ type
       function VisitVarAssign(ANode: TVarAssign):extended;
       procedure VisitVariableReference(ANode: TVariableReference);
       function VisitBinOp(ANode:TBinOp):Extended;
-      function VisitBinLogicOp(ANode: TBinLogicOp): boolean;
-      function VisitNum(ANode:TNum):Extended;
+      function VisitBinLogicOp(ANode: TBinLogicOp):boolean;
+      function VisitNum(ANode:TNumFloat):Extended;
       function VisitUnaryOp(ANode: TUnaryOp):Extended;
       function VisitUnaryLogicOp(ANode: TUnaryLogicOp):boolean;
       function VisitString(ANode: TString):Extended;
@@ -52,6 +53,7 @@ end;}
 
 constructor TSymbolTableBuilder.Create(var ATree: TAST);
 begin
+  FCore := TCoreFunction.Create;
   Visit(ATree);
 end;
 
@@ -82,6 +84,7 @@ begin
   logdebug('Entering scope ---->'+ uppercase(ASymbolTable.PParentScope.PScope)+'/'+ uppercase(ASymbolTable.PScope), 'SymbolTableBuilder');
   for AIter in ANode.PParamList do
   begin
+    LogDebug('Adding parameter ' +TVarAssign(AIter).PVarName.PValue+ ' to symbol table', 'SymbolTableBuilder');
     AVar := TVariableSymbol.Create(TVarAssign(AIter).PVarName.PValue);
     FCurrentScope.Define(AVar);
   end;
@@ -100,7 +103,9 @@ var
 begin
   LogText(DEBUG, 'SymbolTableBuilder', 'VarAssign visitation');
   AVarSym := TVariableSymbol.Create(ANode.PVarName.PValue);
-  if ANode.PValue.PToken.PType = T_ID then
+  if ANode.PValue.ClassNameIs('TFunctionCall') then
+    VisitFunctionCall(TFunctionCall(ANode.PValue))
+  else if ANode.PValue.PToken.PType = T_ID then
     VisitVariableReference(TVariableReference(Anode.PValue))
   else
     Visit(ANode.PValue);
@@ -129,12 +134,23 @@ begin
   ASymb := TProcedureSymbol(FCurrentScope.Lookup(ANode.PToken.PValue));
   {for AnArg in Anode.PEvalParams do
     logdebug('Showing arg '+AnArg.PToken.PValue+' from '+ANode.PToken.PValue, 'SymbolTableBuilder');}
-  if ASymb = nil then
-    raise ESemanticError.Create(ANode.PToken.PValue + ' function doesn''t exists');
-  if Length(ASymb.PParams) <> Length(ANode.PEvalParams) then
-    raise ESemanticError.Create('Wrong number of parameters for calling '+ANode.PToken.PValue);
-  for AnArg in ANode.PEvalParams do
-    Visit(AnArg);
+  if ANode.ClassNameIs('TFunctionCall') and  FCore.FunctionExists(ANode.PToken.PValue) then
+  begin
+
+	end
+  else if ANode.ClassNameIs('TVarAssign') and  FCore.FunctionExists(ANode.PToken.PValue) then
+  begin
+
+	end
+	else if ASymb = nil then
+    raise ESemanticError.Create(ANode.PToken.PValue + ' function doesn''t exists')
+  else
+  begin
+  	if Length(ASymb.PParams) <> Length(ANode.PEvalParams) then
+      raise ESemanticError.Create('Wrong number of parameters for calling '+ANode.PToken.PValue);
+    for AnArg in ANode.PEvalParams do
+      Visit(AnArg);
+	end;
 
 
 end;
@@ -188,8 +204,13 @@ begin
   end
   else if ANode.ClassNameIs('TVarAssign') then
     Result := VisitVarAssign(TVarAssign(ANode))
-  {else if Anode.ClassNameIs('TNum') then
-    Result := VisitNum(TNum(ANode))
+  else if ANode.ClassNameIs('TVariableReference') then
+  begin
+    VisitVariableReference(TVariableReference(Anode));
+    Result := 1;
+	end;
+	{else if Anode.ClassNameIs('TNum') then
+    Result := VisitNum(TNumFloat(ANode))
   else if ANode.ClassNameIs('TUnaryOp') then
     Result := VisitUnaryOp(TUnaryOp(ANode))
   else if ANode.ClassNameIs('TBinOp') then
@@ -209,7 +230,7 @@ begin
       Result := 1
     else
       Result := 0;
-  end};
+  end;}
 end;
 
 function TSymbolTableBuilder.VisitString(ANode: TString):Extended;
@@ -249,8 +270,8 @@ var
   AuxBool, LeftBool, RightBool:boolean;
 begin
 
-  if ANode.PLeft.ClassNameIs('TNum') then
-    LeftRes := VisitNum(TNum(ANode.PLeft))
+  if Anode.ClassNameIs('TNumFloat') then
+    LeftRes := VisitNum(TNumFloat(ANode))
   else if ANode.PLeft.ClassNameIs('TUnaryOp') then
     LeftRes := VisitUnaryOp(TUnaryOp(ANode.PLeft))
   else if ANode.PLeft.ClassNameIs('TBinOp') then
@@ -273,7 +294,7 @@ begin
   end;
 
   if ANode.PRight.ClassNameIs('TNum') then
-    RightRes := VisitNum(TNum(ANode.PRight))
+    RightRes := VisitNum(TNumFloat(ANode.PRight))
   else if ANode.PRight.ClassNameIs('TUnaryOp') then
     RightRes := VisitUnaryOp(TUnaryOp(ANode.PRight))
   else if ANode.PRight.ClassNameIs('TBinOp') then
@@ -323,7 +344,7 @@ var
 begin
 
   if ANode.PLeft.ClassNameIs('TNum') then
-    LeftRes := VisitNum(TNum(ANode.PLeft))
+    LeftRes := VisitNum(TNumFloat(ANode.PLeft))
   else if ANode.PLeft.ClassNameIs('TUnaryOp') then
     LeftRes := VisitUnaryOp(TUnaryOp(ANode.PLeft))
   else if ANode.PLeft.ClassNameIs('TBinOp') then
@@ -338,7 +359,7 @@ begin
   end;
 
   if ANode.PRight.ClassNameIs('TNum') then
-    RightRes := VisitNum(TNum(ANode.PRight))
+    RightRes := VisitNum(TNumFloat(ANode.PRight))
   else if ANode.PRight.ClassNameIs('TUnaryOp') then
     RightRes := VisitUnaryOp(TUnaryOp(ANode.PRight))
   else if ANode.PRight.ClassNameIs('TBinOp') then
@@ -366,7 +387,7 @@ begin
     Result := LeftRes / RightRes;
 end;
 
-function TSymbolTableBuilder.VisitNum(ANode:TNum):Extended;
+function TSymbolTableBuilder.VisitNum(ANode:TNumFloat):Extended;
 begin
 
   Result := ANode.PValue.ToExtended;

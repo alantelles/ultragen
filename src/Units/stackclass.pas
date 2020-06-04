@@ -14,8 +14,10 @@ type
   TStack = class
     private
       FItems:TARList;
+      FLevel: integer;
     public
       property PItems: TARList read FItems;
+      property PLevel: integer read FLevel write FLevel;
       constructor Create;
       procedure Push(AActRec: TActivationRecord);
       function Pop: TActivationRecord;
@@ -28,6 +30,7 @@ implementation
 constructor TStack.Create;
 begin
   SetLength(FItems, 0);
+  FLevel := 0
 end;
 
 function TStack.AsString:string;
@@ -59,6 +62,7 @@ begin
   begin
     Ret := FItems[len - 1];
     SetLength(FItems, len - 1);
+    FLevel := FLevel - 1;
   end;
   Result := Ret;
 end;
@@ -82,6 +86,7 @@ var
 begin
   len := Length(FItems);
   SetLength(FItems, Len+1);
+  FLevel := FLevel + 1;
   FItems[len] := AActRec;
 end;
 

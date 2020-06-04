@@ -40,7 +40,9 @@ begin
   FLevel := AScopeLevel;
   FParentScope := AParentScope;
   if FParentScope = nil then
+  begin
     SetBuiltins;
+	end;
 end;
 
 function TSymbolTable.Define(ASymbol: TSymbol):boolean;
@@ -63,8 +65,11 @@ begin
   FSymbols.Add(TYPE_INTEGER, TBuiltinSymbol.Create(TYPE_INTEGER));
   FSymbols.Add(TYPE_FLOAT, TBuiltinSymbol.Create(TYPE_FLOAT));
   FSymbols.Add(TYPE_STRING, TBuiltinSymbol.Create(TYPE_STRING));
+  FSymbols.Add(TYPE_BOOLEAN, TBuiltinSymbol.Create(TYPE_BOOLEAN));
   FSymbols.Add(T_FUNC_DEF, TBuiltinSymbol.Create(T_FUNC_DEF));
+
 end;
+
 
 procedure TSymbolTable.SymbolAsString(AItem: TObject;const AName:string; var Cont:boolean);
 var

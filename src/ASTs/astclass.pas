@@ -67,6 +67,14 @@ type
       constructor Create(AToken: TToken);
   end;
 
+  TNull = class(TAST)
+    protected
+      FValue: string;
+    public
+      property PValue:string read FValue write FValue;
+      constructor Create(AToken: TToken);
+  end;
+
   TBoolean = class (TAST)
     protected
       FValue: string;
@@ -110,6 +118,13 @@ end;
 constructor TString.Create(AToken: TToken);
 begin
   logdebug('Creating a string node', 'AST');
+  FToken := AToken;
+  FValue := AToken.PValue;
+end;
+
+constructor TNull.Create(AToken: TToken);
+begin
+  logdebug('Creating a null node', 'AST');
   FToken := AToken;
   FValue := AToken.PValue;
 end;

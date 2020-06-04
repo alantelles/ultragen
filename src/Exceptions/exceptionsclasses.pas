@@ -11,6 +11,7 @@ type
   ELexicalError = class (Exception) end;
   EParserError = class (Exception) end;
   ESemanticError = class (Exception) end;
+  ERunTimeError = class (Exception) end;
 
 implementation
 

@@ -1,0 +1,4 @@
+print('aqui é comentário')
+# it's a comment
+
+print('now the program continues')

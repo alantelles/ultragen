@@ -12,9 +12,11 @@ const
   TYPE_FLOAT = 'FLOAT';      
   TYPE_STRING = 'STRING';
   TYPE_BOOLEAN = 'BOOLEAN';
+  TYPE_NULL = 'NULL';
 
-  T_LANG_TRUE = 'true';
-  T_LANG_FALSE = 'false';
+  T_LANG_TRUE = 'True';
+  T_LANG_FALSE = 'False';
+  T_LANG_NULL = 'Null';
   T_PLUS = 'T_PLUS'; T_MINUS = 'T_MINUS'; T_MULT = 'T_MULT'; T_DIV = 'T_DIV';
   T_INT_DIV = 'T_INT_DIV'; T_MODULUS = 'T_MODULUS';
   T_REF_INC = 'T_REFERENTIAL_INC'; T_REF_DEC = 'T_REFERENTIAL_DEC';
@@ -43,6 +45,8 @@ const
   SET_NUMBERS = '0123456789.';
   LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz';
   T_NEWLINE = 'T_NEWLINE';
+  T_COMMENT = 'T_COMMENT';
+  T_LINE_COMMENT = '#';
 
 var
   ReservedWords: TFPObjectHashTable;

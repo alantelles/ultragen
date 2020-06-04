@@ -7,7 +7,15 @@ interface
 uses
       Classes, SysUtils, ASTClass, TokenClass, Tokens;
 type
-  TNum = class (TAST)
+  TNumInt = class (TAST)
+    protected
+      FValue: string;
+    public
+      property PValue: string read FValue write FValue;
+      constructor Create(AToken: TToken);
+	end;
+
+  TNumFloat = class (TAST)
     protected
       FValue: string;
     public
@@ -17,7 +25,13 @@ type
 
 implementation
 
-constructor TNum.Create(AToken: TToken);
+constructor TNumInt.Create(AToken: TToken);
+begin
+  FToken := AToken;
+  FValue := AToken.PValue;
+end;
+
+constructor TNumFloat.Create(AToken: TToken);
 begin
   FToken := AToken;
   FValue := AToken.PValue;

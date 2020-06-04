@@ -26,6 +26,7 @@ type
     function GetNextToken: TToken;
     function GetId: TToken;
     function GetNumber: string;
+    function PassLineComment: string;
     function GetString(Delim:string):TToken;
   end;
 
@@ -42,6 +43,21 @@ begin
   FLineChar := 1;
   FCurrChar := FText[FPos];
   FScopeType := TStringList.Create;
+end;
+
+function TLexer.PassLineComment: string;
+begin
+  {$IFDEF Unix}
+  while FCurrChar <> SLineBreak do
+  begin
+    Advance();
+	end;
+  {$ENDIF}
+  {$IFDEF Windows}
+  while (FCurrChar + Peek(1)) <> SLineBreak do
+    Advance();
+  {$ENDIF}
+  Result := '';
 end;
 
 function TLexer.Peek(Ahead:integer = 1):string;
@@ -178,6 +194,13 @@ begin
       exit
     end;
 
+    if (FCurrChar = T_LINE_COMMENT) then
+    begin
+      Advance;
+      Result := TToken.Create(T_COMMENT, PassLineComment);
+      exit
+    end;
+
     if (FCurrChar + Peek(3)) = T_LANG_TRUE then
     begin
       Advance(4);
@@ -189,6 +212,13 @@ begin
     begin
       Advance(5);
       Result := TToken.Create(TYPE_BOOLEAN, T_LANG_FALSE);
+      exit
+    end;
+
+    if (FCurrChar + Peek(3)) = T_LANG_NULL then
+    begin
+      Advance(4);
+      Result := TToken.Create(TYPE_NULL, T_LANG_NULL);
       exit
     end;
 
@@ -231,16 +261,28 @@ begin
       Result := TToken.Create(T_ASSIGN, '=');
       exit
     end;
-
-    if (FCurrChar = #13) and (Peek(1) = #10)  then
+    {$IFDEF UNIX}
+    if (FCurrChar = sLineBreak)  then
+    begin
+      Advance;
+      FScriptLine := FScriptLine + 1;
+      FLineChar := 1;
+      Result := TToken.Create(T_NEWLINE, sLineBreak);
+      exit
+    end;
+    {$ENDIF}
+    {$IFDEF Windows}
+    if (FCurrChar + Peek(1)) = sLineBreak  then
     begin
       Advance;
       Advance;
       FScriptLine := FScriptLine + 1;
       FLineChar := 1;
-      Result := TToken.Create(T_NEWLINE, #13#10);
+      Result := TToken.Create(T_NEWLINE, sLineBreak);
       exit
     end;
+    {$ENDIF}
+
 
     // leq, geq, neq
     if (FCurrChar = '<') and (Peek = '=') then

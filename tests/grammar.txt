@@ -11,6 +11,8 @@ factor : PLUS factor
     | variable
     | string
     | boolean
+    | funcCall
+    | null
 
 string : S_QT {printable-newline} S_QT
     | D_QT {printable-newline} D_QT
@@ -37,7 +39,10 @@ statements : statement | statement nl statements
 statement : assignment 
     | functionBlock
     | funcCall
+    | comment
     |
+
+comment : '#'{printable}*
 
 funcCall : ID LPAREN args RPAREN
 
