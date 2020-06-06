@@ -7,13 +7,16 @@ interface
 uses
   Classes, SysUtils, TokenClass, Tokens,
   LexerClass, ASTClass, LoggingClass,
-  BinOpClass, NumClass, UnaryOpClass, BinLogicOpClass, UnaryLogicOpClass;
+  BinOpClass, NumClass, UnaryOpClass,
+  FlowControlASTClass,
+  BinLogicOpClass, UnaryLogicOpClass;
 
 type
   TTParser = class
   private
     FLexer:TLexer;
     FCurrentToken:TToken;
+    FInArgsDef: boolean;
   public
     constructor Create(var ALexer:TLexer);
     procedure EParseError;
@@ -38,6 +41,11 @@ type
     function DefParam: TAST;
     function FunctionCall(AToken: TToken): TAST;
     function Args: TASTList;
+    function IfBlock: TAST;
+    function ElseBlock: TAST;
+    function Conditional: TAST;
+    function WhileLoop: TAST;
+
   end;
 
 implementation
@@ -62,6 +70,7 @@ begin
   AStrId := FCurrentToken.PValue;
   Eat(T_ID);
   Eat(T_LPAREN);
+  FInArgsDef := True;
   ParamList := DefParams();
   Eat(T_RPAREN);
   InBlock := Statements();
@@ -69,20 +78,85 @@ begin
   Result := TFunctionDefinition.Create(AStrId, InBlock, ParamList);
 end;
 
+function TTParser.ElseBlock:TAST;
+begin
+  Eat(T_NEWLINE);
+  logtext('PARSER', 'Parser', 'Creating else block node');
+  Result := TIfConditionBlock.Create(Statements());
+end;
+
+function TTParser.IfBlock:TAST;
+var
+  InBlock: TASTList;
+  AExpr: TAST;
+begin
+  Eat(T_LPAREN);
+  FInArgsDef := True;
+  AExpr := logicEval();
+  FInArgsDef := False;
+  Eat(T_RPAREN);
+  Eat(T_NEWLINE);
+  logtext('PARSER', 'Parser', 'Creating if block node');
+  Result := TIfConditionBlock.Create(Statements(), AExpr);
+end;
+
+function TTParser.WhileLoop: TAST;
+var
+  AExpr: TAST;
+begin
+  Eat(T_WHILE_LOOP);
+  Eat(T_LPAREN);
+  FInArgsDef := True;
+  AExpr := logicEval();
+  FInArgsDef := False;
+  Eat(T_RPAREN);
+  Eat(T_NEWLINE);
+  Result := TWhileLoop.Create(Statements(), AExpr);
+end;
+
+function TTParser.Conditional:TAST;
+var
+  Conditions: array of TAST;
+  len: integer;
+begin
+  Eat(T_IF_START);
+  SetLength(Conditions, 1);
+  len := 1;
+  //AnIfBlock := Statements();
+  Conditions[0] := IfBlock();
+  while FCurrentToken.PType = T_ELSE_IF do
+  begin
+
+    Eat(T_ELSE_IF);
+    len := len + 1;
+    SetLength(Conditions, len);
+    Conditions[len - 1] := IfBlock();
+  end;
+  if FCurrentToken.PType = T_ELSE then
+  begin
+    Eat(T_ELSE);
+    len := len + 1;
+    SetLength(Conditions, len);
+    Conditions[len - 1] := ElseBlock();
+  end;
+  logtext('PARSER', 'Parser', 'Creating if block node');
+  Result := TConditional.Create(Conditions);
+end;
+
 function TTParser.Args:TASTList;
 var
   AArgs: TASTList;
   len:integer;
 begin
-  if (FCurrentToken.PType = T_NEWLINE) then
-		Eat(T_NEWLINE);
+  // if (FCurrentToken.PType = T_NEWLINE) then
+	//	Eat(T_NEWLINE);
   SetLength(AArgs, 0);
   len := 0;
   while (FCurrentToken.PType <> T_RPAREN) do
   begin
     if (FCurrentToken.PType = T_NEWLINE) then
 		    Eat(T_NEWLINE)
-		  else if (FCurrentToken.PType = T_COMMA) then
+		else  if (FCurrentToken.PType = T_COMMA) then
 		    Eat(T_COMMA);
 		len := len + 1;
     SetLength(AArgs, len);
@@ -91,8 +165,8 @@ begin
     if (FCurrentToken.PType <> T_RPAREN) then
     begin
       if (FCurrentToken.PType = T_NEWLINE) then
-		    Eat(T_NEWLINE)
-      else if (FCurrentToken.PType = T_COMMA) then
+		    Eat(T_NEWLINE);
+      if (FCurrentToken.PType = T_COMMA) then
         Eat(T_COMMA);
 		end;
 	end;
@@ -108,8 +182,8 @@ var
 begin
   AFuncName := AToken.PValue;
   Eat(T_LPAREN);
-  if (FCurrentToken.PType = T_NEWLINE) then
-		Eat(T_NEWLINE);
+  //if (FCurrentToken.PType = T_NEWLINE) then
+	//	Eat(T_NEWLINE);
   AArgs := Args();
   Eat(T_RPAREN);
 
@@ -255,6 +329,14 @@ begin
   begin
     Result := FunctionBlock()
   end
+  else if (AToken.PType = T_IF_START) then
+  begin
+    Result := Conditional()
+  end
+  else if (AToken.PType = T_WHILE_LOOP) then
+  begin
+    Result := WhileLoop();
+  end
   else
     Result := TNoOp.Create;
 end;
@@ -272,6 +354,8 @@ begin
   while FCurrentToken.PType = T_NEWLINE do
   begin
     Eat(T_NEWLINE);
+    if FInArgsDef then
+      continue;
     len := len + 1;
     SetLength(Results, Len);
     Results[len - 1] := Statement();
@@ -279,6 +363,26 @@ begin
     begin
       Eat(T_END+T_FUNC_DEF);
       break
+    end
+    else if FCurrentToken.PType = T_ELSE_IF then
+    begin
+      // Eat(T_ELSE_IF);
+      break
+    end
+    else if FCurrentToken.PType = T_ELSE then
+    begin
+      // Eat(T_ELSE);
+      Break;
+    end
+    else if FCurrentToken.PType = T_END+T_WHILE_LOOP then
+    begin
+      Eat(T_END+T_WHILE_LOOP);
+      Break;
+    end
+    else if FCurrentToken.PType = T_END+T_IF_START then
+    begin
+      Eat(T_END+T_IF_START);
+      Break;
     end;
   end;
   logtext('PARSER', 'Parser', 'Creating statement list node');
@@ -363,8 +467,10 @@ begin
   else if (AToken.PType = T_LPAREN) then
   begin
     Eat(T_LPAREN);
+    FInArgsDef := True;
     Ret := LogicEval();
     Eat(T_RPAREN);
+    FInArgsDef := False;
     logtext('PARSER', 'Parser', 'Creating closing paren node');
     Result := Ret
 	end

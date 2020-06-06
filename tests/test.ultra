@@ -1,4 +1,8 @@
-print('aqui é comentário')
-# it's a comment
-
-print('now the program continues')
+x = 0
+y = 0
+while (x < 11)
+    if (x % 2 == 0)
+        print(x, ' e par')
+    end
+    x = x + 1
+end

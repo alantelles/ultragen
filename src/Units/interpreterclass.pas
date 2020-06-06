@@ -7,7 +7,7 @@ interface
 uses
       Classes, SysUtils, ASTClass,
       BinOpClass, NumClass, UnaryOpClass, BinLogicOpClass, UnaryLogicopClass,
-      Tokens, ImpParserClass, StrUtils, LoggingClass,
+      Tokens, ImpParserClass, StrUtils, LoggingClass, FlowControlASTClass,
       StackClass, ARClass, InstanceofClass, CoreFunctionsClass;
 
 type
@@ -44,6 +44,11 @@ type
       function VisitUnaryOp(ANode: TUnaryOp):TIntegerInstance;
       function VisitUnaryLogicOp(ANode: TUnaryLogicOp):TBooleanInstance;
       function Interpret:string;
+
+      // flow
+      function VisitIfCondition(ANode: TIfConditionBlock):TBooleanInstance;
+      procedure VisitConditional(ANode: TConditional);
+      procedure VisitWhileLoop(ANode: TWhileLoop);
 
 	end;
 
@@ -94,6 +99,53 @@ begin
 	AActrec.AddMember(ANode.PName, AValue);
 
   // ASymbolTable.AsString;
+end;
+
+procedure TInterpreter.VisitConditional(ANode: TConditional);
+var
+  ACondition: TAST;
+  Return: TBooleanInstance;
+begin
+  for ACondition in ANode.PConditions do
+  begin
+    Return := VisitIfCondition(TIfConditionBlock(ACondition));
+    if Return.PValue then
+      break;
+  end;
+end;
+
+function TInterpreter.VisitIfCondition(ANode: TIfConditionBlock): TBooleanInstance;
+var
+  AEval: TBooleanInstance = nil;
+  ABlockNode: TAST;
+begin
+  if ANode.PCondition <> nil then
+  begin
+    AEval := TBooleanInstance(Visit(ANode.PCondition));
+    if AEval.PValue or (ANode.PCondition = nil) then
+    begin
+      for ABlockNode in ANode.PBlock do
+        Visit(ABlockNode);
+    end;
+  end
+  else
+  begin
+    for ABlockNode in ANode.PBlock do
+        Visit(ABlockNode);
+    AEval := TBooleanInstance.Create(False);
+  end;
+  Result := AEval;
+end;
+
+procedure TInterpreter.VisitWhileLoop(ANode: TWhileLoop);
+var
+  AState:TAST;
+begin
+  while TBooleanInstance(Visit(ANode.PCondition)).PValue do
+  begin
+    for AState in ANode.PBLock do
+      Visit(AState);
+  end;
 end;
 
 procedure TInterpreter.VisitVarAssign(ANode: TVarAssign);
@@ -255,7 +307,13 @@ begin
   else if ANode.ClassNameIs('TBinLogicOp') then
     Result := VisitBinLogicOp(TBinLogicOp(ANode))
   else if ANode.ClassNameIs('TUnaryLogicOp') then
-    Result := VisitUnaryLogicOp(TUnaryLogicOp(ANode));
+    Result := VisitUnaryLogicOp(TUnaryLogicOp(ANode))
+  else if ANode.ClassNameIs('TConditional') then
+    VisitConditional(TConditional(ANode))
+  else if ANode.ClassNameIs('TIfConditionBlock') then
+    VisitIfCondition(TIfConditionBlock(ANode))
+  else if ANode.ClassNameIs('TWhileLoop') then
+    VisitWhileLoop(TWhileLoop(ANode));
 end;
 
 function TInterpreter.VisitUnaryOp(ANode: TUnaryOp):TFloatInstance;
@@ -357,6 +415,8 @@ begin
       end
       else if LeftClass = 'TStringInstance' then
       begin
+        LeftStr := TStringInstance(AResL).PValue;
+        RightStr := TStringInstance(AResR).PValue;
         if (ANode.POper.PType = T_GT) then
           Cmp := LeftStr > RightStr
         else if (ANode.POper.PType = T_LT) then
@@ -376,6 +436,8 @@ begin
       end
       else if LeftClass = 'TIntegerInstance' then
       begin
+        LeftInt := TIntegerInstance(AresL).PValue;
+        RightInt := TIntegerInstance(AResR).PValue;
         if (ANode.POper.PType = T_GT) then
           Cmp := LeftInt > RightInt
         else if (ANode.POper.PType = T_LT) then
@@ -397,6 +459,8 @@ begin
       end
       else if LeftClass = 'TFloatInstance' then
       begin
+        LeftExt := TFloatInstance(AresL).PValue;
+        RightExt := TFloatInstance(AResR).PValue;
         if (ANode.POper.PType = T_GT) then
           Cmp := LeftExt > RightExt
         else if (ANode.POper.PType = T_LT) then

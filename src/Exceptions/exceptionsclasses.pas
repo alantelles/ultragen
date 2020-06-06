@@ -12,6 +12,7 @@ type
   EParserError = class (Exception) end;
   ESemanticError = class (Exception) end;
   ERunTimeError = class (Exception) end;
+  ETypeError = class (Exception) end;
 
 implementation
 

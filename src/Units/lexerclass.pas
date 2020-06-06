@@ -93,7 +93,12 @@ begin
   if Tokenfound = nil then
     TokenFound := TToken.Create(T_ID, Ret)
   else
-    FScopeType.Add(TokenFound.PType);
+  begin
+    if (TokenFound.PType = T_IF_START) or
+       (TokenFound.PType = T_WHILE_LOOP) or
+       (TokenFound.PType = T_FUNC_DEF) then
+      FScopeType.Add(TokenFound.PType);
+  end;
   Result := TokenFound;
 end;
 
@@ -106,7 +111,7 @@ begin
   Advance;
   if Delim = T_STRENC_MULTI then
   begin
-    Advance(2);
+    Advance(Length(T_STRENC_MULTI) - 1);
     IsLong := True;
   end;
   while (FCurrChar <> NONE) and
@@ -187,20 +192,8 @@ begin
       continue;
     end;
 
-    if (FCurrChar = ',') then
-    begin
-      Advance;
-      Result := TToken.Create(T_COMMA, ',');
-      exit
-    end;
 
-    if (FCurrChar = T_LINE_COMMENT) then
-    begin
-      Advance;
-      Result := TToken.Create(T_COMMENT, PassLineComment);
-      exit
-    end;
-
+    {
     if (FCurrChar + Peek(3)) = T_LANG_TRUE then
     begin
       Advance(4);
@@ -221,6 +214,7 @@ begin
       Result := TToken.Create(TYPE_NULL, T_LANG_NULL);
       exit
     end;
+    }
 
     if (FCurrChar = T_STRENC_SINGLE) then
     begin
@@ -228,7 +222,21 @@ begin
       exit;
     end;
 
-    if (FCurrChar + Peek(2)) = T_STRENC_MULTI then
+    if (FCurrChar = ',') then
+    begin
+      Advance;
+      Result := TToken.Create(T_COMMA, ',');
+      exit
+    end;
+
+    if (FCurrChar = T_LINE_COMMENT) then
+    begin
+      Advance;
+      Result := TToken.Create(T_COMMENT, PassLineComment);
+      exit
+    end;
+
+    if (FCurrChar + Peek(Length(T_STRENC_MULTI) - 1)) = T_STRENC_MULTI then
     begin
       Result := GetString(T_STRENC_MULTI);
       exit;
@@ -252,6 +260,83 @@ begin
     else if Pos(FCurrChar, LETTERS + '_' ) > 0 then
     begin
       Result := GetId();
+      exit
+    end;
+
+    // and , or
+
+    if (FCurrChar + Peek(1)) = '&&' then
+    begin
+      Advance;
+      Advance;
+      Result := TToken.Create(T_AND, '&&');
+      exit
+    end;
+
+    if (FCurrChar + Peek(1)) = '||' then
+    begin
+      Advance;
+      Advance;
+      Result := TToken.Create(T_OR, '||');
+      exit
+    end;
+
+    // leq, geq, neq
+    if (FCurrChar = '<') and (Peek = '=') then
+    begin
+      Advance;
+      Advance;
+      Result := TToken.Create(T_LEQ, '<=');
+      exit
+    end;
+
+    if (FCurrChar = '>') and (Peek = '=') then
+    begin
+      Advance;
+      Advance;
+      Result := TToken.Create(T_GEQ, '>=');
+      exit
+    end;
+
+    if (FCurrChar = '!') and (Peek = '=') then
+    begin
+      Advance;
+      Advance;
+      Result := TToken.Create(T_NEQ, '!=');
+      exit
+    end;
+
+    // end leq, neq, geq
+
+
+    // end and, or
+
+    if FCurrChar = '!' then
+    begin
+      Advance;
+      Result := TToken.Create(T_NOT, '!');
+      exit
+    end;
+
+    if FCurrChar = '>' then
+    begin
+      Advance;
+      Result := TToken.Create(T_GT, '>');
+      exit
+    end;
+
+    if FCurrChar = '<' then
+    begin
+      Advance;
+      Result := TToken.Create(T_LT, '<');
+      exit
+    end;
+
+    if (FCurrChar = '=') and (Peek = '=') then
+    begin
+      Advance;
+      Advance;
+      Result := TToken.Create(T_EQ, '==');
       exit
     end;
 
@@ -284,81 +369,8 @@ begin
     {$ENDIF}
 
 
-    // leq, geq, neq
-    if (FCurrChar = '<') and (Peek = '=') then
-    begin
-      Advance;
-      Advance;
-      Result := TToken.Create(T_LEQ, '<=');
-      exit
-    end;
 
-    if (FCurrChar = '>') and (Peek = '=') then
-    begin
-      Advance;
-      Advance;
-      Result := TToken.Create(T_GEQ, '>=');
-      exit
-    end;
 
-    if (FCurrChar = '!') and (Peek = '=') then
-    begin
-      Advance;
-      Advance;
-      Result := TToken.Create(T_NEQ, '!=');
-      exit
-    end;
-
-    // end leq, neq, geq
-
-    // and , or
-
-    if (FCurrChar + Peek(1)) = '&&' then
-    begin
-      Advance;
-      Advance;
-      Result := TToken.Create(T_AND, '&&');
-      exit
-    end;
-
-    if (FCurrChar + Peek(1)) = '||' then
-    begin
-      Advance;
-      Advance;
-      Result := TToken.Create(T_OR, '||');
-      exit
-    end;
-
-    // end and, or
-
-    if FCurrChar = '!' then
-    begin
-      Advance;
-      Result := TToken.Create(T_NOT, '!');
-      exit
-    end;
-
-    if FCurrChar = '>' then
-    begin
-      Advance;
-      Result := TToken.Create(T_GT, '>');
-      exit
-    end;
-
-    if FCurrChar = '<' then
-    begin
-      Advance;
-      Result := TToken.Create(T_LT, '<');
-      exit
-    end;
-
-    if (FCurrChar = '=') and (Peek = '=') then
-    begin
-      Advance;
-      Advance;
-      Result := TToken.Create(T_EQ, '==');
-      exit
-    end;
 
 
     if Pos(FCurrChar, SET_NUMBERS) > 0 then

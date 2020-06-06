@@ -23,6 +23,14 @@ const
   T_GT = 'T_GREATER_THAN'; T_LT = 'T_LESS_THAN'; T_EQ = 'T_EQUAL'; T_NOT = 'T_NOT';
   T_GEQ = 'T_GREATER_OR_EQUAL'; T_LEQ = 'T_LESS_OR_EQUAL'; T_NEQ = 'T_NOT_EQUAL';
   T_AND = 'T_AND'; T_OR  = 'T_OR';
+
+  T_IF_START = 'T_IF_START';
+  T_IF_END = 'T_IF_END';
+  T_ELSE = 'T_ELSE';
+  T_ELSE_IF = 'T_ELSE_IF';
+
+  T_WHILE_LOOP = 'While loop';
+
   T_LPAREN = 'T_LPAREN';
   T_RPAREN = 'T_RPAREN';
   T_ASSIGN = 'T_ASSIGN';
@@ -55,6 +63,13 @@ implementation
 begin
   ReservedWords := TFPObjectHashTable.Create();
   ReservedWords.Add('function', TToken.Create(T_FUNC_DEF, 'function definition'));
+  ReservedWords.Add('if', TToken.Create(T_IF_START, 'IF START'));
+  ReservedWords.Add('elsif', TToken.Create(T_ELSE_IF, 'ELSE IF'));
+  ReservedWords.Add('else', TToken.Create(T_ELSE, 'T_ELSE'));
+  ReservedWords.Add('while', TToken.Create(T_WHILE_LOOP, T_WHILE_LOOP));
+  ReservedWords.Add('True', TToken.Create(TYPE_BOOLEAN, T_LANG_TRUE));
+  ReservedWords.Add('False', TToken.Create(TYPE_BOOLEAN, T_LANG_FALSE));
+  ReservedWords.Add('Null', TToken.Create(TYPE_NULL, T_LANG_NULL));
 
 
 end.

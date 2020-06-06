@@ -136,7 +136,8 @@ begin
     logdebug('Showing arg '+AnArg.PToken.PValue+' from '+ANode.PToken.PValue, 'SymbolTableBuilder');}
   if ANode.ClassNameIs('TFunctionCall') and  FCore.FunctionExists(ANode.PToken.PValue) then
   begin
-
+    for AnArg in ANode.PEvalParams do
+      Visit(AnArg);
 	end
   else if ANode.ClassNameIs('TVarAssign') and  FCore.FunctionExists(ANode.PToken.PValue) then
   begin

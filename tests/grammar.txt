@@ -40,7 +40,13 @@ statement : assignment
     | functionBlock
     | funcCall
     | comment
-    |
+    | conditional
+
+conditional : 'if' LPAREN logicEval RPAREN statements 'end'
+    | 'if' LPAREN logicEval RPAREN statements 'else' statements 'end'
+    | 'if' LPAREN logicEval RPAREN statements ('elsif' LPAREN logicEval RPAREN statements)* ('else' statements)? 'end'
+
+whileLoop : 'while' LPAREN logicEval RPAREN statements 'end'
 
 comment : '#'{printable}*
 

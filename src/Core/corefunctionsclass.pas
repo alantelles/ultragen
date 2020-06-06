@@ -21,23 +21,24 @@ type
 
 
       //core
+      // procs
       function Print:TInstanceOf;
       function InlinePrint:TInstanceOf;
+
+      // functions
+      function GetTypeOf:TStringInstance;
       function CastToStr:TStringInstance;
+      function CastToInt:TIntegerInstance;
 	end;
+
+
 
 implementation
 
 uses
-  CoreUtils;
+  CoreUtils, ExceptionsClasses, Math;
 
-constructor TCoreFunction.Create;
-begin
-  FFuncList := TStringList.Create;
-  FFuncList.Add('print');
-  FFuncList.Add('inline');
-  FFuncList.Add('str');
-end;
+{$INCLUDE 'corefunctions.pp' }
 
 function TCoreFunction.FunctionExists(FName:string):boolean;
 begin
@@ -47,36 +48,26 @@ end;
 function TCoreFunction.Execute(Fname:string; var AArgList:TInstanceList ):TInstanceOf;
 begin
   FParams := AArgList;
+
+  // procs
   if FName = 'print' then
     Result := Print
   else if FName = 'inline' then
     Result := InlinePrint
+  // functions
+  else if FName = 'typeof' then
+    Result := GetTypeOf
   else if FName = 'str' then
-    Result := CastToStr;
-end;
-
-function TCoreFunction.CastToStr:TStringInstance;
-begin
-  if FParams[0].ClassNameIs('TIntegerInstance') then
-    Result := TStringInstance.Create(IntToStr(TIntegerInstance(FParams[0]).PValue))
-  else if FParams[0].ClassNameIs('TStringInstance') then
-    Result := TStringInstance.Create(TStringInstance(FParams[0]).PValue)
-  else if FParams[0].ClassNameIs('TFloatInstance') then
-    Result := TStringInstance.Create(FloatToStr(TFloatInstance(FParams[0]).PValue))
-  else if FParams[0].ClassNameIs('TNullInstance') then
-    Result := TStringInstance.Create(TNullInstance(FParams[0]).PValue)
-  else if FParams[0].ClassNameIs('TBooleanInstance') then
-  begin
-    if TBooleanInstance(FParams[0]).PValue then
-      Result := TStringInstance.Create('true')
-    else
-      Result := TStringInstance.Create('false');
-	end;
+    Result := CastToStr
+  else if FName = 'int' then
+    Result := CastToInt;
 end;
 
 function TCoreFunction.Print:TInstanceOf;
 var
   AInst: TInstanceOf;
+  AFloat: Extended;
+  AFStr:string;
 begin
   for AInst in FParams do
   begin
@@ -85,7 +76,13 @@ begin
     else if AInst.ClassNameIs('TBooleanInstance') then
       Write(BooleanToStr(TBooleanInstance(AInst).PValue))
     else if AInst.ClassNameIs('TFloatInstance') then
-      Write(TFloatInstance(AInst).PValue)
+    begin
+      AFloat := TFloatInstance(AInst).PValue;
+      AFStr := FloatToStrF(AFloat, ffFixed, 30, 30);
+      while AFStr[Length(AFStr)] = '0' do
+        AFStr := Copy(AFStr, 1, Length(AFStr) - 1);
+      Write(AFStr);
+    end
     else if AInst.ClassNameIs('TStringInstance') then
       Write(TStringInstance(AInst).PValue)
     else if AInst.ClassNameIs('TNullInstance') then
@@ -114,6 +111,55 @@ begin
 	end;
   Result := TNullInstance.create;
 end;
+
+function TCoreFunction.GetTypeOf:TStringInstance;
+begin
+  Result := TStringInstance.Create(FParams[0].ClassName);
+end;
+
+function TCoreFunction.CastToStr:TStringInstance;
+begin
+  if FParams[0].ClassNameIs('TIntegerInstance') then
+    Result := TStringInstance.Create(IntToStr(TIntegerInstance(FParams[0]).PValue))
+  else if FParams[0].ClassNameIs('TStringInstance') then
+    Result := TStringInstance(FParams[0])
+  else if FParams[0].ClassNameIs('TFloatInstance') then
+    Result := TStringInstance.Create(FloatToStr(TFloatInstance(FParams[0]).PValue))
+  else if FParams[0].ClassNameIs('TNullInstance') then
+    Result := TStringInstance.Create(TNullInstance(FParams[0]).PValue)
+  else if FParams[0].ClassNameIs('TBooleanInstance') then
+  begin
+    if TBooleanInstance(FParams[0]).PValue then
+      Result := TStringInstance.Create('true')
+    else
+      Result := TStringInstance.Create('false');
+	end;
+end;
+
+function TCoreFunction.CastToInt:TIntegerInstance;
+var
+  ResInt: integer;
+begin
+  if FParams[0].ClassNameIs('TIntegerInstance') then
+    Result := TIntegerInstance(FParams[0])
+  else if FParams[0].ClassNameIs('TStringInstance') then
+  begin
+    try
+      ResInt := StrToInt(TStringInstance(FParams[0]).PValue);
+      Result := TIntegerInstance.Create(ResInt);
+    except
+      raise ETypeError.Create('Can''t convert value "'+TStringInstance(FParams[0]).PValue+'" to integer');
+    end;
+  end
+  else if FParams[0].ClassNameIs('TFloatInstance') then
+  begin
+    if Trunc(TFloatInstance(FParams[0]).PValue) = TFloatInstance(FParams[0]).PValue then
+      Result := TIntegerInstance.Create(Trunc(TFloatInstance(FParams[0]).PValue))
+    else
+      raise ETypeError.Create('Can''t convert value "'+FloatToStr(TFloatInstance(FParams[0]).PValue)+'" to integer');
+  end;
+end;
+
 
 end.
 
