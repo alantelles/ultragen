@@ -44,11 +44,11 @@ begin
     ALexer := TLexer.Create(ASource.Text);
     AParser := TTParser.Create(ALexer);
     ATree := AParser.ParseCode();
-    ABuilder := TSymbolTablebuilder.Create(ATree);
+    //ABuilder := TSymbolTablebuilder.Create(ATree);
     //ABuilder.Interpret;
     AInter := TInterpreter.Create(ATree);
     AOut := AInter.Interpret;
-    // AInter.Free;
+    AInter.Free;
 
   end
   else

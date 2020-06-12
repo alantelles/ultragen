@@ -18,6 +18,7 @@ type
       constructor Create(ABlock: TASTList; ACondition: TAST = nil);
   end;
 
+
   TConditional = class (TAST)
     private
       FConditions: TASTList;
@@ -36,12 +37,31 @@ type
       constructor Create(ABlock: TASTList; ACondition: TAST);
   end;
 
+  TForLoop = class (TAST)
+    private
+      FBlock: TASTList;
+      FList: TAST;
+      FVar: TVarAssign;
+    public
+      property PBlock: TASTList read FBlock write FBlock;
+      property PList: TAST read FList write FList;
+      property PVar: TVarAssign read FVar write FVar;
+      constructor Create(ABlock: TASTList; AList: TAST; AVar: TVarAssign);
+  end;
+
 implementation
 
 constructor TWhileLoop.Create(ABlock: TASTList; ACondition: TAST);
 begin
   FBlock := ABlock;
   FCondition := ACondition;
+end;
+
+constructor TForLoop.Create(ABlock: TASTList; AList: TAST; AVar: TVarAssign );
+begin
+  FBlock := ABlock;
+  FList := AList;
+  FVar := AVar;
 end;
 
 constructor TIfConditionBlock.Create(ABlock: TASTList; ACondition: TAST = nil);

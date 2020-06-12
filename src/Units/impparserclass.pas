@@ -33,6 +33,7 @@ type
     function Statements:TASTList;
     function Statement:TAST;
     function VarAssign(AToken: TToken):TAST;
+    function VarAssign(AToken: TToken; ANull: TAST):TAST;
     function Variable(AToken: TToken):TAST;
     function FunctionBlock: TAST;
     function InBlockStatements: TASTList;
@@ -41,10 +42,15 @@ type
     function DefParam: TAST;
     function FunctionCall(AToken: TToken): TAST;
     function Args: TASTList;
+    function ListArgs: TASTList;
     function IfBlock: TAST;
     function ElseBlock: TAST;
     function Conditional: TAST;
     function WhileLoop: TAST;
+    function ForLoop: TAST;
+    function List:TAST;
+    function ListAccess(AToken: TToken): TAST;
+    function MethodCall(AToken: TToken): TAST;
 
   end;
 
@@ -64,9 +70,11 @@ var
   AStrId: string;
   ParamList: TASTList;
   InBlock: TASTList;
+  AToken: TToken;
 begin
   SetLength(ParamList, 0);
   Eat(T_FUNC_DEF);
+  AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue);
   AStrId := FCurrentToken.PValue;
   Eat(T_ID);
   Eat(T_LPAREN);
@@ -75,7 +83,7 @@ begin
   Eat(T_RPAREN);
   InBlock := Statements();
   logtext('PARSER', 'Parser', 'Creating function block node');
-  Result := TFunctionDefinition.Create(AStrId, InBlock, ParamList);
+  Result := TFunctionDefinition.Create(AToken, AStrId, InBlock, ParamList);
 end;
 
 function TTParser.ElseBlock:TAST;
@@ -112,6 +120,26 @@ begin
   Eat(T_RPAREN);
   Eat(T_NEWLINE);
   Result := TWhileLoop.Create(Statements(), AExpr);
+end;
+
+function TTParser.ForLoop: TAST;
+var
+  AList: TAST;
+  Avar: TAST;
+  AToken: TToken;
+begin
+  Eat(T_FOR_LOOP);
+  Eat(T_LPAREN);
+  FInArgsDef := True;
+  AList := logicEval();
+  Eat(T_COMMA);
+  AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue);
+  AVar := VarAssign(AToken, TNull.Create(TToken.Create(TYPE_NULL, T_LANG_NULL)));
+  FInArgsDef := False;
+  Eat(T_RPAREN);
+  Eat(T_NEWLINE);
+  logtext('PARSER', 'Parser', 'Creating for node');
+  Result := TForLoop.Create(Statements(), AList, TVarAssign(AVar));
 end;
 
 function TTParser.Conditional:TAST;
@@ -172,6 +200,73 @@ begin
 	end;
   logtext('PARSER', 'Parser', 'Creating args node');
   Result := AArgs;
+end;
+
+function TTParser.ListArgs:TASTList;
+var
+  AArgs: TASTList;
+  len:integer;
+begin
+  // if (FCurrentToken.PType = T_NEWLINE) then
+	//	Eat(T_NEWLINE);
+  SetLength(AArgs, 0);
+  len := 0;
+  while (FCurrentToken.PType <> T_LIST_END) do
+  begin
+    if (FCurrentToken.PType = T_NEWLINE) then
+		    Eat(T_NEWLINE)
+		else  if (FCurrentToken.PType = T_COMMA) then
+		    Eat(T_COMMA);
+		len := len + 1;
+    SetLength(AArgs, len);
+    AArgs[len - 1] := LogicEval();
+
+    if (FCurrentToken.PType <> T_LIST_END) then
+    begin
+      if (FCurrentToken.PType = T_NEWLINE) then
+		    Eat(T_NEWLINE);
+      if (FCurrentToken.PType = T_COMMA) then
+        Eat(T_COMMA);
+		end;
+	end;
+  logtext('PARSER', 'Parser', 'Creating list args node');
+  Result := AArgs;
+end;
+
+function TTParser.MethodCall(AToken: TToken): TAST;
+var
+  Ret: TAST;
+begin
+  Result := TNoOp.Create;
+end;
+
+function TTParser.ListAccess(AToken:TToken): TAST;
+var
+  AIndex: TAST;
+  AList: TAST;
+  Ret : TAST;
+begin
+  Ret := TListAccessAST.Create(Variable(AToken), LogicEval(), AToken);
+  Eat(T_LIST_END);
+  logtext('PARSER', 'Parser', 'Creating list access node');
+  while (FCurrentToken.PType = T_LIST_START) do
+  begin
+    Eat(T_LIST_START);
+    Ret := TListAccessAST.Create(Ret, LogicEval(), FCurrentToken);
+    Eat(T_LIST_END);
+  end;
+  Result := Ret;
+end;
+
+function TTParser.List:TAST;
+var
+  Ret: TAST;
+  AToken: TToken;
+begin
+  AToken := TToken.Create(FcurrentToken.PType, FCurrentToken.PValue);
+  Ret := TListAST.Create(AToken, ListArgs());
+  Eat(T_LIST_END);
+  Result := Ret;
 end;
 
 function TTParser.FunctionCall(AToken: TToken):TAST;
@@ -291,6 +386,18 @@ begin
   Eat(T_ASSIGN);
   ARight := LogicEval();
   Logdebug('Creating a VarAssign to '+AToken.AsString, 'Parser');
+  logtext('PARSER', 'Parser', 'Creating var assign node to ' + AToken.PValue);
+  Result := TVarAssign.Create(AToken, ARight);
+end;
+
+function TTParser.VarAssign(AToken:TToken; Anull: TAST):TAST;
+var
+  Aleft, ARight: TAST;
+  AVar: TToken;
+begin
+  Eat(T_ID);
+  ARight := ANull;
+  Logdebug('Creating a VarAssign to '+AToken.AsString, 'Parser');
   logtext('PARSER', 'Parser', 'Creating var assign node');
   Result := TVarAssign.Create(AToken, ARight);
 end;
@@ -313,8 +420,12 @@ begin
     begin
       Result := FunctionCall(AToken)
     end
+    else if (FCurrentToken.PType = T_ATTR_ACCESSOR) then
+    begin
+      Result := MethodCall(AToken)
+    end
     else
-      Result := LogicEval()
+      EParseError;
   end
   else if (AToken.PType = T_COMMENT) then
   begin
@@ -336,6 +447,14 @@ begin
   else if (AToken.PType = T_WHILE_LOOP) then
   begin
     Result := WhileLoop();
+  end
+  else if (AToken.PType = T_WHILE_LOOP) then
+  begin
+    Result := ForLoop();
+  end
+  else if (AToken.PType = T_FOR_LOOP) then
+  begin
+    Result := ForLoop();
   end
   else
     Result := TNoOp.Create;
@@ -377,6 +496,11 @@ begin
     else if FCurrentToken.PType = T_END+T_WHILE_LOOP then
     begin
       Eat(T_END+T_WHILE_LOOP);
+      Break;
+    end
+    else if FCurrentToken.PType = T_END+T_FOR_LOOP then
+    begin
+      Eat(T_END+T_FOR_LOOP);
       Break;
     end
     else if FCurrentToken.PType = T_END+T_IF_START then
@@ -422,6 +546,7 @@ function TTParser.Factor:TAST;
 var
   AToken: TToken;
   Ret:TAST;
+
 begin
   AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue);
   if (FCurrentToken.PType = T_NEWLINE) then
@@ -486,6 +611,12 @@ begin
     logtext('PARSER', 'Parser', 'Creating boolean node');
     Result := TBoolean.Create(AToken);
   end
+  else if (AToken.PType = T_LIST_START) then
+  begin
+    Eat(T_LIST_START);
+    logtext('PARSER', 'Parser', 'creating list node');
+    Result := List();
+  end
   else if (AToken.PType = T_ID) then
   begin
     Eat(T_ID);
@@ -494,7 +625,13 @@ begin
       Ret := FunctionCall(AToken);
       Result := Ret
 		end
-		else
+    else if (FCurrentToken.PType = T_LIST_START) then
+    begin                 
+      Eat(T_LIST_START);
+      Ret := ListAccess(AToken);
+      Result := Ret;
+    end
+    else
       Result := Variable(AToken);
 	end;
 end;

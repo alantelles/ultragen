@@ -5,7 +5,7 @@ unit CoreFunctionsClass;
 interface
 
 uses
-      Classes, SysUtils, Strutils, InstanceOfClass;
+      Classes, SysUtils, Strutils, InstanceOfClass, ListInstanceClass;
 
 type
   TParamList = array of string;
@@ -29,6 +29,7 @@ type
       function GetTypeOf:TStringInstance;
       function CastToStr:TStringInstance;
       function CastToInt:TIntegerInstance;
+      function SplitString:TListInstance;
 	end;
 
 
@@ -60,7 +61,9 @@ begin
   else if FName = 'str' then
     Result := CastToStr
   else if FName = 'int' then
-    Result := CastToInt;
+    Result := CastToInt
+  else if FName = 'split' then
+    Result := SplitString;
 end;
 
 function TCoreFunction.Print:TInstanceOf;
@@ -82,6 +85,10 @@ begin
       while AFStr[Length(AFStr)] = '0' do
         AFStr := Copy(AFStr, 1, Length(AFStr) - 1);
       Write(AFStr);
+    end
+    else if AInst.ClassNameIs('TListInstance') then
+    begin
+      Write(TListInstance(AInst).AsString)
     end
     else if AInst.ClassNameIs('TStringInstance') then
       Write(TStringInstance(AInst).PValue)
@@ -160,6 +167,31 @@ begin
   end;
 end;
 
+function TCoreFunction.SplitString:TListInstance;
+var
+  ASep: string;
+  AList: TStringList;
+  AStr, s: string;
+  ARet: TListInstance;
+  AInsList: TInstanceList;
+  len: integer;
+begin
+  AStr := TStringInstance(FParams[0]).PValue;
+  ASep := TStringInstance(FParams[1]).PValue;
+  AList := TStringList.Create;
+  AList.SkipLastLineBreak := True;
+  AList.LineBreak := ASep;
+  AList.Text := AStr;
+  SetLength(AInsList, 0);
+  len := 0;
+  for s in AList do
+  begin
+    len := len + 1;
+    SetLength(AInsList, len);
+    AInsList[len - 1] := TStringInstance.Create(s);
+  end;
+  Result := TListInstance.Create(AInsList);
+end;
 
 end.
 

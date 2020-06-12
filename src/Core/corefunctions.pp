@@ -7,4 +7,5 @@ begin
   FFuncList.Add('str');
   FFuncList.Add('int');
   FFuncList.Add('typeof');
+  FFuncList.Add('split');
 end;

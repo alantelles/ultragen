@@ -31,7 +31,7 @@
         <PackageName Value="LazUtils"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="25">
+    <Units Count="26">
       <Unit0>
         <Filename Value="UltraGenParser.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -154,6 +154,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="FlowControlASTClass"/>
       </Unit24>
+      <Unit25>
+        <Filename Value="src\Symbols\listinstanceclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ListInstanceClass"/>
+      </Unit25>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

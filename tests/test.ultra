@@ -1,8 +1,3 @@
-x = 0
-y = 0
-while (x < 11)
-    if (x % 2 == 0)
-        print(x, ' e par')
-    end
-    x = x + 1
-end
+a = "item1x,xitem2x,xitem3"
+b = split(a, 'it')
+print(b[0] == '')

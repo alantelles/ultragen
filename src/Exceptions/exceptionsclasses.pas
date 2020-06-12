@@ -13,6 +13,7 @@ type
   ESemanticError = class (Exception) end;
   ERunTimeError = class (Exception) end;
   ETypeError = class (Exception) end;
+  EListError = class(Exception) end;
 
 implementation
 

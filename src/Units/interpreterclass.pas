@@ -8,7 +8,7 @@ uses
       Classes, SysUtils, ASTClass,
       BinOpClass, NumClass, UnaryOpClass, BinLogicOpClass, UnaryLogicopClass,
       Tokens, ImpParserClass, StrUtils, LoggingClass, FlowControlASTClass,
-      StackClass, ARClass, InstanceofClass, CoreFunctionsClass;
+      StackClass, ARClass, InstanceofClass, ListInstanceClass, CoreFunctionsClass;
 
 type
   TInterpreter = class
@@ -23,20 +23,27 @@ type
       function Visit(ANode:TAST):TInstanceOf;
       procedure VisitProgram(ANode: TProgram);
       procedure VisitNoOp(ANode: TNoOp);
+
+      // references
       procedure VisitVarAssign(ANode: TVarAssign);
       function VisitVariableReference(ANode: TVariableReference):TInstanceOf;
-      function VisitBinOp(ANode:TBinOp):TInstanceOf;
+      function VisitFunctionCall(ANode: TFunctionCall):TInstanceOf;
+      function VisitListAccess(ANode: TListAccessAST): TInstanceOf;
 
-      //overloads
+
+      // operations
+      function VisitBinOp(ANode:TBinOp):TInstanceOf;
       function VisitBinLogicOp(ANode: TBinLogicOp): TBooleanInstance;
 
+      // types
       function VisitBoolean(ANode:TBoolean):TBooleanInstance;
       function VisitNumInt(ANode:TNumInt):TIntegerInstance;
       function VisitNull(ANode:TNull):TNullInstance;
       function VisitNumFloat(ANode:TNumFloat):TFloatInstance;
       function VisitString(ANode:TString):TStringInstance;
-      function VisitFunctionCall(ANode: TFunctionCall):TInstanceOf;
       function VisitFunctionDefinition(ANode: TFunctionDefinition): TInstanceOf;
+      function VisitList(ANode: TListAST): TListInstance;
+
 
 
       //overloads
@@ -49,6 +56,7 @@ type
       function VisitIfCondition(ANode: TIfConditionBlock):TBooleanInstance;
       procedure VisitConditional(ANode: TConditional);
       procedure VisitWhileLoop(ANode: TWhileLoop);
+      procedure VisitForLoop(ANode: TForLoop);
 
 	end;
 
@@ -146,6 +154,39 @@ begin
     for AState in ANode.PBLock do
       Visit(AState);
   end;
+end;
+
+procedure TInterpreter.VisitForLoop(ANode: TForLoop);
+var
+  AState:TAST;
+  AList,AVar: TAST;
+  AInst, AListRes: TInstanceOf;
+  AInt, AIndex: TIntegerInstance;
+  AActRec: TActivationRecord;
+  i: integer = 0;
+begin
+  // AListRes := TListInstance.Create(TInstanceList(Visit(ANode.PList)));
+  AActRec := FCallStack.Peek;
+
+  AListRes := Visit(ANode.PList);
+
+  for AInst in TListInstance(AListRes).PValue do
+  begin
+    AActRec.AddMember(Anode.PVar.PVarName.PValue, AInst);
+
+
+    AIndex := TIntegerInstance.Create(i);
+    AActRec.AddMember('_'+Anode.PVar.PVarName.PValue, AIndex);
+    for AState in ANode.PBlock do
+      Visit(AState);
+    i := 1 + i;
+  end;
+
+  {while TBooleanInstance(Visit(ANode.PCondition)).PValue do
+  begin
+    for AState in ANode.PBLock do
+      Visit(AState);
+  end;}
 end;
 
 procedure TInterpreter.VisitVarAssign(ANode: TVarAssign);
@@ -296,6 +337,10 @@ begin
     Result := VisitNull(TNull(ANode))
   else if Anode.ClassNameIs('TNumFloat') then
     Result := VisitNumFloat(TNumFloat(ANode))
+  else if Anode.ClassNameIs('TListAST') then
+    Result := VisitList(TListAST(ANode))
+  else if Anode.ClassNameIs('TListAccessAST') then
+    Result := VisitListAccess(TListAccessAST(ANode))
   else if Anode.ClassNameIs('TString') then
     Result := VisitString(TString(ANode))
   else if Anode.ClassNameIs('TBoolean') then
@@ -313,7 +358,9 @@ begin
   else if ANode.ClassNameIs('TIfConditionBlock') then
     VisitIfCondition(TIfConditionBlock(ANode))
   else if ANode.ClassNameIs('TWhileLoop') then
-    VisitWhileLoop(TWhileLoop(ANode));
+    VisitWhileLoop(TWhileLoop(ANode))
+  else if ANode.ClassNameIs('TForLoop') then
+    VisitForLoop(TForLoop(ANode));
 end;
 
 function TInterpreter.VisitUnaryOp(ANode: TUnaryOp):TFloatInstance;
@@ -720,7 +767,40 @@ begin
   Result := TStringInstance.Create(ANode.PValue);
 end;
 
+function TInterpreter.VisitList(ANode: TListAST): TListInstance;
+var
+  AnItem: TAST;
+  AList: TInstanceList;
+  len: integer = 0;
+begin
+  SetLength(AList, 0);
+  for AnItem in Anode.PArgs do
+  begin                             
+    len := len + 1;
+    SetLength(AList, len);
+    AList[len - 1] := Visit(AnItem);
+  end;
+  Result := TListInstance.Create(AList);
+end;
 
+function TInterpreter.VisitListAccess(ANode: TListAccessAST):TInstanceOf;
+var
+  AList: TListInstance;
+  AStr: TStringInstance;
+  AIndex: TIntegerInstance;
+  AVarRef: TVariableReference;
+  ARet, ASrc: TInstanceOf;
+begin
+  AIndex := TIntegerInstance(Visit(ANode.PIndex));
+  ASrc := Visit(Anode.PList);
+  if ASrc.ClassNameIs('TListInstance') then
+    ARet := TListInstance(ASrc).GetItem(AIndex)
+  else if ASrc.ClassNameIs('TStringInstance') then
+    ARet := TStringInstance(ASrc).GetChar(AIndex)
+  else
+    raise ERunTimeError.Create('Foridden type for indexing as list');
+  Result := ARet;
+end;
 
 function Tinterpreter.VisitBoolean(ANode:TBoolean):TBooleanInstance;
 begin

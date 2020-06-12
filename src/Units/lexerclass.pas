@@ -94,9 +94,9 @@ begin
     TokenFound := TToken.Create(T_ID, Ret)
   else
   begin
-    if (TokenFound.PType = T_IF_START) or
-       (TokenFound.PType = T_WHILE_LOOP) or
-       (TokenFound.PType = T_FUNC_DEF) then
+    if (TokenFound.PType <> T_ELSE) and
+       (TokenFound.PType <> T_ELSE_IF)
+       then
       FScopeType.Add(TokenFound.PType);
   end;
   Result := TokenFound;
@@ -192,42 +192,12 @@ begin
       continue;
     end;
 
-
-    {
-    if (FCurrChar + Peek(3)) = T_LANG_TRUE then
-    begin
-      Advance(4);
-      Result := TToken.Create(TYPE_BOOLEAN, T_LANG_TRUE);
-      exit
-    end;
-
-    if (FCurrChar + Peek(4)) = T_LANG_FALSE then
-    begin
-      Advance(5);
-      Result := TToken.Create(TYPE_BOOLEAN, T_LANG_FALSE);
-      exit
-    end;
-
-    if (FCurrChar + Peek(3)) = T_LANG_NULL then
-    begin
-      Advance(4);
-      Result := TToken.Create(TYPE_NULL, T_LANG_NULL);
-      exit
-    end;
-    }
-
     if (FCurrChar = T_STRENC_SINGLE) then
     begin
       Result := GetString(T_STRENC_SINGLE);
       exit;
     end;
 
-    if (FCurrChar = ',') then
-    begin
-      Advance;
-      Result := TToken.Create(T_COMMA, ',');
-      exit
-    end;
 
     if (FCurrChar = T_LINE_COMMENT) then
     begin
@@ -255,13 +225,9 @@ begin
       FScopeType.Delete(FScopeType.Count-1);
       Result := TToken.Create(T_END+AuxStr,'end of block '+AuxStr);
       exit
-    end
-
-    else if Pos(FCurrChar, LETTERS + '_' ) > 0 then
-    begin
-      Result := GetId();
-      exit
     end;
+
+
 
     // and , or
 
@@ -368,11 +334,6 @@ begin
     end;
     {$ENDIF}
 
-
-
-
-
-
     if Pos(FCurrChar, SET_NUMBERS) > 0 then
     begin
       AuxStr := GetNumber();
@@ -442,7 +403,39 @@ begin
       exit
 		end;
 
+    if FCurrChar = '[' then
+    begin
+      Advance;
+      Result := TToken.Create(T_LIST_START, T_LIST_START);
+      Exit
+    end;
 
+    if FCurrChar = ']' then
+    begin
+      Advance;
+      Result := TToken.Create(T_LIST_END, T_LIST_END);
+      exit
+    end;
+
+
+    if Pos(FCurrChar, LETTERS + '_' ) > 0 then
+    begin
+      Result := GetId();
+      exit
+    end;
+
+    if FCurrChar = '.' then
+    begin
+      Advance;
+      Result := TToken.Create(T_ATTR_ACCESSOR, ATTR_ACCESSOR)
+    end;
+
+    if (FCurrChar = ',') then
+    begin
+      Advance;
+      Result := TToken.Create(T_COMMA, ',');
+      exit
+    end;
 
     EParseError;
     Break;

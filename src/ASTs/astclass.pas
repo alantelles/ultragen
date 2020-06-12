@@ -29,6 +29,24 @@ type
     function Count: integer;
   end;
 
+  TListAST = class (TAST)
+    private
+      FArgs: TASTList;
+    public
+      property PArgs: TASTList read FArgs write FArgs;
+      constructor Create(AToken: TToken; AArgs: TASTList);
+  end;
+
+  TListAccessAST = class (TAST)
+    private
+      FList: TAST;
+      FIndex: TAST;
+    public
+      property PIndex: TAST read FIndex write FIndex;
+      property PList: TAST read FList write FList;
+      constructor Create(AList: TAST; AIndex: TAST; AToken: TToken);
+  end;
+
   TFunctionDefinition = class (TAST)
     protected
       FName: string;
@@ -38,7 +56,7 @@ type
       property PParamList: TASTList read FParamList;
       property PBlock: TASTList read FBlock;
       property PName:string read FName;
-      constructor Create(AName:string; ABlock: TASTList; AParamList: TASTList);
+      constructor Create(AToken: TToken; AName:string; ABlock: TASTList; AParamList: TASTList);
   end;
 
   TFunctionCall = class(TAST)
@@ -115,6 +133,19 @@ begin
   logDebug('Creating a parameter node', 'AST');
 end;
 
+constructor TListAccessAST.Create(AList: TAST; AIndex: TAST; AToken: TToken);
+begin
+  FToken := AToken;
+  FList := AList;
+  FIndex := AIndex;
+end;
+
+constructor TListAST.Create(AToken: TToken; AARgs: TASTList);
+begin
+  FToken := AToken;
+  FArgs := AArgs;
+end;
+
 constructor TString.Create(AToken: TToken);
 begin
   logdebug('Creating a string node', 'AST');
@@ -143,10 +174,11 @@ begin
   FEvalParams := AEvalParams;
 end;
 
-constructor TFunctionDefinition.Create(AName:string; ABlock: TASTList; AParamList: TASTList);
+constructor TFunctionDefinition.Create(AToken: TToken; AName:string; ABlock: TASTList; AParamList: TASTList);
 begin
   FName := AName;
   FBlock := ABlock;
+  FToken := AToken;
   logDebug('Creating a function definition named ' + AName, 'AST');
   FParamList := AParamList;
 end;

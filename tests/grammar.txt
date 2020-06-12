@@ -12,6 +12,8 @@ factor : PLUS factor
     | string
     | boolean
     | funcCall
+	| listInit
+    | listAccess
     | null
 
 string : S_QT {printable-newline} S_QT
@@ -41,16 +43,34 @@ statement : assignment
     | funcCall
     | comment
     | conditional
+	| whileLoop
+    | forLoop
 
 conditional : 'if' LPAREN logicEval RPAREN statements 'end'
     | 'if' LPAREN logicEval RPAREN statements 'else' statements 'end'
     | 'if' LPAREN logicEval RPAREN statements ('elsif' LPAREN logicEval RPAREN statements)* ('else' statements)? 'end'
+	
+listInit : '[' listArgs ']'
+
+
+
+listAccess : logicEval listIndex | listAccess listIndex
+
+listIndex : '[' logicEval ']'
+
+listArgs : logicEval | logicEval COMMA listArgs
 
 whileLoop : 'while' LPAREN logicEval RPAREN statements 'end'
+
+forLoop : 'for' LPAREN list ',' ID RPAREN statements 'end'
 
 comment : '#'{printable}*
 
 funcCall : ID LPAREN args RPAREN
+
+objRef : ID '.' | ID '.' objRef
+
+methodCall : objRef funcCall 
 
 args : logicEval | logicEval COMMA args
 

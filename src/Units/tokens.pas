@@ -13,6 +13,9 @@ const
   TYPE_STRING = 'STRING';
   TYPE_BOOLEAN = 'BOOLEAN';
   TYPE_NULL = 'NULL';
+  TYPE_LIST = 'LIST';
+
+
 
   T_LANG_TRUE = 'True';
   T_LANG_FALSE = 'False';
@@ -30,6 +33,7 @@ const
   T_ELSE_IF = 'T_ELSE_IF';
 
   T_WHILE_LOOP = 'While loop';
+  T_FOR_LOOP = 'For Loop';
 
   T_LPAREN = 'T_LPAREN';
   T_RPAREN = 'T_RPAREN';
@@ -46,15 +50,22 @@ const
   T_COMMA = 'T_COMMA';
   T_END = 'block end';
   T_ID = 'T_ID';
+  T_ATTR_ACCESSOR = 'ATTRIBUTE ACCESS';
+
   ESCAPE_SYMBOL = '\';
   ASSIGN_SYMBOL = '=';
+  ATTR_ACCESSOR = '.';
   EOF = 'EOF';
   NONE = '';
   SET_NUMBERS = '0123456789.';
   LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz';
   T_NEWLINE = 'T_NEWLINE';
   T_COMMENT = 'T_COMMENT';
+
   T_LINE_COMMENT = '#';
+  T_LIST_START = 'T_LIST_START';
+  T_LIST_END = 'T_LIST_END';
+
 
 var
   ReservedWords: TFPObjectHashTable;
@@ -67,6 +78,7 @@ begin
   ReservedWords.Add('elsif', TToken.Create(T_ELSE_IF, 'ELSE IF'));
   ReservedWords.Add('else', TToken.Create(T_ELSE, 'T_ELSE'));
   ReservedWords.Add('while', TToken.Create(T_WHILE_LOOP, T_WHILE_LOOP));
+  ReservedWords.Add('for', TToken.Create(T_FOR_LOOP, T_FOR_LOOP));
   ReservedWords.Add('True', TToken.Create(TYPE_BOOLEAN, T_LANG_TRUE));
   ReservedWords.Add('False', TToken.Create(TYPE_BOOLEAN, T_LANG_FALSE));
   ReservedWords.Add('Null', TToken.Create(TYPE_NULL, T_LANG_NULL));
