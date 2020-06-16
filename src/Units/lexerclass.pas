@@ -38,6 +38,8 @@ uses
 constructor TLexer.Create(AText:string);
 begin
   FText := AText;
+  if Length(FText) = 0 then
+    exit;
   FPos := 1;
   FScriptLine := 1;
   FLineChar := 1;

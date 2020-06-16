@@ -1,3 +1,0 @@
-a = "item1x,xitem2x,xitem3"
-b = split(a, 'x,x')
-print(typeof(b))

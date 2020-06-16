@@ -1,6 +1,6 @@
 INTEGER : {Number}+
 FLOAT : {Number}+ '.' {Number}+
-ID : {letter}+{alpha}
+ID : {letter}+{alpha} | ID '.' {letter}+{alpha}
 
 factor : PLUS factor
     | MINUS factor 

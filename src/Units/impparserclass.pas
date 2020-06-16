@@ -36,8 +36,6 @@ type
     function VarAssign(AToken: TToken; ANull: TAST):TAST;
     function Variable(AToken: TToken):TAST;
     function FunctionBlock: TAST;
-    function InBlockStatements: TASTList;
-    function InBlockStatement: TAST;
     function DefParams:TASTList;
     function DefParam: TAST;
     function FunctionCall(AToken: TToken): TAST;
@@ -81,7 +79,10 @@ begin
   FInArgsDef := True;
   ParamList := DefParams();
   Eat(T_RPAREN);
+  FInArgsDef := False;
+  Eat(T_NEWLINE);
   InBlock := Statements();
+  Eat(T_END+T_FUNC_DEF);
   logtext('PARSER', 'Parser', 'Creating function block node');
   Result := TFunctionDefinition.Create(AToken, AStrId, InBlock, ParamList);
 end;
@@ -286,47 +287,6 @@ begin
   Result := TFunctionCall.Create(AFuncName, AArgs, AToken);
 end;
 
-function TTParser.InBlockStatements:TASTList;
-var
-  AList: TASTList;
-  len: integer;
-begin
-  Setlength(AList, 0);
-  len := Length(AList);
-  while (FCurrentToken.PType = T_NEWLINE)  do
-  begin
-    Eat(T_NEWLINE);
-    len := len + 1;
-    SetLength(Alist, Len);
-    AList[len - 1] := InBlockStatement()
-  end;
-  Result := Alist;
-end;
-
-function TTParser.InBlockStatement:TAST;
-var
-  AToken: TToken;
-  AStrId:string;
-begin
-  AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue);
-  if (AToken.PType = T_ID) then
-  begin
-    Eat(T_ID);
-    if (FCurrentToken.PType <> T_ASSIGN) then
-    begin
-      Result := LogicEval()
-    end
-    else
-      Result := VarAssign(AToken);
-  end
-  else if (AToken.PType = T_END+T_FUNC_DEF) then
-  begin
-    Eat(T_END+T_FUNC_DEF);
-    Result := TNoOp.Create;
-  end
-  else
-    Result := TNoOp.Create;
-end;
 
 function TTParser.DefParam:TAST;
 var
@@ -473,14 +433,15 @@ begin
   while FCurrentToken.PType = T_NEWLINE do
   begin
     Eat(T_NEWLINE);
-    if FInArgsDef then
-      continue;
+    if FCurrentToken.PType = T_NEWLINE then
+    begin
+      continue
+    end;
     len := len + 1;
     SetLength(Results, Len);
     Results[len - 1] := Statement();
     if FCurrentToken.PType = T_END+T_FUNC_DEF then
     begin
-      Eat(T_END+T_FUNC_DEF);
       break
     end
     else if FCurrentToken.PType = T_ELSE_IF then

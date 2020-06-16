@@ -48,7 +48,7 @@ const
   T_FUNC_PARAM = 'T_FUNC_PARAM';
   T_FUNC_DEF = 'T_FUNCTION_DEFINITION';
   T_COMMA = 'T_COMMA';
-  T_END = 'block end';
+  T_END = 'block end: ';
   T_ID = 'T_ID';
   T_ATTR_ACCESSOR = 'ATTRIBUTE ACCESS';
 

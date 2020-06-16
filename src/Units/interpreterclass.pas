@@ -610,50 +610,6 @@ begin
 	else
     raise ERunTimeError.Create('Can''t perform opertions between different types '+LeftClass+' and '+RightClass+' implicitly.');
 
-
-
-  {if ANode.PLeft.ClassNameIs('TNum') then
-    LeftRes := VisitNum(TNum(ANode.PLeft))
-  else if ANode.PLeft.ClassNameIs('TUnaryOp') then
-    LeftRes := VisitUnaryOp(TUnaryOp(ANode.PLeft))
-  else if ANode.PLeft.ClassNameIs('TBinOp') then
-    LeftRes := VisitBinOp(TBinOp(ANode.PLeft))
-  else if ANode.PLeft.ClassNameIs('TBinLogicOp') then
-  begin
-    AuxBool := VisitBinLogicOp(TBinLogicOp(ANode.PLeft));
-    if AuxBool then
-      LeftRes := 1
-    else
-      LeftRes := 0;
-  end;
-
-  if ANode.PRight.ClassNameIs('TNum') then
-    RightRes := VisitNum(TNum(ANode.PRight))
-  else if ANode.PRight.ClassNameIs('TUnaryOp') then
-    RightRes := VisitUnaryOp(TUnaryOp(ANode.PRight))
-  else if ANode.PRight.ClassNameIs('TBinOp') then
-    RightRes := VisitBinOp(TBinOp(ANode.PRight))
-  else if ANode.PRight.ClassNameIs('TBinLogicOp') then
-  begin
-    AuxBool := VisitBinLogicOp(TBinLogicOp(ANode.PRight));
-    if AuxBool then
-      RightRes := 1
-    else
-      RightRes := 0;
-  end;
-
-  if (ANode.POper.PType = T_PLUS) then
-    Result := LeftRes + RightRes
-  else if (ANode.POper.PType = T_MINUS) then
-    Result := LeftRes - RightRes
-  else if (ANode.POper.PType = T_MULT) then
-    Result := LeftRes * RightRes
-  else if (ANode.POper.PType = T_INT_DIV) then
-    Result := Floor(LeftRes / RightRes)
-  else if (ANode.POper.PType = T_MODULUS) then
-    Result := Floor(LeftRes) mod Floor(RightRes)
-  else if (ANode.POper.PType = T_DIV) then
-    Result := LeftRes / RightRes; }
 end;
 
 function TInterpreter.VisitNumFloat(ANode:TNumFloat):TFloatInstance;
