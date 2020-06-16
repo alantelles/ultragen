@@ -54,7 +54,10 @@ listInit : '[' listArgs ']'
 
 
 
-listAccess : logicEval listIndex | listAccess listIndex
+listAccess : id listIndex 
+    | funcCall listIndex 
+    | listInit listIndex
+    | listAccess listIndex
 
 listIndex : '[' logicEval ']'
 

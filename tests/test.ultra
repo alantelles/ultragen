@@ -1,3 +1,3 @@
 a = "item1x,xitem2x,xitem3"
-b = split(a, 'it')
-print(b[0] == '')
+b = split(a, 'x,x')
+print(typeof(b))
