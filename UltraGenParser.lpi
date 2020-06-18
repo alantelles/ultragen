@@ -72,92 +72,93 @@
         <UnitName Value="ImpParserClass"/>
       </Unit7>
       <Unit8>
-        <Filename Value="src\Units\symboltablecreatorclass.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="SymbolTableCreatorClass"/>
-      </Unit8>
-      <Unit9>
         <Filename Value="src\ASTs\unaryopclass.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UnaryOpClass"/>
-      </Unit9>
-      <Unit10>
+      </Unit8>
+      <Unit9>
         <Filename Value="src\ASTs\binlogicopclass.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="BinLogicOpClass"/>
-      </Unit10>
-      <Unit11>
+      </Unit9>
+      <Unit10>
         <Filename Value="src\ASTs\unarylogicopclass.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UnaryLogicOpClass"/>
-      </Unit11>
-      <Unit12>
+      </Unit10>
+      <Unit11>
         <Filename Value="src\Units\loggingclass.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="LoggingClass"/>
-      </Unit12>
-      <Unit13>
+      </Unit11>
+      <Unit12>
         <Filename Value="src\Symbols\symbolsclass.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="SymbolsClass"/>
-      </Unit13>
-      <Unit14>
+      </Unit12>
+      <Unit13>
         <Filename Value="src\Symbols\symboltableclass.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="SymbolTableClass"/>
-      </Unit14>
-      <Unit15>
+      </Unit13>
+      <Unit14>
         <Filename Value="src\Units\interpreterclass.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="InterpreterClass"/>
-      </Unit15>
-      <Unit16>
+      </Unit14>
+      <Unit15>
         <Filename Value="src\Exceptions\exceptionsclasses.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ExceptionsClasses"/>
-      </Unit16>
-      <Unit17>
+      </Unit15>
+      <Unit16>
         <Filename Value="src\Symbols\instanceofclass.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="InstanceOfClass"/>
-      </Unit17>
-      <Unit18>
+      </Unit16>
+      <Unit17>
         <Filename Value="src\Units\stackclass.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="StackClass"/>
-      </Unit18>
-      <Unit19>
+      </Unit17>
+      <Unit18>
         <Filename Value="src\ActRecords\arclass.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ARClass"/>
-      </Unit19>
-      <Unit20>
+      </Unit18>
+      <Unit19>
         <Filename Value="src\Core\corefunctionsclass.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="CoreFunctionsClass"/>
-      </Unit20>
-      <Unit21>
+      </Unit19>
+      <Unit20>
         <Filename Value="src\Utils\coreutils.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="CoreUtils"/>
-      </Unit21>
-      <Unit22>
+      </Unit20>
+      <Unit21>
         <Filename Value="src\Core\corefunctionsregisterrecords.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit22>
-      <Unit23>
-        <Filename Value="src\Core\corefunctions.pp"/>
-        <IsPartOfProject Value="True"/>
-      </Unit23>
-      <Unit24>
+      </Unit21>
+      <Unit22>
         <Filename Value="src\ASTs\flowcontrolastclass.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="FlowControlASTClass"/>
-      </Unit24>
-      <Unit25>
+      </Unit22>
+      <Unit23>
         <Filename Value="src\Symbols\listinstanceclass.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ListInstanceClass"/>
+      </Unit23>
+      <Unit24>
+        <Filename Value="src\BuiltInTypes\stringinstanceclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="StringInstanceClass"/>
+      </Unit24>
+      <Unit25>
+        <Filename Value="src\BootStrap\typesbootstrapclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TypesBootStrapClass"/>
       </Unit25>
     </Units>
   </ProjectOptions>
@@ -169,7 +170,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="src\Units;src\ASTs;src\Symbols;src\Exceptions;src\ActRecords;src\Core;src\Utils"/>
+      <OtherUnitFiles Value="src\Units;src\ASTs;src\Symbols;src\Exceptions;src\ActRecords;src\Core;src\Utils;src\BuiltInTypes;src\BootStrap"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
   </CompilerOptions>

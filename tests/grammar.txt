@@ -12,6 +12,7 @@ factor : PLUS factor
     | string
     | boolean
     | funcCall
+    | methodObjCall
 	| listInit
     | listAccess
     | null
@@ -73,7 +74,7 @@ funcCall : ID LPAREN args RPAREN
 
 objRef : ID '.' | ID '.' objRef
 
-methodCall : objRef funcCall 
+methodObjCall : objRef funcCall 
 
 args : logicEval | logicEval COMMA args
 

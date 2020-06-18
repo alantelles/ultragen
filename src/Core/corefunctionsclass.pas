@@ -5,7 +5,7 @@ unit CoreFunctionsClass;
 interface
 
 uses
-      Classes, SysUtils, Strutils, InstanceOfClass, ListInstanceClass;
+      Classes, SysUtils, Strutils, InstanceOfClass, StringInstanceClass, ListInstanceClass;
 
 type
   TParamList = array of string;
@@ -15,8 +15,6 @@ type
       FFuncList : TStringList;
       FParams: TinstanceList;
     public
-      constructor Create;
-      function FunctionExists(FName:string):boolean;
       function Execute(Fname:string; var AArgList:TInstanceList ):TInstanceOf;
 
 
@@ -24,12 +22,10 @@ type
       // procs
       function Print:TInstanceOf;
       function InlinePrint:TInstanceOf;
-
       // functions
       function GetTypeOf:TStringInstance;
       function CastToStr:TStringInstance;
       function CastToInt:TIntegerInstance;
-      function SplitString:TListInstance;
 	end;
 
 
@@ -38,13 +34,6 @@ implementation
 
 uses
   CoreUtils, ExceptionsClasses, Math;
-
-{$INCLUDE 'corefunctions.pp' }
-
-function TCoreFunction.FunctionExists(FName:string):boolean;
-begin
-  Result := FFuncList.IndexOf(Fname) > -1;
-end;
 
 function TCoreFunction.Execute(Fname:string; var AArgList:TInstanceList ):TInstanceOf;
 begin
@@ -61,9 +50,7 @@ begin
   else if FName = 'str' then
     Result := CastToStr
   else if FName = 'int' then
-    Result := CastToInt
-  else if FName = 'split' then
-    Result := SplitString;
+    Result := CastToInt;
 end;
 
 function TCoreFunction.Print:TInstanceOf;
@@ -167,31 +154,7 @@ begin
   end;
 end;
 
-function TCoreFunction.SplitString:TListInstance;
-var
-  ASep: string;
-  AList: TStringList;
-  AStr, s: string;
-  ARet: TListInstance;
-  AInsList: TInstanceList;
-  len: integer;
-begin
-  AStr := TStringInstance(FParams[0]).PValue;
-  ASep := TStringInstance(FParams[1]).PValue;
-  AList := TStringList.Create;
-  AList.SkipLastLineBreak := True;
-  AList.LineBreak := ASep;
-  AList.Text := AStr;
-  SetLength(AInsList, 0);
-  len := 0;
-  for s in AList do
-  begin
-    len := len + 1;
-    SetLength(AInsList, len);
-    AInsList[len - 1] := TStringInstance.Create(s);
-  end;
-  Result := TListInstance.Create(AInsList);
-end;
+
 
 end.
 

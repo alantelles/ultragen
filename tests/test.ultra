@@ -1,0 +1,6 @@
+x = 7
+y = " hello"
+print(str(x)+y)
+z = str(x)+y
+z = z.upper()
+print(z)

@@ -52,14 +52,6 @@ type
       procedure AddBlock(ABlock: TASTList);
 	end;
 
-  TStringInstance = class (TInstanceOf)
-    protected
-      FValue:string;
-    public
-      property PValue:string read FValue write FValue;
-      constructor Create(AValue: string);
-      function GetChar(AnIndex: TIntegerInstance):TStringInstance;
-  end;
 
   TFloatInstance = class (TInstanceOf)
     protected
@@ -118,18 +110,6 @@ end;
 constructor TFloatInstance.Create(AValue: extended);
 begin
   FValue := AValue;
-end;
-
-constructor TStringInstance.Create(AValue: string);
-begin
-  FValue := AValue;
-end;
-
-function TStringInstance.GetChar(AnIndex: TIntegerInstance):TStringInstance;
-begin
-  if Length(FValue) < AnIndex.PValue + 1 then
-    raise ERunTimeError.Create('Index is greater than string size');
-  Result := TStringInstance.Create(FValue[AnIndex.PValue + 1]);
 end;
 
 constructor TBooleanInstance.Create(AValue: boolean);

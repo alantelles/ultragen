@@ -57,7 +57,7 @@ const
   ATTR_ACCESSOR = '.';
   EOF = 'EOF';
   NONE = '';
-  SET_NUMBERS = '0123456789.';
+  SET_NUMBERS = '0123456789';
   LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz';
   T_NEWLINE = 'T_NEWLINE';
   T_COMMENT = 'T_COMMENT';

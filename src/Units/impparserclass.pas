@@ -39,6 +39,7 @@ type
     function DefParams:TASTList;
     function DefParam: TAST;
     function FunctionCall(AToken: TToken): TAST;
+    function MethodObjCall(AToken: TToken): TAST;
     function Args: TASTList;
     function ListArgs: TASTList;
     function IfBlock: TAST;
@@ -48,7 +49,6 @@ type
     function ForLoop: TAST;
     function List:TAST;
     function ListAccess(AToken: TToken): TAST;
-    function MethodCall(AToken: TToken): TAST;
 
   end;
 
@@ -234,12 +234,6 @@ begin
   Result := AArgs;
 end;
 
-function TTParser.MethodCall(AToken: TToken): TAST;
-var
-  Ret: TAST;
-begin
-  Result := TNoOp.Create;
-end;
 
 function TTParser.ListAccess(AToken:TToken): TAST;
 var
@@ -268,6 +262,18 @@ begin
   Ret := TListAST.Create(AToken, ListArgs());
   Eat(T_LIST_END);
   Result := Ret;
+end;
+
+function TTParser.MethodObjCall(AToken: TToken):TAST;
+var
+  VRef:TAST;
+  x:TToken;
+begin
+  VRef := TVariableReference.Create(AToken);
+  Eat(T_ATTR_ACCESSOR);
+  X := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue);
+  Eat(T_ID);
+  Result := TMethodObjCall.Create(VRef, FunctionCall(X));
 end;
 
 function TTParser.FunctionCall(AToken: TToken):TAST;
@@ -382,7 +388,7 @@ begin
     end
     else if (FCurrentToken.PType = T_ATTR_ACCESSOR) then
     begin
-      Result := MethodCall(AToken)
+      Result := MethodObjCall(AToken)
     end
     else
       EParseError;
@@ -505,11 +511,12 @@ end;
 
 function TTParser.Factor:TAST;
 var
-  AToken: TToken;
+  AToken, ParToken: TToken;
   Ret:TAST;
 
 begin
   AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue);
+  ParToken := TToken.Create();
   if (FCurrentToken.PType = T_NEWLINE) then
 		Eat(T_NEWLINE);
   if (AToken.PType = T_MINUS) then
@@ -581,7 +588,11 @@ begin
   else if (AToken.PType = T_ID) then
   begin
     Eat(T_ID);
-    if (FCurrentToken.PType = T_LPAREN) then
+    if FCurrentToken.PType = T_ATTR_ACCESSOR then
+    begin
+      Result := MethodObjCall(AToken);
+		end
+		else if (FCurrentToken.PType = T_LPAREN) then
     begin
       Ret := FunctionCall(AToken);
       Result := Ret

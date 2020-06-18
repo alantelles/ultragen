@@ -8,14 +8,16 @@ uses
       Classes, SysUtils, ASTClass,
       BinOpClass, NumClass, UnaryOpClass, BinLogicOpClass, UnaryLogicopClass,
       Tokens, ImpParserClass, StrUtils, LoggingClass, FlowControlASTClass,
-      StackClass, ARClass, InstanceofClass, ListInstanceClass, CoreFunctionsClass;
+      StackClass, ARClass, InstanceofClass,
+      StringInstanceClass, TypesBootStrapClass,
+      ListInstanceClass, CoreFunctionsClass;
 
 type
   TInterpreter = class
     private
       FTree: TAST;
       FCallStack: TStack;
-      FCore: TCoreFunction;
+      FRegisters: TBootStrap;
 
     public
       property PTree:TAST read FTree;
@@ -28,6 +30,7 @@ type
       procedure VisitVarAssign(ANode: TVarAssign);
       function VisitVariableReference(ANode: TVariableReference):TInstanceOf;
       function VisitFunctionCall(ANode: TFunctionCall):TInstanceOf;
+      function VisitMethodObjCall(ANode: TMethodObjCall):TInstanceOf;
       function VisitListAccess(ANode: TListAccessAST): TInstanceOf;
 
 
@@ -68,7 +71,8 @@ uses
 
 constructor TInterpreter.Create(var ATree: TAST);
 begin
-  FCore := TCoreFunction.Create;
+  FRegisters := TBootStrap.Create;
+  FRegisters := RegisteredMethods;
   FTree := ATree;
   FCallStack := TStack.Create;
 end;
@@ -241,12 +245,12 @@ var
   FuncDef: TFunctioninstance;
   i, len, len2: integer;
   ArgsList: TInstanceList;
+  IsMethod: boolean;
 begin
 
   LogText(INTER, 'Interpreter', 'Visiting function ' + ANode.PFuncName);
-  if not FCore.FunctionExists(ANode.PFuncName) then
+  if not FRegisters.FunctionExists(ANode.PFuncName) then
   begin
-
         ARNext := TActivationRecord.Create(ANode.PToken.PValue, AR_FUNCTION, FCallStack.PLevel+1);
         AActRec := FCallStack.Peek();
 		    FuncDef := TFunctionInstance(AActRec.GetMember(Anode.PFuncname));
@@ -256,10 +260,7 @@ begin
 		    begin
 		      for i:=0 to len-1 do
 		      begin
-            {if Anode.PEvalParams[i].PToken.PType = T_ID then
-		          Res := VisitVariableReference(TVariablereference(Anode.PEvalParams[i]))
-            else
-              }Res := Visit(Anode.PEvalParams[i]);
+            Res := Visit(Anode.PEvalParams[i]);
 						LogText(INTER, 'Interpreter', 'Registering param ' + FuncDef.PParams[i] + ' with value '+Res.ClassName);
 		        ARNext.AddMember(FuncDef.PParams[i], Res);
 			    end;
@@ -280,16 +281,70 @@ begin
     begin
       for i:=0 to len-1 do
       begin
-        {if (Anode.PEvalParams[i].PToken.PType = T_ID) then
-          Res := VisitVariableReference(TVariableReference(Anode.PEvalParams[i]))
-        else
-          }Res := Visit(Anode.PEvalParams[i]);
+        Res := Visit(Anode.PEvalParams[i]);
         LogText(INTER, 'Interpreter', 'Registering param ' + Anode.PEvalParams[i].PToken.PValue + ' with value '+Res.ClassName);
         SetLength(ArgsList, i+1);
         ArgsList[i] := Res;
 	    end;
 	  end;
-    Res := FCore.Execute(ANode.PToken.PValue, ArgsList);
+    Res := FRegisters.Execute(ANode.PToken.PValue, ArgsList);
+    Result := Res;
+	end;
+end;
+
+function TInterpreter.VisitMethodObjCall(ANode: TMethodObjCall):TInstanceOf;
+var
+  AActRec, ARNext: TActivationRecord;
+  AState: TAST;
+  Res: TInstanceOf;
+  FuncDef: TFunctioninstance;
+  AFuncNode: TFunctionCall;
+  i, len, len2: integer;
+  ArgsList: TInstanceList;
+  AClass: TInstanceOf;
+begin
+  AClass := Visit(ANode.PParent);
+  AFuncNode := TFunctionCall(ANode.PFunction);
+  LogText(INTER, 'Interpreter', 'Visiting method ' + AFuncNode.PFuncName);
+  if not FRegisters.FunctionExists(AFuncNode.PFuncName, AClass.ClassName) then
+  begin
+       { ARNext := TActivationRecord.Create(ANode.PToken.PValue, AR_FUNCTION, FCallStack.PLevel+1);
+        AActRec := FCallStack.Peek();
+		    FuncDef := TFunctionInstance(AActRec.GetMember(Anode.PFuncname));
+
+		    len := length(FuncDef.PParams);
+		    if len > 0 then
+		    begin
+		      for i:=0 to len-1 do
+		      begin
+            Res := Visit(Anode.PEvalParams[i]);
+						LogText(INTER, 'Interpreter', 'Registering param ' + FuncDef.PParams[i] + ' with value '+Res.ClassName);
+		        ARNext.AddMember(FuncDef.PParams[i], Res);
+			    end;
+			  end;
+		    FCallStack.Push(ARNext);
+		    for AState in FuncDef.PBlock do
+		    begin
+		      LogText(INTER, 'Interpreter', 'Visiting a function statement ' + AState.ToString);
+		      Visit(AState);
+		    end;
+			  FCallStack.Pop();}
+	end
+  else
+  begin
+    SetLength(ArgsList, 0);
+    len := Length(AFuncnode.PEvalParams);
+    if len > 0 then
+    begin
+      for i:=0 to len-1 do
+      begin
+        Res := Visit(AFuncNode.PEvalParams[i]);
+        LogText(INTER, 'Interpreter', 'Registering param ' + AFuncNode.PEvalParams[i].PToken.PValue + ' with value '+Res.ClassName);
+        SetLength(ArgsList, i+1);
+        ArgsList[i] := Res;
+	    end;
+	  end;
+    Res := FRegisters.Execute(AFuncNode.PToken.PValue, AClass, ArgsList);
     Result := Res;
 	end;
 end;
@@ -329,6 +384,8 @@ begin
     Result := VisitVariableReference(TVariableReference(ANode))
   else if ANode.ClassNameIs('TFunctionCall') then
     Result := VisitFunctionCall(TFunctionCall(Anode))
+  else if ANode.ClassNameIs('TMethodObjCall') then
+    Result := VisitMethodObjCall(TMethodObjCall(Anode))
   else if ANode.ClassNameIs('TFunctionDefinition') then
     VisitFunctionDefinition(TFunctionDefinition(Anode))
   else if Anode.ClassNameIs('TNumInt') then

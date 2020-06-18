@@ -10,8 +10,8 @@ uses
   { you can add units after this }
   ASTClass, LexerClass, ImpParserClass, InterpreterClass,
   StrUtils, SymbolTableClass, SymbolsClass,TOkens, crt,
-  SymbolTableCreatorClass, LoggingClass, StackClass, ARClass,
-  InstanceOfClass;
+  LoggingClass, StackClass, ARClass,
+  InstanceOfClass, StringInstanceClass;
 var
   ASource: TStringList;
   AOut:string;
@@ -19,7 +19,6 @@ var
   ALexer: TLexer;
   ATree: TAST;
   AInter: TInterpreter;
-  ABuilder: TSymbolTableBuilder;
   AStack: TStack;
   AnAr: TActivationRecord;
 begin

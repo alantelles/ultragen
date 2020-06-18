@@ -69,6 +69,16 @@ type
       constructor Create(AFuncName:string; AEvalParams: TASTList; AToken:TToken);
   end;
 
+  TMethodObjCall = class(TAST)
+    protected
+      FParent: TAST;
+      FFunction: TAST;
+    public
+      property PParent: TAST read FParent write FParent;
+      property PFunction: TAST read FFunction write FFunction;
+      constructor Create(AParent: TAST; AFunction: TAST);
+  end;
+
   TParam = class (TAST)
     protected
       FNode: TToken;
@@ -172,6 +182,12 @@ begin
   FToken := AToken;
   FFuncName := AFuncName;
   FEvalParams := AEvalParams;
+end;
+
+constructor TMethodObjCall.Create(AParent: TAST; AFunction: TAST);
+begin
+  FParent := AParent;
+  FFunction := AFunction;
 end;
 
 constructor TFunctionDefinition.Create(AToken: TToken; AName:string; ABlock: TASTList; AParamList: TASTList);

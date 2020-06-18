@@ -24,7 +24,7 @@ type
 
 implementation
 uses
-  StrUtils, CoreUtils, Tokens;
+  StrUtils, CoreUtils, Tokens, StringInstanceClass;
 
 constructor TListInstance.Create(AList: TInstanceList);
 begin
@@ -63,7 +63,7 @@ begin
   for AItem in FValue do
   begin
     case AItem.ClassName of
-      'TStringInstance' : Ret.Add(TStringInstance(AItem).PValue);
+      'TStringInstance' : Ret.Add(TStringInstance(AItem).AsString);
       'TIntegerInstance' : Ret.Add(TIntegerInstance(AItem).PValue.ToString);
       'TFloatInstance' : Ret.Add(FloatToStr(TFloatInstance(AItem).PValue));
       'TBooleanInstance' : Ret.Add(BooleanToStr(TBooleanInstance(AItem).PValue));

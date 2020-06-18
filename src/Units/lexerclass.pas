@@ -143,7 +143,7 @@ var
   Return: string = '';
   GotDot: boolean = False;
 begin
-  while (Pos(FCurrChar, SET_NUMBERS) > 0) and (FCurrChar <> NONE) do
+  while (Pos(FCurrChar, SET_NUMBERS+'.') > 0) and (FCurrChar <> NONE) do
   begin
     Return := Return + FCurrChar;
     if FCurrChar = '.' then
@@ -429,7 +429,8 @@ begin
     if FCurrChar = '.' then
     begin
       Advance;
-      Result := TToken.Create(T_ATTR_ACCESSOR, ATTR_ACCESSOR)
+      Result := TToken.Create(T_ATTR_ACCESSOR, ATTR_ACCESSOR);
+      exit;
     end;
 
     if (FCurrChar = ',') then
