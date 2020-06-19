@@ -100,5 +100,6 @@ begin
   RegisteredMethods := TBootStrap.Create;
   {$INCLUDE 'corefunctions.pp' }
   {$INCLUDE 'stringmethods.pp' }
+  {$INCLUDE 'listmethods.pp' }
 
 end.

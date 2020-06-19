@@ -146,19 +146,19 @@
         <UnitName Value="FlowControlASTClass"/>
       </Unit22>
       <Unit23>
-        <Filename Value="src\Symbols\listinstanceclass.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="ListInstanceClass"/>
-      </Unit23>
-      <Unit24>
         <Filename Value="src\BuiltInTypes\stringinstanceclass.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="StringInstanceClass"/>
-      </Unit24>
-      <Unit25>
+      </Unit23>
+      <Unit24>
         <Filename Value="src\BootStrap\typesbootstrapclass.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="TypesBootStrapClass"/>
+      </Unit24>
+      <Unit25>
+        <Filename Value="src\BuiltInTypes\listinstanceclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ListInstanceClass"/>
       </Unit25>
     </Units>
   </ProjectOptions>

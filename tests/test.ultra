@@ -1,3 +1,5 @@
-k = "ESTE TEXTO É TODO GRANDE"
-k = k.capital()
-print(k)
+a = "hello world"
+print(a)
+a = a.replace('world', 'ultragen')
+a = a.upper()
+print(a)

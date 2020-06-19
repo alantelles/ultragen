@@ -11,6 +11,8 @@ type
   TListInstance = class (TInstanceOf)
     private
       FValue: TInstanceList;
+      FMetName:string;
+      FArgs: TListInstance;
       function LenList:integer;
     public
       property Count: integer read LenList;
@@ -20,11 +22,17 @@ type
       function AsString:string;
       function GetItem(AIndex: TIntegerInstance):TInstanceOf;
 
+      function Execute: TInstanceOf;
+
+      //functions
+      function MapList: TListInstance;
+
+
   end;
 
 implementation
 uses
-  StrUtils, CoreUtils, Tokens, StringInstanceClass;
+  StrUtils, CoreUtils, Tokens, ExceptionsClasses, StringInstanceCLass;
 
 constructor TListInstance.Create(AList: TInstanceList);
 begin
@@ -72,6 +80,17 @@ begin
     end;
   end;
   Result := '[' + Ret.Text + ']';
+end;
+
+function TListInstance.Execute:TInstanceOf;
+begin
+  if FMetName = 'each' then
+    Result := MapList;
+end;
+
+function TListInstance.MapList:TListInstance;
+begin
+
 end;
 
 end.

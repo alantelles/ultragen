@@ -26,7 +26,8 @@ type
 
       //functions
       function SplitString:TListInstance;
-      function CapitalString:TStringInstance;
+      function CapitalString:TStringInstance;  
+      function JoinString: TStringInstance;
 
       //procedures
 
@@ -51,6 +52,32 @@ begin
   if Length(FValue) < AnIndex.PValue + 1 then
     raise ERunTimeError.Create('Index is greater than string size');
   Result := TStringInstance.Create(FValue[AnIndex.PValue + 1]);
+end;
+
+function TStringInstance.JoinString:TStringInstance;
+var
+  len, i: integer;
+  joiner, part: string;
+begin
+  len := Length(FArgs);
+  // joiner := TStringInstance(FArgs[0]).PValue;
+  joiner := FValue;
+  part := '';
+  if len > 0 then
+  begin
+    for i:= 0 to len-1 do
+    begin
+      if FArgs[i].ClassNameIs('TStringInstance') then
+      begin
+        part := part + TStringInstance(FArgs[i]).PValue;
+        if i < (len-1) then
+          part := part + joiner;
+      end
+      else
+        ERunTimeError.Create('Only string instances can be joined');
+    end;
+  end;
+  Result := TStringInstance.Create(part);
 end;
 
 function TStringInstance.CapitalString:TStringInstance;
@@ -89,16 +116,15 @@ begin
             end;
           end;
         end;
-        FValue := part;
       end
       else
-        FValue := AnsiUpperCase(FValue[1]) + AnsiLowerCase(Copy(FValue, 2, Length(FValue)));
+        part := AnsiUpperCase(FValue[1]) + AnsiLowerCase(Copy(FValue, 2, Length(FValue)));
 
     end
     else
-      FValue := AnsiUpperCase(FValue[1]) + AnsiLowerCase(Copy(FValue, 2, Length(FValue)));
+      part := AnsiUpperCase(FValue[1]) + AnsiLowerCase(Copy(FValue, 2, Length(FValue)));
   end;
-  Result := Self;
+  Result := TStringInstance.Create(part);
 end;
 
 function TStringInstance.SplitString:TListInstance;
@@ -129,22 +155,17 @@ begin
   if FMetName = 'split' then
     Result := SplitString
   else if FMetName = 'upper' then
-  begin
-    FValue := AnsiUpperCase(FValue);
-    Result := Self;
-	end
+    Result := TStringInstance.Create(AnsiUpperCase(FValue))
   else if FMetName = 'lower' then
-  begin
-    FValue := AnsiLowerCase(FValue);
-    Result := Self;
-	end
+    Result := TStringInstance.Create(AnsiLowerCase(FValue))
+  else if FMetName = 'join' then
+    Result := JoinString
   else if FMetName = 'capital' then
     Result := CapitalString
   else if FMetName = 'replace' then
-  begin
-    FValue := ReplaceStr(FValue, TStringInstance(FArgs[0]).PValue, TStringInstance(FArgs[1]).PValue);
-    Result := Self;
-	end;
+    Result := TStringInstance.Create(
+      ReplaceStr(FValue, TStringInstance(FArgs[0]).PValue, TStringInstance(FArgs[1]).PValue)
+    );
 end;
 
 
