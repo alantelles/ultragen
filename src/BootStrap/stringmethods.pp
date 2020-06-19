@@ -1,6 +1,7 @@
 TypeName := 'TStringInstance';
 RegisteredMethods.RegisterType(TypeName);
 RegisteredMethods.RegisterMethod(TypeName, 'split', 'String');
-RegisteredMethods.RegisterMethod(TypeName, 'upper', 'String');
-RegisteredMethods.RegisterMethod(TypeName, 'replace', 'String,String');
-
+RegisteredMethods.RegisterMethod(TypeName, 'upper', ',');
+RegisteredMethods.RegisterMethod(TypeName, 'lower', ',');
+RegisteredMethods.RegisterMethod(TypeName, 'replace', ',');
+RegisteredMethods.RegisterMethod(TypeName, 'capital', 'Boolean?');

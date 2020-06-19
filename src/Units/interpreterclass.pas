@@ -203,22 +203,7 @@ begin
   AName := ANode.PVarName.PValue;
   AValue := Visit(ANode.PValue);
   AActrec := FCallStack.Peek;
-  {if AValue.ClassNameIs('TStringInstance') then
-    AActRec.AddMember(AName, TStringInstance(AValue))
-  else if AValue.ClassNameIs('TBooleanInstance') then
-    AActRec.AddMember(AName, TBooleanInstance(AValue))
-  else if AValue.ClassNameIs('TIntegerInstance') then
-    AActRec.AddMember(AName, TIntegerInstance(AValue))
-  else if AValue.ClassNameIs('TFloatInstance') then
-    AActRec.AddMember(AName, TFloatInstance(AValue))
-  else if AValue.ClassNameIs('TFunctionInstance') then
-    AActRec.AddMember(Aname, AValue)
-  else}
-    AActRec.AddMember(AName, AValue);
-  //LogText(DEBUG, 'Interpreter', 'Assigning var '+ ANode.PLeft.PToken.AsString +' to symbol table');
-  //ASolve := visit(ANode.PRight);
-  // FGlobals.Add(ANode.PLeft.PToken.PValue+'='+FloatToStr(ASolve));
-  //LogText(DEBUG, 'Interpreter', 'Added value :'+ FGlobals.Values[ANode.PLeft.PToken.PValue]);
+  AActRec.AddMember(AName, AValue);
 end;
 
 function TInterpreter.VisitVariableReference(ANode: TVariableReference):TInstanceOf;
