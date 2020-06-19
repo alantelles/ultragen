@@ -58,8 +58,11 @@ function TStringInstance.JoinString:TStringInstance;
 var
   len, i: integer;
   joiner, part: string;
+  AList: TListInstance;
+  AStr: TStringInstance;
 begin
-  len := Length(FArgs);
+  AList := TListInstance(FArgs[0]);
+  len := AList.Count;
   // joiner := TStringInstance(FArgs[0]).PValue;
   joiner := FValue;
   part := '';
@@ -67,14 +70,15 @@ begin
   begin
     for i:= 0 to len-1 do
     begin
-      if FArgs[i].ClassNameIs('TStringInstance') then
+      if AList.GetItem(i).ClassNameIs('TStringInstance') then
       begin
-        part := part + TStringInstance(FArgs[i]).PValue;
+        AStr := TStringInstance(AList.GetItem(i));
+        part := part + AStr.PValue;
         if i < (len-1) then
           part := part + joiner;
       end
       else
-        ERunTimeError.Create('Only string instances can be joined');
+        raise ERunTimeError.Create('Only string instances can be joined');
     end;
   end;
   Result := TStringInstance.Create(part);

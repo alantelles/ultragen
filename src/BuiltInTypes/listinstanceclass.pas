@@ -21,6 +21,7 @@ type
       constructor Create;
       function AsString:string;
       function GetItem(AIndex: TIntegerInstance):TInstanceOf;
+      function GetItem(AIndex: integer):TInstanceOf;
 
       function Execute: TInstanceOf;
 
@@ -53,6 +54,17 @@ begin
     Result := Ret
   else
     raise EListError.Create('Undefined index '+IntToStr(Aindex.PValue)+' at list');
+end;
+
+function TListInstance.GetItem(AIndex: integer):TInstanceOf;
+var
+  Ret: TInstanceOf;
+begin
+  Ret := FValue[AIndex];
+  if Ret <> nil then
+    Result := Ret
+  else
+    raise EListError.Create('Undefined index '+IntToStr(Aindex)+' at list');
 end;
 
 function TListInstance.LenList:integer;
