@@ -28,9 +28,8 @@ type
       function CastToInt:TIntegerInstance;
 
        //functions
-      function SplitString:TListInstance;
-      function CapitalString:TStringInstance;
-      function JoinString: TStringInstance;
+
+      {$INCLUDE 'string/declarations.pp'}
 	end;
 
 
@@ -50,7 +49,7 @@ begin
   else if FName = 'inline' then
     Result := InlinePrint
 
-  {$INCLUDE 'stringoptions.pp'}
+  {$INCLUDE 'string/options.pp'}
   // functions
   else if FName = 'typeof' then
     Result := GetTypeOf
@@ -161,7 +160,7 @@ begin
   end;
 end;
 
-{$INCLUDE 'stringfunctions.pp'}
+{$INCLUDE 'string/functions.pp'}
 
 
 

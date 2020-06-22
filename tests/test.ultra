@@ -1,6 +1,1 @@
-b = ["zika", True]
-
-print(typeof(5+4))
-b = upper(join(b, "|"))
-print(b)
-print(typeof(b))
+print(capital("foi somente onda", True))

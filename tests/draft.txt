@@ -1,9 +1,0 @@
-um bootstrap contem um hash de listas
-
-'string' : lista de métodos para string
-'integer' : lista de métodos para integer
-
-um elemento de uma lista é um hash de string
-
-um elemento de string é um par
-    nome método : assinatura

@@ -7,6 +7,7 @@ var
 begin
   AList := TListInstance(FParams[0]);
   len := AList.Count;
+  // joiner := TStringInstance(FParams[0]).PValue;
   joiner := TStringInstance(FParams[1]).PValue;
   part := '';
   if len > 0 then
