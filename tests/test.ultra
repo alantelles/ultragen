@@ -1,4 +1,6 @@
-a = ["item1", 5, "item3"]
-b = "|"
-c = b.join(a)
-print(c)
+b = ["zika", True]
+
+print(typeof(5+4))
+b = upper(join(b, "|"))
+print(b)
+print(typeof(b))

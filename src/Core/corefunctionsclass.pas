@@ -26,6 +26,11 @@ type
       function GetTypeOf:TStringInstance;
       function CastToStr:TStringInstance;
       function CastToInt:TIntegerInstance;
+
+       //functions
+      function SplitString:TListInstance;
+      function CapitalString:TStringInstance;
+      function JoinString: TStringInstance;
 	end;
 
 
@@ -44,6 +49,8 @@ begin
     Result := Print
   else if FName = 'inline' then
     Result := InlinePrint
+
+  {$INCLUDE 'stringoptions.pp'}
   // functions
   else if FName = 'typeof' then
     Result := GetTypeOf
@@ -153,6 +160,8 @@ begin
       raise ETypeError.Create('Can''t convert value "'+FloatToStr(TFloatInstance(FParams[0]).PValue)+'" to integer');
   end;
 end;
+
+{$INCLUDE 'stringfunctions.pp'}
 
 
 

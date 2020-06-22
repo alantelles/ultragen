@@ -12,17 +12,15 @@ type
 
   TBootstrap = class
   private
-    FTypes: TFPObjectHashTable;
-    FmethodsOfTypes: TFPObjectHashTable;
+    FFunctions: TFPStringHashTable;
+    FNowType: string;
   public
-    property PTypes: TFPObjectHashTable read FTypes write FTypes;
+    property PNowType: string read FNowType write FNowType;
+    property PFunctions: TFPStringHashTable read FFunctions write FFunctions;
     constructor Create;
-    procedure RegisterMethods(ATypeName: string; AMethodList: TFPStringHashTable);
-    procedure RegisterType(ATypeName: string);
-    procedure RegisterMethod(ATypeName, AMethodName, ASignature: string);
-    function FunctionExists(AName: string; AType: string = 'core'): boolean;
+    procedure RegisterFunction(AName: string; ASignature:string);
+    function FunctionExists(AName: string): boolean;
     function Execute(AName: string; var AArgList: TInstanceList): TInstanceOf;
-    function Execute(AName: string; AInstance:TInstanceOf; var AArgList: TInstanceList): TInstanceOf;
   end;
 
 var
@@ -36,59 +34,30 @@ uses
 
 constructor TBootStrap.Create;
 begin
-  FTypes := TFPObjectHashTable.Create();
-  FMethodsOfTypes := TFPObjectHashTable.Create;
+  FFunctions := TFPStringHashTable.Create();
 end;
 
-procedure TBootStrap.RegisterMethods(ATypeName: string; AMethodList: TFPStringHashTable);
-begin
-  FTypes.Add(ATypeName, AMethodList);
-end;
 
-function TBootStrap.FunctionExists(AName: string; AType: string = 'core'): boolean;
+function TBootStrap.FunctionExists(AName: string): boolean;
 var
   Ret: boolean = False;
-  Ex: TFPStringHashTable;
+  Found:string;
 begin
-  Ex := TFPStringHashTable(FTypes[AType]);
-  if Ex <> nil then
-  begin
-    if Ex[AName] <> '' then
-      Ret := True;
-  end;
-  Result := Ret;
+  Result := FFunctions[AName] <> '';
 end;
 
-procedure TBootStrap.RegisterType(ATypeName: string);
+procedure TBootStrap.RegisterFunction(AName: string; ASignature:string);
 begin
-  FTypes.Add(ATypeName, TFPStringHashTable.Create);
-end;
-
-procedure TBootStrap.RegisterMethod(ATypeName, AMethodName, ASignature: string);
-begin
-  try
-    TFPStringHashTable(FTypes[ATypeName]).Add(AMethodName, ASignature);
-
-  except
-    raise Exception.Create('Type "' + ATypeName + '" does not exist');
-  end;
+  FFunctions.Add(AName, FNowType+':'+ASignature);
 end;
 
 
-function TBootStrap.Execute(AName: string; AInstance:TInstanceOf; var AArgList: TInstanceList): TInstanceOf;
-var
-  conv: TStringInstance;
-begin
-  Conv := TStringInstance(AInstance);
-  Conv.PArgs := AArgList;
-  Conv.PMetname := AName;
-  Result := Conv.Execute;
-end;
 function TBootStrap.Execute(AName: string; var AArgList: TInstanceList): TInstanceOf;
 // is core
 var
   ACore: TCoreFunction;
   Ret: TInstanceOf;
+  FuncType: string;
 begin
   ACore := TCoreFunction.Create;
   Ret := ACore.Execute(AName, AArgList);

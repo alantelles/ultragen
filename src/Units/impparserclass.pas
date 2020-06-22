@@ -39,7 +39,6 @@ type
     function DefParams:TASTList;
     function DefParam: TAST;
     function FunctionCall(AToken: TToken): TAST;
-    function MethodObjCall(AToken: TToken): TAST;
     function Args: TASTList;
     function ListArgs: TASTList;
     function IfBlock: TAST;
@@ -264,17 +263,6 @@ begin
   Result := Ret;
 end;
 
-function TTParser.MethodObjCall(AToken: TToken):TAST;
-var
-  VRef:TAST;
-  x:TToken;
-begin
-  VRef := TVariableReference.Create(AToken);
-  Eat(T_ATTR_ACCESSOR);
-  X := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue);
-  Eat(T_ID);
-  Result := TMethodObjCall.Create(VRef, FunctionCall(X));
-end;
 
 function TTParser.FunctionCall(AToken: TToken):TAST;
 var
@@ -385,10 +373,6 @@ begin
     else if (FCurrentToken.PType = T_LPAREN) then
     begin
       Result := FunctionCall(AToken)
-    end
-    else if (FCurrentToken.PType = T_ATTR_ACCESSOR) then
-    begin
-      Result := MethodObjCall(AToken)
     end
     else
       EParseError;
@@ -588,11 +572,7 @@ begin
   else if (AToken.PType = T_ID) then
   begin
     Eat(T_ID);
-    if FCurrentToken.PType = T_ATTR_ACCESSOR then
-    begin
-      Result := MethodObjCall(AToken);
-		end
-		else if (FCurrentToken.PType = T_LPAREN) then
+    if (FCurrentToken.PType = T_LPAREN) then
     begin
       Ret := FunctionCall(AToken);
       Result := Ret

@@ -1,7 +1,6 @@
-TypeName := 'core';
-RegisteredMethods.RegisterType(TypeName);
-RegisteredMethods.RegisterMethod(TypeName, 'print', '*:*');
-RegisteredMethods.RegisterMethod(TypeName, 'inline', '*:*');
-RegisteredMethods.RegisterMethod(TypeName, 'str', '0:*');
-RegisteredMethods.RegisterMethod(TypeName, 'int', '0:*');
-RegisteredMethods.RegisterMethod(TypeName, 'typeof', '0:*');
+RegisteredMethods.PNowType := '';
+RegisteredMethods.RegisterFunction('print', '*:*');
+RegisteredMethods.RegisterFunction('inline', '*:*');
+RegisteredMethods.RegisterFunction('str', '0:*');
+RegisteredMethods.RegisterFunction('int', '0:*');
+RegisteredMethods.RegisterFunction('typeof', '0:*');

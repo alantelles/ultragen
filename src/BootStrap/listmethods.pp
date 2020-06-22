@@ -1,3 +1,2 @@
-TypeName := 'TListInstance';
-RegisteredMethods.RegisterType(TypeName);
-RegisteredMethods.RegisterMethod(TypeName, 'map', 'function');
+RegisteredMethods.PNowType := 'list';
+RegisteredMethods.RegisterFunction('map', 'function');
