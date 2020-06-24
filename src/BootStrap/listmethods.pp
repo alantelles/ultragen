@@ -1,2 +1,2 @@
-RegisteredMethods.PNowType := 'list';
+RegisteredMethods.PNowType := 'List';
 RegisteredMethods.RegisterFunction('map', 'function');

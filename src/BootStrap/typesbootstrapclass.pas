@@ -5,7 +5,7 @@ unit TypesBootStrapClass;
 interface
 
 uses
-  Classes, SysUtils, Contnrs, InstanceOfClass, CoreFunctionsClass;
+  Classes, SysUtils, Contnrs, InstanceOfClass;
 
 type
   // TMethod is a string hash table pairing name and signature
@@ -30,7 +30,7 @@ var
 
 implementation
 uses
-  StringInstanceClass;
+  StringInstanceClass, CoreFunctionsClass;
 
 constructor TBootStrap.Create;
 begin

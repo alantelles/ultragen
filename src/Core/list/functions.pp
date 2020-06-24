@@ -2,7 +2,7 @@ function TCoreFunction.MapList:TListInstance;
 var
   AList, AArgsList: TListInstance;
   AFunc: TFunctionInstance;
-  AArgs: TInstanceList;
+  AArgs, Ret: TInstanceList;
   AArg: TInstanceOf;
   len:integer = 0;
 begin
@@ -16,9 +16,14 @@ begin
     SetLength(AArgs, len);
     AArgs[len - 1] := AArg;
   end;
+  len := 0;
+  SetLength(Ret, 0);
   for AArg in AList.PValue do
   begin
+    len := len + 1;
     AArgs[0] := AArg;
-    Execute(AFunc.PName, AArgs);
+    SetLength(Ret, len);
+    Ret[len - 1] := Execute(AFunc.PName, AArgs);
   end;
+  Result := TListInstance.Create(Ret);
 end;

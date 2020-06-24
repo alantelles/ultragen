@@ -30,7 +30,7 @@ end;
 
 function TCoreFunction.CapitalString:TStringInstance;
 var
-  Ret:TStringInstance;
+
   s,last, part: string;
   i: integer;
   AStr: string;

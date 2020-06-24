@@ -1,6 +1,5 @@
-function a(arg)
-    print(arg)
+function a()
+    print("exec a")
 end
-function dec(func, arg)
-    func(arg)
-end
+a()
+print("a")

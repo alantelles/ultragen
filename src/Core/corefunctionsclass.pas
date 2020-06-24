@@ -5,7 +5,7 @@ unit CoreFunctionsClass;
 interface
 
 uses
-      Classes, SysUtils, Strutils, InstanceOfClass, StringInstanceClass, ListInstanceClass;
+      Classes, SysUtils, Strutils, InstanceOfClass, InterpreterClass, StringInstanceClass, ListInstanceClass;
 
 type
   TParamList = array of string;
@@ -15,7 +15,7 @@ type
       FFuncList : TStringList;
       FParams: TinstanceList;
     public
-      function Execute(Fname:string; var AArgList:TInstanceList ):TInstanceOf;
+      function Execute(Fname:string; var AArgList:TInstanceList):TInstanceOf;
 
 
       //core
@@ -38,7 +38,7 @@ type
 implementation
 
 uses
-  CoreUtils, ExceptionsClasses, Math;
+  CoreUtils, ExceptionsClasses, Math, ASTClass;
 
 function TCoreFunction.Execute(Fname:string; var AArgList:TInstanceList ):TInstanceOf;
 begin
@@ -97,15 +97,27 @@ end;
 function TCoreFunction.InlinePrint:TInstanceOf;
 var
   AInst: TInstanceOf;
+  AFloat: Extended;
+  AFStr:string;
 begin
   for AInst in FParams do
   begin
     if AInst.ClassNameIs('TIntegerInstance') then
       Write(TIntegerInstance(AInst).PValue)
     else if AInst.ClassNameIs('TBooleanInstance') then
-      Write(TBooleanInstance(AInst).PValue)
+      Write(BooleanToStr(TBooleanInstance(AInst).PValue))
     else if AInst.ClassNameIs('TFloatInstance') then
-      Write(TFloatInstance(AInst).PValue)
+    begin
+      AFloat := TFloatInstance(AInst).PValue;
+      AFStr := FloatToStrF(AFloat, ffFixed, 30, 30);
+      while AFStr[Length(AFStr)] = '0' do
+        AFStr := Copy(AFStr, 1, Length(AFStr) - 1);
+      Write(AFStr);
+    end
+    else if AInst.ClassNameIs('TListInstance') then
+    begin
+      Write(TListInstance(AInst).AsString)
+    end
     else if AInst.ClassNameIs('TStringInstance') then
       Write(TStringInstance(AInst).PValue)
     else if AInst.ClassNameIs('TNullInstance') then

@@ -1,2 +1,2 @@
-else if FName = 'map' then
-  Result := MapList
+{else if FName = 'map' then
+  Result := MapList}
