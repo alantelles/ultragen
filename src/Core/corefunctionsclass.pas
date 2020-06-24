@@ -30,6 +30,7 @@ type
        //functions
 
       {$INCLUDE 'string/declarations.pp'}
+      {$INCLUDE 'list/declarations.pp'}
 	end;
 
 
@@ -50,6 +51,7 @@ begin
     Result := InlinePrint
 
   {$INCLUDE 'string/options.pp'}
+  {$INCLUDE 'list/options.pp'}
   // functions
   else if FName = 'typeof' then
     Result := GetTypeOf
@@ -161,6 +163,7 @@ begin
 end;
 
 {$INCLUDE 'string/functions.pp'}
+{$INCLUDE 'list/functions.pp'}
 
 
 

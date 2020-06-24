@@ -7,7 +7,7 @@ interface
 uses
       Classes, SysUtils, ASTClass,
       BinOpClass, NumClass, UnaryOpClass, BinLogicOpClass, UnaryLogicopClass,
-      Tokens, ImpParserClass, StrUtils, LoggingClass, FlowControlASTClass,
+      ImpParserClass, StrUtils, LoggingClass, FlowControlASTClass,
       StackClass, ARClass, InstanceofClass,
       StringInstanceClass, TypesBootStrapClass,
       ListInstanceClass, CoreFunctionsClass;
@@ -22,6 +22,8 @@ type
     public
       property PTree:TAST read FTree;
       constructor Create(var ATree: TAST);
+
+
       function Visit(ANode:TAST):TInstanceOf;
       procedure VisitProgram(ANode: TProgram);
       procedure VisitNoOp(ANode: TNoOp);
@@ -65,7 +67,7 @@ type
 implementation
 
 uses
-  Math, ExceptionsClasses;
+  Math, ExceptionsClasses, TokenClass, Tokens;
 
 
 constructor TInterpreter.Create(var ATree: TAST);
@@ -259,6 +261,8 @@ begin
 	end
   else
   begin
+    if (ANode.PFuncName = 'map') then
+      VisitVarAssign(TVarAssign.Create(TToken.Create(T_ID, 'elem'), TNull.Create(TToken.Create(TYPE_NULL, 'Null'))));
     SetLength(ArgsList, 0);
     len := Length(Anode.PEvalParams);
     if len > 0 then

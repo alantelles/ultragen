@@ -1,1 +1,6 @@
-print(capital("foi somente onda", True))
+function a(arg)
+    print(arg)
+end
+function dec(func, arg)
+    func(arg)
+end
