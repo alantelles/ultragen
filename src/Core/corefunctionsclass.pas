@@ -27,6 +27,7 @@ type
       function GetTypeOf:TStringInstance;
       function CastToStr:TStringInstance;
       function CastToInt:TIntegerInstance;
+      function Range: TListInstance;
 
        //functions
 
@@ -39,7 +40,7 @@ type
 implementation
 
 uses
-  CoreUtils, ExceptionsClasses, Math, ASTClass;
+  CoreUtils, ExceptionsClasses, Math, ASTClass, LazUTF8;
 
 function TCoreFunction.Execute(Fname:string; var AArgList:TInstanceList; AObj: TInstanceOf = nil):TInstanceOf;
 begin
@@ -56,12 +57,72 @@ begin
   {$INCLUDE 'string/options.pp'}
   {$INCLUDE 'list/options.pp'}
   // functions
+  else if FName = 'range' then
+    Result := Range
   else if FName = 'typeof' then
     Result := GetTypeOf
   else if FName = 'str' then
     Result := CastToStr
   else if FName = 'int' then
     Result := CastToInt;
+end;
+
+function TCoreFunction.Range: TListInstance;
+var
+  start, asize, len, i, counter, step:integer;
+  Alist: TInstanceList;
+begin
+  step := 1;
+  asize := 0;
+  if Length(FParams) = 3 then
+    step := TIntegerInstance(FParams[2]).PValue;
+  counter := 0;
+  if Length(FParams) = 1 then
+  begin
+    len := TIntegerInstance(FParams[0]).PValue;
+    SetLength(AList, len);
+    if len > 0 then
+    begin
+      for i:=0 to len - 1 do
+      begin
+        AList[counter] := TIntegerInstance.Create(i);
+        counter := counter + 1;
+			end;
+		end;
+	end
+  else if (Length(FParams) = 2) or (Length(FParams) = 3) then
+  begin
+    start := TIntegerInstance(FParams[0]).PValue;
+    len := TIntegerInstance(FParams[1]).PValue;
+    SetLength(AList, 0);
+    if len > start then //  3, 5
+    begin
+      for i:=start to len - 1 do
+      begin
+        if (counter mod step <> 0) then
+        begin
+          counter := counter + 1;
+          continue;
+				end;
+        ASize := ASize + 1;
+        SetLength(AList, ASize);
+			  AList[Asize - 1] := TIntegerInstance.Create(i);
+        counter := counter + 1;
+			end;
+		end
+    else // 5, 3
+    begin
+      SetLength(AList, start - len);
+      for i := start downto len + 1 do
+      begin
+        AList[counter] := TIntegerInstance.Create(i);
+        counter := counter + 1;
+			end;
+    end;
+	end
+  else
+    raise EArgumentsError.Create(E_INVALID_ARGS);
+  Result := TListInstance.Create(AList);
 end;
 
 function TCoreFunction.Print:TInstanceOf;

@@ -54,10 +54,10 @@ listInit : '[' listArgs ']'
 
 
 
-listAccess : id listIndex 
-    | funcCall listIndex 
-    | listInit listIndex
-    | listAccess listIndex
+!listAccess : id listIndex 
+!    | funcCall listIndex 
+!    | listInit listIndex
+!    | listAccess listIndex
 
 listIndex : '[' logicEval ']'
 
@@ -72,6 +72,8 @@ comment : '#'{printable}*
 funcCall : ID LPAREN args RPAREN
 
 methodCall : ((ID | funcCall) '.')* | funcCall
+
+listAccess : methodCall '[' methodCall ']'
 
 methodObjCall : (objRef '.' | funcCall '.')+ ID LPAREN args RPAREN
 

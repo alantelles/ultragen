@@ -12,10 +12,11 @@ type
     private
       FValue: TInstanceList;
       FMetName:string;
-      FArgs: TListInstance;
+      FArgs: TListInstance;    
+      FLen: integer;
       function LenList:integer;
     public
-      property Count: integer read LenList;
+      property Count: integer read Flen;
       property PValue: TInstanceList read FValue write FValue;
       constructor Create(AList: TInstanceList);
       constructor Create;
@@ -38,6 +39,7 @@ uses
 constructor TListInstance.Create(AList: TInstanceList);
 begin
   FValue := AList;
+  FLen := Length(AList);
 end;
 
 constructor TListInstance.Create;
@@ -68,6 +70,8 @@ begin
 end;
 
 function TListInstance.LenList:integer;
+var
+  i: integer;
 begin
   Result := Length(FValue);
 end;

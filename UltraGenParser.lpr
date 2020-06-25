@@ -23,9 +23,7 @@ var
   AnAr: TActivationRecord;
 begin
   LogLevel := '';
-  clrscr;
   DecimalSeparator := '.';
-
   if ParamCount > 0 then
   begin
     if ParamCount > 1 then
@@ -43,21 +41,9 @@ begin
     ALexer := TLexer.Create(ASource.Text);
     AParser := TTParser.Create(ALexer);
     ATree := AParser.ParseCode();
-    //ABuilder := TSymbolTablebuilder.Create(ATree);
-    //ABuilder.Interpret;
     AInter := TInterpreter.Create(ATree);
     AOut := AInter.Interpret;
     AInter.Free;
-
-  end
-  else
-  begin
-    AStack := TStack.Create;
-    AnAr := TActivationRecord.Create('PROGRAM', AR_PROGRAM, 1);
-    AnAr.AddMember('a', TIntegerInstance.Create(7));
-    AnAr.AddMember('b', TStringInstance.Create('uma string'));
-    AStack.Push(AnAr);
-    writeln(AStack.AsString);
   end;
 
 end.

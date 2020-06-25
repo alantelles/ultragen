@@ -31,7 +31,7 @@ type
 
 implementation
 uses
-  StrUtils;
+  StrUtils, LazUTF8;
 
 constructor TStringInstance.Create(AValue: string);
 begin
@@ -45,7 +45,7 @@ end;
 
 function TStringInstance.GetChar(AnIndex: TIntegerInstance):TStringInstance;
 begin
-  if Length(FValue) < AnIndex.PValue + 1 then
+  if UTF8Length(FValue) < AnIndex.PValue + 1 then
     raise ERunTimeError.Create('Index is greater than string size');
   Result := TStringInstance.Create(FValue[AnIndex.PValue + 1]);
 end;
