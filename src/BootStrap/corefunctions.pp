@@ -5,3 +5,7 @@ RegisteredMethods.RegisterFunction('str', '0:*');
 RegisteredMethods.RegisterFunction('int', '0:*');
 RegisteredMethods.RegisterFunction('typeof', '0:*');
 RegisteredMethods.RegisterFunction('range', 'function');
+RegisteredMethods.RegisterFunction('cycle', 'Integer,*');
+RegisteredMethods.RegisterFunction('clear', 'function');
+RegisteredMethods.RegisterFunction('pause', 'integer');
+RegisteredMethods.RegisterFunction('input', 'string');

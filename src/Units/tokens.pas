@@ -31,6 +31,8 @@ const
   T_IF_END = 'T_IF_END';
   T_ELSE = 'T_ELSE';
   T_ELSE_IF = 'T_ELSE_IF';
+  T_CONTINUE = 'T_CONTINUE';
+  T_BREAK = 'T_BREAK';
 
   T_WHILE_LOOP = 'While loop';
   T_FOR_LOOP = 'For Loop';
@@ -73,15 +75,17 @@ var
 implementation
 begin
   ReservedWords := TFPObjectHashTable.Create();
-  ReservedWords.Add('function', TToken.Create(T_FUNC_DEF, 'function definition'));
-  ReservedWords.Add('if', TToken.Create(T_IF_START, 'IF START'));
+  ReservedWords.Add('function', TToken.Create(T_FUNC_DEF, 'block:function definition'));
+  ReservedWords.Add('if', TToken.Create(T_IF_START, 'block:IF START'));
   ReservedWords.Add('elsif', TToken.Create(T_ELSE_IF, 'ELSE IF'));
   ReservedWords.Add('else', TToken.Create(T_ELSE, 'T_ELSE'));
-  ReservedWords.Add('while', TToken.Create(T_WHILE_LOOP, T_WHILE_LOOP));
-  ReservedWords.Add('for', TToken.Create(T_FOR_LOOP, T_FOR_LOOP));
+  ReservedWords.Add('while', TToken.Create(T_WHILE_LOOP, 'block:'+T_WHILE_LOOP));
+  ReservedWords.Add('for', TToken.Create(T_FOR_LOOP, 'block:'+T_FOR_LOOP));
   ReservedWords.Add('True', TToken.Create(TYPE_BOOLEAN, T_LANG_TRUE));
   ReservedWords.Add('False', TToken.Create(TYPE_BOOLEAN, T_LANG_FALSE));
   ReservedWords.Add('Null', TToken.Create(TYPE_NULL, T_LANG_NULL));
+  ReservedWords.Add('continue', TToken.Create(T_CONTINUE, T_CONTINUE));
+  ReservedWords.Add('break', TToken.Create(T_BREAK, T_BREAK));
 
 
 end.

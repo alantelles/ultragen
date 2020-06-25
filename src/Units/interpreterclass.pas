@@ -62,6 +62,8 @@ type
       procedure VisitConditional(ANode: TConditional);
       procedure VisitWhileLoop(ANode: TWhileLoop);
       procedure VisitForLoop(ANode: TForLoop);
+      procedure VisitBreak(Anode: TBreakLoop);
+      procedure VisitContinue(Anode: TContinueLoop);
 
 	end;
 
@@ -184,8 +186,10 @@ begin
     AIndex := TIntegerInstance.Create(i);
     AActRec.AddMember('_'+Anode.PVar.PVarName.PValue, AIndex);
     for AState in ANode.PBlock do
+    begin
       Visit(AState);
-    i := 1 + i;
+		end;
+		i := 1 + i;
   end;
 
   {while TBooleanInstance(Visit(ANode.PCondition)).PValue do
@@ -194,6 +198,8 @@ begin
       Visit(AState);
   end;}
 end;
+
+
 
 procedure TInterpreter.VisitVarAssign(ANode: TVarAssign);
 var
@@ -295,7 +301,7 @@ begin
         ArgsList[i] := Res;
 	    end;
 	  end;
-    Res := FRegisters.Execute(ANode.PToken.PValue, ArgsList, ASrcInstance);
+    Res := FRegisters.Execute(AFuncName, ArgsList, ASrcInstance);
     Result := Res;
 	end;
 end;

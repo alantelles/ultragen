@@ -96,9 +96,7 @@ begin
     TokenFound := TToken.Create(T_ID, Ret)
   else
   begin
-    if (TokenFound.PType <> T_ELSE) and
-       (TokenFound.PType <> T_ELSE_IF)
-       then
+    if Copy(TokenFound.PValue, 1, 6) = 'block:' then
       FScopeType.Add(TokenFound.PType);
   end;
   Result := TokenFound;

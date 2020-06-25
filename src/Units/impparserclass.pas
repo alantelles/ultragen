@@ -417,7 +417,17 @@ begin
     else
       EParseError;
   end
-  else if (AToken.PType = T_COMMENT) then
+  else if (AToken.PType = T_BREAK) then
+  begin
+    Eat(T_BREAK);
+    Result := TBreakLoop.Create;
+	end
+  else if (AToken.PType = T_CONTINUE) then
+  begin
+    Eat(T_CONTINUE);
+    Result := TContinueLoop.Create;
+	end
+	else if (AToken.PType = T_COMMENT) then
   begin
     Eat(T_COMMENT);
     Result := TNoOp.Create;

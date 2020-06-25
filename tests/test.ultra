@@ -1,3 +1,8 @@
-x = range(0, 21, 5)
-print(x[0], ' : ', x[1], ' : ', x[2], ' : ', x[3], ' : ', x[4])
-print(x.length())
+for (range(4), i)
+    
+    if (i == 2)
+        print('igual a 2')
+        break 
+    end    
+    print(i)
+end

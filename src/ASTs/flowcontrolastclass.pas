@@ -27,6 +27,12 @@ type
       constructor Create(AConditions: TASTList);
   end;
 
+  TBreakLoop = class(TAST)
+	end;
+
+  TContinueLoop = class(TAST)
+	end;
+
   TWhileLoop = class (TAST)
     private
       FBlock: TASTList;

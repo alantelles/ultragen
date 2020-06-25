@@ -24,6 +24,7 @@ type
       function Print:TInstanceOf;
       function InlinePrint:TInstanceOf;
       // functions
+      function Cycle:TInstanceOf;
       function GetTypeOf:TStringInstance;
       function CastToStr:TStringInstance;
       function CastToInt:TIntegerInstance;
@@ -40,31 +41,66 @@ type
 implementation
 
 uses
-  CoreUtils, ExceptionsClasses, Math, ASTClass, LazUTF8;
+  CoreUtils, ExceptionsClasses, Math, ASTClass, crt, LazUTF8;
 
 function TCoreFunction.Execute(Fname:string; var AArgList:TInstanceList; AObj: TInstanceOf = nil):TInstanceOf;
+var
+  AType:string = '';
+  AuxStr:string;
+  DotPos: integer;
+  Ret: TInstanceOf;
 begin
+  Ret := TNullInstance.create;
+  DotPos := Pos('.', FName);
+  if DotPos > 0 then
+  begin
+    AType := Copy(FName, 1, DotPos - 1);
+    FName := Copy(FName, DotPos+1, Length(FName));
+  end;
   FParams := AArgList;
-  if AObj <> nil then
+	if AObj <> nil then
     FObj := AObj;
 
+  if AType = '' then
+  begin
+    if FName = 'print' then
+	    Ret := Print
+	  else if FName = 'inline' then
+	    Ret := InlinePrint
+    else if FName = 'cycle' then
+      Ret := Cycle
+    //system
+    else if FName = 'clear' then
+      clrscr
+    else if FName = 'input' then
+    begin
+      ReadLn(AuxStr);
+      Ret := TStringInstance.Create(AuxStr)
+		end
+		else if FName = 'pause' then
+    begin
+      if FParams[0].ClassNameIs('TIntegerInstance') then
+        Sleep(TIntegerInstance(FParams[0]).PValue)
+      else
+        raise EArgumentsError.Create('Argument type for this function must be integer');
+		end
+		// end system
+		else if FName = 'range' then
+      Ret := Range
+    else if FName = 'typeof' then
+      Ret := GetTypeOf
+    else if FName = 'str' then
+      Ret := CastToStr
+    else if FName = 'int' then
+      Ret := CastToInt;
   // procs
-  if FName = 'print' then
-    Result := Print
-  else if FName = 'inline' then
-    Result := InlinePrint
-
+	end
   {$INCLUDE 'string/options.pp'}
   {$INCLUDE 'list/options.pp'}
+  else
+    raise EValueError.Create('The referenced function could not be found');
   // functions
-  else if FName = 'range' then
-    Result := Range
-  else if FName = 'typeof' then
-    Result := GetTypeOf
-  else if FName = 'str' then
-    Result := CastToStr
-  else if FName = 'int' then
-    Result := CastToInt;
+  Result := Ret;
 end;
 
 function TCoreFunction.Range: TListInstance;
@@ -123,6 +159,20 @@ begin
   else
     raise EArgumentsError.Create(E_INVALID_ARGS);
   Result := TListInstance.Create(AList);
+end;
+
+function TCoreFunction.Cycle:TInstanceOf;
+var
+  step, len, i:integer;
+begin
+  len := Length(FParams);
+  if len > 1 then
+  begin
+    step := TIntegerInstance(FParams[0]).PValue;
+    Result := FParams[(step mod (len-1)) + 1];
+	end
+  else
+    raise EArgumentsError.Create(E_INVALID_ARGS);
 end;
 
 function TCoreFunction.Print:TInstanceOf;
