@@ -12,7 +12,6 @@ factor : PLUS factor
     | string
     | boolean
     | funcCall
-    | methodObjCall
 	| listInit
     | listAccess
     | null
@@ -72,9 +71,9 @@ comment : '#'{printable}*
 
 funcCall : ID LPAREN args RPAREN
 
-objRef : ID '.' | ID '.' objRef
+methodCall : ((ID | funcCall) '.')* | funcCall
 
-methodObjCall : objRef funcCall 
+methodObjCall : (objRef '.' | funcCall '.')+ ID LPAREN args RPAREN
 
 args : logicEval | logicEval COMMA args
 
@@ -88,7 +87,7 @@ inBlockStatements : inBlockStatement | inBlockStatement nl inBlockStatements
 
 inBlockStatement : assignment
 
-assignment : variable '=' logicEval
+assignment : variable '=' methodCall
 
 variable : ID
 

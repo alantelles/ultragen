@@ -24,14 +24,15 @@ type
       constructor Create(var ATree: TAST);
 
 
-      function Visit(ANode:TAST):TInstanceOf;
+      function Visit(ANode:TAST; ASrcInstance: TInstanceOf = nil):TInstanceOf;
       procedure VisitProgram(ANode: TProgram);
       procedure VisitNoOp(ANode: TNoOp);
 
       // references
       procedure VisitVarAssign(ANode: TVarAssign);
       function VisitVariableReference(ANode: TVariableReference):TInstanceOf;
-      function VisitFunctionCall(ANode: TFunctionCall):TInstanceOf;
+      function VisitFunctionCall(ANode: TFunctionCall; ASrcInstance: TInstanceOf = nil):TInstanceOf;
+      function VisitMethodCall(ANode: TMethodCall):TInstanceOf;
       function VisitListAccess(ANode: TListAccessAST): TInstanceOf;
 
 
@@ -223,7 +224,13 @@ begin
   Result := Ret;
 end;
 
-function TInterpreter.VisitFunctionCall(ANode: TFunctionCall):TInstanceOf;
+function TInterpreter.VisitMethodCall(ANode: TMethodCall):TInstanceOf;
+begin
+  LogText(INTER, 'Interpreter', 'Visiting method ' + ANode.PToken.PValue);
+  Result := Visit(ANode.Poper, Visit(ANode.PSrc));
+end;
+
+function TInterpreter.VisitFunctionCall(ANode: TFunctionCall; ASrcInstance: TInstanceOf = nil):TInstanceOf;
 var
   AActRec, ARNext: TActivationRecord;
   AState: TAST;
@@ -232,10 +239,13 @@ var
   i, len, len2: integer;
   ArgsList: TInstanceList;
   IsMethod: boolean;
+  AFuncName: string;
 begin
-
-  LogText(INTER, 'Interpreter', 'Visiting function ' + ANode.PFuncName);
-  if not FRegisters.FunctionExists(ANode.PFuncName) then
+  AFuncName := ANode.PFuncName;
+  if ASrcInstance <> nil then
+    AFuncName := ASrcInstance.ClassName + ATTR_ACCESSOR + AFuncName;
+	LogText(INTER, 'Interpreter', 'Visiting function ' + ANode.PFuncName);
+  if not FRegisters.FunctionExists(AFuncName) then
   begin
         ARNext := TActivationRecord.Create(ANode.PToken.PValue, AR_FUNCTION, FCallStack.PLevel+1);
         AActRec := FCallStack.Peek();
@@ -285,7 +295,7 @@ begin
         ArgsList[i] := Res;
 	    end;
 	  end;
-    Res := FRegisters.Execute(ANode.PToken.PValue, ArgsList);
+    Res := FRegisters.Execute(ANode.PToken.PValue, ArgsList, ASrcInstance);
     Result := Res;
 	end;
 end;
@@ -312,7 +322,7 @@ begin
 
 end;
 
-function TInterpreter.Visit(ANode:TAST):TInstanceOf;
+function TInterpreter.Visit(ANode:TAST; ASrcInstance: TInstanceOf = nil):TInstanceOf;
 var
   AuxBool:boolean;
 begin
@@ -324,8 +334,10 @@ begin
     VisitVarAssign(TVarAssign(ANode))
   else if ANode.ClassNameIs('TVariableReference') then
     Result := VisitVariableReference(TVariableReference(ANode))
+  else if ANode.ClassNameIs('TMethodCall') then
+    Result := VisitMethodCall(TMethodCall(Anode))
   else if ANode.ClassNameIs('TFunctionCall') then
-    Result := VisitFunctionCall(TFunctionCall(Anode))
+    Result := VisitFunctionCall(TFunctionCall(Anode), ASrcInstance)
   else if ANode.ClassNameIs('TFunctionDefinition') then
     VisitFunctionDefinition(TFunctionDefinition(Anode))
   else if Anode.ClassNameIs('TNumInt') then

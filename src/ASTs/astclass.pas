@@ -69,6 +69,16 @@ type
       constructor Create(AFuncName:string; AEvalParams: TASTList; AToken:TToken);
   end;
 
+  TMethodCall = class(TAST)
+    protected
+      FSrc: TAST;
+      FOper: TAST;
+    public
+      property PSrc: TAST read FSrc write FSrc;
+      property POper: TAST read FOper write FOper;
+      constructor Create(ASrc, AOper: TAST; AToken:TToken);
+  end;
+
 
 
   TParam = class (TAST)
@@ -167,6 +177,13 @@ begin
   logdebug('Creating a boolean node', 'AST');
   FToken := AToken;
   FValue := AToken.PValue;
+end;
+
+constructor TMethodCall.Create(ASrc, AOper: TAST; AToken: TToken);
+begin
+  FSrc := ASrc;
+  FOper:= AOper;
+  FToken := AToken;
 end;
 
 constructor TFunctionCall.Create(AFuncName:string; AEvalParams: TASTList; AToken:TToken);

@@ -1,4 +1,4 @@
-function TCoreFunction.JoinString:TStringInstance;
+function TCoreFunction.JoinString(AObj: TStringInstance):TStringInstance;
 var
   len, i: integer;
   joiner, part: string;
@@ -8,7 +8,7 @@ begin
   AList := TListInstance(FParams[0]);
   len := AList.Count;
   // joiner := TStringInstance(FParams[0]).PValue;
-  joiner := TStringInstance(FParams[1]).PValue;
+  joiner := AObj.PValue;
   part := '';
   if len > 0 then
   begin
@@ -28,19 +28,19 @@ begin
   Result := TStringInstance.Create(part);
 end;
 
-function TCoreFunction.CapitalString:TStringInstance;
+function TCoreFunction.CapitalString(AObj: TStringInstance):TStringInstance;
 var
 
   s,last, part: string;
   i: integer;
   AStr: string;
 begin
-  AStr := TStringInstance(FParams[0]).PValue;
+  AStr := AObj.PValue;
   if Length(AStr) > 0 then
   begin
-    if Length(FParams) > 1 then
+    if Length(FParams) > 0 then
     begin
-      if TBooleanInstance(FParams[1]).PValue then
+      if TBooleanInstance(FParams[0]).PValue then
       begin
         part := '';
         last := '';
@@ -77,18 +77,18 @@ begin
   Result := TStringInstance.Create(part);
 end;
 
-function TCoreFunction.SplitString:TListInstance;
+function TCoreFunction.SplitString(AObj: TStringInstance):TListInstance;
 var
   ASep, s: string;
   AList: TStringList;
   AInsList: TInstanceList;
   len: integer;
 begin
-  ASep := TStringInstance(FParams[1]).PValue;
+  ASep := TStringInstance(FParams[0]).PValue;
   AList := TStringList.Create;
   AList.SkipLastLineBreak := True;
   AList.LineBreak := ASep;
-  AList.Text := TStringInstance(FParams[0]).PValue;
+  AList.Text := AObj.PValue;
   SetLength(AInsList, 0);
   len := 0;
   for s in AList do

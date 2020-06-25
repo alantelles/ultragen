@@ -1,5 +1,2 @@
-function a()
-    print("exec a")
-end
-a()
-print("a")
+a = "UrBaN fLoRa".lower().upper()[4]
+print(a)

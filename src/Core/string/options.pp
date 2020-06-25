@@ -1,17 +1,17 @@
 else if FName = 'split' then
-  Result := SplitString
+  Result := SplitString(TStringInstance(FObj))
 else if FName = 'upper' then
-  Result := TStringInstance.Create(AnsiUpperCase(TStringInstance(FParams[0]).PValue))
+  Result := TStringInstance.Create(AnsiUpperCase(TStringInstance(FObj).PValue))
 else if FName = 'lower' then
-  Result := TStringInstance.Create(AnsiLowerCase(TStringInstance(FParams[0]).PValue))
+  Result := TStringInstance.Create(AnsiLowerCase(TStringInstance(FObj).PValue))
 else if FName = 'join' then
-  Result := JoinString
+  Result := JoinString(TStringInstance(FObj))
 else if FName = 'capital' then
-  Result := CapitalString
+  Result := CapitalString(TStringInstance(FObj))
 else if FName = 'replace' then
   Result := TStringInstance.Create(
     ReplaceStr(
-      TStringInstance(FParams[0]).PValue,
+      TStringInstance(FObj).PValue,
       TStringInstance(FParams[1]).PValue,
       TStringInstance(FParams[2]).PValue
       )

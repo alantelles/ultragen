@@ -39,6 +39,7 @@ type
     function DefParams:TASTList;
     function DefParam: TAST;
     function FunctionCall(AToken: TToken): TAST;
+    function MethodCall(): TAST;
     function Args: TASTList;
     function ListArgs: TASTList;
     function IfBlock: TAST;
@@ -263,6 +264,20 @@ begin
   Result := Ret;
 end;
 
+function TTParser.MethodCall():TAST;
+var
+  Ret: TAST;
+begin
+  // Eat(T_ATTR_ACCESSOR);
+  Ret := LogicEval();
+  logtext('PARSER', 'Parser', 'Creating method call node');
+  while(FCurrentToken.PType = T_ATTR_ACCESSOR) do
+  begin
+    Eat(T_ATTR_ACCESSOR);
+    Ret := TMethodCall.Create(Ret, LogicEval(), FCurrentToken);
+	end;
+	Result := Ret;
+end;
 
 function TTParser.FunctionCall(AToken: TToken):TAST;
 var
@@ -338,7 +353,7 @@ var
   AVar: TToken;
 begin
   Eat(T_ASSIGN);
-  ARight := LogicEval();
+  ARight := MethodCall();
   Logdebug('Creating a VarAssign to '+AToken.AsString, 'Parser');
   logtext('PARSER', 'Parser', 'Creating var assign node to ' + AToken.PValue);
   Result := TVarAssign.Create(AToken, ARight);
@@ -507,39 +522,39 @@ begin
   begin
     Eat(T_MINUS);
     logtext('PARSER', 'Parser', 'Creating unary op node');
-    Result := TUnaryOp.Create(AToken, Factor());
+    Ret := TUnaryOp.Create(AToken, Factor());
   end
   else if (AToken.PType = TYPE_NULL) then
   begin
     Eat(TYPE_NULL);
     logtext('PARSER', 'Parser', 'Creating null node');
-    Result := TNull.Create(AToken)
+    Ret := TNull.Create(AToken)
   end
   else if (AToken.PType = TYPE_STRING) then
   begin
     Eat(TYPE_STRING);
     logtext('PARSER', 'Parser', 'Creating string node');
-    Result := TString.Create(AToken);
+    Ret := TString.Create(AToken);
   end
   else if (AToken.PType = T_PLUS) then
   begin
     Eat(T_PLUS);
     logtext('PARSER', 'Parser', 'Creating unary op node');
-    Result := TUnaryOp.Create(AToken, Factor());
+    Ret := TUnaryOp.Create(AToken, Factor());
   end
 
   else if (AToken.PType = T_NOT) then
   begin
     Eat(T_NOT);
     logtext('PARSER', 'Parser', 'Creating logic not node');
-    Result := TUnaryLogicOp.Create(AToken, Factor());
+    Ret := TUnaryLogicOp.Create(AToken, Factor());
   end
 
   else if (AToken.PType = TYPE_INTEGER) then
   begin
     Eat(TYPE_INTEGER);
     logtext('PARSER', 'Parser', 'Creating integer node');
-    Result := TNumInt.Create(AToken);
+    Ret := TNumInt.Create(AToken);
 	end
   else if (AToken.PType = T_LPAREN) then
   begin
@@ -549,25 +564,24 @@ begin
     Eat(T_RPAREN);
     FInArgsDef := False;
     logtext('PARSER', 'Parser', 'Creating closing paren node');
-    Result := Ret
 	end
   else if (AToken.PType = TYPE_FLOAT) then
   begin
     Eat(TYPE_FLOAT);
     logtext('PARSER', 'Parser', 'Creating float node');
-    Result := TNumFloat.Create(AToken);
+    Ret := TNumFloat.Create(AToken);
 	end
   else if (AToken.PType = TYPE_BOOLEAN) then
   begin
     Eat(TYPE_BOOLEAN);
     logtext('PARSER', 'Parser', 'Creating boolean node');
-    Result := TBoolean.Create(AToken);
+    Ret := TBoolean.Create(AToken);
   end
   else if (AToken.PType = T_LIST_START) then
   begin
     Eat(T_LIST_START);
     logtext('PARSER', 'Parser', 'creating list node');
-    Result := List();
+    Ret := List();
   end
   else if (AToken.PType = T_ID) then
   begin
@@ -575,17 +589,16 @@ begin
     if (FCurrentToken.PType = T_LPAREN) then
     begin
       Ret := FunctionCall(AToken);
-      Result := Ret
 		end
-    else if (FCurrentToken.PType = T_LIST_START) then
+		else if (FCurrentToken.PType = T_LIST_START) then
     begin                 
       Eat(T_LIST_START);
       Ret := ListAccess(AToken);
-      Result := Ret;
     end
     else
-      Result := Variable(AToken);
+      Ret := Variable(AToken);
 	end;
+  Result := Ret;
 end;
 
 function TTParser.Term:TAST;

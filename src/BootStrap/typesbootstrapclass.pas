@@ -20,7 +20,7 @@ type
     constructor Create;
     procedure RegisterFunction(AName: string; ASignature:string);
     function FunctionExists(AName: string): boolean;
-    function Execute(AName: string; var AArgList: TInstanceList): TInstanceOf;
+    function Execute(AName: string; var AArgList: TInstanceList; AObj: TInstanceOf = nil): TInstanceOf;
   end;
 
 var
@@ -30,7 +30,7 @@ var
 
 implementation
 uses
-  StringInstanceClass, CoreFunctionsClass;
+  StringInstanceClass, CoreFunctionsClass, Tokens;
 
 constructor TBootStrap.Create;
 begin
@@ -48,11 +48,14 @@ end;
 
 procedure TBootStrap.RegisterFunction(AName: string; ASignature:string);
 begin
-  FFunctions.Add(AName, FNowType+':'+ASignature);
+  if FNowType <> '' then
+    FFunctions.Add(FNowType+ATTR_ACCESSOR+AName, ASignature)
+  else
+    FFunctions.Add(AName, ASignature);
 end;
 
 
-function TBootStrap.Execute(AName: string; var AArgList: TInstanceList): TInstanceOf;
+function TBootStrap.Execute(AName: string; var AArgList: TInstanceList; AObj: TInstanceOf = nil): TInstanceOf;
 // is core
 var
   ACore: TCoreFunction;
@@ -60,7 +63,7 @@ var
   FuncType: string;
 begin
   ACore := TCoreFunction.Create;
-  Ret := ACore.Execute(AName, AArgList);
+  Ret := ACore.Execute(AName, AArgList, AObj);
   ACore.Free;
   Result := Ret;
 end;

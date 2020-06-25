@@ -14,8 +14,9 @@ type
     private
       FFuncList : TStringList;
       FParams: TinstanceList;
+      FObj: TInstanceOf;
     public
-      function Execute(Fname:string; var AArgList:TInstanceList):TInstanceOf;
+      function Execute(Fname:string; var AArgList:TInstanceList; AObj: TInstanceOf = nil):TInstanceOf;
 
 
       //core
@@ -40,9 +41,11 @@ implementation
 uses
   CoreUtils, ExceptionsClasses, Math, ASTClass;
 
-function TCoreFunction.Execute(Fname:string; var AArgList:TInstanceList ):TInstanceOf;
+function TCoreFunction.Execute(Fname:string; var AArgList:TInstanceList; AObj: TInstanceOf = nil):TInstanceOf;
 begin
   FParams := AArgList;
+  if AObj <> nil then
+    FObj := AObj;
 
   // procs
   if FName = 'print' then

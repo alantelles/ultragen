@@ -1,4 +1,4 @@
-RegisteredMethods.PNowType := 'String';
+RegisteredMethods.PNowType := 'TStringInstance';
 RegisteredMethods.RegisterFunction('split', 'String');
 RegisteredMethods.RegisterFunction('upper', ',');
 RegisteredMethods.RegisterFunction('lower', ',');
