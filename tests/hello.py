@@ -1,11 +1,12 @@
-x = 6
-def my_top():
-    x = 8
-    print("my top")
-    print(x)
-    def my_sec():
-        x = 10
-        print("My sec")
-    my_sec()
+def mult10(a):
+    print(a % 100 == 0)
 
-my_top()
+i = 0
+limit = 1000
+
+while (True):
+    if (mult10(i)):
+        print("hey:", i)
+    i = i + 1
+    if (i > limit):
+        break

@@ -19,7 +19,10 @@ type
       FCallStack: TStack;
       FRegisters: TBootStrap;
       FBreakSignal: boolean;
+      FReturnSignal: boolean;
+      FReturnValue: TInstanceOf;
       FContinueSignal: boolean;
+
 
     public
       property PTree:TAST read FTree;
@@ -90,7 +93,6 @@ var
   Ret:TInstanceOf;
 begin
   Ret := Visit(FTree);
-
   Result := '';
 end;
 
@@ -105,8 +107,13 @@ begin
 end;
 
 function TInterpreter.VisitReturn(ANode: TReturnFunction):TInstanceOf;
+var
+  AVal:TInstanceOf;
 begin
-  Result := Visit(ANode.PValue);
+  FReturnSignal := True;
+  AVal := Visit(ANode.PValue);
+  FReturnValue := AVal;
+  Result := AVal;
 end;
 
 function TInterpreter.VisitFunctionDefinition(ANode: TFunctionDefinition):TInstanceOf;
@@ -132,7 +139,7 @@ begin
 	end;
   AValue.PBlock := ANode.PBlock;
 	AActrec.AddMember(ANode.PName, AValue);
-
+  Result := TInstanceOf.Create;
   // ASymbolTable.AsString;
 end;
 
@@ -162,26 +169,28 @@ begin
       for AState in ANode.PBLock do
       begin
         if FBreakSignal or FContinueSignal then
-        begin
           break
-        end
-        else
+        else if FReturnSignal then
+          break
+				else
           Visit(AState);
       end;
     end;
   end
   else
   begin
+    AEval := TBooleanInstance.Create(False);
     for AState in ANode.PBLock do
     begin
       if FBreakSignal or FContinueSignal then
       begin
         break
       end
+      else if FReturnSignal then
+          break
       else
         Visit(AState);
     end;
-    AEval := TBooleanInstance.Create(False);
   end;
   Result := AEval;
 end;
@@ -313,9 +322,11 @@ begin
 		    for AState in FuncDef.PBlock do
 		    begin
 		      LogText(INTER, 'Interpreter', 'Visiting a function statement ' + AState.ToString);
-          if AState.ClassNameIs('TReturnFunction') then
+          if FReturnSignal then
           begin
-		        Result := Visit(AState);
+            FReturnSignal := False;
+            FCallStack.Pop();
+		        Result := FReturnValue;
             exit
           end
           else

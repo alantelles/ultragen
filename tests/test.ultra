@@ -1,16 +1,14 @@
-function mult10(a)
-    if (a % 100 == 0)
-        return True
-    else
-        return False
-    end
+function mult10(a)    
+    print(a % 100 == 0)
 end
 
+
+
 i = 0
-limit = 10000
+limit = 1000
 while (True)
-    a = mult10(i)
-    if (a)
+    mult10(i)
+    if (i % 100 == 0)
         print("hey: ", i)
     end
     i = i + 1
@@ -18,4 +16,3 @@ while (True)
         break
     end
 end
-
