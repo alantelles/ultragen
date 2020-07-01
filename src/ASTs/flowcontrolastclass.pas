@@ -33,6 +33,14 @@ type
   TContinueLoop = class(TAST)
 	end;
 
+  TReturnFunction = class(TAST)
+    private
+      FValue: TAST;
+    public
+      property PValue: TAST read FValue write FValue;
+      constructor Create(AValue: TAST);
+  end;
+
   TWhileLoop = class (TAST)
     private
       FBlock: TASTList;
@@ -56,6 +64,11 @@ type
   end;
 
 implementation
+
+constructor TReturnFunction.Create(AValue: TAST);
+begin
+  FValue := AValue;
+end;
 
 constructor TWhileLoop.Create(ABlock: TASTList; ACondition: TAST);
 begin

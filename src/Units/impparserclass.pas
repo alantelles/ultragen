@@ -417,6 +417,11 @@ begin
     else
       EParseError;
   end
+  else if AToken.PType = T_RETURN then
+  begin
+    Eat(T_RETURN);
+    Result := TReturnFunction.Create(MethodCall());
+  end
   else if (AToken.PType = T_BREAK) then
   begin
     Eat(T_BREAK);
@@ -483,6 +488,11 @@ begin
     if FCurrentToken.PType = T_END + T_FUNC_DEF then
     begin
       break;
+    end
+    else if FCurrentToken.PType = T_RETURN then
+    begin
+      Eat(T_RETURN);
+      writeln('return')
     end
     else if FCurrentToken.PType = T_ELSE_IF then
     begin

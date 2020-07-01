@@ -1,8 +1,21 @@
-for (range(4), i)
-    
-    if (i == 2)
-        print('igual a 2')
-        break 
-    end    
-    print(i)
+function mult10(a)
+    if (a % 100 == 0)
+        return True
+    else
+        return False
+    end
 end
+
+i = 0
+limit = 10000
+while (True)
+    a = mult10(i)
+    if (a)
+        print("hey: ", i)
+    end
+    i = i + 1
+    if (i > limit)
+        break
+    end
+end
+

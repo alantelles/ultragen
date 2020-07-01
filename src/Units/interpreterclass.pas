@@ -18,6 +18,8 @@ type
       FTree: TAST;
       FCallStack: TStack;
       FRegisters: TBootStrap;
+      FBreakSignal: boolean;
+      FContinueSignal: boolean;
 
     public
       property PTree:TAST read FTree;
@@ -58,6 +60,7 @@ type
       function Interpret:string;
 
       // flow
+      function VisitReturn(ANode: TReturnFunction):TInstanceOf;
       function VisitIfCondition(ANode: TIfConditionBlock):TBooleanInstance;
       procedure VisitConditional(ANode: TConditional);
       procedure VisitWhileLoop(ANode: TWhileLoop);
@@ -79,6 +82,7 @@ begin
   FRegisters := RegisteredMethods;
   FTree := ATree;
   FCallStack := TStack.Create;
+  FBreakSignal := False;
 end;
 
 function TInterpreter.Interpret:string;
@@ -88,6 +92,21 @@ begin
   Ret := Visit(FTree);
 
   Result := '';
+end;
+
+procedure TInterpreter.VisitBreak(Anode: TBreakLoop);
+begin
+  FBreakSignal := True;
+end;
+
+procedure TInterpreter.VisitContinue(Anode: TContinueLoop);
+begin
+  FContinueSignal := True;
+end;
+
+function TInterpreter.VisitReturn(ANode: TReturnFunction):TInstanceOf;
+begin
+  Result := Visit(ANode.PValue);
 end;
 
 function TInterpreter.VisitFunctionDefinition(ANode: TFunctionDefinition):TInstanceOf;
@@ -133,21 +152,35 @@ end;
 function TInterpreter.VisitIfCondition(ANode: TIfConditionBlock): TBooleanInstance;
 var
   AEval: TBooleanInstance = nil;
-  ABlockNode: TAST;
+  AState: TAST;
 begin
   if ANode.PCondition <> nil then
   begin
     AEval := TBooleanInstance(Visit(ANode.PCondition));
     if AEval.PValue or (ANode.PCondition = nil) then
     begin
-      for ABlockNode in ANode.PBlock do
-        Visit(ABlockNode);
+      for AState in ANode.PBLock do
+      begin
+        if FBreakSignal or FContinueSignal then
+        begin
+          break
+        end
+        else
+          Visit(AState);
+      end;
     end;
   end
   else
   begin
-    for ABlockNode in ANode.PBlock do
-        Visit(ABlockNode);
+    for AState in ANode.PBLock do
+    begin
+      if FBreakSignal or FContinueSignal then
+      begin
+        break
+      end
+      else
+        Visit(AState);
+    end;
     AEval := TBooleanInstance.Create(False);
   end;
   Result := AEval;
@@ -160,8 +193,19 @@ begin
   while TBooleanInstance(Visit(ANode.PCondition)).PValue do
   begin
     for AState in ANode.PBLock do
-      Visit(AState);
+    begin
+      if FBreakSignal or FContinueSignal then
+      begin
+        FContinueSignal := False;
+        break
+      end
+      else
+        Visit(AState);
+    end;
+    if FBreakSignal then
+      break;
   end;
+  FBreakSignal := False;
 end;
 
 procedure TInterpreter.VisitForLoop(ANode: TForLoop);
@@ -173,30 +217,28 @@ var
   AActRec: TActivationRecord;
   i: integer = 0;
 begin
-  // AListRes := TListInstance.Create(TInstanceList(Visit(ANode.PList)));
   AActRec := FCallStack.Peek;
-
   AListRes := Visit(ANode.PList);
-
   for AInst in TListInstance(AListRes).PValue do
   begin
     AActRec.AddMember(Anode.PVar.PVarName.PValue, AInst);
-
-
     AIndex := TIntegerInstance.Create(i);
     AActRec.AddMember('_'+Anode.PVar.PVarName.PValue, AIndex);
     for AState in ANode.PBlock do
     begin
-      Visit(AState);
+      if FBreakSignal or FContinueSignal then
+      begin
+        FContinueSignal := False;
+        break
+      end
+      else
+        Visit(AState);
 		end;
 		i := 1 + i;
+    if FBreakSignal then
+      break;
   end;
-
-  {while TBooleanInstance(Visit(ANode.PCondition)).PValue do
-  begin
-    for AState in ANode.PBLock do
-      Visit(AState);
-  end;}
+  FBreakSignal := False;
 end;
 
 
@@ -271,7 +313,13 @@ begin
 		    for AState in FuncDef.PBlock do
 		    begin
 		      LogText(INTER, 'Interpreter', 'Visiting a function statement ' + AState.ToString);
-		      Visit(AState);
+          if AState.ClassNameIs('TReturnFunction') then
+          begin
+		        Result := Visit(AState);
+            exit
+          end
+          else
+            Visit(AState);
 		    end;
 			  FCallStack.Pop();
 	end
@@ -344,6 +392,8 @@ begin
     Result := VisitMethodCall(TMethodCall(Anode))
   else if ANode.ClassNameIs('TFunctionCall') then
     Result := VisitFunctionCall(TFunctionCall(Anode), ASrcInstance)
+  else if ANode.ClassNameIs('TReturnFunction') then
+    Result := VisitReturn(TReturnFunction(ANode))
   else if ANode.ClassNameIs('TFunctionDefinition') then
     VisitFunctionDefinition(TFunctionDefinition(Anode))
   else if Anode.ClassNameIs('TNumInt') then
@@ -375,7 +425,11 @@ begin
   else if ANode.ClassNameIs('TWhileLoop') then
     VisitWhileLoop(TWhileLoop(ANode))
   else if ANode.ClassNameIs('TForLoop') then
-    VisitForLoop(TForLoop(ANode));
+    VisitForLoop(TForLoop(ANode))
+  else if ANode.ClassNameIs('TBreakLoop') then
+    VisitBreak(TBreakLoop(ANode))
+  else if ANode.ClassNameIs('TContinueLoop') then
+    VisitContinue(TContinueLoop(ANode));
 end;
 
 function TInterpreter.VisitUnaryOp(ANode: TUnaryOp):TFloatInstance;

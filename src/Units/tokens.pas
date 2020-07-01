@@ -33,7 +33,7 @@ const
   T_ELSE_IF = 'T_ELSE_IF';
   T_CONTINUE = 'T_CONTINUE';
   T_BREAK = 'T_BREAK';
-
+  T_RETURN = 'T_RETURN';
   T_WHILE_LOOP = 'While loop';
   T_FOR_LOOP = 'For Loop';
 
@@ -86,6 +86,7 @@ begin
   ReservedWords.Add('Null', TToken.Create(TYPE_NULL, T_LANG_NULL));
   ReservedWords.Add('continue', TToken.Create(T_CONTINUE, T_CONTINUE));
   ReservedWords.Add('break', TToken.Create(T_BREAK, T_BREAK));
+  ReservedWords.Add('return', TToken.Create(T_RETURN, T_RETURN));
 
 
 end.
