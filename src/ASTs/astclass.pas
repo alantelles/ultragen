@@ -126,6 +126,18 @@ type
     constructor Create(AVarName: TToken; AValue: TAST);
   end;
 
+  TLiveOutput = class (TAST)
+  protected
+    FValue: TAST;
+  public
+    property PValue: TAST read FValue write FValue;
+    constructor Create(AValue: TAST; AToken: TToken);
+	end;
+
+  TLivePrint = class(TAST)
+    constructor Create(AToken: TToken);
+	end;
+
   TVariableReference = class(TAST)
   protected
     FValue: string;
@@ -138,6 +150,17 @@ type
   end;
 
 implementation
+
+constructor TLivePrint.Create(AToken: TToken);
+begin
+  FToken := AToken;
+end;
+
+constructor TLiveOutput.Create(AValue: TAST; AToken: TToken);
+begin
+  FValue := AValue;
+  FToken := AToken;
+end;
 
 constructor TParam.Create(ANode:TToken);
 begin

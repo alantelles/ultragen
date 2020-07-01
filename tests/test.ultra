@@ -1,18 +1,4 @@
-function mult10(a)    
-    print(a % 100 == 0)
-end
+a = ["zika", str(88), "mahailo", str(True)]
+live '\n'.join(a)
 
-
-
-i = 0
-limit = 1000
-while (True)
-    mult10(i)
-    if (i % 100 == 0)
-        print("hey: ", i)
-    end
-    i = i + 1
-    if (i > limit)
-        break
-    end
-end
+print($LIVE)

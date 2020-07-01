@@ -48,7 +48,8 @@ type
     function WhileLoop: TAST;
     function ForLoop: TAST;
     function List: TAST;
-    function ListAccess(): TAST;
+    function ListAccess: TAST;
+    function LiveOutput:TAST;
 
   end;
 
@@ -92,6 +93,11 @@ begin
   Eat(T_NEWLINE);
   logtext('PARSER', 'Parser', 'Creating else block node');
   Result := TIfConditionBlock.Create(Statements());
+end;
+
+function TTParser.LiveOutput:TAST;
+begin
+  Result := TLiveOutput.Create(MethodCall(), FCurrentToken);
 end;
 
 function TTParser.IfBlock: TAST;
@@ -417,7 +423,12 @@ begin
     else
       EParseError;
   end
-  else if AToken.PType = T_RETURN then
+  else if AToken.PType = T_LIVE_OUTPUT then
+  begin
+    Eat(T_LIVE_OUTPUT);
+    Result := LiveOutput()
+	end
+	else if AToken.PType = T_RETURN then
   begin
     Eat(T_RETURN);
     Result := TReturnFunction.Create(MethodCall());
@@ -595,12 +606,21 @@ begin
     Ret := TUnaryLogicOp.Create(AToken, Factor());
   end
 
+  // INNER ATRIBUTTES
+  else if (AToken.PType = T_LIVE_PRINT) then
+  begin
+    Eat(T_LIVE_PRINT);
+    Ret := TLivePrint.Create(AToken);
+	end
+  // END INNER ATTRIBUTES
+
   else if (AToken.PType = TYPE_INTEGER) then
   begin
     Eat(TYPE_INTEGER);
     logtext('PARSER', 'Parser', 'Creating integer node');
     Ret := TNumInt.Create(AToken);
   end
+
   else if (AToken.PType = T_LPAREN) then
   begin
     Eat(T_LPAREN);

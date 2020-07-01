@@ -52,6 +52,7 @@ conditional : 'if' LPAREN logicEval RPAREN statements 'end'
 	
 listInit : '[' listArgs ']'
 
+liveOutput : 'live' LPAREN args RPAREN
 
 
 !listAccess : id listIndex 

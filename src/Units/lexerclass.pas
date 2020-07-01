@@ -21,6 +21,7 @@ type
     constructor Create(AText: string);
     procedure EParseError;
     procedure Advance(steps:integer=1);
+    procedure Rewind(steps:integer=1);
     procedure SkipSpace;
     function Peek(Ahead:integer = 1):string;
     function GetNextToken: TToken;
@@ -28,6 +29,7 @@ type
     function GetNumber: string;
     function PassLineComment: string;
     function GetString(Delim:string):TToken;
+    function GetInnerAttribute:TToken;
   end;
 
 implementation
@@ -45,6 +47,23 @@ begin
   FLineChar := 1;
   FCurrChar := FText[FPos];
   FScopeType := TStringList.Create;
+end;
+
+function TLexer.GetInnerAttribute: TToken;
+var
+  TF: TToken;
+  ret: string = '';
+begin
+  Advance;
+  while Pos(FCurrChar, LETTERS) > 0 do
+  begin
+    Ret := Ret  + FCurrChar;
+    advance;
+	end;
+  TF := TToken(InnerAttributes[Ret]);
+  if TF = nil then
+    raise EParserError.Create('Undefined referenced inner attribute "'+Ret+'"');
+  Result := TF;
 end;
 
 function TLexer.PassLineComment: string;
@@ -178,6 +197,20 @@ begin
   end;
 end;
 
+procedure TLexer.Rewind(steps:integer=1);
+var
+  i:integer;
+begin
+  for i:=1 to steps do
+  begin
+    FPos := FPos - 1;
+    FLineChar := FLineChar - 1;
+    if FPos > Length(FText) then
+      FCurrChar := NONE
+    else
+      FCurrChar := FText[FPos];
+  end;
+end;
 
 function TLexer.GetNextToken:TToken;
 var
@@ -205,6 +238,12 @@ begin
       Result := TToken.Create(T_COMMENT, PassLineComment);
       exit
     end;
+
+    if (FCurrChar = '$') then
+    begin
+      Result := GetInnerAttribute();
+      exit
+		end;
 
     if (FCurrChar + Peek(Length(T_STRENC_MULTI) - 1)) = T_STRENC_MULTI then
     begin

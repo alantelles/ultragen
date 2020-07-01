@@ -53,6 +53,8 @@ const
   T_END = 'block end: ';
   T_ID = 'T_ID';
   T_ATTR_ACCESSOR = 'ATTRIBUTE ACCESS';
+  T_LIVE_OUTPUT = 'T_LIVE_OUTPUT';
+  T_LIVE_PRINT = 'T_LIVE_PRINT';
 
   ESCAPE_SYMBOL = '\';
   ASSIGN_SYMBOL = '=';
@@ -71,6 +73,7 @@ const
 
 var
   ReservedWords: TFPObjectHashTable;
+  InnerAttributes: TFPObjectHashTable;
 
 implementation
 begin
@@ -86,7 +89,10 @@ begin
   ReservedWords.Add('Null', TToken.Create(TYPE_NULL, T_LANG_NULL));
   ReservedWords.Add('continue', TToken.Create(T_CONTINUE, T_CONTINUE));
   ReservedWords.Add('break', TToken.Create(T_BREAK, T_BREAK));
+  ReservedWords.Add('live', TToken.Create(T_LIVE_OUTPUT, T_LIVE_OUTPUT));
   ReservedWords.Add('return', TToken.Create(T_RETURN, T_RETURN));
+  InnerAttributes := TFPObjectHashTable.Create();
+  InnerAttributes.Add('LIVE', TToken.Create(T_LIVE_PRINT, T_LIVE_PRINT));
 
 
 end.

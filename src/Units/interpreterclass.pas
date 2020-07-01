@@ -22,6 +22,7 @@ type
       FReturnSignal: boolean;
       FReturnValue: TInstanceOf;
       FContinueSignal: boolean;
+      FLiveStream: TStringInstance;
 
 
     public
@@ -32,6 +33,8 @@ type
       function Visit(ANode:TAST; ASrcInstance: TInstanceOf = nil):TInstanceOf;
       procedure VisitProgram(ANode: TProgram);
       procedure VisitNoOp(ANode: TNoOp);
+      procedure VisitLiveOutput(Anode: TLiveOutput);
+      function VisitLivePrint(ANode: TLivePrint):TStringInstance;
 
       // references
       procedure VisitVarAssign(ANode: TVarAssign);
@@ -86,6 +89,7 @@ begin
   FTree := ATree;
   FCallStack := TStack.Create;
   FBreakSignal := False;
+  FLiveStream := TStringInstance.Create('');
 end;
 
 function TInterpreter.Interpret:string;
@@ -94,6 +98,22 @@ var
 begin
   Ret := Visit(FTree);
   Result := '';
+end;
+
+procedure TInterpreter.VisitLiveOutput(ANode: TLiveOutput);
+var
+  AVal: TInstanceOf;
+begin
+  AVal := Visit(ANode.PValue);
+  if AVal.ClassNameIs('TStringInstance') then
+    FLiveStream.PValue := FLiveStream.PValue + TStringInstance(AVal).PValue
+  else
+    raise EArgumentsError.Create('You can add only strings to live output');
+end;
+
+function TInterpreter.VisitLivePrint(ANode: TLivePrint):TStringInstance;
+begin
+  Result := FLiveStream;
 end;
 
 procedure TInterpreter.VisitBreak(Anode: TBreakLoop);
@@ -268,7 +288,7 @@ end;
 function TInterpreter.VisitVariableReference(ANode: TVariableReference):TInstanceOf;
 var
   AName:string;
-  AActRec: TActivationRecord;
+  AActRec, GlobalAR: TActivationRecord;
   Ret: TInstanceOf;
   ResFloat: TFloatInstance;
 begin
@@ -277,7 +297,14 @@ begin
   AActRec := FCallStack.Peek();
   //ResFloat := TFloatInstance(AActRec.GetMember(AName));
   Ret := AActRec.GetMember(AName);
-  LogText(INTER, 'Interpreter', 'Getting value of "'+ ANode.PToken.PValue+'" from type '+Ret.ClassName);
+  if Ret = nil then
+  begin
+    GlobalAR := FCallStack.GetFirst;
+    Ret := GlobalAR.GetMember(AName);
+	end;
+  if Ret = nil then
+    raise ERunTimeError.Create('Referenced variable "'+Aname+'" does not exist');
+	LogText(INTER, 'Interpreter', 'Getting value of "'+ ANode.PToken.PValue+'" from type '+Ret.ClassName);
   Result := Ret;
 end;
 
@@ -289,7 +316,7 @@ end;
 
 function TInterpreter.VisitFunctionCall(ANode: TFunctionCall; ASrcInstance: TInstanceOf = nil):TInstanceOf;
 var
-  AActRec, ARNext: TActivationRecord;
+  AActRec, ARNext, GlobalAR: TActivationRecord;
   AState: TAST;
   Res: TInstanceOf;
   FuncDef: TFunctioninstance;
@@ -307,6 +334,13 @@ begin
         ARNext := TActivationRecord.Create(ANode.PToken.PValue, AR_FUNCTION, FCallStack.PLevel+1);
         AActRec := FCallStack.Peek();
 		    FuncDef := TFunctionInstance(AActRec.GetMember(Anode.PFuncname));
+        if FuncDef = nil then
+        begin
+          GlobalAR := FCallStack.GetFirst();
+          FuncDef := TFunctionInstance(GlobalAR.GetMember(Anode.PFuncname));
+				end;
+        if FuncDef = nil then
+          raise ERunTimeError.Create('Function "'+ANode.PFuncName+'" is not defined');
 
 		    len := length(FuncDef.PParams);
 		    if len > 0 then
@@ -399,6 +433,10 @@ begin
     VisitVarAssign(TVarAssign(ANode))
   else if ANode.ClassNameIs('TVariableReference') then
     Result := VisitVariableReference(TVariableReference(ANode))
+  else if ANode.ClassNameIs('TLiveOutput') then
+    VisitLiveOutput(TLiveOutput(Anode))
+  else if ANode.ClassNameIs('TLivePrint') then
+    Result := VisitLivePrint(TLivePrint(ANode))
   else if ANode.ClassNameIs('TMethodCall') then
     Result := VisitMethodCall(TMethodCall(Anode))
   else if ANode.ClassNameIs('TFunctionCall') then

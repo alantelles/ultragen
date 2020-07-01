@@ -23,6 +23,7 @@ type
       function Pop: TActivationRecord;
       function Peek: TActivationRecord;
       function AsString:string;
+      function GetFirst: TActivationRecord;
   end;
 
 implementation
@@ -76,6 +77,19 @@ begin
   if len > 0 then
   begin
     Ret := FItems[len - 1];
+  end;
+  Result := Ret;
+end;
+
+function TStack.GetFirst:TActivationRecord;
+var
+  Ret: TActivationRecord = nil;
+  len:integer;
+begin
+  len := Length(FItems);
+  if len > 0 then
+  begin
+    Ret := FItems[0];
   end;
   Result := Ret;
 end;
