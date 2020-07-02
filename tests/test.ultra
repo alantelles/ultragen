@@ -1,22 +1,20 @@
-nome = 'Alan'
-email = 'alan@gomes.com'
-pass = '123456'
-songs = ['michael', 'vedo', 'erykah badu']
+incs = [
+    'base.ultra.html',
+    'list_articles.ultra.html',
+    'footer.ultra.html'
+]
+basePath = './comps_poc/'
+# script loaders
+include "loader.ultra"
+include "styles/style.ultra"
 
-live "nome: " + nome
-live "email: " + email
-live "pass: " + pass
+# context
+include "context.ultra"
 
-function a(songs)
-    live "songs: ["
-    for (songs, i)
-        if (_i != int(songs.length()) - 1)
-            live str(i) + ', '
-        else
-            live str(i)
-        end
-    end
-    live "]"
-end
-
-print(a(songs))
+live base(
+    styleSheet(rules)
+    title, 
+    content, 
+    listArticles(articles),
+    footer()
+    )

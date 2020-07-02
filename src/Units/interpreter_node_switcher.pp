@@ -7,6 +7,9 @@
   else if ANode.ClassNameIs('TVariableReference') then
     Result := VisitVariableReference(TVariableReference(ANode))
 
+  else if ANode.ClassNameIs('TIncludeScript') then
+    VisitIncludeScript(TIncludeScript(ANode))
+
   else if ANode.ClassNameIs('TPlainTextEmbed') then
     VisitPlainTextEmbed(TPlainTextEmbed(Anode))
   else if ANode.ClassNameIs('TInterpolation') then

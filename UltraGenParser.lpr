@@ -17,9 +17,10 @@ var
   ALexer: TLexer;
   ATree: TAST;
   AInter: TInterpreter;
+  AOut: TStringList;
 begin
   LogLevel := '';
-  DecimalSeparator := '.';
+  //DecimalSeparator := '.';
   if ParamCount > 0 then
   begin
     if ParamCount > 1 then
@@ -36,7 +37,15 @@ begin
     ATree := AParser.ParseCode();
     AInter := TInterpreter.Create(ATree);
     AInter.Interpret;
-    Writeln(AInter.PLive.PValue);
+    Writeln(AInter.PLive);
+    if (ParamStr(2) = '--persist') then
+    begin
+      AOut := TStringList.Create;
+      AOut.SkipLastLineBreak := True;
+      AOut.Text := AInter.PLive;
+      AOut.SaveToFile(ParamStr(3));
+		end;
+		Ainter.CleanStack;
     AInter.Free;
   end;
 

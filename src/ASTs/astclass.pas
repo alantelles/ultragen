@@ -30,6 +30,14 @@ type
     function Count: integer;
   end;
 
+  TIncludeScript = class (TAST)
+    protected
+      FFileName: TAST;
+    public
+      property PFilename: TAST read FFileName;
+      constructor Create(AFileName: TAST; AToken: TToken);
+	end;
+
   TListAST = class (TAST)
     private
       FArgs: TASTList;
@@ -174,6 +182,12 @@ type
   end;
 
 implementation
+
+constructor TIncludeScript.Create(AFilename: TAST; AToken: TToken);
+begin
+  FFileName := AFileName;
+  FToken := AToken;
+end;
 
 constructor TPlainText.Create(AValue: string; AToken: TToken);
 begin

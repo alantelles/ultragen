@@ -1,0 +1,15 @@
+@function listArticles(articles)
+<div class="list_articles">
+@   for (articles, i)
+@        live showArticle(i[0], i[1])
+@   end
+    </div>
+@return $LIVE
+@end
+@function showArticle(title, body)
+        <div class="article">
+            <h2>{{ title }}</h2>
+            <p>{{ body }}</p>
+        </div> 
+@return $LIVE
+@end

@@ -59,6 +59,7 @@ const
   T_INTERPOLATION_END = 'T_INTERPOLATION_END';
   T_PLAIN_TEXT = 'T_PLAIN_TEXT';
   T_LINE_SCRIPT_EMBED = 'T_LINE_SCRIPT_EMBED';
+  T_INCLUDE = 'T_INCLUDE';
 
   ESCAPE_SYMBOL = '\';
   ASSIGN_SYMBOL = '=';
@@ -95,6 +96,7 @@ begin
   ReservedWords.Add('break', TToken.Create(T_BREAK, T_BREAK));
   ReservedWords.Add('live', TToken.Create(T_LIVE_OUTPUT, T_LIVE_OUTPUT));
   ReservedWords.Add('return', TToken.Create(T_RETURN, T_RETURN));
+  ReservedWords.Add('include', TToken.Create(T_INCLUDE, T_INCLUDE));
   InnerAttributes := TFPObjectHashTable.Create();
   InnerAttributes.Add('LIVE', TToken.Create(T_LIVE_PRINT, T_LIVE_PRINT));
 

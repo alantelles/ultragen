@@ -22,14 +22,18 @@ type
       FReturnSignal: boolean;
       FReturnValue: TInstanceOf;
       FContinueSignal: boolean;
-      FLiveStream: TStringInstance;
+      FLiveOutput: string;
+      FDontPush: boolean;
 
 
     public
       property PTree:TAST read FTree;
-      property PLive: TStringInstance read FLiveStream;
+      property PLive: string read FLiveOutput;
       constructor Create(var ATree: TAST);
-
+      function GetLive:string;
+      procedure PassCallStack(var ACallStack: TStack);
+      procedure CleanStack;
+      function Interpret(DontPush:boolean=False):string;
 
       function Visit(ANode:TAST; ASrcInstance: TInstanceOf = nil):TInstanceOf;
       {$INCLUDE 'interpreter_visitations_declarations.pp'}
@@ -39,7 +43,7 @@ type
 implementation
 
 uses
-  Math, ExceptionsClasses, TokenClass, Tokens, CoreFunctionsClass;
+  Math, ExceptionsClasses, TokenClass, Tokens, CoreFunctionsClass, LexerClass;
 
 
 constructor TInterpreter.Create(var ATree: TAST);
@@ -49,15 +53,37 @@ begin
   FTree := ATree;
   FCallStack := TStack.Create;
   FBreakSignal := False;
-  FLiveStream := TStringInstance.Create('');
+  //FLiveStream := TStringInstance.Create('');
 end;
 
-function TInterpreter.Interpret:string;
+
+procedure TInterpreter.CleanStack;
+begin
+  FCallStack.Pop();
+end;
+
+procedure TInterpreter.PassCallStack(var ACallStack: TStack);
+begin
+  FCallStack := ACallStack;
+end;
+
+function TInterpreter.Interpret(DontPush: boolean = False):string;
 var
   Ret:TInstanceOf;
 begin
+  FDontPush := DontPush;
   Ret := Visit(FTree);
   Result := '';
+end;
+
+function TInterpreter.GetLive:string;
+var
+  AActRec: TActivationRecord;
+  AVal: TStringInstance;
+begin
+  AActrec := FCallStack.Peek();
+  Aval := TStringInstance(AActRec.GetMember('LIVE'));
+  Result := AVal.PValue;
 end;
 
 procedure TInterpreter.VisitPlainTextEmbed(ANode: TPlainTextEmbed);
@@ -71,17 +97,31 @@ end;
 procedure TInterpreter.VisitLiveOutput(ANode: TLiveOutput);
 var
   AVal: TInstanceOf;
+  AActRec: TActivationRecord;
+  aLive, ASet: string;
+  ALiveVal:TStringInstance;
 begin
   AVal := Visit(ANode.PValue);
   if AVal.ClassNameIs('TStringInstance') then
-    FLiveStream.PValue := FLiveStream.PValue + TStringInstance(AVal).PValue
-  else
+  begin
+    ASet := TStringInstance(AVal).PValue;
+    //FLiveStream.PValue := FLiveStream.PValue + TStringInstance(AVal).PValue
+    AActRec := FCallStack.Peek();
+    ALiveVal := TStringInstance(AActrec.GetMember('LIVE'));
+    ALiveVal.PValue := ALiveVal.PValue + Aset;
+    AActRec.AddMember('LIVE', ALiveVal);
+	end
+	else
     raise EArgumentsError.Create('You can add only strings to live output');
 end;
 
 function TInterpreter.VisitLivePrint(ANode: TLivePrint):TStringInstance;
+var
+  AActRec: TActivationRecord;
 begin
-  Result := FLiveStream;
+  //Result := FLiveStream;
+  AActRec := FCallStack.Peek();
+  Result := TStringInstance(AActrec.GetMember('LIVE'));
 end;
 
 procedure TInterpreter.VisitBreak(Anode: TBreakLoop);
@@ -105,13 +145,34 @@ begin
 end;
 
 procedure TInterpreter.VisitPlainText(ANode: TPlainText);
+var
+  AActRec: TActivationRecord;
+  aLive: string;
 begin
-  FLiveStream.PValue := FLiveStream.PValue + Anode.PValue;
+
+  //if AVal.ClassNameIs('TStringInstance') then
+  //begin
+    //ASet := TStringInstance(AVal).PValue;
+    //FLiveStream.PValue := FLiveStream.PValue + TStringInstance(AVal).PValue
+    AActRec := FCallStack.Peek();
+    ALive := TStringInstance(AActrec.GetMember('LIVE')).PValue;
+    TStringInstance(AActrec.GetMember('LIVE')).PValue := ALive + ANode.PValue;
+	//end
+	//else
+    //raise EArgumentsError.Create('You can add only strings to live output');
+
+  //FLiveStream.PValue := FLiveStream.PValue + Anode.PValue;
 end;
 
 procedure TInterpreter.VisitInterpolation(ANode: TInterpolation);
+var
+  AActRec: TActivationRecord;
+  ALive: string;
 begin
-  FLiveStream.PValue := FLiveStream.PValue + TStringInstance(Visit(ANode.POper)).PValue;
+  AActRec := FCallStack.Peek();
+  ALive := TStringInstance(AActrec.GetMember('LIVE')).PValue;
+  TStringInstance(AActrec.GetMember('LIVE')).PValue := ALive + TStringInstance(Visit(ANode.POper)).PValue;
+  //FLiveStream.PValue := FLiveStream.PValue + TStringInstance(Visit(ANode.POper)).PValue;
 end;
 
 function TInterpreter.VisitFunctionDefinition(ANode: TFunctionDefinition):TInstanceOf;
@@ -310,6 +371,7 @@ begin
   if not FRegisters.FunctionExists(AFuncName) then
   begin
         ARNext := TActivationRecord.Create(ANode.PToken.PValue, AR_FUNCTION, FCallStack.PLevel+1);
+        ARNext.AddMember('LIVE', TStringInstance.Create(''));
         AActRec := FCallStack.Peek();
 		    FuncDef := TFunctionInstance(AActRec.GetMember(Anode.PFuncname));
         if FuncDef = nil then
@@ -349,8 +411,12 @@ begin
           else
             Visit(AState);
 		    end;
-			  FCallStack.Pop();
-        Result := TNullInstance.Create;
+        if not FReturnSignal then
+          //Result := TNullInstance.Create;
+        begin
+          Result := ARNext.GetMember('LIVE');
+				end;
+				FCallStack.Pop();
 	end
   else if (ANode.PFuncName = 'map') then
   begin
@@ -391,18 +457,39 @@ var
 begin
   LogText(INTER, 'Interpreter', 'Visiting a program');
   AActRec := TActivationRecord.Create('PROGRAM', AR_PROGRAM, 1);
-  FCallStack.Push(AActRec);
+  AActRec.AddMember('LIVE', TStringInstance.Create(''));
+  if not FDontPush then
+    FCallStack.Push(AActRec);
   for AChild in ANode.PChildren do
   begin
     LogText(INTER, 'Interpreter', 'Visiting a child ' + AChild.ToString);
     Visit(AChild);
   end;
-  FCallStack.Pop();
+  FLiveOutput := GetLive();
 end;
 
 procedure TInterpreter.VisitNoOp(ANode: TNoOp);
 begin
 
+end;
+
+procedure TInterpreter.VisitIncludeScript(ANode: TIncludeScript);
+var
+  AFileName: string;
+  AParser: TTParser;
+  ALexer: TLexer;
+  ATree: TAST;
+  AInter: TInterpreter;
+begin
+  AFileName := TStringInstance(Visit(ANode.PFilename)).PValue;
+  ALexer := TLexer.Create(AFileName);
+  AParser := TTParser.Create(ALexer);
+  ATree := AParser.ParseCode;
+  AInter := TInterpreter.Create(ATree);
+  AInter.PassCallStack(FCallStack);
+  AInter.Interpret(True);
+
+  AInter.Free;
 end;
 
 function TInterpreter.Visit(ANode:TAST; ASrcInstance: TInstanceOf = nil):TInstanceOf;

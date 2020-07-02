@@ -52,6 +52,7 @@ type
     function LiveOutput:TAST;
     function Interpolated: TAST;
     function PlainTextEmbed: TAST;
+    function IncludeScript: TAST;
 
   end;
 
@@ -64,6 +65,14 @@ constructor TTParser.Create(var ALexer: TLexer);
 begin
   FLexer := ALexer;
   FCurrentToken := ALexer.GetNextToken;
+end;
+
+function TTParser.IncludeScript: TAST;
+var
+  AFileName: TAST;
+begin
+  Eat(T_INCLUDE);
+  Result := TIncludeScript.Create(MethodCall(), FCurrentToken);
 end;
 
 function TTParser.FunctionBlock: TAST;
@@ -477,6 +486,11 @@ begin
     else
       EParseError;
   end
+  else if (ATOken.PType = T_INCLUDE) then
+  begin
+    Logtext('PARSER', 'Parser', 'Creating include node');
+    Ret := IncludeScript();
+	end
 	else if (AToken.PType = T_PLAIN_TEXT) then
   begin
     LogText('PARSER', 'Parser', 'Creating plaintext node');
@@ -484,7 +498,7 @@ begin
 	end
   else if AToken.PType = T_INTERPOLATION_START then
   begin
-    LogText('PARSER', 'Parser', 'Creating plaintext node');
+    LogText('PARSER', 'Parser', 'Creating interpol node');
     Ret := PlainTextEmbed();
 	end
 	else if AToken.PType = T_LIVE_OUTPUT then

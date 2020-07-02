@@ -168,7 +168,7 @@ var
 begin
   Ret := FCurrChar;
   Advance;
-  while (FCurrChar <> NONE) and (Pos(FCurrChar, LETTERS + SET_NUMBERS) > 0) do
+  while (FCurrChar <> NONE) and (Pos(FCurrChar, LETTERS + SET_NUMBERS + '_') > 0) do
   begin
     Ret := Ret + FCurrChar;
     Advance;

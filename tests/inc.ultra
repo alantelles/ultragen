@@ -1,0 +1,5 @@
+function a()
+    a = """Esta função está declarada em outro template
+Mas o template que a importar consguirá vê-la"""
+    return a
+end

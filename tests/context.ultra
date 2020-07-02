@@ -1,0 +1,7 @@
+title = 'My Web Page'
+content = "Este é meu conteúdo da página"
+articles = [
+    ['Hello world!', 'UltraGen nasceu'],
+    ['E agora?', 'Ele está melhor do que nunca! Tá top demais!!'],
+    ['Já dá pra botar em produção?', 'Ei, ei, ei, calma lá guerreiro']
+]

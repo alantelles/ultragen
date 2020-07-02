@@ -46,6 +46,9 @@ statement : assignment
 	| whileLoop
     | forLoop
     | plainTextNode
+    | includeScript
+
+includeScript : include LPAREN methodCall RPAREN
 
 conditional : 'if' LPAREN logicEval RPAREN statements 'end'
     | 'if' LPAREN logicEval RPAREN statements 'else' statements 'end'

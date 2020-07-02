@@ -1,5 +1,7 @@
 procedure VisitProgram(ANode: TProgram);
 procedure VisitNoOp(ANode: TNoOp);
+procedure VisitIncludeScript(ANode: TIncludeScript);
+
 procedure VisitLiveOutput(Anode: TLiveOutput);
 function VisitLivePrint(ANode: TLivePrint):TStringInstance;
 procedure VisitPlainText(ANode: TPlainText);
@@ -33,7 +35,7 @@ function VisitList(ANode: TListAST): TListInstance;
 function VisitUnaryOp(ANode: TUnaryOp):TFloatInstance;
 function VisitUnaryOp(ANode: TUnaryOp):TIntegerInstance;
 function VisitUnaryLogicOp(ANode: TUnaryLogicOp):TBooleanInstance;
-function Interpret:string;
+
 
 // flow
 function VisitReturn(ANode: TReturnFunction):TInstanceOf;
