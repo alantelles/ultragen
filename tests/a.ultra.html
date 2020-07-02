@@ -1,0 +1,18 @@
+@function ext(text)
+Este é meu bloco externo
+Enfiarei algo
+{{ text }} 
+nesse espaço
+o template que será herdado
+@end
+
+@a = """Este é o meu stringao
+Ele pode ter várias linhas"""
+
+
+@b = """Esta é mais uma música da HER
+Ela é top demais"""
+
+{{ ext(a) }} 
+
+{{ ext(b) }}

@@ -15,6 +15,7 @@ type
     FToken: TToken;
   public
     property PToken: TToken read FToken write FToken;
+    constructor Create(AToken: TToken);
   end;
 
   TASTList = array of TAST;
@@ -46,6 +47,14 @@ type
       property PList: TAST read FList write FList;
       constructor Create(AList: TAST; AIndex: TAST; AToken: TToken);
   end;
+
+  TPlainText = class (TAST)
+    protected
+      FValue: string;
+    public
+      property PValue: string read FValue;
+      constructor Create(AValue: string; AToken: TToken);
+	end;
 
   TFunctionDefinition = class (TAST)
     protected
@@ -79,7 +88,22 @@ type
       constructor Create(ASrc, AOper: TAST; AToken:TToken);
   end;
 
+  TInterpolation = class (TAST)
+    protected
+      FOper: TAST;
+    public
+      property POper: TAST read FOper write FOper;
+      constructor Create(AOper: TAST; AToken: TToken);
 
+	end;
+
+  TPlainTextEmbed = class (TAST)
+    protected
+      FNodes: TASTList;
+    public
+      property PNodes: TASTList read FNodes;
+      constructor Create(ANodes: TASTList; AToken: TToken);
+	end;
 
   TParam = class (TAST)
     protected
@@ -151,8 +175,31 @@ type
 
 implementation
 
+constructor TPlainText.Create(AValue: string; AToken: TToken);
+begin
+  FValue := AValue;
+  FToken := AToken;
+end;
+
+constructor TAST.Create(AToken: TToken);
+begin
+  FToken := AToken;
+end;
+
 constructor TLivePrint.Create(AToken: TToken);
 begin
+  FToken := AToken;
+end;
+
+constructor TInterpolation.Create(AOper: TAST; AToken: TToken);
+begin
+  FOper := AOper;
+  FToken := AToken;
+end;
+
+constructor TPlainTextEmbed.Create(ANodes: TASTList; AToken: TToken);
+begin
+  FNodes := ANodes;
   FToken := AToken;
 end;
 

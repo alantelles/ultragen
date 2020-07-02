@@ -50,6 +50,8 @@ type
     function List: TAST;
     function ListAccess: TAST;
     function LiveOutput:TAST;
+    function Interpolated: TAST;
+    function PlainTextEmbed: TAST;
 
   end;
 
@@ -81,6 +83,8 @@ begin
   ParamList := DefParams();
   Eat(T_RPAREN);
   FInArgsDef := False;
+  if FLexer.PExtension <> '.ultra' then
+    FLexer.PScriptMode := False;
   Eat(T_NEWLINE);
   InBlock := Statements();
   Eat(T_END + T_FUNC_DEF);
@@ -88,11 +92,52 @@ begin
   Result := TFunctionDefinition.Create(AToken, AStrId, InBlock, ParamList);
 end;
 
+function TTParser.PlainTextEmbed: TAST;
+var
+  Ret: TASTList;
+  len: integer;
+  AToken: TToken;
+begin
+  SetLength(Ret, 0);
+  len := 0;
+  AToken := TToken.Create;
+  while (FCurrentToken.PType <> T_NEWLINE) and (FCurrentToken.PType <> EOF) do
+  begin
+    AToken.SetValue(FCurrentToken.PType, FCurrentToken.PValue);
+    len := len + 1;
+    SetLength(Ret, len);
+    if FCurrentToken.PType = T_PLAIN_TEXT then
+    begin
+      Ret[len - 1] := TPlaintext.Create(AToken.PValue, AToken);
+      Eat(T_PLAIN_TEXT);
+		end
+		else if FCurrentToken.PType = T_INTERPOLATION_START then
+    begin
+      Ret[len - 1] := Interpolated()
+		end;
+	end;
+  {len := len + 1;
+  SetLength(Ret, Len);
+  Ret[len - 1] := TLiveOutput.Create(TString.Create(TToken.Create(TYPE_STRING, sLineBreak)), FCurrentToken);}
+  Result := TPlainTextEmbed.Create(Ret, AToken);
+end;
+
 function TTParser.ElseBlock: TAST;
 begin
   Eat(T_NEWLINE);
   logtext('PARSER', 'Parser', 'Creating else block node');
   Result := TIfConditionBlock.Create(Statements());
+end;
+
+function TTParser.Interpolated: TAST;
+var
+  AOper: TAST;
+begin
+  Eat(T_INTERPOLATION_START);
+  AOper := MethodCall();
+  Eat(T_INTERPOLATION_END);
+  logtext('PARSER', 'Parser', 'Creating inter node');
+  Result := TInterpolation.Create(AOper, FCurrentToken);
 end;
 
 function TTParser.LiveOutput:TAST;
@@ -110,7 +155,10 @@ begin
   AExpr := logicEval();
   FInArgsDef := False;
   Eat(T_RPAREN);
+  if FLexer.PExtension <> '.ultra' then
+    FLexer.PScriptMode := False;
   Eat(T_NEWLINE);
+
   logtext('PARSER', 'Parser', 'Creating if block node');
   Result := TIfConditionBlock.Create(Statements(), AExpr);
 end;
@@ -122,9 +170,11 @@ begin
   Eat(T_WHILE_LOOP);
   Eat(T_LPAREN);
   FInArgsDef := True;
-  AExpr := logicEval();
+  AExpr := LogicEval();
   FInArgsDef := False;
   Eat(T_RPAREN);
+  if FLexer.PExtension <> '.ultra' then
+    FLexer.PScriptMode := False;
   Eat(T_NEWLINE);
   Result := TWhileLoop.Create(Statements(), AExpr);
 end;
@@ -138,12 +188,14 @@ begin
   Eat(T_FOR_LOOP);
   Eat(T_LPAREN);
   FInArgsDef := True;
-  AList := logicEval();
+  AList := MethodCall();
   Eat(T_COMMA);
   AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue);
   AVar := VarAssign(AToken, TNull.Create(TToken.Create(TYPE_NULL, T_LANG_NULL)));
   FInArgsDef := False;
   Eat(T_RPAREN);
+  if FLexer.PExtension <> '.ultra' then
+    FLexer.PScriptMode := False;
   Eat(T_NEWLINE);
   logtext('PARSER', 'Parser', 'Creating for node');
   Result := TForLoop.Create(Statements(), AList, TVarAssign(AVar));
@@ -406,7 +458,9 @@ function TTParser.Statement: TAST;
 var
   AToken: TToken;
   AStrId: string;
+  Ret: TAST;
 begin
+
   AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue);
   logtext('PARSER', 'Parser', 'Creating statement node');
   if (AToken.PType = T_ID) then
@@ -414,66 +468,83 @@ begin
     Eat(T_ID);
     if (FCurrentToken.PType = T_ASSIGN) then
     begin
-      Result := VarAssign(AToken);
+      Ret := VarAssign(AToken);
     end
     else if (FCurrentToken.PType = T_LPAREN) then
     begin
-      Result := FunctionCall(AToken);
+      Ret := FunctionCall(AToken);
     end
     else
       EParseError;
   end
-  else if AToken.PType = T_LIVE_OUTPUT then
+	else if (AToken.PType = T_PLAIN_TEXT) then
+  begin
+    LogText('PARSER', 'Parser', 'Creating plaintext node');
+    Ret := PlainTextEmbed();
+	end
+  else if AToken.PType = T_INTERPOLATION_START then
+  begin
+    LogText('PARSER', 'Parser', 'Creating plaintext node');
+    Ret := PlainTextEmbed();
+	end
+	else if AToken.PType = T_LIVE_OUTPUT then
   begin
     Eat(T_LIVE_OUTPUT);
-    Result := LiveOutput()
+    Ret := LiveOutput()
+	end
+  else if (AToken.PType = T_LINE_SCRIPT_EMBED) then
+  begin
+    Eat(T_LINE_SCRIPT_EMBED);
+    Ret := Statement();
+    FLexer.PScriptMode := False;
 	end
 	else if AToken.PType = T_RETURN then
   begin
     Eat(T_RETURN);
-    Result := TReturnFunction.Create(MethodCall());
+    Ret := TReturnFunction.Create(MethodCall());
   end
   else if (AToken.PType = T_BREAK) then
   begin
     Eat(T_BREAK);
-    Result := TBreakLoop.Create;
+    Ret := TBreakLoop.Create(AToken);
 	end
   else if (AToken.PType = T_CONTINUE) then
   begin
     Eat(T_CONTINUE);
-    Result := TContinueLoop.Create;
+    Ret := TContinueLoop.Create(AToken);
 	end
 	else if (AToken.PType = T_COMMENT) then
   begin
     Eat(T_COMMENT);
-    Result := TNoOp.Create;
+    Ret := TNoOp.Create;
   end
   else if (AToken.PType = T_END + T_FUNC_DEF) then
   begin
-    Result := TNoOp.Create;
+    Ret := TNoOp.Create;
   end
   else if (AToken.PType = T_FUNC_DEF) then
   begin
-    Result := FunctionBlock();
+    Ret := FunctionBlock();
   end
   else if (AToken.PType = T_IF_START) then
   begin
-    Result := Conditional();
+    Ret := Conditional();
   end
   else if (AToken.PType = T_WHILE_LOOP) then
   begin
-    Result := WhileLoop();
+    Ret := WhileLoop();
   end
   else if (AToken.PType = T_WHILE_LOOP) then
   begin
-    Result := ForLoop();
+    Ret := ForLoop();
   end
   else if (AToken.PType = T_FOR_LOOP) then
   begin
-    Result := ForLoop();
+    Ret := ForLoop();
   end
   else
-    Result := TNoOp.Create;
+    Ret := TNoOp.Create;
+  Result := Ret;
 end;
 
 function TTParser.Statements: TASTList;
@@ -489,7 +560,8 @@ begin
   while FCurrentToken.PType = T_NEWLINE do
   begin
     Eat(T_NEWLINE);
-    if FCurrentToken.PType = T_NEWLINE then
+
+		if FCurrentToken.PType = T_NEWLINE then
     begin
       continue;
     end;

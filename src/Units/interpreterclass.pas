@@ -27,52 +27,12 @@ type
 
     public
       property PTree:TAST read FTree;
+      property PLive: TStringInstance read FLiveStream;
       constructor Create(var ATree: TAST);
 
 
       function Visit(ANode:TAST; ASrcInstance: TInstanceOf = nil):TInstanceOf;
-      procedure VisitProgram(ANode: TProgram);
-      procedure VisitNoOp(ANode: TNoOp);
-      procedure VisitLiveOutput(Anode: TLiveOutput);
-      function VisitLivePrint(ANode: TLivePrint):TStringInstance;
-
-      // references
-      procedure VisitVarAssign(ANode: TVarAssign);
-      function VisitVariableReference(ANode: TVariableReference):TInstanceOf;
-      function VisitFunctionCall(ANode: TFunctionCall; ASrcInstance: TInstanceOf = nil):TInstanceOf;
-      function VisitMethodCall(ANode: TMethodCall):TInstanceOf;
-      function VisitListAccess(ANode: TListAccessAST): TInstanceOf;
-
-
-      // operations
-      function VisitBinOp(ANode:TBinOp):TInstanceOf;
-      function VisitBinLogicOp(ANode: TBinLogicOp): TBooleanInstance;
-
-      // types
-      function VisitBoolean(ANode:TBoolean):TBooleanInstance;
-      function VisitNumInt(ANode:TNumInt):TIntegerInstance;
-      function VisitNull(ANode:TNull):TNullInstance;
-      function VisitNumFloat(ANode:TNumFloat):TFloatInstance;
-      function VisitString(ANode:TString):TStringInstance;
-      function VisitFunctionDefinition(ANode: TFunctionDefinition): TInstanceOf;
-      function VisitList(ANode: TListAST): TListInstance;
-
-
-
-      //overloads
-      function VisitUnaryOp(ANode: TUnaryOp):TFloatInstance;
-      function VisitUnaryOp(ANode: TUnaryOp):TIntegerInstance;
-      function VisitUnaryLogicOp(ANode: TUnaryLogicOp):TBooleanInstance;
-      function Interpret:string;
-
-      // flow
-      function VisitReturn(ANode: TReturnFunction):TInstanceOf;
-      function VisitIfCondition(ANode: TIfConditionBlock):TBooleanInstance;
-      procedure VisitConditional(ANode: TConditional);
-      procedure VisitWhileLoop(ANode: TWhileLoop);
-      procedure VisitForLoop(ANode: TForLoop);
-      procedure VisitBreak(Anode: TBreakLoop);
-      procedure VisitContinue(Anode: TContinueLoop);
+      {$INCLUDE 'interpreter_visitations_declarations.pp'}
 
 	end;
 
@@ -98,6 +58,14 @@ var
 begin
   Ret := Visit(FTree);
   Result := '';
+end;
+
+procedure TInterpreter.VisitPlainTextEmbed(ANode: TPlainTextEmbed);
+var
+  AState: TAST;
+begin
+  for AState in Anode.PNodes do
+    Visit(AState);
 end;
 
 procedure TInterpreter.VisitLiveOutput(ANode: TLiveOutput);
@@ -134,6 +102,16 @@ begin
   AVal := Visit(ANode.PValue);
   FReturnValue := AVal;
   Result := AVal;
+end;
+
+procedure TInterpreter.VisitPlainText(ANode: TPlainText);
+begin
+  FLiveStream.PValue := FLiveStream.PValue + Anode.PValue;
+end;
+
+procedure TInterpreter.VisitInterpolation(ANode: TInterpolation);
+begin
+  FLiveStream.PValue := FLiveStream.PValue + TStringInstance(Visit(ANode.POper)).PValue;
 end;
 
 function TInterpreter.VisitFunctionDefinition(ANode: TFunctionDefinition):TInstanceOf;
@@ -323,7 +301,7 @@ var
   i, len, len2: integer;
   ArgsList: TInstanceList;
   IsMethod: boolean;
-  AFuncName: string;
+  AFuncName, compl: string;
 begin
   AFuncName := ANode.PFuncName;
   if ASrcInstance <> nil then
@@ -340,7 +318,12 @@ begin
           FuncDef := TFunctionInstance(GlobalAR.GetMember(Anode.PFuncname));
 				end;
         if FuncDef = nil then
-          raise ERunTimeError.Create('Function "'+ANode.PFuncName+'" is not defined');
+        begin
+          compl := '';
+          if ASrcInstance <> nil then
+            compl := ' for ' + ASrcInstance.ClassName + ' object';
+          raise ERunTimeError.Create('Function "'+ANode.PFuncName+'" is not defined' + compl);
+				end;
 
 		    len := length(FuncDef.PParams);
 		    if len > 0 then
@@ -367,6 +350,7 @@ begin
             Visit(AState);
 		    end;
 			  FCallStack.Pop();
+        Result := TNullInstance.Create;
 	end
   else if (ANode.PFuncName = 'map') then
   begin
@@ -425,60 +409,7 @@ function TInterpreter.Visit(ANode:TAST; ASrcInstance: TInstanceOf = nil):TInstan
 var
   AuxBool:boolean;
 begin
-  if ANode.ClassNameIs('TProgram') then
-  begin
-    VisitProgram(TProgram(ANode));
-  end
-  else if ANode.ClassNameIs('TVarAssign') then   
-    VisitVarAssign(TVarAssign(ANode))
-  else if ANode.ClassNameIs('TVariableReference') then
-    Result := VisitVariableReference(TVariableReference(ANode))
-  else if ANode.ClassNameIs('TLiveOutput') then
-    VisitLiveOutput(TLiveOutput(Anode))
-  else if ANode.ClassNameIs('TLivePrint') then
-    Result := VisitLivePrint(TLivePrint(ANode))
-  else if ANode.ClassNameIs('TMethodCall') then
-    Result := VisitMethodCall(TMethodCall(Anode))
-  else if ANode.ClassNameIs('TFunctionCall') then
-    Result := VisitFunctionCall(TFunctionCall(Anode), ASrcInstance)
-  else if ANode.ClassNameIs('TReturnFunction') then
-    Result := VisitReturn(TReturnFunction(ANode))
-  else if ANode.ClassNameIs('TFunctionDefinition') then
-    VisitFunctionDefinition(TFunctionDefinition(Anode))
-  else if Anode.ClassNameIs('TNumInt') then
-    Result := VisitNumInt(TNumInt(ANode))
-  else if Anode.ClassNameIs('TNull') then
-    Result := VisitNull(TNull(ANode))
-  else if Anode.ClassNameIs('TNumFloat') then
-    Result := VisitNumFloat(TNumFloat(ANode))
-  else if Anode.ClassNameIs('TListAST') then
-    Result := VisitList(TListAST(ANode))
-  else if Anode.ClassNameIs('TListAccessAST') then
-    Result := VisitListAccess(TListAccessAST(ANode))
-  else if Anode.ClassNameIs('TString') then
-    Result := VisitString(TString(ANode))
-  else if Anode.ClassNameIs('TBoolean') then
-    Result := VisitBoolean(TBoolean(ANode))
-  else if ANode.ClassNameIs('TUnaryOp') then
-    Result := VisitUnaryOp(TUnaryOp(ANode))
-  else if ANode.ClassNameIs('TBinOp') then
-    Result := VisitBinOp(TBinOp(ANode))
-  else if ANode.ClassNameIs('TBinLogicOp') then
-    Result := VisitBinLogicOp(TBinLogicOp(ANode))
-  else if ANode.ClassNameIs('TUnaryLogicOp') then
-    Result := VisitUnaryLogicOp(TUnaryLogicOp(ANode))
-  else if ANode.ClassNameIs('TConditional') then
-    VisitConditional(TConditional(ANode))
-  else if ANode.ClassNameIs('TIfConditionBlock') then
-    VisitIfCondition(TIfConditionBlock(ANode))
-  else if ANode.ClassNameIs('TWhileLoop') then
-    VisitWhileLoop(TWhileLoop(ANode))
-  else if ANode.ClassNameIs('TForLoop') then
-    VisitForLoop(TForLoop(ANode))
-  else if ANode.ClassNameIs('TBreakLoop') then
-    VisitBreak(TBreakLoop(ANode))
-  else if ANode.ClassNameIs('TContinueLoop') then
-    VisitContinue(TContinueLoop(ANode));
+  {$INCLUDE 'interpreter_node_switcher.pp'}
 end;
 
 function TInterpreter.VisitUnaryOp(ANode: TUnaryOp):TFloatInstance;

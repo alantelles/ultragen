@@ -13,14 +13,10 @@ uses
   LoggingClass, StackClass, ARClass,
   InstanceOfClass, StringInstanceClass;
 var
-  ASource: TStringList;
-  AOut:string;
   AParser: TTParser;
   ALexer: TLexer;
   ATree: TAST;
   AInter: TInterpreter;
-  AStack: TStack;
-  AnAr: TActivationRecord;
 begin
   LogLevel := '';
   DecimalSeparator := '.';
@@ -35,14 +31,12 @@ begin
       else if ParamStr(2) = '--parser' then
         LogLevel := 'PARSER';
     end;
-    ASource := TStringList.Create;
-    ASource.SkipLastLineBreak := False;
-    ASource.LoadFromFile(ParamStr(1));
-    ALexer := TLexer.Create(ASource.Text);
+    ALexer := TLexer.Create(ParamStr(1));
     AParser := TTParser.Create(ALexer);
     ATree := AParser.ParseCode();
     AInter := TInterpreter.Create(ATree);
-    AOut := AInter.Interpret;
+    AInter.Interpret;
+    Writeln(AInter.PLive.PValue);
     AInter.Free;
   end;
 

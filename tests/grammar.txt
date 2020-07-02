@@ -45,6 +45,7 @@ statement : assignment
     | conditional
 	| whileLoop
     | forLoop
+    | plainTextNode
 
 conditional : 'if' LPAREN logicEval RPAREN statements 'end'
     | 'if' LPAREN logicEval RPAREN statements 'else' statements 'end'

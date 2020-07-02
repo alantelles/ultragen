@@ -75,7 +75,7 @@ uses
 
 constructor TNullInstance.Create;
 begin
-  FValue := T_LANG_NULL;
+  FValue := '';
 end;
 
 constructor TFunctionInstance.Create(AName:string);
