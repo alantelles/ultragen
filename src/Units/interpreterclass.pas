@@ -24,7 +24,7 @@ type
       FContinueSignal: boolean;
       FLiveOutput: string;
       FDontPush: boolean;
-      procedure RegisterMethods;
+      procedure BootStrapRegister;
 
 
     public
@@ -57,12 +57,20 @@ begin
   //FLiveStream := TStringInstance.Create('');
 end;
 
-procedure TInterpreter.RegisterMethods;
+procedure TInterpreter.BootstrapRegister;
 var
   AActRec: TActivationRecord;
+  ACoreType, AStrType, AIntType, AFloatType, AListType, ABoolType,AFuncType: TFunctionInstance;
 begin
-  AActRec := FCallStack.Peek();
-  {$INCLUDE '../BootStrap/register_builtins.pp' }
+  ACoreType := TFunctionInstance.Create('BuiltIn', nil, nil, 'CoreFunction');
+  AStrType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TStringInstance');
+  AIntType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TIntegerInstance');
+  AFloatType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFloatInstance');
+  AListType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TListInstance');
+  AFuncType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFunctionInstance');
+  ABoolType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBooleanInstance');
+  AActRec := FCallStack.GetFirst();
+  {$INCLUDE 'builtin_functions/register_builtins.pp' }
 end;
 
 procedure TInterpreter.CleanStack;
@@ -178,15 +186,14 @@ end;
 function TInterpreter.VisitFunctionDefinition(ANode: TFunctionDefinition):TInstanceOf;
 var
   i, len: integer;
-  AParam: string;
   AValue: TFunctionInstance;
   AActRec: TActivationRecord;
   ABlock: TAST;
 begin
   logtext('INTER', 'Interpreter', 'Visiting function definition');
   AActRec := FCallStack.Peek;
-  AValue := TFunctionInstance.Create(ANode.PName);
-  len := Length(ANode.PParamList);
+  AValue := TFunctionInstance.Create(ANode.PName, ANode.PParamList, ANode.PBlock, ANode.ptype);
+  {len := Length(ANode.PParamList);
   if len > 0 then
   begin
     for i:=0 to (len - 1) do
@@ -196,7 +203,7 @@ begin
       AValue.AddParam(AParam);
     end;
 	end;
-  AValue.PBlock := ANode.PBlock;
+  AValue.PBlock := ANode.PBlock;}
 	AActrec.AddMember(ANode.PName, AValue);
   Result := TInstanceOf.Create;
   // ASymbolTable.AsString;
@@ -395,20 +402,111 @@ end;
 
 function TInterpreter.VisitFunctionCall(ANode: TFunctionCall; ASrcInstance: TInstanceOf = nil):TInstanceOf;
 var
-  AActRec, ARNext, GlobalAR: TActivationRecord;
-  AState: TAST;
+ { ARNext, GlobalAR: TActivationRecord;
+
   Res: TInstanceOf;
-  FuncDef: TFunctioninstance;
-  i, len, len2: integer;
+
+  len2: integer;
   ArgsList: TInstanceList;
   IsMethod: boolean;
-  AFuncName, compl: string;
+  }
+  //
+  ACoreExec: TCoreFunction;
+  AFuncName, compl:string;
+  AActRec: TActivationRecord;
+  AParamName: string;
+  AState: TAST;
+  AParamState: TParam;
+  FuncDef: TFunctioninstance;
+  ADef: TInstanceOf = nil;
+  AReturn: TInstanceOf;
+  LenArgs, LenParams, Len, i: integer;
+  ArgsList: TInstanceList;
 begin
   AFuncName := ANode.PFuncName;
   if ASrcInstance <> nil then
     AFuncName := ASrcInstance.ClassName + ATTR_ACCESSOR + AFuncName;
 	LogText(INTER, 'Interpreter', 'Visiting function ' + ANode.PFuncName);
-  if not FRegisters.FunctionExists(AFuncName) then
+  // new implementation
+  AActRec := FCallStack.Peek();
+  FuncDef := TFunctionInstance(AActRec.GetMember(AFuncName));
+  if FuncDef = nil then
+  begin
+    AActRec := FCallStack.GetFirst();
+    FuncDef := TFunctionInstance(AActRec.GetMember(AFuncName));
+  end;
+  if FuncDef <> nil then
+  begin
+    if FuncDef.PType = 'RunTime' then
+    begin
+      AActRec := TActivationRecord.Create(FuncDef.PName, AR_FUNCTION, FCallStack.PLevel+1);
+      AActRec.AddMember('LIVE', TStringInstance.Create(''));
+      LenArgs := Length(Anode.PEvalParams);
+      LenParams := Length(FuncDef.PParams);
+      Len := Max(LenArgs, LenParams);
+      if Len > 0 then
+      begin
+        for i := 0 to Len - 1 do
+        begin
+          if i > (LenArgs - 1) then
+          begin
+            if TParam(FuncDef.PParams[i]).PDefValue <> nil then
+              ADef := Visit(TParam(FuncDef.PParams[i]).PDefValue)
+            else
+              raise EArgumentsError.Create('Wrong number of arguments to call this function');
+          end
+          else if i > (LenParams - 1) then
+          begin
+            raise EArgumentsError.Create('Wrong number of arguments to call this function');
+          end
+          else
+            ADef := Visit(ANode.PEvalParams[i]);
+          AParamName := TParam(FuncDef.PParams[i]).PNode.PValue;
+          AActRec.AddMember(AParamName, ADef);
+        end;
+      end;
+      FCallStack.Push(AActRec);
+      for AState in FuncDef.PBlock do
+      begin
+        if FReturnSignal then
+        begin
+          FReturnSignal := False;
+          FCallStack.Pop();
+		      Result := FReturnValue;
+          exit
+        end
+        else
+          Visit(AState);
+      end;
+      AReturn := AActRec.GetMember('LIVE');
+      FCallStack.Pop();
+      Result := AReturn;
+      exit
+    end
+    else
+    begin
+      ACoreExec := TCoreFunction.Create;
+      Len := 0;
+      SetLength(ArgsList, 0);
+      for AState in ANode.PEvalParams do
+      begin
+        Len := Len + 1;
+        SetLength(ArgsList, len);
+        ArgsList[len - 1] := Visit(AState, ASrcInstance);
+      end;
+      AReturn := ACoreExec.Execute(AFuncName, ArgsList, ASrcInstance);
+      ACoreExec.Free;
+      Result := AReturn;
+      exit
+    end;
+  end
+  else
+  begin
+
+    raise ERunTimeError.Create('Referenced function "' + AFuncName + '" does not exist.');
+  end;
+  // end of new
+  {if not FRegisters.FunctionExists(AFuncName) then
   begin
         ARNext := TActivationRecord.Create(ANode.PToken.PValue, AR_FUNCTION, FCallStack.PLevel+1);
         ARNext.AddMember('LIVE', TStringInstance.Create(''));
@@ -486,7 +584,8 @@ begin
 	  end;
     Res := FRegisters.Execute(AFuncName, ArgsList, ASrcInstance);
     Result := Res;
-	end;
+	end; }
+  Result := TNullInstance.Create;
 end;
 
 
@@ -497,10 +596,13 @@ var
 begin
   LogText(INTER, 'Interpreter', 'Visiting a program');
   AActRec := TActivationRecord.Create('PROGRAM', AR_PROGRAM, 1);
-  RegisterMethods;
   AActRec.AddMember('LIVE', TStringInstance.Create(''));
   if not FDontPush then
+  begin
     FCallStack.Push(AActRec);
+    BootStrapRegister;
+  end;
+
   for AChild in ANode.PChildren do
   begin
     LogText(INTER, 'Interpreter', 'Visiting a child ' + AChild.ToString);

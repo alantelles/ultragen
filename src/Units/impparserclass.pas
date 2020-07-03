@@ -49,7 +49,7 @@ type
     function ForLoop: TAST;
     function List: TAST;
     function ListAccess: TAST;
-    function LiveOutput:TAST;
+    function LiveOutput: TAST;
     function Interpolated: TAST;
     function PlainTextEmbed: TAST;
     function IncludeScript: TAST;
@@ -98,7 +98,7 @@ begin
   InBlock := Statements();
   Eat(T_END + T_FUNC_DEF);
   logtext('PARSER', 'Parser', 'Creating function block node');
-  Result := TFunctionDefinition.Create(AToken, AStrId, InBlock, ParamList);
+  Result := TFunctionDefinition.Create(AToken, AStrId, InBlock, ParamList, 'RunTime');
 end;
 
 function TTParser.PlainTextEmbed: TAST;
@@ -119,12 +119,12 @@ begin
     begin
       Ret[len - 1] := TPlaintext.Create(AToken.PValue, AToken);
       Eat(T_PLAIN_TEXT);
-		end
-		else if FCurrentToken.PType = T_INTERPOLATION_START then
+    end
+    else if FCurrentToken.PType = T_INTERPOLATION_START then
     begin
-      Ret[len - 1] := Interpolated()
-		end;
-	end;
+      Ret[len - 1] := Interpolated();
+    end;
+  end;
   {len := len + 1;
   SetLength(Ret, Len);
   Ret[len - 1] := TLiveOutput.Create(TString.Create(TToken.Create(TYPE_STRING, sLineBreak)), FCurrentToken);}
@@ -149,7 +149,7 @@ begin
   Result := TInterpolation.Create(AOper, FCurrentToken);
 end;
 
-function TTParser.LiveOutput:TAST;
+function TTParser.LiveOutput: TAST;
 begin
   Result := TLiveOutput.Create(MethodCall(), FCurrentToken);
 end;
@@ -335,8 +335,8 @@ begin
     Eat(T_LIST_START);
     Ret := TListAccessAST.Create(Ret, MethodCall(), FCurrentToken);
     Eat(T_LIST_END);
-	end;
-	Result := Ret;
+  end;
+  Result := Ret;
 end;
 
 function TTParser.MethodCall(): TAST;
@@ -347,26 +347,26 @@ begin
   Ret := LogicEval();
   logtext('PARSER', 'Parser', 'Creating method call node');
   while (FCurrentToken.PType = T_ATTR_ACCESSOR) or
-        (FCurrentToken.PType = T_LIST_START) do
+    (FCurrentToken.PType = T_LIST_START) do
   begin
     if (FCurrentToken.PType = T_ATTR_ACCESSOR) then
-	  begin
-	    Eat(T_ATTR_ACCESSOR);
+    begin
+      Eat(T_ATTR_ACCESSOR);
       if FCurrentToken.ptype = T_NEWLINE then
         Eat(T_NEWLINE);
-	    Ret := TMethodCall.Create(Ret, LogicEval(), FCurrentToken);
+      Ret := TMethodCall.Create(Ret, LogicEval(), FCurrentToken);
       continue;
-	  end;
+    end;
     if (FCurrentToken.PType = T_LIST_START) then
-		begin
-		  Eat(T_LIST_START);
+    begin
+      Eat(T_LIST_START);
       if FCurrentToken.ptype = T_NEWLINE then
         Eat(T_NEWLINE);
-		  Ret := TListAccessAST.Create(Ret, MethodCall(), FCurrentToken);
+      Ret := TListAccessAST.Create(Ret, MethodCall(), FCurrentToken);
       if FCurrentToken.ptype = T_NEWLINE then
         Eat(T_NEWLINE);
-		  Eat(T_LIST_END);
-		end
+      Eat(T_LIST_END);
+    end;
   end;
   Result := Ret;
 end;
@@ -391,14 +391,21 @@ end;
 
 function TTParser.DefParam: TAST;
 var
-  ret: TAST;
+  Ret, ADef: TAST;
   AToken: TToken;
   AVarAssign: TAST;
 begin
   AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue);
+  ADef := nil;
   //AVarAssign := TVarAssign.Create(AToken, nil);
-  Ret := TParam.Create(AToken);
+  // Ret := TParam.Create(AToken);
   Eat(T_ID);
+  if FCurrentToken.PType = T_ASSIGN then
+  begin
+    Eat(T_ASSIGN);
+    ADef := MethodCall();
+  end;
+  Ret := TParam.Create(AToken, ADef);
   logtext('PARSER', 'Parser', 'Creating param node');
   Result := Ret;
 end;
@@ -490,29 +497,29 @@ begin
   begin
     Logtext('PARSER', 'Parser', 'Creating include node');
     Ret := IncludeScript();
-	end
-	else if (AToken.PType = T_PLAIN_TEXT) then
+  end
+  else if (AToken.PType = T_PLAIN_TEXT) then
   begin
     LogText('PARSER', 'Parser', 'Creating plaintext node');
     Ret := PlainTextEmbed();
-	end
+  end
   else if AToken.PType = T_INTERPOLATION_START then
   begin
     LogText('PARSER', 'Parser', 'Creating interpol node');
     Ret := PlainTextEmbed();
-	end
-	else if AToken.PType = T_LIVE_OUTPUT then
+  end
+  else if AToken.PType = T_LIVE_OUTPUT then
   begin
     Eat(T_LIVE_OUTPUT);
-    Ret := LiveOutput()
-	end
+    Ret := LiveOutput();
+  end
   else if (AToken.PType = T_LINE_SCRIPT_EMBED) then
   begin
     Eat(T_LINE_SCRIPT_EMBED);
     Ret := Statement();
     FLexer.PScriptMode := False;
-	end
-	else if AToken.PType = T_RETURN then
+  end
+  else if AToken.PType = T_RETURN then
   begin
     Eat(T_RETURN);
     Ret := TReturnFunction.Create(MethodCall());
@@ -521,13 +528,13 @@ begin
   begin
     Eat(T_BREAK);
     Ret := TBreakLoop.Create(AToken);
-	end
+  end
   else if (AToken.PType = T_CONTINUE) then
   begin
     Eat(T_CONTINUE);
     Ret := TContinueLoop.Create(AToken);
-	end
-	else if (AToken.PType = T_COMMENT) then
+  end
+  else if (AToken.PType = T_COMMENT) then
   begin
     Eat(T_COMMENT);
     Ret := TNoOp.Create;
@@ -575,7 +582,7 @@ begin
   begin
     Eat(T_NEWLINE);
 
-		if FCurrentToken.PType = T_NEWLINE then
+    if FCurrentToken.PType = T_NEWLINE then
     begin
       continue;
     end;
@@ -589,7 +596,7 @@ begin
     else if FCurrentToken.PType = T_RETURN then
     begin
       Eat(T_RETURN);
-      writeln('return')
+      writeln('return');
     end
     else if FCurrentToken.PType = T_ELSE_IF then
     begin
@@ -697,7 +704,7 @@ begin
   begin
     Eat(T_LIVE_PRINT);
     Ret := TLivePrint.Create(AToken);
-	end
+  end
   // END INNER ATTRIBUTES
 
   else if (AToken.PType = TYPE_INTEGER) then

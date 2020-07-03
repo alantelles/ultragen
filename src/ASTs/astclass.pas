@@ -69,11 +69,13 @@ type
       FName: string;
       FBlock: TASTList;
       FParamList: TASTList;
+      FType: string;
     public
+      property PType: string read FType;
       property PParamList: TASTList read FParamList;
       property PBlock: TASTList read FBlock;
       property PName:string read FName;
-      constructor Create(AToken: TToken; AName:string; ABlock: TASTList; AParamList: TASTList);
+      constructor Create(AToken: TToken; AName:string; ABlock, AParamList: TASTList; AType: string);
   end;
 
   TFunctionCall = class(TAST)
@@ -116,8 +118,11 @@ type
   TParam = class (TAST)
     protected
       FNode: TToken;
+      FDefValue: TAST;
     public
-      constructor Create(ANode: TToken);
+      property PNode: TToken read FNode;
+      property PDefValue: TAST read FDefValue;
+      constructor Create(ANode: TToken; ADefValue: TAST = nil);
 
   end;
 
@@ -223,9 +228,10 @@ begin
   FToken := AToken;
 end;
 
-constructor TParam.Create(ANode:TToken);
+constructor TParam.Create(ANode:TToken; ADefValue: TAST = nil);
 begin
   FNode := ANode;
+  FDefValue := ADefValue;
   logDebug('Creating a parameter node', 'AST');
 end;
 
@@ -278,11 +284,12 @@ begin
 end;
 
 
-constructor TFunctionDefinition.Create(AToken: TToken; AName:string; ABlock: TASTList; AParamList: TASTList);
+constructor TFunctionDefinition.Create(AToken: TToken; AName:string; ABlock, AParamList: TASTList; AType: string);
 begin
   FName := AName;
   FBlock := ABlock;
   FToken := AToken;
+  FType := AType;
   logDebug('Creating a function definition named ' + AName, 'AST');
   FParamList := AParamList;
 end;

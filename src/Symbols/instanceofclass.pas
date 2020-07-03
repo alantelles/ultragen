@@ -45,13 +45,18 @@ type
     protected
       FName:string;
       FParamsName:TParamList;
+      FParams: TASTList;
       FBlock: TASTList;
+      FType: string;
     public
       property PName:string read FName;
-      property PParams: TParamList read FParamsName;
+      property PType:string read FType;
+      //property PParams: TParamList read FParamsName;
+      property PParams: TASTList read FParams;
       property PBlock: TASTList read FBlock write FBlock;
       function AsString: string;  override;
-      constructor Create(AName:string);
+      //constructor Create(AName:string);
+      constructor Create(AName: string; AParams, ABlock: TASTList; AType:string);
       procedure AddParam(AName:string);
       procedure AddBlock(ABlock: TASTList);
 	end;
@@ -94,10 +99,14 @@ begin
   Result := FValue;
 end;
 
-constructor TFunctionInstance.Create(AName:string);
+constructor TFunctionInstance.Create(AName:string; AParams, ABlock: TASTList; AType: string);
 begin
-  Fname := AName;
-  SetLength(FParamsName, 0);
+  //Fname := AName;
+  //SetLength(FParamsName, 0);
+  FName := AName;
+  FParams := AParams;
+  FBlock := ABlock;
+  FType := AType;
 end;
 
 function TFunctionInstance.AsString: string;
