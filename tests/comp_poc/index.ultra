@@ -1,0 +1,5 @@
+include "base.ultra.html" as base
+header = "Hello World"
+title = "My Web Page"
+
+live base.render()

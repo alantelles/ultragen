@@ -20,25 +20,24 @@ type
       FType:string;
       FNestingLevel: integer;
       FMembers: TFPObjectHashTable;
+      FNowType: TInstanceOf;
+      FNowKey: string;
     public
       property PName:string read FName;
       property PType:string read FType;
       property PNestingLevel:integer read FNestingLevel;
+
       procedure MemberAsString(AItem:  TObject;const AName:string; var Cont:boolean);
+      procedure SearchFunction(AItem: TObject; const AName:string; var Cont: boolean);
+
       property PMembers: TFPObjectHashTable read FMembers write FMembers;
       constructor Create(AName:string; AType: string; ALevel: integer);
 
-      // overloads
       procedure AddMember(AKey:string; AObj:TInstanceOf);
-      {procedure AddMember(AKey:string; AObj:TStringInstance);
-      procedure AddMember(AKey:string; AObj:TIntegerInstance);
-      procedure AddMember(AKey:string; AObj:TFloatInstance);
-      procedure AddMember(AKey:string; AObj:TBooleanInstance);
-      procedure AddMember(AKey:string; AObj:TFunctionInstance);}
-      // end overloads
-
       function GetMember(AKey:string):TInstanceOf;
+      function GetFunction(AKey: string; ASrc: TInstanceOf = nil): TFunctionInstance;
       function AsString:string;
+
   end;
 
 implementation
@@ -50,9 +49,46 @@ begin
   FMembers := TFPObjectHashTable.Create();
 end;
 
+function TActivationRecord.GetFunction(AKey: string; ASrc: TInstanceOf = nil): TFunctionInstance;
+begin
+  FNowKey := AKey;
+  FNowType := ASrc;
+  FMembers.Iterate(@SearchFunction);
+  FNowKey := '';
+  FNowType := nil;
+  Result := TFunctionInstance(GetMember(AKey));
+end;
+
 procedure TActivationRecord.MemberAsString(AItem:  TObject;const AName:string; var Cont:boolean);
 begin
   writeln('Record member '+Aname+' of type '+AItem.ToString);
+end;
+
+procedure TActivationRecord.SearchFunction(AItem:  TObject;const AName:string; var Cont:boolean);
+const
+  ST_ACCESS = ':';
+begin
+  if (AName = FNowKey) then
+  begin
+    if FNowType = nil then
+    begin
+      exit;
+      //writeln('achei: ', AName, ' -- ', TFunctionInstance(AItem).PType)
+    end
+    else
+    begin
+      if TFunctionInstance(AItem).PType = FNowType.ClassName then
+      begin
+        exit;
+        //writeln('achei: ', AName, ' -- ', TFunctionInstance(AItem).PType)
+      end
+      else
+      begin
+        exit;
+        //writeln('achei: ', AName, ST_ACCESS, TFunctionInstance(AItem).PType, ' de outro tipo');
+      end;
+    end;
+  end;
 end;
 
 procedure TActivationRecord.AddMember(AKey:string; AObj:TInstanceOf);
@@ -63,52 +99,6 @@ begin
     FMembers[Akey] := AObj
 	end;
 end;
-
-{procedure TActivationRecord.AddMember(AKey:string; AObj:TStringInstance);
-begin
-  try
-    FMembers.Add(AKey, AObj)
-	except
-    FMembers[Akey] := AObj
-	end;
-end;
-
-procedure TActivationRecord.AddMember(AKey:string; AObj:TFloatInstance);
-begin
-  try
-    FMembers.Add(AKey, AObj)
-	except
-    FMembers[Akey] := AObj
-	end;
-end;
-
-procedure TActivationRecord.AddMember(AKey:string; AObj:TIntegerInstance);
-begin
-  try
-    FMembers.Add(AKey, AObj)
-	except
-    FMembers[Akey] := AObj
-	end;
-end;
-
-procedure TActivationRecord.AddMember(AKey:string; AObj:TFunctionInstance);
-begin
-  try
-    FMembers.Add(AKey, AObj)
-	except
-    FMembers[Akey] := AObj
-	end;
-end;
-
-procedure TActivationRecord.AddMember(AKey:string; AObj:TBooleanInstance);
-begin
-  try
-    FMembers.Add(AKey, AObj)
-	except
-    FMembers[Akey] := AObj
-	end;
-end;
-                                    }
 
 function TActivationRecord.GetMember(AKey:string):TInstanceOf;
 var

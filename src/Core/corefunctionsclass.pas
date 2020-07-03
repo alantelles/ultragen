@@ -15,8 +15,9 @@ type
       FFuncList : TStringList;
       FParams: TinstanceList;
       FObj: TInstanceOf;
+      FInter: TInterpreter;
     public
-      function Execute(Fname:string; var AArgList:TInstanceList; AObj: TInstanceOf = nil):TInstanceOf;
+      function Execute(AInter: TInterpreter; Fname:string; var AArgList:TInstanceList; AObj: TInstanceOf = nil):TInstanceOf;
 
 
       //core
@@ -43,20 +44,23 @@ implementation
 uses
   CoreUtils, ExceptionsClasses, Math, ASTClass, crt, LazUTF8;
 
-function TCoreFunction.Execute(Fname:string; var AArgList:TInstanceList; AObj: TInstanceOf = nil):TInstanceOf;
+function TCoreFunction.Execute(AInter: TInterpreter; Fname:string; var AArgList:TInstanceList; AObj: TInstanceOf = nil):TInstanceOf;
 var
   AType:string = '';
   AuxStr:string;
   DotPos: integer;
   Ret: TInstanceOf;
 begin
+  FInter := AInter;
   Ret := TNullInstance.create;
-  DotPos := Pos('.', FName);
+  {DotPos := Pos('.', FName);
   if DotPos > 0 then
   begin
     AType := Copy(FName, 1, DotPos - 1);
     FName := Copy(FName, DotPos+1, Length(FName));
-  end;
+  end;                }
+  if AObj <> nil then
+    AType := AObj.ClassName;
   FParams := AArgList;
 	if AObj <> nil then
     FObj := AObj;
@@ -183,7 +187,8 @@ var
 begin
   for AInst in FParams do
   begin
-    if AInst.ClassNameIs('TIntegerInstance') then
+    Write(AInst.AsString);
+    {if AInst.ClassNameIs('TIntegerInstance') then
       Write(TIntegerInstance(AInst).PValue)
     else if AInst.ClassNameIs('TBooleanInstance') then
       Write(BooleanToStr(TBooleanInstance(AInst).PValue))
@@ -202,7 +207,7 @@ begin
     else if AInst.ClassNameIs('TStringInstance') then
       Write(TStringInstance(AInst).PValue)
     else if AInst.ClassNameIs('TNullInstance') then
-      Write(TNullInstance(AInst).PValue);
+      Write(TNullInstance(AInst).PValue);}
 	end;
   WriteLn;
   Result := TNullInstance.create;
@@ -216,7 +221,7 @@ var
 begin
   for AInst in FParams do
   begin
-    if AInst.ClassNameIs('TIntegerInstance') then
+    {if AInst.ClassNameIs('TIntegerInstance') then
       Write(TIntegerInstance(AInst).PValue)
     else if AInst.ClassNameIs('TBooleanInstance') then
       Write(BooleanToStr(TBooleanInstance(AInst).PValue))
@@ -235,7 +240,8 @@ begin
     else if AInst.ClassNameIs('TStringInstance') then
       Write(TStringInstance(AInst).PValue)
     else if AInst.ClassNameIs('TNullInstance') then
-      Write(TNullInstance(AInst).PValue);
+      Write(TNullInstance(AInst).PValue);}
+    Write(AInst.AsString);
 	end;
   Result := TNullInstance.create;
 end;

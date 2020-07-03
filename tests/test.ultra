@@ -1,20 +1,11 @@
-incs = [
-    'base.ultra.html',
-    'list_articles.ultra.html',
-    'footer.ultra.html'
-]
-basePath = './comps_poc/'
-# script loaders
-include "loader.ultra"
-include "styles/style.ultra"
+function top(arg)
+    print(arg)
+end
 
-# context
-include "context.ultra"
+function host(fn, arg)
+    print('sera executado algo')
+    fn(arg)
+    print('entre esses dois')
+end
 
-live base(
-    styleSheet(rules)
-    title, 
-    content, 
-    listArticles(articles),
-    footer()
-    )
+host(print, "teste")

@@ -79,23 +79,38 @@ end;
 
 function TCoreFunction.SplitString(AObj: TStringInstance):TListInstance;
 var
-  ASep, s: string;
+  ASep: string = '';
+  s: string;
   AList: TStringList;
   AInsList: TInstanceList;
   len: integer;
 begin
-  ASep := TStringInstance(FParams[0]).PValue;
-  AList := TStringList.Create;
-  AList.SkipLastLineBreak := True;
-  AList.LineBreak := ASep;
-  AList.Text := AObj.PValue;
-  SetLength(AInsList, 0);
-  len := 0;
-  for s in AList do
+  if Length(FParams) > 0 then
   begin
-    len := len + 1;
-    SetLength(AInsList, len);
-    AInsList[len - 1] := TStringInstance.Create(s);
+    ASep := TStringInstance(FParams[0]).PValue;
+    AList := TStringList.Create;
+    AList.SkipLastLineBreak := True;
+    AList.LineBreak := ASep;
+    AList.Text := AObj.PValue;
+    SetLength(AInsList, 0);
+    len := 0;
+    for s in AList do
+    begin
+      len := len + 1;
+      SetLength(AInsList, len);
+      AInsList[len - 1] := TStringInstance.Create(s);
+    end;
+  end
+  else
+  begin
+    SetLength(AInsList, 0);
+    len := 0;
+    for s in AObj.PValue do
+    begin
+      len := len + 1;
+      SetLength(AInsList, len);
+      AInsList[len - 1] := TStringInstance.Create(s);
+    end;
   end;
   Result := TListInstance.Create(AInsList);
 end;

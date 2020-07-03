@@ -1,3 +1,0 @@
-for (incs, i)
-    include basePath + i
-end

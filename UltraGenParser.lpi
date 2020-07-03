@@ -31,7 +31,7 @@
         <PackageName Value="LazUtils"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="26">
+    <Units Count="25">
       <Unit0>
         <Filename Value="UltraGenParser.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -151,15 +151,10 @@
         <UnitName Value="StringInstanceClass"/>
       </Unit23>
       <Unit24>
-        <Filename Value="src\BootStrap\typesbootstrapclass.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="TypesBootStrapClass"/>
-      </Unit24>
-      <Unit25>
         <Filename Value="src\BuiltInTypes\listinstanceclass.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ListInstanceClass"/>
-      </Unit25>
+      </Unit24>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -170,7 +165,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="src\Units;src\ASTs;src\Symbols;src\Exceptions;src\ActRecords;src\Core;src\Utils;src\BuiltInTypes;src\BootStrap"/>
+      <OtherUnitFiles Value="src\Units;src\ASTs;src\Symbols;src\Exceptions;src\ActRecords;src\Core;src\Utils;src\BuiltInTypes"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
   </CompilerOptions>

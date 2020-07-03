@@ -23,7 +23,7 @@ begin
     len := len + 1;
     AArgs[0] := AArg;
     SetLength(Ret, len);
-    Ret[len - 1] := Execute(AFunc.PName, AArgs);
+    Ret[len - 1] := Execute(FInter, AFunc.PName, AArgs);
   end;
   Result := TListInstance.Create(Ret);
 end;

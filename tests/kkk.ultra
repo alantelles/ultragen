@@ -1,5 +1,0 @@
-r = 88
-include "inc.ultra"
-print(a())
-print(a('pretty print'))
-live typeof(a)

@@ -1,3 +1,0 @@
-function a(arg = cycle(0, "zika"))
-    return arg
-end

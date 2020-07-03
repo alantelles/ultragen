@@ -111,7 +111,7 @@ end;
 
 function TFunctionInstance.AsString: string;
 begin
-  Result := 'function ' + FName;
+  Result := 'function ' + FName + ' from type ' + FType;
 end;
 
 procedure TFunctionInstance.AddParam(AName:string);

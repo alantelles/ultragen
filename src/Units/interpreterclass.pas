@@ -9,7 +9,7 @@ uses
       BinOpClass, NumClass, UnaryOpClass, BinLogicOpClass, UnaryLogicopClass,
       ImpParserClass, StrUtils, LoggingClass, FlowControlASTClass,
       StackClass, ARClass, InstanceofClass,
-      StringInstanceClass, TypesBootStrapClass,
+      StringInstanceClass,
       ListInstanceClass;
 
 type
@@ -17,7 +17,6 @@ type
     private
       FTree: TAST;
       FCallStack: TStack;
-      FRegisters: TBootStrap;
       FBreakSignal: boolean;
       FReturnSignal: boolean;
       FReturnValue: TInstanceOf;
@@ -49,15 +48,14 @@ uses
 
 constructor TInterpreter.Create(var ATree: TAST);
 begin
-  FRegisters := TBootStrap.Create;
-  FRegisters := RegisteredMethods;
   FTree := ATree;
   FCallStack := TStack.Create;
   FBreakSignal := False;
-  //FLiveStream := TStringInstance.Create('');
 end;
 
 procedure TInterpreter.BootstrapRegister;
+const
+  ST_ACCESS = ':';
 var
   AActRec: TActivationRecord;
   ACoreType, AStrType, AIntType, AFloatType, AListType, ABoolType,AFuncType: TFunctionInstance;
@@ -98,7 +96,7 @@ var
   AVal: TStringInstance;
 begin
   AActrec := FCallStack.Peek();
-  Aval := TStringInstance(AActRec.GetMember('LIVE'));
+  Aval := TStringInstance(AActRec.GetMember('$LIVE'));
   Result := AVal.PValue;
 end;
 
@@ -119,9 +117,9 @@ var
 begin
   AVal := Visit(ANode.PValue);
   AActRec := FCallStack.Peek();
-  ALiveVal := TStringInstance(AActrec.GetMember('LIVE'));
+  ALiveVal := TStringInstance(AActrec.GetMember('$LIVE'));
   ALiveVal.PValue := ALiveVal.PValue + AVal.AsString;
-  AActRec.AddMember('LIVE', ALiveVal);
+  AActRec.AddMember('$LIVE', ALiveVal);
 end;
 
 function TInterpreter.VisitLivePrint(ANode: TLivePrint):TStringInstance;
@@ -129,7 +127,7 @@ var
   AActRec: TActivationRecord;
 begin
   AActRec := FCallStack.Peek();
-  Result := TStringInstance(AActrec.GetMember('LIVE'));
+  Result := TStringInstance(AActrec.GetMember('$LIVE'));
 end;
 
 procedure TInterpreter.VisitBreak(Anode: TBreakLoop);
@@ -157,19 +155,9 @@ var
   AActRec: TActivationRecord;
   aLive: string;
 begin
-
-  //if AVal.ClassNameIs('TStringInstance') then
-  //begin
-    //ASet := TStringInstance(AVal).PValue;
-    //FLiveStream.PValue := FLiveStream.PValue + TStringInstance(AVal).PValue
-    AActRec := FCallStack.Peek();
-    ALive := TStringInstance(AActrec.GetMember('LIVE')).PValue;
-    TStringInstance(AActrec.GetMember('LIVE')).PValue := ALive + ANode.PValue;
-	//end
-	//else
-    //raise EArgumentsError.Create('You can add only strings to live output');
-
-  //FLiveStream.PValue := FLiveStream.PValue + Anode.PValue;
+  AActRec := FCallStack.Peek();
+  ALive := TStringInstance(AActrec.GetMember('$LIVE')).PValue;
+  TStringInstance(AActrec.GetMember('$LIVE')).PValue := ALive + ANode.PValue;
 end;
 
 procedure TInterpreter.VisitInterpolation(ANode: TInterpolation);
@@ -178,9 +166,8 @@ var
   ALive: string;
 begin
   AActRec := FCallStack.Peek();
-  ALive := AActrec.GetMember('LIVE').AsString;
-  TStringInstance(AActrec.GetMember('LIVE')).PValue := ALive + Visit(ANode.POper).AsString;
-  //FLiveStream.PValue := FLiveStream.PValue + TStringInstance(Visit(ANode.POper)).PValue;
+  ALive := AActrec.GetMember('$LIVE').AsString;
+  TStringInstance(AActrec.GetMember('$LIVE')).PValue := ALive + Visit(ANode.POper).AsString;
 end;
 
 function TInterpreter.VisitFunctionDefinition(ANode: TFunctionDefinition):TInstanceOf;
@@ -193,20 +180,8 @@ begin
   logtext('INTER', 'Interpreter', 'Visiting function definition');
   AActRec := FCallStack.Peek;
   AValue := TFunctionInstance.Create(ANode.PName, ANode.PParamList, ANode.PBlock, ANode.ptype);
-  {len := Length(ANode.PParamList);
-  if len > 0 then
-  begin
-    for i:=0 to (len - 1) do
-    begin
-      AParam :=  TVarAssign(ANode.PParamList[i]).PVarName.PValue;
-      Logtext('INTER', 'Interpreter', 'Adding parameter ' +AParam+ ' to AR');
-      AValue.AddParam(AParam);
-    end;
-	end;
-  AValue.PBlock := ANode.PBlock;}
 	AActrec.AddMember(ANode.PName, AValue);
   Result := TInstanceOf.Create;
-  // ASymbolTable.AsString;
 end;
 
 procedure TInterpreter.VisitConditional(ANode: TConditional);
@@ -381,7 +356,6 @@ begin
   AName := Anode.PToken.PValue;
 
   AActRec := FCallStack.Peek();
-  //ResFloat := TFloatInstance(AActRec.GetMember(AName));
   Ret := AActRec.GetMember(AName);
   if Ret = nil then
   begin
@@ -401,18 +375,11 @@ begin
 end;
 
 function TInterpreter.VisitFunctionCall(ANode: TFunctionCall; ASrcInstance: TInstanceOf = nil):TInstanceOf;
+const
+  ST_ACCESS = ':';
 var
- { ARNext, GlobalAR: TActivationRecord;
-
-  Res: TInstanceOf;
-
-  len2: integer;
-  ArgsList: TInstanceList;
-  IsMethod: boolean;
-  }
-  //
   ACoreExec: TCoreFunction;
-  AFuncName, compl:string;
+  AFuncName, ASrcName, compl:string;
   AActRec: TActivationRecord;
   AParamName: string;
   AState: TAST;
@@ -424,23 +391,23 @@ var
   ArgsList: TInstanceList;
 begin
   AFuncName := ANode.PFuncName;
+  ASrcName := AFuncName;
   if ASrcInstance <> nil then
-    AFuncName := ASrcInstance.ClassName + ATTR_ACCESSOR + AFuncName;
+    ASrcName := ASrcInstance.ClassName + ST_ACCESS + AFuncName;
 	LogText(INTER, 'Interpreter', 'Visiting function ' + ANode.PFuncName);
-  // new implementation
   AActRec := FCallStack.Peek();
-  FuncDef := TFunctionInstance(AActRec.GetMember(AFuncName));
+  FuncDef := AActRec.GetFunction(ASrcName, ASrcInstance);
   if FuncDef = nil then
   begin
     AActRec := FCallStack.GetFirst();
-    FuncDef := TFunctionInstance(AActRec.GetMember(AFuncName));
+    FuncDef := AActRec.GetFunction(ASrcName, ASrcInstance);
   end;
   if FuncDef <> nil then
   begin
-    if FuncDef.PType = 'RunTime' then
+    if FuncDef.PType = 'RunTimeFunction' then
     begin
       AActRec := TActivationRecord.Create(FuncDef.PName, AR_FUNCTION, FCallStack.PLevel+1);
-      AActRec.AddMember('LIVE', TStringInstance.Create(''));
+      AActRec.AddMember('$LIVE', TStringInstance.Create(''));
       LenArgs := Length(Anode.PEvalParams);
       LenParams := Length(FuncDef.PParams);
       Len := Max(LenArgs, LenParams);
@@ -478,13 +445,14 @@ begin
         else
           Visit(AState);
       end;
-      AReturn := AActRec.GetMember('LIVE');
+      AReturn := AActRec.GetMember('$LIVE');
       FCallStack.Pop();
       Result := AReturn;
       exit
     end
     else
     begin
+
       ACoreExec := TCoreFunction.Create;
       Len := 0;
       SetLength(ArgsList, 0);
@@ -494,7 +462,7 @@ begin
         SetLength(ArgsList, len);
         ArgsList[len - 1] := Visit(AState, ASrcInstance);
       end;
-      AReturn := ACoreExec.Execute(AFuncName, ArgsList, ASrcInstance);
+      AReturn := ACoreExec.Execute(Self, AFuncName, ArgsList, ASrcInstance);
       ACoreExec.Free;
       Result := AReturn;
       exit
@@ -506,86 +474,6 @@ begin
     raise ERunTimeError.Create('Referenced function "' + AFuncName + '" does not exist.');
   end;
   // end of new
-  {if not FRegisters.FunctionExists(AFuncName) then
-  begin
-        ARNext := TActivationRecord.Create(ANode.PToken.PValue, AR_FUNCTION, FCallStack.PLevel+1);
-        ARNext.AddMember('LIVE', TStringInstance.Create(''));
-        AActRec := FCallStack.Peek();
-		    FuncDef := TFunctionInstance(AActRec.GetMember(Anode.PFuncname));
-        if FuncDef = nil then
-        begin
-          GlobalAR := FCallStack.GetFirst();
-          FuncDef := TFunctionInstance(GlobalAR.GetMember(Anode.PFuncname));
-				end;
-        if FuncDef = nil then
-        begin
-          compl := '';
-          if ASrcInstance <> nil then
-            compl := ' for ' + ASrcInstance.ClassName + ' object';
-          raise ERunTimeError.Create('Function "'+ANode.PFuncName+'" is not defined' + compl);
-				end;
-
-		    len := length(FuncDef.PParams);
-		    if len > 0 then
-		    begin
-		      for i:=0 to len-1 do
-		      begin
-            Res := Visit(Anode.PEvalParams[i]);
-						LogText(INTER, 'Interpreter', 'Registering param ' + FuncDef.PParams[i] + ' with value '+Res.ClassName);
-		        ARNext.AddMember(FuncDef.PParams[i], Res);
-			    end;
-			  end;
-		    FCallStack.Push(ARNext);
-		    for AState in FuncDef.PBlock do
-		    begin
-		      LogText(INTER, 'Interpreter', 'Visiting a function statement ' + AState.ToString);
-          if FReturnSignal then
-          begin
-            FReturnSignal := False;
-            FCallStack.Pop();
-		        Result := FReturnValue;
-            exit
-          end
-          else
-            Visit(AState);
-		    end;
-        if not FReturnSignal then
-          //Result := TNullInstance.Create;
-        begin
-          Result := ARNext.GetMember('LIVE');
-				end;
-				FCallStack.Pop();
-	end
-  else if (ANode.PFuncName = 'map') then
-  begin
-      VisitVarAssign(
-        TVarAssign.Create(
-          TToken.Create(T_ID, 'elem'),
-          TNull.Create(
-            TToken.Create(TYPE_NULL, 'Null')
-          )
-        )
-      );
-
-	end
-	else
-  begin
-    SetLength(ArgsList, 0);
-    len := Length(Anode.PEvalParams);
-    if len > 0 then
-    begin
-      for i:=0 to len-1 do
-      begin
-        Res := Visit(Anode.PEvalParams[i]);
-        LogText(INTER, 'Interpreter', 'Registering param ' + Anode.PEvalParams[i].PToken.PValue + ' with value '+Res.ClassName);
-        SetLength(ArgsList, i+1);
-        ArgsList[i] := Res;
-	    end;
-	  end;
-    Res := FRegisters.Execute(AFuncName, ArgsList, ASrcInstance);
-    Result := Res;
-	end; }
-  Result := TNullInstance.Create;
 end;
 
 
@@ -596,7 +484,7 @@ var
 begin
   LogText(INTER, 'Interpreter', 'Visiting a program');
   AActRec := TActivationRecord.Create('PROGRAM', AR_PROGRAM, 1);
-  AActRec.AddMember('LIVE', TStringInstance.Create(''));
+  AActRec.AddMember('$LIVE', TStringInstance.Create(''));
   if not FDontPush then
   begin
     FCallStack.Push(AActRec);

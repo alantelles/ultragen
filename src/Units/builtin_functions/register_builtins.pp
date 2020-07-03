@@ -1,3 +1,6 @@
+{$INCLUDE 'stringmethods.pp'}
+{$INCLUDE 'listmethods.pp'}
+
 // builtins
 AActRec.AddMember('print', ACoreType);
 //RegisteredMethods.PNowType := '';

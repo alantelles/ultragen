@@ -98,7 +98,7 @@ begin
   InBlock := Statements();
   Eat(T_END + T_FUNC_DEF);
   logtext('PARSER', 'Parser', 'Creating function block node');
-  Result := TFunctionDefinition.Create(AToken, AStrId, InBlock, ParamList, 'RunTime');
+  Result := TFunctionDefinition.Create(AToken, AStrId, InBlock, ParamList, 'RunTimeFunction');
 end;
 
 function TTParser.PlainTextEmbed: TAST;
