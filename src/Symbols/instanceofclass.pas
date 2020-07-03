@@ -14,6 +14,7 @@ type
 
     public
       property PSymbol: TSymbol read FSymbol;
+      function AsString: string; virtual;
   end;
 
   TInstanceList = array of TInstanceOf;
@@ -26,6 +27,7 @@ type
     public
       property PValue:string read FValue;
       constructor Create;
+      function AsString: string;  override;
 	end;
 
   TIntegerInstance = class (TInstanceOf)
@@ -34,6 +36,7 @@ type
     public
       property PValue:integer read FValue write FValue;
       constructor Create(AValue: integer);
+      function AsString: string;  override;
   end;
 
   TParamList = array of string;
@@ -47,6 +50,7 @@ type
       property PName:string read FName;
       property PParams: TParamList read FParamsName;
       property PBlock: TASTList read FBlock write FBlock;
+      function AsString: string;  override;
       constructor Create(AName:string);
       procedure AddParam(AName:string);
       procedure AddBlock(ABlock: TASTList);
@@ -59,6 +63,7 @@ type
     public
       property PValue:Extended read FValue write FValue;
       constructor Create(AValue: extended);
+      function AsString: string;  override;
   end;
 
   TBooleanInstance = class (TInstanceOf)
@@ -67,21 +72,37 @@ type
     public
       property PValue: boolean read FValue write FValue;
       constructor Create(AValue: boolean);
+      function AsString: string;  override;
   end;
 
 implementation
 uses
   Tokens;
 
+function TInstanceOf.AsString: string;
+begin
+  Result := '';
+end;
+
 constructor TNullInstance.Create;
 begin
-  FValue := '';
+  FValue := T_LANG_NULL;
+end;
+
+function TNullInstance.AsString: string;
+begin
+  Result := FValue;
 end;
 
 constructor TFunctionInstance.Create(AName:string);
 begin
   Fname := AName;
   SetLength(FParamsName, 0);
+end;
+
+function TFunctionInstance.AsString: string;
+begin
+  Result := 'function ' + FName;
 end;
 
 procedure TFunctionInstance.AddParam(AName:string);
@@ -107,14 +128,40 @@ begin
   FValue := AValue;
 end;
 
+function TIntegerInstance.AsString:string;
+begin
+  Result := IntToStr(FValue);
+end;
+
 constructor TFloatInstance.Create(AValue: extended);
 begin
   FValue := AValue;
 end;
 
+function TFloatInstance.AsString: string;
+var
+  AFStr :string;
+begin
+  AFstr := FloatToStrF(FValue, ffFixed, 30, 30);
+  while AFStr[Length(AFStr)] = '0' do
+    AFStr := Copy(AFStr, 1, Length(AFStr) - 1);
+  Result := AFstr;
+end;
+
 constructor TBooleanInstance.Create(AValue: boolean);
 begin
   FValue := AValue;
+end;
+
+function TBooleanInstance.AsString: string;
+var
+  Ret: string;
+begin
+  if FValue then
+    Ret := T_LANG_TRUE
+  else
+    Ret := T_LANG_FALSE;
+  Result := Ret;
 end;
 
 end.

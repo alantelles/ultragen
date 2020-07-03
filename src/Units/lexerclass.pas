@@ -202,6 +202,18 @@ begin
       ((FCurrChar + Peek(2)) <> Delim))) do
 
   begin
+    if FCurrChar = ESCAPE_SYMBOL then
+    begin
+      Advance;
+      if FCurrChar = 'n' then
+        Ret := Ret + sLineBreak
+      else if FCurrChar = 't' then
+        Ret := Ret + #9
+      else
+        Ret := Ret + FCurrChar;
+      Advance;
+      Continue;
+    end;
     Ret := Ret + FCurrChar;
     Advance;
   end;

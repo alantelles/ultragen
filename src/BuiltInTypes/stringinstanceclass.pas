@@ -19,12 +19,7 @@ type
       property PValue:string read FValue write FValue;
       constructor Create(AValue: string);
       function GetChar(AnIndex: TIntegerInstance):TStringInstance;
-      function AsString: string;
-
-
-
-
-
+      function AsString: string;  override;
       //procedures
 
   end;
@@ -40,7 +35,7 @@ end;
 
 function TStringInstance.AsString:string;
 begin
-  Result := '"'+ FValue + '"';
+  Result := FValue;
 end;
 
 function TStringInstance.GetChar(AnIndex: TIntegerInstance):TStringInstance;

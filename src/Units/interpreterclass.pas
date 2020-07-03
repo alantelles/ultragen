@@ -24,6 +24,7 @@ type
       FContinueSignal: boolean;
       FLiveOutput: string;
       FDontPush: boolean;
+      procedure RegisterMethods;
 
 
     public
@@ -56,6 +57,13 @@ begin
   //FLiveStream := TStringInstance.Create('');
 end;
 
+procedure TInterpreter.RegisterMethods;
+var
+  AActRec: TActivationRecord;
+begin
+  AActRec := FCallStack.Peek();
+  {$INCLUDE '../BootStrap/register_builtins.pp' }
+end;
 
 procedure TInterpreter.CleanStack;
 begin
@@ -102,24 +110,16 @@ var
   ALiveVal:TStringInstance;
 begin
   AVal := Visit(ANode.PValue);
-  if AVal.ClassNameIs('TStringInstance') then
-  begin
-    ASet := TStringInstance(AVal).PValue;
-    //FLiveStream.PValue := FLiveStream.PValue + TStringInstance(AVal).PValue
-    AActRec := FCallStack.Peek();
-    ALiveVal := TStringInstance(AActrec.GetMember('LIVE'));
-    ALiveVal.PValue := ALiveVal.PValue + Aset;
-    AActRec.AddMember('LIVE', ALiveVal);
-	end
-	else
-    raise EArgumentsError.Create('You can add only strings to live output');
+  AActRec := FCallStack.Peek();
+  ALiveVal := TStringInstance(AActrec.GetMember('LIVE'));
+  ALiveVal.PValue := ALiveVal.PValue + AVal.AsString;
+  AActRec.AddMember('LIVE', ALiveVal);
 end;
 
 function TInterpreter.VisitLivePrint(ANode: TLivePrint):TStringInstance;
 var
   AActRec: TActivationRecord;
 begin
-  //Result := FLiveStream;
   AActRec := FCallStack.Peek();
   Result := TStringInstance(AActrec.GetMember('LIVE'));
 end;
@@ -170,8 +170,8 @@ var
   ALive: string;
 begin
   AActRec := FCallStack.Peek();
-  ALive := TStringInstance(AActrec.GetMember('LIVE')).PValue;
-  TStringInstance(AActrec.GetMember('LIVE')).PValue := ALive + TStringInstance(Visit(ANode.POper)).PValue;
+  ALive := AActrec.GetMember('LIVE').AsString;
+  TStringInstance(AActrec.GetMember('LIVE')).PValue := ALive + Visit(ANode.POper).AsString;
   //FLiveStream.PValue := FLiveStream.PValue + TStringInstance(Visit(ANode.POper)).PValue;
 end;
 
@@ -284,10 +284,40 @@ var
   AInt, AIndex: TIntegerInstance;
   AActRec: TActivationRecord;
   i: integer = 0;
+  len: integer;
+  ACandidate: TListInstance;
+  AStr:string;
 begin
   AActRec := FCallStack.Peek;
   AListRes := Visit(ANode.PList);
-  for AInst in TListInstance(AListRes).PValue do
+  if AListRes.ClassNameIs('TListInstance') then
+    ACandidate := TListInstance(AListRes)
+  else if AListRes.ClassNameIs('TStringInstance') then
+  begin
+    ACandidate := TListInstance.Create;
+    for AStr in AListRes.AsString do
+      ACandidate.Add(TStringInstance.Create(AStr));
+  end
+  else if AListRes.ClassNameIs('TIntegerInstance') and
+       (StrToInt(AListRes.AsString) > -1 )
+  then
+  begin
+    len := StrToInt(AListRes.AsString);
+    ACandidate := TListInstance.Create;
+    if (len > 0) then
+    begin
+      for i := 0 to len - 1 do
+        ACandidate.Add(TIntegerInstance.Create(i));
+    end
+    else
+    begin
+      ACandidate.Free;
+      raise ERunTimeError.Create(AListRes.ClassName + ' is not iterable')
+    end;
+  end
+  else
+    raise ERunTimeError.Create(AListRes.ClassName + ' is not iterable');
+  for AInst in ACandidate.PValue do
   begin
     AActRec.AddMember(Anode.PVar.PVarName.PValue, AInst);
     AIndex := TIntegerInstance.Create(i);
@@ -296,6 +326,7 @@ begin
     begin
       if FBreakSignal or FContinueSignal then
       begin
+        AIndex.Free;
         FContinueSignal := False;
         break
       end
@@ -304,8 +335,17 @@ begin
 		end;
 		i := 1 + i;
     if FBreakSignal then
+    begin
+      AIndex.Free;
       break;
+    end;
+    AIndex.Free;
   end;
+  for i:=0 to ACandidate.Count - 1 do
+  begin
+    ACandidate.PValue[i].Free;
+  end;
+  ACandidate.Free;
   FBreakSignal := False;
 end;
 
@@ -457,6 +497,7 @@ var
 begin
   LogText(INTER, 'Interpreter', 'Visiting a program');
   AActRec := TActivationRecord.Create('PROGRAM', AR_PROGRAM, 1);
+  RegisterMethods;
   AActRec.AddMember('LIVE', TStringInstance.Create(''));
   if not FDontPush then
     FCallStack.Push(AActRec);

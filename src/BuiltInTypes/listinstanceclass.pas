@@ -19,9 +19,10 @@ type
       property PValue: TInstanceList read FValue write FValue;
       constructor Create(AList: TInstanceList);
       constructor Create;
-      function AsString:string;
+      function AsString:string; override;
       function GetItem(AIndex: TIntegerInstance):TInstanceOf;
       function GetItem(AIndex: integer):TInstanceOf;
+      procedure Add(AItem: TInstanceOf);
 
       function Execute: TInstanceOf;
 
@@ -43,6 +44,16 @@ end;
 constructor TListInstance.Create;
 begin
 
+end;
+
+procedure TListInstance.Add(AItem: TInstanceOf);
+var
+  len: integer;
+begin
+  len := Length(FValue);
+  len := len + 1;
+  SetLength(FValue, len);
+  FValue[len - 1] := AItem;
 end;
 
 function TListInstance.GetItem(AIndex: TIntegerInstance):TInstanceOf;
@@ -84,14 +95,10 @@ begin
   Ret.LineBreak := ', ';
   for AItem in FValue do
   begin
-    case AItem.ClassName of
-      'TStringInstance' : Ret.Add(TStringInstance(AItem).AsString);
-      'TIntegerInstance' : Ret.Add(TIntegerInstance(AItem).PValue.ToString);
-      'TFloatInstance' : Ret.Add(FloatToStr(TFloatInstance(AItem).PValue));
-      'TBooleanInstance' : Ret.Add(BooleanToStr(TBooleanInstance(AItem).PValue));
-      'TNullInstance' : Ret.Add(T_LANG_NULL);
-      'TListInstance' : Ret.Add(TListInstance(AItem).AsString);
-    end;
+    if AItem.ClassNameIs('TStringInstance') then
+      Ret.Add('''' + AItem.AsString + '''')
+    else
+      Ret.Add(AItem.AsString);
   end;
   Result := '[' + Ret.Text + ']';
 end;
