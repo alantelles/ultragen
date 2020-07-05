@@ -19,5 +19,7 @@ begin
 		        )
 		    )
 		  else if FName = 'length' then
-		    Ret := TIntegerInstance.Create(UTF8Length(TStringInstance(FObj).PValue));
+		    Ret := TIntegerInstance.Create(UTF8Length(TStringInstance(FObj).PValue))
+      else
+        raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.');;
 end

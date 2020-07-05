@@ -70,9 +70,17 @@ end;
 function TTParser.IncludeScript: TAST;
 var
   AFileName: TAST;
+  ANamespace: string = '';
 begin
   Eat(T_INCLUDE);
-  Result := TIncludeScript.Create(MethodCall(), FCurrentToken);
+  AFileName := MethodCall();
+  if FCurrentToken.PType = T_NAMESPACE then
+  begin
+    Eat(T_NAMESPACE);
+    ANamespace := FCurrentToken.PValue;
+    Eat(T_ID);
+  end;
+  Result := TIncludeScript.Create(AFileName, FCurrentToken, ANamespace);
 end;
 
 function TTParser.FunctionBlock: TAST;
@@ -81,6 +89,7 @@ var
   ParamList: TASTList;
   InBlock: TASTList;
   AToken: TToken;
+  AType:string = '';
 begin
   SetLength(ParamList, 0);
   Eat(T_FUNC_DEF);
@@ -91,6 +100,12 @@ begin
   FInArgsDef := True;
   ParamList := DefParams();
   Eat(T_RPAREN);
+  if FCurrentToken.PType = T_NAMESPACE then
+  begin
+    Eat(T_NAMESPACE);
+    AType := FCurrentToken.PValue;
+    Eat(T_ID);
+  end;
   FInArgsDef := False;
   if FLexer.PExtension <> '.ultra' then
     FLexer.PScriptMode := False;
@@ -98,7 +113,9 @@ begin
   InBlock := Statements();
   Eat(T_END + T_FUNC_DEF);
   logtext('PARSER', 'Parser', 'Creating function block node');
-  Result := TFunctionDefinition.Create(AToken, AStrId, InBlock, ParamList, 'RunTimeFunction');
+  if AType <> '' then
+    AStrId := AType + ':' + AStrId;
+  Result := TFunctionDefinition.Create(AToken, AStrId, InBlock, ParamList, AType);
 end;
 
 function TTParser.PlainTextEmbed: TAST;
@@ -161,7 +178,7 @@ var
 begin
   Eat(T_LPAREN);
   FInArgsDef := True;
-  AExpr := logicEval();
+  AExpr := LogicEval();
   FInArgsDef := False;
   Eat(T_RPAREN);
   if FLexer.PExtension <> '.ultra' then
@@ -718,7 +735,7 @@ begin
   begin
     Eat(T_LPAREN);
     FInArgsDef := True;
-    Ret := LogicEval();
+    Ret := MethodCall();
     Eat(T_RPAREN);
     FInArgsDef := False;
     logtext('PARSER', 'Parser', 'Creating closing paren node');

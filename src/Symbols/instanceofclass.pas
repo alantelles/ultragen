@@ -44,22 +44,23 @@ type
   TFunctionInstance = class (TInstanceOf)
     protected
       FName:string;
-      FParamsName:TParamList;
       FParams: TASTList;
       FBlock: TASTList;
       FType: string;
+      FIsBuiltin: boolean;
     public
-      property PName:string read FName;
+      property PName:string read FName write FName;
       property PType:string read FType;
-      //property PParams: TParamList read FParamsName;
+      property PIsBuiltin: boolean read FIsBuiltin;
       property PParams: TASTList read FParams;
       property PBlock: TASTList read FBlock write FBlock;
       function AsString: string;  override;
-      //constructor Create(AName:string);
-      constructor Create(AName: string; AParams, ABlock: TASTList; AType:string);
-      procedure AddParam(AName:string);
-      procedure AddBlock(ABlock: TASTList);
+      constructor Create(AName: string; AParams, ABlock: TASTList; AType:string; IsBuiltin:boolean);
+      //procedure AddParam(AName:string);
+      //procedure AddBlock(ABlock: TASTList);
 	end;
+
+
 
 
   TFloatInstance = class (TInstanceOf)
@@ -99,7 +100,7 @@ begin
   Result := FValue;
 end;
 
-constructor TFunctionInstance.Create(AName:string; AParams, ABlock: TASTList; AType: string);
+constructor TFunctionInstance.Create(AName:string; AParams, ABlock: TASTList; AType: string; IsBuiltin:boolean);
 begin
   //Fname := AName;
   //SetLength(FParamsName, 0);
@@ -107,6 +108,7 @@ begin
   FParams := AParams;
   FBlock := ABlock;
   FType := AType;
+  FIsBuiltin := IsBuiltin;
 end;
 
 function TFunctionInstance.AsString: string;
@@ -114,7 +116,7 @@ begin
   Result := 'function ' + FName + ' from type ' + FType;
 end;
 
-procedure TFunctionInstance.AddParam(AName:string);
+{procedure TFunctionInstance.AddParam(AName:string);
 var
   i,len:integer;
 begin
@@ -122,14 +124,14 @@ begin
   len := len + 1;
   SetLength(FParamsName, len);
   FParamsName[len - 1] := Aname;
-end;
+end;}
 
-procedure TFunctionInstance.AddBlock(ABlock:TASTList);
+{procedure TFunctionInstance.AddBlock(ABlock:TASTList);
 var
   i,len:integer;
 begin
   FBlock := ABlock;
-end;
+end;}
 
 
 constructor TIntegerInstance.Create(AValue: integer);

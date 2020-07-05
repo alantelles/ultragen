@@ -60,13 +60,13 @@ var
   AActRec: TActivationRecord;
   ACoreType, AStrType, AIntType, AFloatType, AListType, ABoolType,AFuncType: TFunctionInstance;
 begin
-  ACoreType := TFunctionInstance.Create('BuiltIn', nil, nil, 'CoreFunction');
-  AStrType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TStringInstance');
-  AIntType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TIntegerInstance');
-  AFloatType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFloatInstance');
-  AListType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TListInstance');
-  AFuncType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFunctionInstance');
-  ABoolType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBooleanInstance');
+  ACoreType := TFunctionInstance.Create('BuiltIn', nil, nil, 'CoreFunction', True);
+  AStrType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TStringInstance', True);
+  AIntType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TIntegerInstance', True);
+  AFloatType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFloatInstance', True);
+  AListType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TListInstance', True);
+  AFuncType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFunctionInstance', True);
+  ABoolType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBooleanInstance', True);
   AActRec := FCallStack.GetFirst();
   {$INCLUDE 'builtin_functions/register_builtins.pp' }
 end;
@@ -179,7 +179,7 @@ var
 begin
   logtext('INTER', 'Interpreter', 'Visiting function definition');
   AActRec := FCallStack.Peek;
-  AValue := TFunctionInstance.Create(ANode.PName, ANode.PParamList, ANode.PBlock, ANode.ptype);
+  AValue := TFunctionInstance.Create(ANode.PName, ANode.PParamList, ANode.PBlock, ANode.ptype, False);
 	AActrec.AddMember(ANode.PName, AValue);
   Result := TInstanceOf.Create;
 end;
@@ -342,6 +342,11 @@ begin
   LogText(INTER, 'Interpreter', 'VarAssign visitation');
   AName := ANode.PVarName.PValue;
   AValue := Visit(ANode.PValue);
+  if AValue.ClassNameIs('TFunctionInstance') then
+  begin
+    if TFunctionInstance(AValue).PIsBuiltin then
+      raise ERunTimeError.Create('Can''t assign builtin function "'+ANode.PValue.PToken.PValue+'" to variable "'+AName+'"');
+  end;
   AActrec := FCallStack.Peek;
   AActRec.AddMember(AName, AValue);
 end;
@@ -364,7 +369,7 @@ begin
 	end;
   if Ret = nil then
     raise ERunTimeError.Create('Referenced variable "'+Aname+'" does not exist');
-	LogText(INTER, 'Interpreter', 'Getting value of "'+ ANode.PToken.PValue+'" from type '+Ret.ClassName);
+  LogText(INTER, 'Interpreter', 'Getting value of "'+ ANode.PToken.PValue+'" from type '+Ret.ClassName);
   Result := Ret;
 end;
 
@@ -384,7 +389,7 @@ var
   AParamName: string;
   AState: TAST;
   AParamState: TParam;
-  FuncDef: TFunctioninstance;
+  FuncDef, Aux: TFunctioninstance;
   ADef: TInstanceOf = nil;
   AReturn: TInstanceOf;
   LenArgs, LenParams, Len, i: integer;
@@ -404,10 +409,11 @@ begin
   end;
   if FuncDef <> nil then
   begin
-    if FuncDef.PType = 'RunTimeFunction' then
+    if not FuncDef.PIsBuiltin then
     begin
       AActRec := TActivationRecord.Create(FuncDef.PName, AR_FUNCTION, FCallStack.PLevel+1);
       AActRec.AddMember('$LIVE', TStringInstance.Create(''));
+      AActRec.AddMember('self', ASrcInstance);
       LenArgs := Length(Anode.PEvalParams);
       LenParams := Length(FuncDef.PParams);
       Len := Max(LenArgs, LenParams);
@@ -427,8 +433,17 @@ begin
             raise EArgumentsError.Create('Wrong number of arguments to call this function');
           end
           else
+          begin
             ADef := Visit(ANode.PEvalParams[i]);
+          end;
           AParamName := TParam(FuncDef.PParams[i]).PNode.PValue;
+          if ADef.ClassNameIs('TFunctionInstance') then
+          begin
+            Aux := TFunctionInstance(ADef);
+            if Aux.PIsBuiltin then
+              raise ERunTimeError.Create('Can''t assign builtin function "'+ANode.PEvalParams[i].PToken.PValue+'" as argument');
+              //AParamName := ANode.PEvalParams[i].PToken.PValue;
+          end;
           AActRec.AddMember(AParamName, ADef);
         end;
       end;
@@ -452,7 +467,6 @@ begin
     end
     else
     begin
-
       ACoreExec := TCoreFunction.Create;
       Len := 0;
       SetLength(ArgsList, 0);
@@ -511,6 +525,7 @@ var
   ALexer: TLexer;
   ATree: TAST;
   AInter: TInterpreter;
+  ANameSp: TActivationRecord;
 begin
   AFileName := TStringInstance(Visit(ANode.PFilename)).PValue;
   ALexer := TLexer.Create(AFileName);
@@ -518,6 +533,10 @@ begin
   ATree := AParser.ParseCode;
   AInter := TInterpreter.Create(ATree);
   AInter.PassCallStack(FCallStack);
+  if ANode.PNamespace <> '' then
+  begin
+    ANameSp := TActivationRecord.Create(ANode.PNamespace, AR_NAMESPACE, 1);
+  end;
   AInter.Interpret(True);
 
   AInter.Free;

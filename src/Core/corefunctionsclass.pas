@@ -96,13 +96,15 @@ begin
     else if FName = 'str' then
       Ret := CastToStr
     else if FName = 'int' then
-      Ret := CastToInt;
+      Ret := CastToInt
+    else
+      raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.');
   // procs
 	end
   {$INCLUDE 'string/options.pp'}
   {$INCLUDE 'list/options.pp'}
   else
-    raise EValueError.Create('The referenced function could not be found');
+    raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.');
   // functions
   Result := Ret;
 end;
@@ -188,26 +190,6 @@ begin
   for AInst in FParams do
   begin
     Write(AInst.AsString);
-    {if AInst.ClassNameIs('TIntegerInstance') then
-      Write(TIntegerInstance(AInst).PValue)
-    else if AInst.ClassNameIs('TBooleanInstance') then
-      Write(BooleanToStr(TBooleanInstance(AInst).PValue))
-    else if AInst.ClassNameIs('TFloatInstance') then
-    begin
-      AFloat := TFloatInstance(AInst).PValue;
-      AFStr := FloatToStrF(AFloat, ffFixed, 30, 30);
-      while AFStr[Length(AFStr)] = '0' do
-        AFStr := Copy(AFStr, 1, Length(AFStr) - 1);
-      Write(AFStr);
-    end
-    else if AInst.ClassNameIs('TListInstance') then
-    begin
-      Write(TListInstance(AInst).AsString)
-    end
-    else if AInst.ClassNameIs('TStringInstance') then
-      Write(TStringInstance(AInst).PValue)
-    else if AInst.ClassNameIs('TNullInstance') then
-      Write(TNullInstance(AInst).PValue);}
 	end;
   WriteLn;
   Result := TNullInstance.create;
@@ -221,26 +203,6 @@ var
 begin
   for AInst in FParams do
   begin
-    {if AInst.ClassNameIs('TIntegerInstance') then
-      Write(TIntegerInstance(AInst).PValue)
-    else if AInst.ClassNameIs('TBooleanInstance') then
-      Write(BooleanToStr(TBooleanInstance(AInst).PValue))
-    else if AInst.ClassNameIs('TFloatInstance') then
-    begin
-      AFloat := TFloatInstance(AInst).PValue;
-      AFStr := FloatToStrF(AFloat, ffFixed, 30, 30);
-      while AFStr[Length(AFStr)] = '0' do
-        AFStr := Copy(AFStr, 1, Length(AFStr) - 1);
-      Write(AFStr);
-    end
-    else if AInst.ClassNameIs('TListInstance') then
-    begin
-      Write(TListInstance(AInst).AsString)
-    end
-    else if AInst.ClassNameIs('TStringInstance') then
-      Write(TStringInstance(AInst).PValue)
-    else if AInst.ClassNameIs('TNullInstance') then
-      Write(TNullInstance(AInst).PValue);}
     Write(AInst.AsString);
 	end;
   Result := TNullInstance.create;

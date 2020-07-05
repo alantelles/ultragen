@@ -33,9 +33,11 @@ type
   TIncludeScript = class (TAST)
     protected
       FFileName: TAST;
+      FNamespace: string;
     public
       property PFilename: TAST read FFileName;
-      constructor Create(AFileName: TAST; AToken: TToken);
+      property PNamespace: string read FNamespace;
+      constructor Create(AFileName: TAST; AToken: TToken; ANamespace:string);
 	end;
 
   TListAST = class (TAST)
@@ -188,9 +190,10 @@ type
 
 implementation
 
-constructor TIncludeScript.Create(AFilename: TAST; AToken: TToken);
+constructor TIncludeScript.Create(AFilename: TAST; AToken: TToken; ANamespace: string);
 begin
   FFileName := AFileName;
+  FNamespace := ANamespace;
   FToken := AToken;
 end;
 
@@ -284,7 +287,7 @@ begin
 end;
 
 
-constructor TFunctionDefinition.Create(AToken: TToken; AName:string; ABlock, AParamList: TASTList; AType: string);
+constructor TFunctionDefinition.Create(AToken: TToken; AName:string; ABlock, AParamList: TASTList; AType:string);
 begin
   FName := AName;
   FBlock := ABlock;

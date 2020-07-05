@@ -10,6 +10,7 @@ uses
 const
   AR_PROGRAM = 'AR_PROGRAM';
   AR_FUNCTION = 'AR_FUNCTION';
+  AR_NAMESPACE = 'AR_NAMESPACE';
 
 type
 
@@ -22,6 +23,7 @@ type
       FMembers: TFPObjectHashTable;
       FNowType: TInstanceOf;
       FNowKey: string;
+      FFound: boolean;
     public
       property PName:string read FName;
       property PType:string read FType;
@@ -40,6 +42,15 @@ type
 
   end;
 
+  TActRecInstance = class (TInstanceOf)
+    private
+      FValue: TActivationRecord;
+    public
+      property PValue: TActivationRecord read FValue write FValue;
+      function AsString:string;
+      constructor Create(AnActRec: TActivationRecord);
+  end;
+
 implementation
 constructor TActivationRecord.Create(AName:string; AType: string; ALevel: integer);
 begin
@@ -49,14 +60,32 @@ begin
   FMembers := TFPObjectHashTable.Create();
 end;
 
-function TActivationRecord.GetFunction(AKey: string; ASrc: TInstanceOf = nil): TFunctionInstance;
+function TActRecInstance.AsString:string;
 begin
+  Result := 'Namespace "'+ FValue.FName + '"';
+end;
+
+constructor TActRecInstance.Create(AnActRec: TActivationRecord);
+begin
+  FValue := AnActRec;
+end;
+
+
+
+function TActivationRecord.GetFunction(AKey: string; ASrc: TInstanceOf = nil): TFunctionInstance;
+var
+  Ret: TFunctionInstance;
+begin
+  FFound := False;
   FNowKey := AKey;
   FNowType := ASrc;
   FMembers.Iterate(@SearchFunction);
   FNowKey := '';
   FNowType := nil;
-  Result := TFunctionInstance(GetMember(AKey));
+  Ret := TFunctionInstance(GetMember(AKey));
+  if Ret <> nil then
+    Ret.PName := AKey;
+  Result := Ret;
 end;
 
 procedure TActivationRecord.MemberAsString(AItem:  TObject;const AName:string; var Cont:boolean);

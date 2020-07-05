@@ -244,6 +244,13 @@
 		        exit
 		      end;
 
+          if FCurrChar = ':' then
+          begin
+            Advance;
+            Result := TToken.Create(T_NAMESPACE, T_NAMESPACE);
+            exit
+          end;
+
 
 		      if Pos(FCurrChar, LETTERS + '_' ) > 0 then
 		      begin
