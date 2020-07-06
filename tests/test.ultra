@@ -1,9 +1,3 @@
 a = "helaine"
 len = a.length()
-d = ''
-for (a, c)
-    inline(a[len-_c-1])
-    x = a[(len-_c-1)]
-    d = d + a[int(len-_c-1)]
-end
-print(d)
+print(a[(a.length()) - 2])

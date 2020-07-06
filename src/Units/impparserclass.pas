@@ -39,7 +39,7 @@ type
     function DefParams: TASTList;
     function DefParam: TAST;
     function FunctionCall(AToken: TToken): TAST;
-    function MethodCall(): TAST;
+    function MethodCall: TAST;
     function Args: TASTList;
     function ListArgs: TASTList;
     function IfBlock: TAST;
@@ -356,7 +356,7 @@ begin
   Result := Ret;
 end;
 
-function TTParser.MethodCall(): TAST;
+function TTParser.MethodCall: TAST;
 var
   Ret: TAST;
 begin
@@ -371,7 +371,7 @@ begin
       Eat(T_ATTR_ACCESSOR);
       if FCurrentToken.ptype = T_NEWLINE then
         Eat(T_NEWLINE);
-      Ret := TMethodCall.Create(Ret, LogicEval(), FCurrentToken);
+      Ret := TMethodCall.Create(Ret, Factor(), FCurrentToken);
       continue;
     end;
     if (FCurrentToken.PType = T_LIST_START) then
@@ -383,7 +383,7 @@ begin
       if FCurrentToken.ptype = T_NEWLINE then
         Eat(T_NEWLINE);
       Eat(T_LIST_END);
-    end;
+    end
   end;
   Result := Ret;
 end;
