@@ -25,7 +25,7 @@ type
       function Print:TInstanceOf;
       function InlinePrint:TInstanceOf;
       // functions
-      function Cycle:TInstanceOf;
+
       function GetTypeOf:TStringInstance;
       function CastToStr:TStringInstance;
       function CastToInt:TIntegerInstance;
@@ -35,6 +35,7 @@ type
 
       {$INCLUDE 'string/declarations.pp'}
       {$INCLUDE 'list/declarations.pp'}
+      {$INCLUDE 'integer/declarations.pp'}
 	end;
 
 
@@ -71,8 +72,7 @@ begin
 	    Ret := Print
 	  else if FName = 'inline' then
 	    Ret := InlinePrint
-    else if FName = 'cycle' then
-      Ret := Cycle
+
     //system
     else if FName = 'clear' then
       clrscr
@@ -103,6 +103,7 @@ begin
 	end
   {$INCLUDE 'string/options.pp'}
   {$INCLUDE 'list/options.pp'}
+  {$INCLUDE 'integer/options.pp'}
   else
     raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.');
   // functions
@@ -167,19 +168,7 @@ begin
   Result := TListInstance.Create(AList);
 end;
 
-function TCoreFunction.Cycle:TInstanceOf;
-var
-  step, len, i:integer;
-begin
-  len := Length(FParams);
-  if len > 1 then
-  begin
-    step := TIntegerInstance(FParams[0]).PValue;
-    Result := FParams[(step mod (len-1)) + 1];
-	end
-  else
-    raise EArgumentsError.Create(E_INVALID_ARGS);
-end;
+
 
 function TCoreFunction.Print:TInstanceOf;
 var
@@ -258,6 +247,8 @@ end;
 
 {$INCLUDE 'string/functions.pp'}
 {$INCLUDE 'list/functions.pp'}
+
+{$INCLUDE 'integer/functions.pp'}
 
 
 

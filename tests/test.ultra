@@ -1,4 +1,6 @@
-include 'inc.ultra' : zika
-:zika.a = 1
-a = 50
-print(:zika.a, ':', a)
+include 'empty.ultra'
+print(:zika.a)
+print(:zika.l)
+print(:zika.k)
+print(:tika.anri)
+print(:tika.age)

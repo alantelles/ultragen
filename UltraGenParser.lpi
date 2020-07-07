@@ -31,7 +31,7 @@
         <PackageName Value="LazUtils"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="25">
+    <Units Count="24">
       <Unit0>
         <Filename Value="UltraGenParser.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -137,24 +137,20 @@
         <UnitName Value="CoreUtils"/>
       </Unit20>
       <Unit21>
-        <Filename Value="src\Core\corefunctionsregisterrecords.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit21>
-      <Unit22>
         <Filename Value="src\ASTs\flowcontrolastclass.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="FlowControlASTClass"/>
-      </Unit22>
-      <Unit23>
+      </Unit21>
+      <Unit22>
         <Filename Value="src\BuiltInTypes\stringinstanceclass.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="StringInstanceClass"/>
-      </Unit23>
-      <Unit24>
+      </Unit22>
+      <Unit23>
         <Filename Value="src\BuiltInTypes\listinstanceclass.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ListInstanceClass"/>
-      </Unit24>
+      </Unit23>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

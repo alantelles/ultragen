@@ -79,8 +79,13 @@ begin
   if FCurrentToken.PType = T_NAMESPACE then
   begin
     Eat(T_NAMESPACE);
-    ANamespace := FCurrentToken.PValue;
-    Eat(T_ID);
+    if FCurrentToken.PType = T_ID then
+    begin
+      ANamespace := FCurrentToken.PValue;
+      Eat(T_ID);
+    end
+    else
+      ANamespace := '0';
   end;
   Result := TIncludeScript.Create(AFileName, FCurrentToken, ANamespace);
 end;

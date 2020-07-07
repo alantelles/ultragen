@@ -27,3 +27,17 @@ begin
   end;
   Result := TListInstance.Create(Ret);
 end;
+
+function TCoreFunction.AppendToList(var AObj: TListInstance): TListInstance;
+var
+  len, i: integer;
+begin
+  len := Length(FParams);
+  if len = 0 then
+    raise EArgumentsError.Create(E_INVALID_ARGS);
+  for i:=0 to len - 1 do
+  begin
+    AObj.Add(FParams[i]);
+  end;
+  Result := AObj
+end;

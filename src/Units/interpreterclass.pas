@@ -70,6 +70,7 @@ begin
   AFuncType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFunctionInstance', True);
   ABoolType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBooleanInstance', True);
   AActRec := FCallStack.GetFirst();
+  AActRec.AddMember(AIntType.PType+ST_ACCESS+'left_zeros', AIntType);
   {$INCLUDE 'builtin_functions/register_builtins.pp' }
 end;
 
@@ -554,6 +555,7 @@ var
   ATree: TAST;
   AInter: TInterpreter;
   ANameSp: TActivationRecord;
+  AName:string;
 begin
   AFileName := TStringInstance(Visit(ANode.PFilename)).PValue;
   ALexer := TLexer.Create(AFileName);
@@ -561,10 +563,16 @@ begin
   ATree := AParser.ParseCode;
   AInter := TInterpreter.Create(ATree);
 
-  if ANode.PNamespace <> '' then
+  if (ANode.PNamespace <> '') then
   begin
+    Aname := ANode.PNamespace;
+    if ANode.PNamespace = '0' then
+    begin
+      AName := Copy(AFileName, 1, Rpos('.ultra', AFileName)-1);
+      Aname := Copy(AName, RPos(DirectorySeparator, Aname)+ 1, Length(AName));
+    end;
     AInter.PassCallStack(FCallStack, True);
-    ANameSp := TActivationRecord.Create(ANode.PNamespace, AR_NAMESPACE, 1);
+    ANameSp := TActivationRecord.Create(AName, AR_NAMESPACE, 1);
     AInter.Interpret(True, ANameSp);
   end
   else
@@ -594,11 +602,21 @@ function TInterpreter.VisitNameSpaceState(Anode: TNamespaceState):TInstanceOf;
 var
   AActRec, ARef: TActivationRecord;
   ANameRec: TActRecInstance;
-  Ret: TInstanceOf;
+  Ret , ArefVal: TInstanceOf;
 begin
   AActrec := FCallStack.Peek();
-  Aref := TActrecInstance(AActRec.GetMember(ANode.PName)).PValue;
-  ANameRec := TActRecInstance.Create(Aref);
+  ARefVal := AActRec.GetMember(ANode.PName);
+  if ARefVal = nil then
+  begin
+    ARef := TActivationRecord.Create(ANode.PName, AR_NAMESPACE, 1);
+    ANameRec := TActRecInstance.Create(Aref);
+    AActRec.AddMember(ANode.PName, ANameRec);
+  end
+  else
+  begin
+    Aref := TActrecInstance(ARefVal).PValue;
+    ANameRec := TActRecInstance.Create(Aref);
+  end;
   FCallStack.Push(AnameRec.PValue);
   Ret := Visit(ANode.POper);
   FcallStack.Pop();
