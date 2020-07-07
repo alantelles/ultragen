@@ -7,6 +7,8 @@ function VisitLivePrint(ANode: TLivePrint):TStringInstance;
 procedure VisitPlainText(ANode: TPlainText);
 procedure VisitPlainTextEmbed(ANode: TPlainTextEmbed);
 procedure VisitInterpolation(ANode: TInterpolation);
+function VisitNameSpaceGet(Anode: TNamespaceGet):TInstanceOf;
+function VisitNamespaceState(ANode: TNamespaceState): TInstanceOf;
 
 // references
 procedure VisitVarAssign(ANode: TVarAssign);

@@ -53,6 +53,8 @@ type
     function Interpolated: TAST;
     function PlainTextEmbed: TAST;
     function IncludeScript: TAST;
+    function NamespaceGet: TAST;
+    function NamespaceState: TAST;
 
   end;
 
@@ -81,6 +83,32 @@ begin
     Eat(T_ID);
   end;
   Result := TIncludeScript.Create(AFileName, FCurrentToken, ANamespace);
+end;
+
+function TTParser.NamespaceGet: TAST;
+var
+  Oper: TAST;
+  AName: string;
+begin
+  Eat(T_NAMESPACE);
+  AName := FCurrentToken.PValue;
+  Eat(T_ID);
+  Eat(T_ATTR_ACCESSOR);
+  Oper := MethodCall();
+  Result := TNamespaceGet.Create(Aname, Oper);
+end;
+
+function TTParser.NamespaceState: TAST;
+var
+  AName: string;
+  Aoper: TAST;
+begin
+  Eat(T_NAMESPACE);
+  AName := FCurrentToken.PValue;
+  Eat(T_ID);
+  Eat(T_ATTR_ACCESSOR);
+  AOper := Statement();
+  Result := TNamespaceState.Create(Aname, AOper, FCurrentToken);
 end;
 
 function TTParser.FunctionBlock: TAST;
@@ -371,7 +399,7 @@ begin
       Eat(T_ATTR_ACCESSOR);
       if FCurrentToken.ptype = T_NEWLINE then
         Eat(T_NEWLINE);
-      Ret := TMethodCall.Create(Ret, Factor(), FCurrentToken);
+      Ret := TMethodCall.Create(Ret, LogicEval(), FCurrentToken);
       continue;
     end;
     if (FCurrentToken.PType = T_LIST_START) then
@@ -515,6 +543,11 @@ begin
     Logtext('PARSER', 'Parser', 'Creating include node');
     Ret := IncludeScript();
   end
+  else if (AToken.PType = T_NAMESPACE) then
+  begin
+    Logtext('PARSER', 'Parser', 'Creating namespace');
+    Ret := NamespaceState();
+  end
   else if (AToken.PType = T_PLAIN_TEXT) then
   begin
     LogText('PARSER', 'Parser', 'Creating plaintext node');
@@ -613,7 +646,7 @@ begin
     else if FCurrentToken.PType = T_RETURN then
     begin
       Eat(T_RETURN);
-      writeln('return');
+
     end
     else if FCurrentToken.PType = T_ELSE_IF then
     begin
@@ -689,6 +722,10 @@ begin
     Eat(T_MINUS);
     logtext('PARSER', 'Parser', 'Creating unary op node');
     Ret := TUnaryOp.Create(AToken, Factor());
+  end
+  else if (AToken.PType = T_NAMESPACE) then
+  begin
+    Ret := NamespaceGet();
   end
   else if (AToken.PType = TYPE_NULL) then
   begin

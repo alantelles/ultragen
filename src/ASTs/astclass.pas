@@ -30,6 +30,26 @@ type
     function Count: integer;
   end;
 
+  TNamespaceGet = class (TAST)
+    protected
+      FName: string;
+      FOper: TAST;
+    public
+      property PName: string read FName;
+      property POper: TAST read FOper;
+      constructor Create(AName:string; AOper: TAST);
+  end;
+
+  TNamespaceState = class (TAST)
+    protected
+      FName: string;
+      FOper: TAST;
+    public
+      property PName: string read FName;
+      property POper: TAST read FOper;
+      constructor Create(AName:string; AOper: TAST; AToken: TToken);
+  end;
+
   TIncludeScript = class (TAST)
     protected
       FFileName: TAST;
@@ -194,6 +214,19 @@ constructor TIncludeScript.Create(AFilename: TAST; AToken: TToken; ANamespace: s
 begin
   FFileName := AFileName;
   FNamespace := ANamespace;
+  FToken := AToken;
+end;
+
+constructor TNamespaceGet.Create(AName: string;AOper: TAST);
+begin
+  FName := AName;
+  FOper := AOper;
+end;
+
+constructor TNamespaceState.Create(AName: string;AOper: TAST; AToken: TToken);
+begin
+  FName := AName;
+  FOper := AOper;
   FToken := AToken;
 end;
 

@@ -1,3 +1,4 @@
-a = "helaine"
-len = a.length()
-print(a[(a.length()) - 2])
+include 'inc.ultra' : zika
+:zika.a = 1
+a = 50
+print(:zika.a, ':', a)

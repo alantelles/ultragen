@@ -46,7 +46,7 @@ begin
     for i := (len-1) downto 0 do
     begin
       Ret := Ret + 'Call to '+FItems[i].PName+ ' of level '+IntToStr(FItems[i].PNestingLevel)+' of type '+ FItems[i].PType + sLineBreak;
-      writeln(Ret);
+      WriteLn(Ret);
       FItems[i].AsString;
     end;
   end;
@@ -62,6 +62,8 @@ begin
   if len > 0 then
   begin
     Ret := FItems[len - 1];
+    if FItems[len - 1].PType <> AR_NAMESPACE then
+      Fitems[len - 1].Free;
     SetLength(FItems, len - 1);
     FLevel := FLevel - 1;
   end;

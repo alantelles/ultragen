@@ -90,7 +90,9 @@ end;
 
 procedure TActivationRecord.MemberAsString(AItem:  TObject;const AName:string; var Cont:boolean);
 begin
-  writeln('Record member '+Aname+' of type '+AItem.ToString);
+  WriteLn('Record member '+Aname+' of type '+AItem.ToString);
+  if AItem.ClassNameIs('TActRecInstance') then
+    WriteLn(' ---- ' + TActRecInstance(AItem).PValue.AsString);
 end;
 
 procedure TActivationRecord.SearchFunction(AItem:  TObject;const AName:string; var Cont:boolean);
@@ -102,19 +104,19 @@ begin
     if FNowType = nil then
     begin
       exit;
-      //writeln('achei: ', AName, ' -- ', TFunctionInstance(AItem).PType)
+      //WriteLn('achei: ', AName, ' -- ', TFunctionInstance(AItem).PType)
     end
     else
     begin
       if TFunctionInstance(AItem).PType = FNowType.ClassName then
       begin
         exit;
-        //writeln('achei: ', AName, ' -- ', TFunctionInstance(AItem).PType)
+        //WriteLn('achei: ', AName, ' -- ', TFunctionInstance(AItem).PType)
       end
       else
       begin
         exit;
-        //writeln('achei: ', AName, ST_ACCESS, TFunctionInstance(AItem).PType, ' de outro tipo');
+        //WriteLn('achei: ', AName, ST_ACCESS, TFunctionInstance(AItem).PType, ' de outro tipo');
       end;
     end;
   end;
@@ -141,7 +143,7 @@ function TActivationRecord.AsString:string;
 var
   Ret: string = '';
 begin
-  writeln('Activation record named '+FName+' of type '+FType);
+  WriteLn('Activation record named '+FName+' of type '+FType);
   FMembers.Iterate(@MemberAsString);
   Result := Ret;
 

@@ -10,6 +10,12 @@
   else if ANode.ClassNameIs('TIncludeScript') then
     VisitIncludeScript(TIncludeScript(ANode))
 
+  else if ANode.ClassNameIs('TNamespaceGet') then
+    Result := VisitNamespaceGet(TNamespaceGet(Anode))
+
+  else if ANode.ClassNameIs('TNamespaceState') then
+    Result := VisitNamespaceState(TNamespaceState(Anode))
+
   else if ANode.ClassNameIs('TPlainTextEmbed') then
     VisitPlainTextEmbed(TPlainTextEmbed(Anode))
   else if ANode.ClassNameIs('TInterpolation') then

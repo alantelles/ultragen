@@ -23,6 +23,8 @@ type
       FContinueSignal: boolean;
       FLiveOutput: string;
       FDontPush: boolean;
+      FNameSpace: TActivationRecord;
+      FParentStack : TStack;
       procedure BootStrapRegister;
 
 
@@ -31,9 +33,9 @@ type
       property PLive: string read FLiveOutput;
       constructor Create(var ATree: TAST);
       function GetLive:string;
-      procedure PassCallStack(var ACallStack: TStack);
+      procedure PassCallStack(var ACallStack: TStack; ToParent: boolean);
       procedure CleanStack;
-      function Interpret(DontPush:boolean=False):string;
+      function Interpret(DontPush:boolean=False; ANameActRec: TActivationRecord = nil):string;
 
       function Visit(ANode:TAST; ASrcInstance: TInstanceOf = nil):TInstanceOf;
       {$INCLUDE 'interpreter_visitations_declarations.pp'}
@@ -76,16 +78,21 @@ begin
   FCallStack.Pop();
 end;
 
-procedure TInterpreter.PassCallStack(var ACallStack: TStack);
+procedure TInterpreter.PassCallStack(var ACallStack: TStack; ToParent: boolean);
 begin
-  FCallStack := ACallStack;
+  if ToParent then
+    FParentStack := ACallStack
+  else
+    FCallStack := ACallStack;
 end;
 
-function TInterpreter.Interpret(DontPush: boolean = False):string;
+function TInterpreter.Interpret(DontPush:boolean=False; ANameActRec: TActivationRecord = nil):string;
 var
   Ret:TInstanceOf;
 begin
   FDontPush := DontPush;
+  FNameSpace := ANameActRec;
+
   Ret := Visit(FTree);
   Result := '';
 end;
@@ -494,15 +501,27 @@ end;
 procedure TInterpreter.VisitProgram(ANode: TProgram);
 var
   AChild: TAST;
-  AActRec: TActivationRecord;
+  AActRec, AParRec: TActivationRecord;
+
 begin
   LogText(INTER, 'Interpreter', 'Visiting a program');
-  AActRec := TActivationRecord.Create('PROGRAM', AR_PROGRAM, 1);
+  if FNameSpace = nil then
+    AActRec := TActivationRecord.Create('PROGRAM', AR_PROGRAM, 1)
+  else
+    AActRec := TActivationRecord.Create(FNameSpace.PName, AR_NAMESPACE, 1);
   AActRec.AddMember('$LIVE', TStringInstance.Create(''));
   if not FDontPush then
+  // root execution
   begin
     FCallStack.Push(AActRec);
     BootStrapRegister;
+  end
+  else
+  begin
+    if FNameSpace <> nil then
+    begin
+      FCallStack.Push(AActRec);
+    end;
   end;
 
   for AChild in ANode.PChildren do
@@ -510,6 +529,15 @@ begin
     LogText(INTER, 'Interpreter', 'Visiting a child ' + AChild.ToString);
     Visit(AChild);
   end;
+  if FNameSpace <> nil then
+  begin
+    AActRec := FCallStack.Peek();
+    AParRec := FParentStack.Peek();
+    AParRec.AddMember(FNameSpace.PName, TActRecInstance.Create(AActRec));
+    FCallStack := FParentStack;
+
+  end;
+
   FLiveOutput := GetLive();
 end;
 
@@ -532,14 +560,49 @@ begin
   AParser := TTParser.Create(ALexer);
   ATree := AParser.ParseCode;
   AInter := TInterpreter.Create(ATree);
-  AInter.PassCallStack(FCallStack);
+
   if ANode.PNamespace <> '' then
   begin
+    AInter.PassCallStack(FCallStack, True);
     ANameSp := TActivationRecord.Create(ANode.PNamespace, AR_NAMESPACE, 1);
+    AInter.Interpret(True, ANameSp);
+  end
+  else
+  begin
+    AInter.PassCallStack(FCallStack, False);
+    AInter.Interpret(True);
   end;
-  AInter.Interpret(True);
-
   AInter.Free;
+end;
+
+function TInterpreter.VisitNameSpaceGet(Anode: TNamespaceGet):TInstanceOf;
+var
+  AActRec, ARef: TActivationRecord;
+  ANameRec: TActRecInstance;
+  Ret: TInstanceOf;
+begin
+  AActrec := FCallStack.Peek();
+  Aref := TActrecInstance(AActRec.GetMember(ANode.PName)).PValue;
+  ANameRec := TActRecInstance.Create(Aref);
+  FCallStack.Push(AnameRec.PValue);
+  Ret := Visit(ANode.POper);
+  FcallStack.Pop();
+  Result := ret;
+end;
+
+function TInterpreter.VisitNameSpaceState(Anode: TNamespaceState):TInstanceOf;
+var
+  AActRec, ARef: TActivationRecord;
+  ANameRec: TActRecInstance;
+  Ret: TInstanceOf;
+begin
+  AActrec := FCallStack.Peek();
+  Aref := TActrecInstance(AActRec.GetMember(ANode.PName)).PValue;
+  ANameRec := TActRecInstance.Create(Aref);
+  FCallStack.Push(AnameRec.PValue);
+  Ret := Visit(ANode.POper);
+  FcallStack.Pop();
+  Result := ret;
 end;
 
 function TInterpreter.Visit(ANode:TAST; ASrcInstance: TInstanceOf = nil):TInstanceOf;
