@@ -120,7 +120,8 @@ begin
   if (FcurrentToken.PType = T_ATTR_ACCESSOR) or
      (FCurrentToken.PType = T_FUNC_DEF) then
   begin
-    Eat(FCurrentToken.PType);
+    if FcurrentToken.PType = T_ATTR_ACCESSOR then
+      Eat(T_ATTR_ACCESSOR);
     AOper := Statement();
     Result := TNamespaceState.Create(Aname, AOper, FCurrentToken);
   end
