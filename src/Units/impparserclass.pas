@@ -40,6 +40,7 @@ type
     function DefParam: TAST;
     function FunctionCall(AToken: TToken): TAST;
     function MethodCall: TAST;
+    function MethodCallState: TAST;
     function Args: TASTList;
     function ListArgs: TASTList;
     function IfBlock: TAST;
@@ -389,6 +390,46 @@ begin
   Result := Ret;
 end;
 
+function TTParser.MethodCallState: TAST;
+var
+  Ret: TAST;
+begin
+  // Eat(T_ATTR_ACCESSOR);
+  Ret := LogicEval();
+  logtext('PARSER', 'Parser', 'Creating method call node');
+  if FCurrentToken.PType = T_ASSIGN then
+  begin
+    Ret := VarAssign(Ret.PToken);
+  end
+  else
+  begin
+    while (FCurrentToken.PType = T_ATTR_ACCESSOR) or
+      (FCurrentToken.PType = T_LIST_START) do
+    begin
+      if (FCurrentToken.PType = T_ATTR_ACCESSOR) then
+      begin
+        Eat(T_ATTR_ACCESSOR);
+        if FCurrentToken.ptype = T_NEWLINE then
+          Eat(T_NEWLINE);
+        Ret := TMethodCall.Create(Ret, LogicEval(), FCurrentToken);
+        continue;
+      end;
+      if (FCurrentToken.PType = T_LIST_START) then
+      begin
+        Eat(T_LIST_START);
+        if FCurrentToken.ptype = T_NEWLINE then
+          Eat(T_NEWLINE);
+        Ret := TListAccessAST.Create(Ret, MethodCall(), FCurrentToken);
+        if FCurrentToken.ptype = T_NEWLINE then
+          Eat(T_NEWLINE);
+        Eat(T_LIST_END);
+      end
+    end;
+  end;
+
+  Result := Ret;
+end;
+
 function TTParser.MethodCall: TAST;
 var
   Ret: TAST;
@@ -531,7 +572,9 @@ begin
   logtext('PARSER', 'Parser', 'Creating statement node');
   if (AToken.PType = T_ID) then
   begin
-    Eat(T_ID);
+    Ret := MethodCallState();
+
+    {Eat(T_ID);
     if (FCurrentToken.PType = T_ASSIGN) then
     begin
       Ret := VarAssign(AToken);
@@ -541,7 +584,7 @@ begin
       Ret := FunctionCall(AToken);
     end
     else
-      EParseError;
+      EParseError;}
   end
   else if (ATOken.PType = T_INCLUDE) then
   begin

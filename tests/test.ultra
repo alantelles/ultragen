@@ -1,6 +1,7 @@
-include 'empty.ultra'
-print(:zika.a)
-print(:zika.l)
-print(:zika.k)
-print(:tika.anri)
-print(:tika.age)
+a = []
+a.append(3)
+print(a[0])
+a.set(0, 60)
+a.append('')
+a.set(1, "mamae")
+print(a[0])

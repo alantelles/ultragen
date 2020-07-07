@@ -7,6 +7,8 @@ begin
         Ret := TIntegerInstance.Create(TListInstance(FObj).Count)
      else if FName = 'append' then
         Ret := AppendToList(TListInstance(FObj))
+     else if FName = 'set' then
+        Ret := SetItem(TListInstance(FObj))
      else
       raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.');;
 end

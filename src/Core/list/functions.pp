@@ -41,3 +41,11 @@ begin
   end;
   Result := AObj
 end;
+
+function TCoreFunction.SetItem(var AObj: TListInstance): TListInstance;
+begin
+  if Length(FParams) <> 2 then
+    raise ERunTimeError.Create(E_INVALID_ARGS);
+  AObj.SetItem(TIntegerInstance(FParams[0]).PValue, FParams[1]);
+  Result := AObj;
+end;

@@ -22,6 +22,7 @@ type
       function AsString:string; override;
       function GetItem(AIndex: TIntegerInstance):TInstanceOf;
       function GetItem(AIndex: integer):TInstanceOf;
+      procedure SetItem(AIndex: integer; AItem: TInstanceOf);
       procedure Add(AItem: TInstanceOf);
 
       function Execute: TInstanceOf;
@@ -44,6 +45,13 @@ end;
 constructor TListInstance.Create;
 begin
 
+end;
+
+procedure TListInstance.SetItem(Aindex:integer; AItem: TInstanceOf);
+begin
+  if Aindex > LenList - 1 then
+    raise EListError.Create('Undefined index '+IntToStr(Aindex)+' at list');
+  FValue[AIndex] := Aitem;
 end;
 
 procedure TListInstance.Add(AItem: TInstanceOf);
