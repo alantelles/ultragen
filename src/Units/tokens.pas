@@ -62,6 +62,7 @@ const
   T_FROM_NAMESPACE = 'T_FROM_NAMESPACE';
   T_INCLUDE = 'T_INCLUDE';
   T_NAMESPACE = 'T_NAMESPACE_DESCRIPTOR';
+  T_NEW_OBJECT = 'T_NEW_OBJECT';
 
   ESCAPE_SYMBOL = '\';
   ASSIGN_SYMBOL = '=';
@@ -99,6 +100,8 @@ begin
   ReservedWords.Add('live', TToken.Create(T_LIVE_OUTPUT, T_LIVE_OUTPUT));
   ReservedWords.Add('return', TToken.Create(T_RETURN, T_RETURN));
   ReservedWords.Add('include', TToken.Create(T_INCLUDE, T_INCLUDE));
+  ReservedWords.Add('new', TToken.Create(T_NEW_OBJECT, T_NEW_OBJECT));
+
   InnerAttributes := TFPObjectHashTable.Create();
   InnerAttributes.Add('LIVE', TToken.Create(T_LIVE_PRINT, T_LIVE_PRINT));
 

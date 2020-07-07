@@ -5,7 +5,8 @@ unit CoreFunctionsClass;
 interface
 
 uses
-      Classes, SysUtils, Strutils, InstanceOfClass, InterpreterClass, StringInstanceClass, ListInstanceClass;
+      Classes, SysUtils, Strutils, InstanceOfClass, InterpreterClass, StringInstanceClass,
+      ListInstanceClass, FileExplorerInstanceClass;
 
 type
   TParamList = array of string;
@@ -37,6 +38,7 @@ type
       {$INCLUDE 'string/declarations.pp'}
       {$INCLUDE 'list/declarations.pp'}
       {$INCLUDE 'integer/declarations.pp'}
+      {$INCLUDE 'fileexplorer/declarations.pp'}
 	end;
 
 
@@ -107,6 +109,7 @@ begin
   {$INCLUDE 'string/options.pp'}
   {$INCLUDE 'list/options.pp'}
   {$INCLUDE 'integer/options.pp'}
+  {$INCLUDE 'fileexplorer/options.pp'}
   else
     raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.');
   // functions
@@ -277,7 +280,7 @@ end;
 
 {$INCLUDE 'string/functions.pp'}
 {$INCLUDE 'list/functions.pp'}
-
+{$INCLUDE 'fileexplorer/functions.pp'}
 {$INCLUDE 'integer/functions.pp'}
 
 

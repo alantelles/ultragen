@@ -1,6 +1,5 @@
-function a()
-    return 'blah'
-end
+:zika.test = 'baholeros'
 
-x = 98
-y = 'ey'
+:zika function myPrint(arg)
+    print(arg)
+end

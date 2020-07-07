@@ -1,6 +1,7 @@
 {$INCLUDE 'stringmethods.pp'}
 {$INCLUDE 'listmethods.pp'}
 {$INCLUDE 'integermethods.pp'}
+{$INCLUDE 'explorermethods.pp'}
 
 // builtins
 AActRec.AddMember('print', ACoreType);

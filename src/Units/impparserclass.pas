@@ -56,6 +56,7 @@ type
     function IncludeScript: TAST;
     function NamespaceGet: TAST;
     function NamespaceState: TAST;
+    function NewObject: TAST;
 
   end;
 
@@ -68,6 +69,21 @@ constructor TTParser.Create(var ALexer: TLexer);
 begin
   FLexer := ALexer;
   FCurrentToken := ALexer.GetNextToken;
+end;
+
+function TTParser.NewObject: TAST;
+var
+  ConstArgs: TASTList;
+  AName:string;
+begin
+  eat(T_NEW_OBJECT);
+  AName := FCurrentToken.PValue;
+  Eat(T_ID);
+  Eat(T_LPAREN);
+  ConstArgs := Args();
+  Eat(T_RPAREN);
+  LogText('PARSER', 'Parser', 'Creating a new object node');
+  Result := TNewObject.Create(ConstArgs, AName);
 end;
 
 function TTParser.IncludeScript: TAST;
@@ -559,7 +575,12 @@ var
   AVar: TToken;
 begin
   Eat(T_ASSIGN);
-  ARight := MethodCall();
+  if FCurrentToken.PType = T_NEW_OBJECT then
+  begin
+    ARight := NewObject();
+  end
+  else
+    ARight := MethodCall();
   Logdebug('Creating a VarAssign to ' + AToken.AsString, 'Parser');
   logtext('PARSER', 'Parser', 'Creating var assign node to ' + AToken.PValue);
   Result := TVarAssign.Create(AToken, ARight);
@@ -602,6 +623,7 @@ begin
     else
       EParseError;}
   end
+
   else if (ATOken.PType = T_INCLUDE) then
   begin
     Logtext('PARSER', 'Parser', 'Creating include node');

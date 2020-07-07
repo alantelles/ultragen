@@ -16,6 +16,9 @@
   else if ANode.ClassNameIs('TNamespaceState') then
     Result := VisitNamespaceState(TNamespaceState(Anode))
 
+  else if ANode.ClassNameIs('TNewObject') then
+    Result := VisitNewObject(TNewObject(ANode))
+
   else if ANode.ClassNameIs('TPlainTextEmbed') then
     VisitPlainTextEmbed(TPlainTextEmbed(Anode))
   else if ANode.ClassNameIs('TInterpolation') then

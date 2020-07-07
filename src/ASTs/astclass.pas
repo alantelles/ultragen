@@ -30,6 +30,16 @@ type
     function Count: integer;
   end;
 
+  TNewObject = class (TAST)
+    private
+      FArgs: TASTList;
+      FName: string;
+    public
+      property PArgs: TASTList read FArgs write FArgs;
+      property PName: string read Fname write FName;
+      constructor Create(AArgs: TASTList; AName: string);
+  end;
+
   TNamespaceGet = class (TAST)
     protected
       FName: string;
@@ -228,6 +238,12 @@ begin
   FName := AName;
   FOper := AOper;
   FToken := AToken;
+end;
+
+constructor TNewObject.Create(AArgs: TASTList; AName: string);
+begin
+  FArgs := AArgs;
+  FName := AName;
 end;
 
 constructor TPlainText.Create(AValue: string; AToken: TToken);

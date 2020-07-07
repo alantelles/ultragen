@@ -39,6 +39,15 @@ type
       function AsString: string;  override;
   end;
 
+  TBuiltInType = class(TInstanceOf)
+    protected
+      FValue: string;
+    public
+      property PValue: string read FValue write FValue;
+      constructor Create(ANAme: string);
+  end;
+
+
   TParamList = array of string;
 
   TFunctionInstance = class (TInstanceOf)
@@ -48,14 +57,16 @@ type
       FBlock: TASTList;
       FType: string;
       FIsBuiltin: boolean;
+      FFromNamespace: boolean;
     public
+      property PFromNamespace:boolean read FFromNamespace write FFromNamespace;
       property PName:string read FName write FName;
       property PType:string read FType;
       property PIsBuiltin: boolean read FIsBuiltin;
       property PParams: TASTList read FParams;
       property PBlock: TASTList read FBlock write FBlock;
       function AsString: string;  override;
-      constructor Create(AName: string; AParams, ABlock: TASTList; AType:string; IsBuiltin:boolean);
+      constructor Create(AName: string; AParams, ABlock: TASTList; AType:string; IsBuiltin:boolean; FromNamespace: boolean=False);
       //procedure AddParam(AName:string);
       //procedure AddBlock(ABlock: TASTList);
 	end;
@@ -87,6 +98,11 @@ implementation
 uses
   Tokens;
 
+constructor TBuiltInType.Create(AName: string);
+begin
+  FValue := AName;
+end;
+
 function TInstanceOf.AsString: string;
 begin
   Result := '';
@@ -102,10 +118,11 @@ begin
   Result := FValue;
 end;
 
-constructor TFunctionInstance.Create(AName:string; AParams, ABlock: TASTList; AType: string; IsBuiltin:boolean);
+constructor TFunctionInstance.Create(AName:string; AParams, ABlock: TASTList; AType: string; IsBuiltin:boolean; FromNamespace: boolean = False);
 begin
   //Fname := AName;
   //SetLength(FParamsName, 0);
+  FFromNamespace := FromNamespace;
   FName := AName;
   FParams := AParams;
   FBlock := ABlock;

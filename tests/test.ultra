@@ -1,7 +1,3 @@
-a = Explorer
-b = Explorer
-print(:a.location)
-print(:b.location)
-:a.location = 'mingau'
-print(:a.location)
-print(:b.location)
+a = new Explorer()
+x = a.getAllFiles('./comp_poc')
+print(x)

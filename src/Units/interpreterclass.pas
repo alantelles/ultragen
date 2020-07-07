@@ -10,7 +10,7 @@ uses
   ImpParserClass, StrUtils, LoggingClass, FlowControlASTClass,
   StackClass, ARClass, InstanceofClass,
   StringInstanceClass,
-  ListInstanceClass;
+  ListInstanceClass ;
 
 type
   TInterpreter = class
@@ -46,7 +46,7 @@ type
 implementation
 
 uses
-  Math, ExceptionsClasses, TokenClass, Tokens, CoreFunctionsClass, LexerClass;
+  Math, ExceptionsClasses, TokenClass, Tokens, CoreFunctionsClass, LexerClass, FileExplorerInstanceClass;
 
 constructor TInterpreter.Create(var ATree: TAST);
 begin
@@ -62,7 +62,7 @@ var
   AActRec: TActivationRecord;
   FileExplorer: TActivationRecord;
   ACoreType, AStrType, AIntType, AFloatType, AListType,
-  ABoolType, AFuncType: TFunctionInstance;
+  ABoolType, AFuncType, AExplorerFuncType: TFunctionInstance;
   ANameSpace: TActRecInstance;
 begin
   ACoreType := TFunctionInstance.Create('BuiltIn', nil, nil, 'CoreFunction', True);
@@ -72,12 +72,11 @@ begin
   AListType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TListInstance', True);
   AFuncType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFunctionInstance', True);
   ABoolType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBooleanInstance', True);
+  AExplorerFuncType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFileExplorer', True);
 
-  FileExplorer := TActivationRecord.Create('Explorer', AR_NAMESPACE, 1);
-  FileExplorer.AddMember('location', TStringInstance.Create('Any place'));
-  ANameSpace := TActRecInstance.Create(FileExplorer);
   AActRec := FCallStack.GetFirst();
-  AActRec.AddMember('Explorer', ANameSpace);
+  AActRec.AddMember('Explorer', TBuiltInType.Create('TFileExplorer'));
+  AActRec.AddMember(AExplorerFuncType.PType+ST_ACCESS+'getAllFiles', AExplorerFuncType);
   AActRec.AddMember(AIntType.PType + ST_ACCESS + 'leftZeros', AIntType);
   {$INCLUDE 'builtin_functions/register_builtins.pp' }
 end;
@@ -201,6 +200,36 @@ begin
     ANode.PBlock, ANode.ptype, False);
   AActrec.AddMember(ANode.PName, AValue);
   Result := TInstanceOf.Create;
+end;
+
+function TInterpreter.VisitNewObject(ANode: TNewObject): TInstanceOf;
+var
+  Ret: TInstanceOf;
+  NowAct, NewAct: TActivationRecord;
+  ActInst: TActRecInstance;
+  Gene: TInstanceOf;
+  ABuilt: TBuiltInType;
+begin
+  NowAct := FCallStack.Peek();
+  Gene := NowAct.GetMember(ANode.PName);
+  if Gene <> nil then
+  begin
+    if Gene.ClassNameIs('TActRecInstance') then
+    begin
+      ActInst := TActRecInstance(Gene);
+      ActInst.PValue.CopyActRec(NewAct);
+      Result := TActrecInstance.Create(NewAct);
+    end
+    else if Gene.ClassNameIs('TBuiltInType') then
+    begin
+      ABuilt := TBuiltInType(Gene);
+      if ABuilt.PValue = 'TFileExplorer' then
+        Result := TFileExplorer.Create;
+    end
+  end
+  else
+    raise ERunTimeError.Create('Referenced type or namespace ' + ANode.PName + ' does not exist');
+
 end;
 
 procedure TInterpreter.VisitConditional(ANode: TConditional);
@@ -366,7 +395,9 @@ begin
       raise ERunTimeError.Create('Can''t assign builtin function "' +
         ANode.PValue.PToken.PValue + '" to variable "' + AName + '"');
   end;
-  if AValue.ClassNameIs('TActrecInstance') then
+  AActrec := FCallStack.Peek;
+  AActRec.AddMember(AName, AValue);
+  {if AValue.ClassNameIs('TActrecInstance') then
   begin
     TActRecInstance(AValue).PValue.CopyActRec(A2);
     AActrec := FCallStack.Peek;
@@ -376,7 +407,7 @@ begin
   begin
     AActrec := FCallStack.Peek;
     AActRec.AddMember(AName, AValue);
-  end;
+  end;}
 end;
 
 function TInterpreter.VisitVariableReference(ANode: TVariableReference): TInstanceOf;
@@ -439,6 +470,7 @@ begin
   end;
   if FuncDef <> nil then
   begin
+
     if not FuncDef.PIsBuiltin then
     begin
       AActRec := TActivationRecord.Create(FuncDef.PName, AR_FUNCTION,
