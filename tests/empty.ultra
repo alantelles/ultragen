@@ -1,0 +1,6 @@
+function a()
+    return 'blah'
+end
+
+x = 98
+y = 'ey'

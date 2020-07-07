@@ -9,6 +9,8 @@ begin
         Ret := AppendToList(TListInstance(FObj))
      else if FName = 'set' then
         Ret := SetItem(TListInstance(FObj))
+     else if FName = 'pop' then
+        Ret := PopItem(TListInstance(FObj))
      else
       raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.');;
 end

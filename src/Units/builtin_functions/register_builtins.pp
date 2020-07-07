@@ -12,4 +12,4 @@ AActRec.AddMember('range', ACoreType);
 AActRec.AddMember('clear', ACoreType);
 AActRec.AddMember('pause', ACoreType);
 AActRec.AddMember('input', ACoreType);
-AActRec.AddMember('dumpLive', ACoreType);
+AActRec.AddMember('saveLive', ACoreType);

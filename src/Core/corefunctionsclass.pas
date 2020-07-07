@@ -30,6 +30,7 @@ type
       function CastToStr:TStringInstance;
       function CastToInt:TIntegerInstance;
       function Range: TListInstance;
+      procedure DumpLive;
 
        //functions
 
@@ -72,6 +73,8 @@ begin
 	    Ret := Print
 	  else if FName = 'inline' then
 	    Ret := InlinePrint
+    else if FName = 'saveLive' then
+      DumpLive
 
     //system
     else if FName = 'clear' then
@@ -108,6 +111,29 @@ begin
     raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.');
   // functions
   Result := Ret;
+end;
+
+procedure TCoreFunction.DumpLive;
+var
+  AFile: TStringList;
+begin
+  if Length(FParams) <> 1 then
+    raise ERunTimeError.Create(E_INVALID_ARGS);
+  AFile := TStringList.Create;
+  AFile.SkipLastLineBreak := True;
+  AFile.Text := Finter.GetLive;
+  try
+    try
+      AFile.SaveToFile(TStringInstance(FParams[0]).PValue);
+
+    except
+      on E: Exception do
+        raise ERunTimeError.Create(E.Message);
+    end;
+
+  finally
+    AFile.Free;
+  end;
 end;
 
 function TCoreFunction.Range: TListInstance;

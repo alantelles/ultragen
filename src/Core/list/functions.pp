@@ -49,3 +49,12 @@ begin
   AObj.SetItem(TIntegerInstance(FParams[0]).PValue, FParams[1]);
   Result := AObj;
 end;
+
+function TCoreFunction.PopItem(var AObj: TListInstance): TInstanceOf;
+var
+  Ret: TInstanceOf;
+begin
+  if Length(FParams) <> 0 then
+    raise ERunTimeError.Create(E_INVALID_ARGS);
+  Result := AObj.PopItem;
+end;

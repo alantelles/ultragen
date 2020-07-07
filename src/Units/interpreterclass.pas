@@ -60,8 +60,10 @@ const
   ST_ACCESS = ':';
 var
   AActRec: TActivationRecord;
+  FileExplorer: TActivationRecord;
   ACoreType, AStrType, AIntType, AFloatType, AListType,
   ABoolType, AFuncType: TFunctionInstance;
+  ANameSpace: TActRecInstance;
 begin
   ACoreType := TFunctionInstance.Create('BuiltIn', nil, nil, 'CoreFunction', True);
   AStrType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TStringInstance', True);
@@ -70,7 +72,12 @@ begin
   AListType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TListInstance', True);
   AFuncType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFunctionInstance', True);
   ABoolType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBooleanInstance', True);
+
+  FileExplorer := TActivationRecord.Create('Explorer', AR_NAMESPACE, 1);
+  FileExplorer.AddMember('location', TStringInstance.Create('Any place'));
+  ANameSpace := TActRecInstance.Create(FileExplorer);
   AActRec := FCallStack.GetFirst();
+  AActRec.AddMember('Explorer', ANameSpace);
   AActRec.AddMember(AIntType.PType + ST_ACCESS + 'leftZeros', AIntType);
   {$INCLUDE 'builtin_functions/register_builtins.pp' }
 end;
@@ -346,8 +353,9 @@ end;
 procedure TInterpreter.VisitVarAssign(ANode: TVarAssign);
 var
   AValue: TInstanceOf;
+  newAct: TActRecInstance;
   AName: string;
-  AActRec: TActivationRecord;
+  AActRec, A2 : TActivationRecord;
 begin
   LogText(INTER, 'Interpreter', 'VarAssign visitation');
   AName := ANode.PVarName.PValue;
@@ -358,8 +366,17 @@ begin
       raise ERunTimeError.Create('Can''t assign builtin function "' +
         ANode.PValue.PToken.PValue + '" to variable "' + AName + '"');
   end;
-  AActrec := FCallStack.Peek;
-  AActRec.AddMember(AName, AValue);
+  if AValue.ClassNameIs('TActrecInstance') then
+  begin
+    TActRecInstance(AValue).PValue.CopyActRec(A2);
+    AActrec := FCallStack.Peek;
+    AActRec.AddMember(AName, TActRecInstance.Create(A2));
+  end
+  else
+  begin
+    AActrec := FCallStack.Peek;
+    AActRec.AddMember(AName, AValue);
+  end;
 end;
 
 function TInterpreter.VisitVariableReference(ANode: TVariableReference): TInstanceOf;

@@ -23,6 +23,7 @@ type
       function GetItem(AIndex: TIntegerInstance):TInstanceOf;
       function GetItem(AIndex: integer):TInstanceOf;
       procedure SetItem(AIndex: integer; AItem: TInstanceOf);
+      function PopItem:TInstanceOf;
       procedure Add(AItem: TInstanceOf);
 
       function Execute: TInstanceOf;
@@ -42,9 +43,21 @@ begin
   FValue := AList;
 end;
 
+
 constructor TListInstance.Create;
 begin
 
+end;
+
+function TListInstance.PopItem:TInstanceOf;
+var
+  Ret: TInstanceOf;
+  Last: integer;
+begin
+  Last := lenList - 1;
+  Ret := FValue[last];
+  SetLength(FValue, last);
+  Result := Ret;
 end;
 
 procedure TListInstance.SetItem(Aindex:integer; AItem: TInstanceOf);

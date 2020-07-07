@@ -1,20 +1,25 @@
-@function Site(context)
+@function Site(title, article)
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ :context.page_title }}</title>
+    <title>{{ title }}</title>
 </head>
 <body>
-    {{ Article(context) }}
+    {{ article }}
 </body>
 </html>
 @end
 
-@function Article(con)
+@function Article(title, body)
 <div>
-    <h2>{{ :con.title }}</h2>
-    <p>{{ :con.body }}</p>
+    <h2>{{ title }}</h2>
+    <p>{{ body }}</p>
 </div>
 @end
+
+@a = Article('Hello world', 'Este é o meu post')
+@p = Site('My blog', a)
+{{ p }}
+@saveLive('./plain.html')

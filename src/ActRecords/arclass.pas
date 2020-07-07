@@ -24,6 +24,7 @@ type
       FNowType: TInstanceOf;
       FNowKey: string;
       FFound: boolean;
+      FReceiver: TActivationrecord;
     public
       property PName:string read FName;
       property PType:string read FType;
@@ -31,7 +32,9 @@ type
 
       procedure MemberAsString(AItem:  TObject;const AName:string; var Cont:boolean);
       procedure SearchFunction(AItem: TObject; const AName:string; var Cont: boolean);
+      procedure CopyItems(AItem: TObject; const Aname:string; var Cont: boolean);
 
+      procedure CopyActRec(var AReceiver: TActivationRecord);
       property PMembers: TFPObjectHashTable read FMembers write FMembers;
       constructor Create(AName:string; AType: string; ALevel: integer);
 
@@ -69,8 +72,6 @@ constructor TActRecInstance.Create(AnActRec: TActivationRecord);
 begin
   FValue := AnActRec;
 end;
-
-
 
 function TActivationRecord.GetFunction(AKey: string; ASrc: TInstanceOf = nil): TFunctionInstance;
 var
@@ -137,6 +138,18 @@ var
 begin
   Ret := TInstanceOf(FMembers[AKey]);
   Result := Ret;
+end;
+
+procedure TActivationRecord.CopyActRec(var AReceiver: TActivationrecord);
+begin
+  FReceiver := TActivationRecord.Create(Fname, FType, FNestinglevel);
+  FMembers.Iterate(@CopyItems);
+  AReceiver := FReceiver;
+end;
+
+procedure TActivationRecord.CopyItems(AItem:  TObject;const AName:string; var Cont:boolean);
+begin
+  FReceiver.AddMember(AName, TInstanceOf(AItem));
 end;
 
 function TActivationRecord.AsString:string;

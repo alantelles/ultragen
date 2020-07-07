@@ -651,6 +651,7 @@ begin
   else if (AToken.PType = T_COMMENT) then
   begin
     Eat(T_COMMENT);
+//    FLexer.PassLineComment;
     Ret := TNoOp.Create;
   end
   else if (AToken.PType = T_END + T_FUNC_DEF) then
