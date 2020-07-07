@@ -14,9 +14,9 @@ implementation
 function BooleanToStr(AVal: boolean):string;
 begin
   if AVal then
-    Result := 'True'
+    Result := 'true'
   else
-    Result := 'False';
+    Result := 'false';
 end;
 
 end.

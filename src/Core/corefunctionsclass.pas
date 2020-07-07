@@ -176,10 +176,11 @@ var
   AFloat: Extended;
   AFStr:string;
 begin
-  for AInst in FParams do
+  {for AInst in FParams do
   begin
     Write(AInst.AsString);
-	end;
+	end;}
+  InlinePrint;
   WriteLn;
   Result := TNullInstance.create;
 end;
@@ -204,7 +205,7 @@ end;
 
 function TCoreFunction.CastToStr:TStringInstance;
 begin
-  if FParams[0].ClassNameIs('TIntegerInstance') then
+  {if FParams[0].ClassNameIs('TIntegerInstance') then
     Result := TStringInstance.Create(IntToStr(TIntegerInstance(FParams[0]).PValue))
   else if FParams[0].ClassNameIs('TStringInstance') then
     Result := TStringInstance(FParams[0])
@@ -218,7 +219,8 @@ begin
       Result := TStringInstance.Create('true')
     else
       Result := TStringInstance.Create('false');
-	end;
+	end;}
+  Result := TStringInstance.Create(FParams[0].AsString);
 end;
 
 function TCoreFunction.CastToInt:TIntegerInstance;
@@ -242,7 +244,9 @@ begin
       Result := TIntegerInstance.Create(Trunc(TFloatInstance(FParams[0]).PValue))
     else
       raise ETypeError.Create('Can''t convert value "'+FloatToStr(TFloatInstance(FParams[0]).PValue)+'" to integer');
-  end;
+  end
+  else
+    raise ETypeError.Create('Can''t convert value "'+FParams[0].ClassName+'" to integer');;
 end;
 
 {$INCLUDE 'string/functions.pp'}

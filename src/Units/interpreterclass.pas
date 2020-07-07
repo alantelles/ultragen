@@ -5,48 +5,48 @@ unit InterpreterClass;
 interface
 
 uses
-      Classes, SysUtils, ASTClass,
-      BinOpClass, NumClass, UnaryOpClass, BinLogicOpClass, UnaryLogicopClass,
-      ImpParserClass, StrUtils, LoggingClass, FlowControlASTClass,
-      StackClass, ARClass, InstanceofClass,
-      StringInstanceClass,
-      ListInstanceClass;
+  Classes, SysUtils, ASTClass,
+  BinOpClass, NumClass, UnaryOpClass, BinLogicOpClass, UnaryLogicopClass,
+  ImpParserClass, StrUtils, LoggingClass, FlowControlASTClass,
+  StackClass, ARClass, InstanceofClass,
+  StringInstanceClass,
+  ListInstanceClass;
 
 type
   TInterpreter = class
-    private
-      FTree: TAST;
-      FCallStack: TStack;
-      FBreakSignal: boolean;
-      FReturnSignal: boolean;
-      FReturnValue: TInstanceOf;
-      FContinueSignal: boolean;
-      FLiveOutput: string;
-      FDontPush: boolean;
-      FNameSpace: TActivationRecord;
-      FParentStack : TStack;
-      procedure BootStrapRegister;
+  private
+    FTree: TAST;
+    FCallStack: TStack;
+    FBreakSignal: boolean;
+    FReturnSignal: boolean;
+    FReturnValue: TInstanceOf;
+    FContinueSignal: boolean;
+    FLiveOutput: string;
+    FDontPush: boolean;
+    FNameSpace: TActivationRecord;
+    FParentStack: TStack;
+    procedure BootStrapRegister;
 
 
-    public
-      property PTree:TAST read FTree;
-      property PLive: string read FLiveOutput;
-      constructor Create(var ATree: TAST);
-      function GetLive:string;
-      procedure PassCallStack(var ACallStack: TStack; ToParent: boolean);
-      procedure CleanStack;
-      function Interpret(DontPush:boolean=False; ANameActRec: TActivationRecord = nil):string;
+  public
+    property PTree: TAST read FTree;
+    property PLive: string read FLiveOutput;
+    constructor Create(var ATree: TAST);
+    function GetLive: string;
+    procedure PassCallStack(var ACallStack: TStack; ToParent: boolean);
+    procedure CleanStack;
+    function Interpret(DontPush: boolean = False;
+      ANameActRec: TActivationRecord = nil): string;
 
-      function Visit(ANode:TAST; ASrcInstance: TInstanceOf = nil):TInstanceOf;
+    function Visit(ANode: TAST; ASrcInstance: TInstanceOf = nil): TInstanceOf;
       {$INCLUDE 'interpreter_visitations_declarations.pp'}
 
-	end;
+  end;
 
 implementation
 
 uses
   Math, ExceptionsClasses, TokenClass, Tokens, CoreFunctionsClass, LexerClass;
-
 
 constructor TInterpreter.Create(var ATree: TAST);
 begin
@@ -60,7 +60,8 @@ const
   ST_ACCESS = ':';
 var
   AActRec: TActivationRecord;
-  ACoreType, AStrType, AIntType, AFloatType, AListType, ABoolType,AFuncType: TFunctionInstance;
+  ACoreType, AStrType, AIntType, AFloatType, AListType,
+  ABoolType, AFuncType: TFunctionInstance;
 begin
   ACoreType := TFunctionInstance.Create('BuiltIn', nil, nil, 'CoreFunction', True);
   AStrType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TStringInstance', True);
@@ -70,7 +71,7 @@ begin
   AFuncType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFunctionInstance', True);
   ABoolType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBooleanInstance', True);
   AActRec := FCallStack.GetFirst();
-  AActRec.AddMember(AIntType.PType+ST_ACCESS+'left_zeros', AIntType);
+  AActRec.AddMember(AIntType.PType + ST_ACCESS + 'leftZeros', AIntType);
   {$INCLUDE 'builtin_functions/register_builtins.pp' }
 end;
 
@@ -87,9 +88,10 @@ begin
     FCallStack := ACallStack;
 end;
 
-function TInterpreter.Interpret(DontPush:boolean=False; ANameActRec: TActivationRecord = nil):string;
+function TInterpreter.Interpret(DontPush: boolean = False;
+  ANameActRec: TActivationRecord = nil): string;
 var
-  Ret:TInstanceOf;
+  Ret: TInstanceOf;
 begin
   FDontPush := DontPush;
   FNameSpace := ANameActRec;
@@ -98,7 +100,7 @@ begin
   Result := '';
 end;
 
-function TInterpreter.GetLive:string;
+function TInterpreter.GetLive: string;
 var
   AActRec: TActivationRecord;
   AVal: TStringInstance;
@@ -121,7 +123,7 @@ var
   AVal: TInstanceOf;
   AActRec: TActivationRecord;
   aLive, ASet: string;
-  ALiveVal:TStringInstance;
+  ALiveVal: TStringInstance;
 begin
   AVal := Visit(ANode.PValue);
   AActRec := FCallStack.Peek();
@@ -130,7 +132,7 @@ begin
   AActRec.AddMember('$LIVE', ALiveVal);
 end;
 
-function TInterpreter.VisitLivePrint(ANode: TLivePrint):TStringInstance;
+function TInterpreter.VisitLivePrint(ANode: TLivePrint): TStringInstance;
 var
   AActRec: TActivationRecord;
 begin
@@ -148,9 +150,9 @@ begin
   FContinueSignal := True;
 end;
 
-function TInterpreter.VisitReturn(ANode: TReturnFunction):TInstanceOf;
+function TInterpreter.VisitReturn(ANode: TReturnFunction): TInstanceOf;
 var
-  AVal:TInstanceOf;
+  AVal: TInstanceOf;
 begin
   FReturnSignal := True;
   AVal := Visit(ANode.PValue);
@@ -175,10 +177,11 @@ var
 begin
   AActRec := FCallStack.Peek();
   ALive := AActrec.GetMember('$LIVE').AsString;
-  TStringInstance(AActrec.GetMember('$LIVE')).PValue := ALive + Visit(ANode.POper).AsString;
+  TStringInstance(AActrec.GetMember('$LIVE')).PValue :=
+    ALive + Visit(ANode.POper).AsString;
 end;
 
-function TInterpreter.VisitFunctionDefinition(ANode: TFunctionDefinition):TInstanceOf;
+function TInterpreter.VisitFunctionDefinition(ANode: TFunctionDefinition): TInstanceOf;
 var
   i, len: integer;
   AValue: TFunctionInstance;
@@ -187,8 +190,9 @@ var
 begin
   logtext('INTER', 'Interpreter', 'Visiting function definition');
   AActRec := FCallStack.Peek;
-  AValue := TFunctionInstance.Create(ANode.PName, ANode.PParamList, ANode.PBlock, ANode.ptype, False);
-	AActrec.AddMember(ANode.PName, AValue);
+  AValue := TFunctionInstance.Create(ANode.PName, ANode.PParamList,
+    ANode.PBlock, ANode.ptype, False);
+  AActrec.AddMember(ANode.PName, AValue);
   Result := TInstanceOf.Create;
 end;
 
@@ -217,11 +221,12 @@ begin
     begin
       for AState in ANode.PBLock do
       begin
-        if FBreakSignal or FContinueSignal then
+        if FBreakSignal or
+           FContinueSignal then
           break
         else if FReturnSignal then
           break
-				else
+        else
           Visit(AState);
       end;
     end;
@@ -233,10 +238,10 @@ begin
     begin
       if FBreakSignal or FContinueSignal then
       begin
-        break
+        break;
       end
       else if FReturnSignal then
-          break
+        break
       else
         Visit(AState);
     end;
@@ -246,7 +251,7 @@ end;
 
 procedure TInterpreter.VisitWhileLoop(ANode: TWhileLoop);
 var
-  AState:TAST;
+  AState: TAST;
 begin
   while TBooleanInstance(Visit(ANode.PCondition)).PValue do
   begin
@@ -255,7 +260,7 @@ begin
       if FBreakSignal or FContinueSignal then
       begin
         FContinueSignal := False;
-        break
+        break;
       end
       else
         Visit(AState);
@@ -268,15 +273,15 @@ end;
 
 procedure TInterpreter.VisitForLoop(ANode: TForLoop);
 var
-  AState:TAST;
-  AList,AVar: TAST;
+  AState: TAST;
+  AList, AVar: TAST;
   AInst, AListRes: TInstanceOf;
   AInt, AIndex: TIntegerInstance;
   AActRec: TActivationRecord;
   i: integer = 0;
   len: integer;
   ACandidate: TListInstance;
-  AStr:string;
+  AStr: string;
 begin
   AActRec := FCallStack.Peek;
   AListRes := Visit(ANode.PList);
@@ -289,8 +294,7 @@ begin
       ACandidate.Add(TStringInstance.Create(AStr));
   end
   else if AListRes.ClassNameIs('TIntegerInstance') and
-       (StrToInt(AListRes.AsString) > -1 )
-  then
+    (StrToInt(AListRes.AsString) > -1) then
   begin
     len := StrToInt(AListRes.AsString);
     ACandidate := TListInstance.Create;
@@ -302,7 +306,7 @@ begin
     else
     begin
       ACandidate.Free;
-      raise ERunTimeError.Create(AListRes.ClassName + ' is not iterable')
+      raise ERunTimeError.Create(AListRes.ClassName + ' is not iterable');
     end;
   end
   else
@@ -311,27 +315,25 @@ begin
   begin
     AActRec.AddMember(Anode.PVar.PVarName.PValue, AInst);
     AIndex := TIntegerInstance.Create(i);
-    AActRec.AddMember('_'+Anode.PVar.PVarName.PValue, AIndex);
+    AActRec.AddMember('_' + Anode.PVar.PVarName.PValue, AIndex);
     for AState in ANode.PBlock do
     begin
-      if FBreakSignal or FContinueSignal then
+      if FBreakSignal or FContinueSignal or FReturnSignal then
       begin
-        AIndex.Free;
         FContinueSignal := False;
-        break
+        break;
       end
       else
         Visit(AState);
-		end;
-		i := 1 + i;
-    if FBreakSignal then
+    end;
+    i := 1 + i;
+    if FBreakSignal or FReturnSignal then
     begin
-      AIndex.Free;
       break;
     end;
     AIndex.Free;
   end;
-  for i:=0 to ACandidate.Count - 1 do
+  for i := 0 to ACandidate.Count - 1 do
   begin
     ACandidate.PValue[i].Free;
   end;
@@ -353,15 +355,16 @@ begin
   if AValue.ClassNameIs('TFunctionInstance') then
   begin
     if TFunctionInstance(AValue).PIsBuiltin then
-      raise ERunTimeError.Create('Can''t assign builtin function "'+ANode.PValue.PToken.PValue+'" to variable "'+AName+'"');
+      raise ERunTimeError.Create('Can''t assign builtin function "' +
+        ANode.PValue.PToken.PValue + '" to variable "' + AName + '"');
   end;
   AActrec := FCallStack.Peek;
   AActRec.AddMember(AName, AValue);
 end;
 
-function TInterpreter.VisitVariableReference(ANode: TVariableReference):TInstanceOf;
+function TInterpreter.VisitVariableReference(ANode: TVariableReference): TInstanceOf;
 var
-  AName:string;
+  AName: string;
   AActRec, GlobalAR: TActivationRecord;
   Ret: TInstanceOf;
   ResFloat: TFloatInstance;
@@ -374,25 +377,27 @@ begin
   begin
     GlobalAR := FCallStack.GetFirst;
     Ret := GlobalAR.GetMember(AName);
-	end;
+  end;
   if Ret = nil then
-    raise ERunTimeError.Create('Referenced variable "'+Aname+'" does not exist');
-  LogText(INTER, 'Interpreter', 'Getting value of "'+ ANode.PToken.PValue+'" from type '+Ret.ClassName);
+    raise ERunTimeError.Create('Referenced variable "' + Aname + '" does not exist');
+  LogText(INTER, 'Interpreter', 'Getting value of "' +
+    ANode.PToken.PValue + '" from type ' + Ret.ClassName);
   Result := Ret;
 end;
 
-function TInterpreter.VisitMethodCall(ANode: TMethodCall):TInstanceOf;
+function TInterpreter.VisitMethodCall(ANode: TMethodCall): TInstanceOf;
 begin
   LogText(INTER, 'Interpreter', 'Visiting method ' + ANode.PToken.PValue);
   Result := Visit(ANode.Poper, Visit(ANode.PSrc));
 end;
 
-function TInterpreter.VisitFunctionCall(ANode: TFunctionCall; ASrcInstance: TInstanceOf = nil):TInstanceOf;
+function TInterpreter.VisitFunctionCall(ANode: TFunctionCall;
+  ASrcInstance: TInstanceOf = nil): TInstanceOf;
 const
   ST_ACCESS = ':';
 var
   ACoreExec: TCoreFunction;
-  AFuncName, ASrcName, compl:string;
+  AFuncName, ASrcName, compl: string;
   AActRec: TActivationRecord;
   AParamName: string;
   AState: TAST;
@@ -407,7 +412,7 @@ begin
   ASrcName := AFuncName;
   if ASrcInstance <> nil then
     ASrcName := ASrcInstance.ClassName + ST_ACCESS + AFuncName;
-	LogText(INTER, 'Interpreter', 'Visiting function ' + ANode.PFuncName);
+  LogText(INTER, 'Interpreter', 'Visiting function ' + ANode.PFuncName);
   AActRec := FCallStack.Peek();
   FuncDef := AActRec.GetFunction(ASrcName, ASrcInstance);
   if FuncDef = nil then
@@ -419,7 +424,8 @@ begin
   begin
     if not FuncDef.PIsBuiltin then
     begin
-      AActRec := TActivationRecord.Create(FuncDef.PName, AR_FUNCTION, FCallStack.PLevel+1);
+      AActRec := TActivationRecord.Create(FuncDef.PName, AR_FUNCTION,
+        FCallStack.PLevel + 1);
       AActRec.AddMember('$LIVE', TStringInstance.Create(''));
       AActRec.AddMember('self', ASrcInstance);
       LenArgs := Length(Anode.PEvalParams);
@@ -434,11 +440,13 @@ begin
             if TParam(FuncDef.PParams[i]).PDefValue <> nil then
               ADef := Visit(TParam(FuncDef.PParams[i]).PDefValue)
             else
-              raise EArgumentsError.Create('Wrong number of arguments to call this function');
+              raise EArgumentsError.Create(
+                'Wrong number of arguments to call this function');
           end
           else if i > (LenParams - 1) then
           begin
-            raise EArgumentsError.Create('Wrong number of arguments to call this function');
+            raise EArgumentsError.Create(
+              'Wrong number of arguments to call this function');
           end
           else
           begin
@@ -449,8 +457,9 @@ begin
           begin
             Aux := TFunctionInstance(ADef);
             if Aux.PIsBuiltin then
-              raise ERunTimeError.Create('Can''t assign builtin function "'+ANode.PEvalParams[i].PToken.PValue+'" as argument');
-              //AParamName := ANode.PEvalParams[i].PToken.PValue;
+              raise ERunTimeError.Create('Can''t assign builtin function "' +
+                ANode.PEvalParams[i].PToken.PValue + '" as argument');
+            //AParamName := ANode.PEvalParams[i].PToken.PValue;
           end;
           AActRec.AddMember(AParamName, ADef);
         end;
@@ -461,9 +470,10 @@ begin
         if FReturnSignal then
         begin
           FReturnSignal := False;
+          AReturn := FReturnValue;
           FCallStack.Pop();
-		      Result := FReturnValue;
-          exit
+          Result := FReturnValue;
+          exit;
         end
         else
           Visit(AState);
@@ -471,7 +481,7 @@ begin
       AReturn := AActRec.GetMember('$LIVE');
       FCallStack.Pop();
       Result := AReturn;
-      exit
+      exit;
     end
     else
     begin
@@ -487,13 +497,14 @@ begin
       AReturn := ACoreExec.Execute(Self, AFuncName, ArgsList, ASrcInstance);
       ACoreExec.Free;
       Result := AReturn;
-      exit
+      exit;
     end;
   end
   else
   begin
 
-    raise ERunTimeError.Create('Referenced function "' + AFuncName + '" does not exist.');
+    raise ERunTimeError.Create('Referenced function "' + AFuncName +
+      '" does not exist.');
   end;
   // end of new
 end;
@@ -512,7 +523,7 @@ begin
     AActRec := TActivationRecord.Create(FNameSpace.PName, AR_NAMESPACE, 1);
   AActRec.AddMember('$LIVE', TStringInstance.Create(''));
   if not FDontPush then
-  // root execution
+    // root execution
   begin
     FCallStack.Push(AActRec);
     BootStrapRegister;
@@ -555,7 +566,7 @@ var
   ATree: TAST;
   AInter: TInterpreter;
   ANameSp: TActivationRecord;
-  AName:string;
+  AName: string;
 begin
   AFileName := TStringInstance(Visit(ANode.PFilename)).PValue;
   ALexer := TLexer.Create(AFileName);
@@ -568,8 +579,8 @@ begin
     Aname := ANode.PNamespace;
     if ANode.PNamespace = '0' then
     begin
-      AName := Copy(AFileName, 1, Rpos('.ultra', AFileName)-1);
-      Aname := Copy(AName, RPos(DirectorySeparator, Aname)+ 1, Length(AName));
+      AName := Copy(AFileName, 1, Rpos('.ultra', AFileName) - 1);
+      Aname := Copy(AName, RPos(DirectorySeparator, Aname) + 1, Length(AName));
     end;
     AInter.PassCallStack(FCallStack, True);
     ANameSp := TActivationRecord.Create(AName, AR_NAMESPACE, 1);
@@ -583,7 +594,7 @@ begin
   AInter.Free;
 end;
 
-function TInterpreter.VisitNameSpaceGet(Anode: TNamespaceGet):TInstanceOf;
+function TInterpreter.VisitNameSpaceGet(Anode: TNamespaceGet): TInstanceOf;
 var
   AActRec, ARef: TActivationRecord;
   ANameRec: TActRecInstance;
@@ -598,11 +609,11 @@ begin
   Result := ret;
 end;
 
-function TInterpreter.VisitNameSpaceState(Anode: TNamespaceState):TInstanceOf;
+function TInterpreter.VisitNameSpaceState(Anode: TNamespaceState): TInstanceOf;
 var
   AActRec, ARef: TActivationRecord;
   ANameRec: TActRecInstance;
-  Ret , ArefVal: TInstanceOf;
+  Ret, ArefVal: TInstanceOf;
 begin
   AActrec := FCallStack.Peek();
   ARefVal := AActRec.GetMember(ANode.PName);
@@ -623,57 +634,57 @@ begin
   Result := ret;
 end;
 
-function TInterpreter.Visit(ANode:TAST; ASrcInstance: TInstanceOf = nil):TInstanceOf;
+function TInterpreter.Visit(ANode: TAST; ASrcInstance: TInstanceOf = nil): TInstanceOf;
 var
-  AuxBool:boolean;
+  AuxBool: boolean;
 begin
   {$INCLUDE 'interpreter_node_switcher.pp'}
 end;
 
-function TInterpreter.VisitUnaryOp(ANode: TUnaryOp):TFloatInstance;
+function TInterpreter.VisitUnaryOpFloat(ANode: TUnaryOp): TFloatInstance;
 var
-  AOper:string;
+  AOper: string;
   Ret: TFloatInstance;
 begin
   try
     Ret := TFloatinstance(Visit(ANode.PExpr));
     AOper := ANode.POper.PType;
-		if AOper = T_PLUS then
-		  Ret.PValue := Ret.PValue
-		else if AOper = T_MINUS then
-		begin
-		  Ret.PValue := Ret.PValue * (-1);
-		end;
+    {if AOper = T_PLUS then
+      Ret.PValueInt := Ret.PValueInt
+    else }if AOper = T_MINUS then
+    begin
+      Ret.PValue := Ret.PValue * (-1);
+    end;
     Result := ret;
   except
     raise ERunTimeError.Create('Invalid operation for class ' + Ret.ClassName);
-	end;
+  end;
 end;
 
-function TInterpreter.VisitUnaryOp(ANode: TUnaryOp):TIntegerInstance;
+function TInterpreter.VisitUnaryOp(ANode: TUnaryOp): TIntegerInstance;
 var
-  AOper:string;
+  AOper: string;
   Ret: TIntegerInstance;
 begin
   try
     Ret := TIntegerinstance(Visit(ANode.PExpr));
     AOper := ANode.POper.PType;
-		if AOper = T_PLUS then
-		  Ret.PValue := Ret.PValue
-		else if AOper = T_MINUS then
-		begin
-		  Ret.PValue := Ret.PValue * (-1);
-		end;
+    if AOper = T_PLUS then
+      Ret.PValue := Ret.PValue
+    else if AOper = T_MINUS then
+    begin
+      Ret.PValue := Ret.PValue * (-1);
+    end;
     Result := ret;
   except
     raise ERunTimeError.Create('Invalid operation for class ' + Ret.ClassName);
-	end;
+  end;
 end;
 
-function TInterpreter.VisitUnaryLogicOp(ANode: TUnaryLogicOp):TBooleanInstance;
+function TInterpreter.VisitUnaryLogicOp(ANode: TUnaryLogicOp): TBooleanInstance;
 var
-  AOper:string;
-  AuxExt:boolean;
+  AOper: string;
+  AuxExt: boolean;
   ARes: TBooleanInstance;
 begin
   try
@@ -681,16 +692,16 @@ begin
     ARes.PValue := not ARes.PValue;
     Result := ARes;
 
-	except
-    raise ERunTimeError.Create('Invalid operation for class '+ARes.ClassName);
-	end;
+  except
+    raise ERunTimeError.Create('Invalid operation for class ' + ARes.ClassName);
+  end;
 end;
 
 function TInterpreter.VisitBinLogicOp(ANode: TBinLogicOp): TBooleanInstance;
 var
-  LeftExt, RightExt:Extended;
-  LeftInt, RightInt:integer;
-  LeftBool, RightBool:boolean;
+  LeftExt, RightExt: extended;
+  LeftInt, RightInt: integer;
+  LeftBool, RightBool: boolean;
   LeftStr, RightStr: string;
   LeftClass, RightClass: string;
   AResl, AResR: TInstanceOf;
@@ -744,7 +755,8 @@ begin
         else if (ANode.POper.PType = T_NEQ) then
           Cmp := LeftStr <> RightStr
         else
-          raise ERunTimeError.Create('Logic operation '+ANode.POper.PType+' forbidden for type '+LeftClass);
+          raise ERunTimeError.Create('Logic operation ' + ANode.POper.PType +
+            ' forbidden for type ' + LeftClass);
         Result := TBooleanInstance.Create(Cmp);
         exit;
       end
@@ -795,23 +807,24 @@ begin
         exit;
       end
       else
-        raise ERunTimeError.Create('Can''t compare instances of type '+LeftClass);
-		end
+        raise ERunTimeError.Create('Can''t compare instances of type ' + LeftClass);
+    end
     else
-      raise ERunTimeError.Create('Can''t compare different types '+LeftClass+' and '+RightClass+' implicitly.');
+      raise ERunTimeError.Create('Can''t compare different types ' +
+        LeftClass + ' and ' + RightClass + ' implicitly.');
   except
-	end;
+  end;
 end;
 
-function TInterpreter.VisitBinOp(ANode:TBinOp): TInstanceOf;
+function TInterpreter.VisitBinOp(ANode: TBinOp): TInstanceOf;
 var
-  LeftExt, RightExt, ResExt:Extended;
-  LeftInt, RightInt:integer;
-  LeftBool, RightBool, Leftnum, RightNum:boolean;
+  LeftExt, RightExt, ResExt: extended;
+  LeftInt, RightInt: integer;
+  LeftBool, RightBool, Leftnum, RightNum: boolean;
   LeftStr, RightStr: string;
   LeftClass, RightClass: string;
   AResl, AResR: TInstanceOf;
-  StrRes:string;
+  StrRes: string;
   Numeric, StrOper, Mismatch: boolean;
 
 begin
@@ -832,17 +845,18 @@ begin
   Numeric := LeftNum and RightNum;
   StrOper := (LeftClass = 'TStringInstance') and (RightClass = 'TStringInstance');
   Mismatch := ((LeftClass = 'TStringInstance') and (RightClass <> 'TStringInstance')) and
-              ((LeftClass <> 'TStringInstance') and (RightClass = 'TStringInstance'));
+    ((LeftClass <> 'TStringInstance') and (RightClass = 'TStringInstance'));
   if StrOper then
   begin
     if (ANode.POper.PType = T_PLUS) then
     begin
       StrRes := TStringInstance(AResL).PValue + TStringInstance(AResR).PValue;
       Result := TStringInstance.Create(Strres);
-		end
-		else
-      raise ERunTimeError.Create('Invalid operation '+Anode.POper.PType+' between strings');
-	end
+    end
+    else
+      raise ERunTimeError.Create('Invalid operation ' + Anode.POper.PType +
+        ' between strings');
+  end
   else if Numeric then
   begin
     if AResl.ClassNameIs('TIntegerInstance') then
@@ -857,7 +871,7 @@ begin
 
     if (ANode.POper.PType = T_PLUS) then
       ResExt := LeftExt + RightExt
-		else if (ANode.POper.PType = T_MINUS) then
+    else if (ANode.POper.PType = T_MINUS) then
       ResExt := LeftExt - RightExt
     else if (ANode.POper.PType = T_MULT) then
       ResExt := LeftExt * RightExt
@@ -871,33 +885,35 @@ begin
       Result := TIntegerInstance.Create(Floor(ResExt))
     else
       Result := TFloatInstance.Create(ResExt);
-	end
+  end
   else if LeftClass = RightClass then
-    raise ERunTimeError.Create('Invalid operation '+ ANode.POper.ptype + ' for type ' + LeftClass)
-	else
-    raise ERunTimeError.Create('Can''t perform opertions between different types '+LeftClass+' and '+RightClass+' implicitly.');
+    raise ERunTimeError.Create('Invalid operation ' + ANode.POper.ptype +
+      ' for type ' + LeftClass)
+  else
+    raise ERunTimeError.Create('Can''t perform opertions between different types ' +
+      LeftClass + ' and ' + RightClass + ' implicitly.');
 
 end;
 
-function TInterpreter.VisitNumFloat(ANode:TNumFloat):TFloatInstance;
+function TInterpreter.VisitNumFloat(ANode: TNumFloat): TFloatInstance;
 begin
 
   Result := TFloatInstance.Create(ANode.PValue.ToExtended);
 end;
 
-function TInterpreter.VisitNull(ANode:TNull):TNullInstance;
+function TInterpreter.VisitNull(ANode: TNull): TNullInstance;
 begin
 
   Result := TNullInstance.Create;
 end;
 
-function TInterpreter.VisitNumInt(ANode:TNumInt):TIntegerInstance;
+function TInterpreter.VisitNumInt(ANode: TNumInt): TIntegerInstance;
 begin
 
   Result := TIntegerInstance.Create(ANode.PValue.ToInteger);
 end;
 
-function TInterpreter.VisitString(ANode:TString):TStringInstance;
+function TInterpreter.VisitString(ANode: TString): TStringInstance;
 begin
 
   Result := TStringInstance.Create(ANode.PValue);
@@ -911,7 +927,7 @@ var
 begin
   SetLength(AList, 0);
   for AnItem in Anode.PArgs do
-  begin                             
+  begin
     len := len + 1;
     SetLength(AList, len);
     AList[len - 1] := Visit(AnItem);
@@ -919,7 +935,7 @@ begin
   Result := TListInstance.Create(AList);
 end;
 
-function TInterpreter.VisitListAccess(ANode: TListAccessAST):TInstanceOf;
+function TInterpreter.VisitListAccess(ANode: TListAccessAST): TInstanceOf;
 var
   AList: TListInstance;
   AStr: TStringInstance;
@@ -938,7 +954,7 @@ begin
   Result := ARet;
 end;
 
-function Tinterpreter.VisitBoolean(ANode:TBoolean):TBooleanInstance;
+function Tinterpreter.VisitBoolean(ANode: TBoolean): TBooleanInstance;
 begin
   if (ANode.PValue = T_LANG_TRUE) then
     Result := TBooleanInstance.Create(True)
@@ -948,4 +964,3 @@ begin
 end;
 
 end.
-

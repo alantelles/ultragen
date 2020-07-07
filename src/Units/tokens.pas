@@ -17,9 +17,9 @@ const
 
 
 
-  T_LANG_TRUE = 'True';
-  T_LANG_FALSE = 'False';
-  T_LANG_NULL = 'Null';
+  T_LANG_TRUE = 'true';
+  T_LANG_FALSE = 'false';
+  T_LANG_NULL = 'null';
   T_PLUS = 'T_PLUS'; T_MINUS = 'T_MINUS'; T_MULT = 'T_MULT'; T_DIV = 'T_DIV';
   T_INT_DIV = 'T_INT_DIV'; T_MODULUS = 'T_MODULUS';
   T_REF_INC = 'T_REFERENTIAL_INC'; T_REF_DEC = 'T_REFERENTIAL_DEC';
@@ -91,9 +91,9 @@ begin
   ReservedWords.Add('else', TToken.Create(T_ELSE, 'T_ELSE'));
   ReservedWords.Add('while', TToken.Create(T_WHILE_LOOP, 'block:'+T_WHILE_LOOP));
   ReservedWords.Add('for', TToken.Create(T_FOR_LOOP, 'block:'+T_FOR_LOOP));
-  ReservedWords.Add('True', TToken.Create(TYPE_BOOLEAN, T_LANG_TRUE));
-  ReservedWords.Add('False', TToken.Create(TYPE_BOOLEAN, T_LANG_FALSE));
-  ReservedWords.Add('Null', TToken.Create(TYPE_NULL, T_LANG_NULL));
+  ReservedWords.Add(T_LANG_TRUE, TToken.Create(TYPE_BOOLEAN, T_LANG_TRUE));
+  ReservedWords.Add(T_LANG_FALSE, TToken.Create(TYPE_BOOLEAN, T_LANG_FALSE));
+  ReservedWords.Add(T_LANG_NULL, TToken.Create(TYPE_NULL, T_LANG_NULL));
   ReservedWords.Add('continue', TToken.Create(T_CONTINUE, T_CONTINUE));
   ReservedWords.Add('break', TToken.Create(T_BREAK, T_BREAK));
   ReservedWords.Add('live', TToken.Create(T_LIVE_OUTPUT, T_LIVE_OUTPUT));

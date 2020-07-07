@@ -47,7 +47,7 @@ type
       FValue: TActivationRecord;
     public
       property PValue: TActivationRecord read FValue write FValue;
-      function AsString:string;
+      function AsString:string; override;
       constructor Create(AnActRec: TActivationRecord);
   end;
 

@@ -50,7 +50,9 @@
   else if Anode.ClassNameIs('TBoolean') then
     Result := VisitBoolean(TBoolean(ANode))
   else if ANode.ClassNameIs('TUnaryOp') then
-    Result := VisitUnaryOp(TUnaryOp(ANode))
+  begin
+      Result := VisitUnaryOp(TUnaryOp(ANode))
+  end
   else if ANode.ClassNameIs('TBinOp') then
     Result := VisitBinOp(TBinOp(ANode))
   else if ANode.ClassNameIs('TBinLogicOp') then

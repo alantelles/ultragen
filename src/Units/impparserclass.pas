@@ -99,9 +99,14 @@ begin
   Eat(T_NAMESPACE);
   AName := FCurrentToken.PValue;
   Eat(T_ID);
-  Eat(T_ATTR_ACCESSOR);
-  Oper := MethodCall();
-  Result := TNamespaceGet.Create(Aname, Oper);
+  if FcurrentToken.PType = T_ATTR_ACCESSOR then
+  begin
+    Eat(T_ATTR_ACCESSOR);
+    Oper := MethodCall();
+    Result := TNamespaceGet.Create(Aname, Oper);
+  end
+  else if FCurrentToken.PType = T_NAMESPACE then
+    Result := TnamespaceGet.Create(AName, NamespaceGet());
 end;
 
 function TTParser.NamespaceState: TAST;
@@ -112,9 +117,19 @@ begin
   Eat(T_NAMESPACE);
   AName := FCurrentToken.PValue;
   Eat(T_ID);
-  Eat(T_ATTR_ACCESSOR);
+  if (FcurrentToken.PType = T_ATTR_ACCESSOR) or
+     (FCurrentToken.PType = T_FUNC_DEF) then
+  begin
+    Eat(FCurrentToken.PType);
+    AOper := Statement();
+    Result := TNamespaceState.Create(Aname, AOper, FCurrentToken);
+  end
+  else if FCurrentToken.PType = T_NAMESPACE then
+    Result := TnamespaceState.Create(AName, NamespaceState(), FCurrentToken);
+
+{  Eat(T_ATTR_ACCESSOR);
   AOper := Statement();
-  Result := TNamespaceState.Create(Aname, AOper, FCurrentToken);
+  Result := TNamespaceState.Create(Aname, AOper, FCurrentToken);}
 end;
 
 function TTParser.FunctionBlock: TAST;

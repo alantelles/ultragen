@@ -34,8 +34,8 @@ function VisitList(ANode: TListAST): TListInstance;
 
 
 //overloads
-function VisitUnaryOp(ANode: TUnaryOp):TFloatInstance;
 function VisitUnaryOp(ANode: TUnaryOp):TIntegerInstance;
+function VisitUnaryOpFloat(ANode: TUnaryOp):TFloatInstance;
 function VisitUnaryLogicOp(ANode: TUnaryLogicOp):TBooleanInstance;
 
 

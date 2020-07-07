@@ -66,7 +66,9 @@ type
   TFloatInstance = class (TInstanceOf)
     protected
       FValue:extended;
+      FValueInt: integer;
     public
+      property PValueInt: integer read FValueInt write FValueInt;
       property PValue:Extended read FValue write FValue;
       constructor Create(AValue: extended);
       function AsString: string;  override;
@@ -116,24 +118,6 @@ begin
   Result := 'function ' + FName + ' from type ' + FType;
 end;
 
-{procedure TFunctionInstance.AddParam(AName:string);
-var
-  i,len:integer;
-begin
-  len :=  Length(FParamsName);
-  len := len + 1;
-  SetLength(FParamsName, len);
-  FParamsName[len - 1] := Aname;
-end;}
-
-{procedure TFunctionInstance.AddBlock(ABlock:TASTList);
-var
-  i,len:integer;
-begin
-  FBlock := ABlock;
-end;}
-
-
 constructor TIntegerInstance.Create(AValue: integer);
 begin
   FValue := AValue;
@@ -146,7 +130,12 @@ end;
 
 constructor TFloatInstance.Create(AValue: extended);
 begin
-  FValue := AValue;
+  try
+    FValue := AValue;
+
+  finally
+    FValue := AValue * 1.0;
+  end;
 end;
 
 function TFloatInstance.AsString: string;

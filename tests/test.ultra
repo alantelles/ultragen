@@ -1,7 +1,4 @@
-a = []
-a.append(3)
-print(a[0])
-a.set(0, 60)
-a.append('')
-a.set(1, "mamae")
-print(a[0])
+include 'empty.ultra' :
+:empty function test(a)
+    print(a)
+end
