@@ -1,2 +1,0 @@
-a = ["/home/teste.mp4"]
-print(a[0].fileName())

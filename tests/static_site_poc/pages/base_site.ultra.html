@@ -4,11 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ :context.title }}</title>
+    <title>{{ :context.title }} - {{ :context.link }}</title>
 </head>
 <body>
+    <h1>UltraGen</h1>
     {{ :context.nav_bar }}
     {{ :context.main_content }}
 </body>
 </html>
+@out = :context.link
+@saveLive('./compiled/' + out )
 @end

@@ -82,6 +82,7 @@ begin
   AActRec.AddMember(AOSType.PType+ST_ACCESS+'getAllFiles', AOSType);
   AActRec.AddMember(AIntType.PType + ST_ACCESS + 'leftZeros', AIntType);
 
+
   {$INCLUDE 'builtin_functions/register_builtins.pp' }
 end;
 

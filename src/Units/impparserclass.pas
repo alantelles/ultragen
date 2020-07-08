@@ -313,6 +313,8 @@ begin
   end;
   if FCurrentToken.PType = T_ELSE then
   begin
+    if FLexer.PExtension <> '.ultra' then
+      FLexer.PScriptMode := False;
     Eat(T_ELSE);
     len := len + 1;
     SetLength(Conditions, len);
