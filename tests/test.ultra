@@ -1,1 +1,26 @@
-a = {zika: "este é meu teste" }
+function Kamal()
+    print('kamal, kamal, kamal')
+end
+dict1 = {
+    'snoh': 'aalegra',
+    'sublist': [
+        'zikazika1',
+        'zikazika2',
+        'zikazika3'
+    ],
+    'kamal': Kamal
+}
+dict2 = {
+    'adrian': 'marcel',
+    'a_dict': dict1,
+    'listage': [
+        'item1',
+        'item2',
+        'item3'
+    ]
+}
+x = dict2['a_dict']['kamal']
+x()
+for (dict2['a_dict']['sublist'], item)
+    print(item, ': ', _item.cycle(item.upper(), item))
+end

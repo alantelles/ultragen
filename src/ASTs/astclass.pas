@@ -34,12 +34,12 @@ type
 
   TDictKeyNode = class (TAST)
     protected
-      FKey: string;
+      FKey: TAST;
       FValue: TAST;
     public
-      property PKey: string read Fkey;
+      property PKey: TAST read Fkey;
       property PValue: TAST read FValue;
-      constructor Create(AKey: string; AValue: TAST; AToken: TToken);
+      constructor Create(AKey: TAST; AValue: TAST; AToken: TToken);
   end;
 
   TDictNode = class (TAST)
@@ -240,7 +240,7 @@ type
 
 implementation
 
-constructor TDictKeyNode.Create(AKey: string; AValue: TAST; AToken: TToken);
+constructor TDictKeyNode.Create(AKey: TAST; AValue: TAST; AToken: TToken);
 begin
   FKey := Akey;
   FValue := AValue;

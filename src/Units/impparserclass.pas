@@ -116,6 +116,8 @@ var
   len: integer = 0;
 begin
   eat(T_DICT_START);
+  while (FCurrentToken.PType = T_NEWLINE) do
+    Eat(T_NEWLINE);
   SetLength(AllKeys, 0);
   if FCurrentToken.PType <> T_DICT_END then
   begin
@@ -140,11 +142,12 @@ end;
 
 function TTParser.DictKey: TAST;
 var
-  AKey: string;
+  AKey: TAST;
   AVal: TAST;
 begin
-  Akey := FCurrentToken.PValue;
-  Eat(T_ID);
+  // Akey := FCurrentToken.PValue;
+  // Eat(T_ID);
+  Akey := MethodCall();
   Eat(T_DICT_ASSIGN);
   while (FCurrentToken.PType = T_NEWLINE) do
     Eat(T_NEWLINE);

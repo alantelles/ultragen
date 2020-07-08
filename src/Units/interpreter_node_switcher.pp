@@ -4,6 +4,7 @@
   end
   else if ANode.ClassNameIs('TVarAssign') then   
     VisitVarAssign(TVarAssign(ANode))
+
   else if ANode.ClassNameIs('TVariableReference') then
     Result := VisitVariableReference(TVariableReference(ANode))
 
@@ -12,6 +13,9 @@
 
   else if ANode.ClassNameIs('TNamespaceGet') then
     Result := VisitNamespaceGet(TNamespaceGet(Anode))
+
+  else if ANode.ClassNameIs('TDictNode') then
+    Result := VisitDict(TDictNode(ANode))
 
   else if ANode.ClassNameIs('TNamespaceState') then
     Result := VisitNamespaceState(TNamespaceState(Anode))

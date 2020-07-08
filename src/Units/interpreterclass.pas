@@ -62,7 +62,7 @@ var
   AActRec: TActivationRecord;
   FileExplorer: TActivationRecord;
   ACoreType, AStrType, AIntType, AFloatType, AListType,
-  ABoolType, AFuncType, AOSType, AFSType: TFunctionInstance;
+  ABoolType, AFuncType, AOSType, AFSType, ADictType: TFunctionInstance;
   ANameSpace: TActRecInstance;
 begin
   ACoreType := TFunctionInstance.Create('BuiltIn', nil, nil, 'CoreFunction', True);
@@ -74,11 +74,16 @@ begin
   ABoolType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBooleanInstance', True);
   AOSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TOSInstance', True);
   AFSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFileSystemInstance', True);
+  ADictType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TActRecInstance', True);
   AActRec := FCallStack.GetFirst();
 
   // BuiltInTypesRegister
 
   AActRec.AddMember('FileSystem', TBuiltInType.Create('TFileSystemInstance'));
+  AActrec.AddMember('Dict', TBuiltInType.Create('TActRecInstance'));
+  AActRec.AddMember(ADictType.PType+ST_ACCESS+'set', ADictType);
+  AActRec.AddMember(ADictType.PType+ST_ACCESS+'get', ADictType);
+  AActRec.AddMember(ADictType.PType+ST_ACCESS+'keys', ADictType);
 
   AActRec.AddMember(AFSType.PType+ST_ACCESS+'mkdir', AFSType);
   AActRec.AddMember(AIntType.PType + ST_ACCESS + 'leftZeros', AIntType);
@@ -128,6 +133,22 @@ var
 begin
   for AState in Anode.PNodes do
     Visit(AState);
+end;
+
+function TInterpreter.VisitDict(ANode: TDictNode): TActRecInstance;
+var
+  AActRec: TActivationRecord;
+  AKey: TAST;
+  ATypedKey: TDictKeyNode;
+  ARepo: TInstanceOf;
+begin
+  AActRec := TActivationRecord.Create('Any', AR_DICT, 1);
+  for Akey in ANode.PKeys do
+  begin
+    ATypedKey := TDictkeyNode(AKey);
+    AActRec.AddMember(Visit(ATypedkey.PKey).AsString,Visit(ATypedKey.PValue));
+  end;
+  Result := TActRecInstance.Create(AActRec);
 end;
 
 procedure TInterpreter.VisitLiveOutput(ANode: TLiveOutput);
@@ -1000,17 +1021,35 @@ end;
 function TInterpreter.VisitListAccess(ANode: TListAccessAST): TInstanceOf;
 var
   AList: TListInstance;
-  AStr: TStringInstance;
-  AIndex: TIntegerInstance;
+  AStr, AIndexStr: TStringInstance;
+  AIndexInt: TIntegerInstance;
   AVarRef: TVariableReference;
-  ARet, ASrc: TInstanceOf;
+  ARet, ASrc, AIndex: TInstanceOf;
 begin
-  AIndex := TIntegerInstance(Visit(ANode.PIndex));
+  AIndex := Visit(ANode.PIndex);
+  if AIndex.ClassNameIs('TStringInstance') then
+    AIndexStr := TStringInstance(AIndex)
+  else if AIndex.ClassNameIs('TIntegerInstance') then
+    AIndexInt := TIntegerInstance(AIndex)
+  else
+    raise ERunTimeError.Create('Foridden type for index using');
   ASrc := Visit(Anode.PList);
   if ASrc.ClassNameIs('TListInstance') then
-    ARet := TListInstance(ASrc).GetItem(AIndex)
+    ARet := TListInstance(ASrc).GetItem(AIndexInt)
   else if ASrc.ClassNameIs('TStringInstance') then
-    ARet := TStringInstance(ASrc).GetChar(AIndex)
+  begin
+    if AIndex.ClassNameIs('TIntegerInstance') then
+      ARet := TStringInstance(ASrc).GetChar(AIndexInt)
+    else
+      raise ERunTimeError.Create('Foridden type for index using with List');
+  end
+  else if ASrc.ClassNameIs('TActRecInstance') then
+  begin
+    if AIndex.ClassNameIs('TStringInstance') then
+      ARet := TActRecInstance(ASrc).PValue.GetMember(AindexStr.PValue)
+    else
+      raise ERunTimeError.Create('Foridden type for index using with Dict');
+  end
   else
     raise ERunTimeError.Create('Foridden type for indexing as list');
   Result := ARet;

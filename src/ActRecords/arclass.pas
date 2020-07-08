@@ -5,12 +5,13 @@ unit ARClass;
 interface
 
 uses
-  Classes, SysUtils, Contnrs, InstanceOfClass;
+  Classes, SysUtils, Contnrs, InstanceOfClass, ListInstanceClass, StringInstanceClass;
 
 const
   AR_PROGRAM = 'AR_PROGRAM';
   AR_FUNCTION = 'AR_FUNCTION';
   AR_NAMESPACE = 'AR_NAMESPACE';
+  AR_DICT = 'AR_DICT';
 
 type
 
@@ -25,6 +26,7 @@ type
       FNowKey: string;
       FFound: boolean;
       FReceiver: TActivationrecord;
+      FList: TListInstance;
     public
       property PName:string read FName;
       property PType:string read FType;
@@ -33,6 +35,7 @@ type
       procedure MemberAsString(AItem:  TObject;const AName:string; var Cont:boolean);
       procedure SearchFunction(AItem: TObject; const AName:string; var Cont: boolean);
       procedure CopyItems(AItem: TObject; const Aname:string; var Cont: boolean);
+      procedure IterGetkeys(AItem: TObject; const Aname:string; var Cont: boolean);
 
       procedure CopyActRec(var AReceiver: TActivationRecord);
       property PMembers: TFPObjectHashTable read FMembers write FMembers;
@@ -42,6 +45,8 @@ type
       function GetMember(AKey:string):TInstanceOf;
       function GetFunction(AKey: string; ASrc: TInstanceOf = nil): TFunctionInstance;
       function AsString:string;
+      procedure GetKeys(var AList: TListInstance);
+
 
   end;
 
@@ -63,9 +68,20 @@ begin
   FMembers := TFPObjectHashTable.Create();
 end;
 
+procedure TActivationRecord.GetKeys(var Alist: TListInstance);
+begin
+  FList := Alist;
+  FMembers.Iterate(@IterGetKeys);
+end;
+
+procedure TActivationRecord.IterGetkeys(AItem: TObject; const Aname:string; var Cont: boolean);
+begin
+  FList.Add(TStringInstance.Create(Aname));
+end;
+
 function TActRecInstance.AsString:string;
 begin
-  Result := 'Namespace "'+ FValue.FName + '"';
+  Result := 'Dictionary "'+ FValue.FName + '"';
 end;
 
 constructor TActRecInstance.Create(AnActRec: TActivationRecord);

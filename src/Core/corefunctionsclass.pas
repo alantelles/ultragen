@@ -6,7 +6,7 @@ interface
 
 uses
       Classes, SysUtils, Strutils, InstanceOfClass, InterpreterClass, StringInstanceClass,
-      ListInstanceClass;
+      ListInstanceClass, ARClass;
 
 type
   TParamList = array of string;
@@ -39,6 +39,7 @@ type
       {$INCLUDE 'list/declarations.pp'}
       {$INCLUDE 'integer/declarations.pp'}
       {$INCLUDE 'os/declarations.pp'}
+      {$INCLUDE 'dict/declarations.pp'}
 	end;
 
 
@@ -109,6 +110,7 @@ begin
   {$INCLUDE 'string/options.pp'}
   {$INCLUDE 'list/options.pp'}
   {$INCLUDE 'integer/options.pp'}
+  {$INCLUDE 'dict/options.pp'}
   {$INCLUDE 'os/options.pp'}
   else
     raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.');
@@ -281,6 +283,7 @@ end;
 {$INCLUDE 'string/functions.pp'}
 {$INCLUDE 'list/functions.pp'}
 {$INCLUDE 'os/functions.pp'}
+{$INCLUDE 'dict/functions.pp'}
 
 {$INCLUDE 'integer/functions.pp'}
 
