@@ -31,7 +31,7 @@
         <PackageName Value="LazUtils"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="25">
+    <Units Count="24">
       <Unit0>
         <Filename Value="UltraGenParser.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -151,11 +151,6 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="ListInstanceClass"/>
       </Unit23>
-      <Unit24>
-        <Filename Value="src\BuiltInTypes\fileexplorerinstanceclass.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="FileExplorerInstanceClass"/>
-      </Unit24>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

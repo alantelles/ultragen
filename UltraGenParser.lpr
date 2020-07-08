@@ -9,7 +9,7 @@ uses
   Classes, SysUtils,
   { you can add units after this }
   ASTClass, LexerClass, ImpParserClass, InterpreterClass,
-  StrUtils, LoggingClass, FileExplorerInstanceClass;
+  StrUtils, LoggingClass;
 var
   AParser: TTParser;
   ALexer: TLexer;

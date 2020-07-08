@@ -46,7 +46,7 @@ type
 implementation
 
 uses
-  Math, ExceptionsClasses, TokenClass, Tokens, CoreFunctionsClass, LexerClass, FileExplorerInstanceClass;
+  Math, ExceptionsClasses, TokenClass, Tokens, CoreFunctionsClass, LexerClass;
 
 constructor TInterpreter.Create(var ATree: TAST);
 begin
@@ -62,7 +62,7 @@ var
   AActRec: TActivationRecord;
   FileExplorer: TActivationRecord;
   ACoreType, AStrType, AIntType, AFloatType, AListType,
-  ABoolType, AFuncType, AExplorerFuncType: TFunctionInstance;
+  ABoolType, AFuncType, AOSType: TFunctionInstance;
   ANameSpace: TActRecInstance;
 begin
   ACoreType := TFunctionInstance.Create('BuiltIn', nil, nil, 'CoreFunction', True);
@@ -72,11 +72,13 @@ begin
   AListType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TListInstance', True);
   AFuncType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFunctionInstance', True);
   ABoolType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBooleanInstance', True);
-  AExplorerFuncType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFileExplorer', True);
-
+  AOSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TOSInstance', True);
   AActRec := FCallStack.GetFirst();
+
   AActRec.AddMember('Explorer', TBuiltInType.Create('TFileExplorer'));
-  AActRec.AddMember(AExplorerFuncType.PType+ST_ACCESS+'getAllFiles', AExplorerFuncType);
+  AActRec.AddMember('OS', TBuiltInType.Create('TOSInstance'));
+
+  AActRec.AddMember(AOSType.PType+ST_ACCESS+'getAllFiles', AOSType);
   AActRec.AddMember(AIntType.PType + ST_ACCESS + 'leftZeros', AIntType);
   {$INCLUDE 'builtin_functions/register_builtins.pp' }
 end;
@@ -223,8 +225,8 @@ begin
     else if Gene.ClassNameIs('TBuiltInType') then
     begin
       ABuilt := TBuiltInType(Gene);
-      if ABuilt.PValue = 'TFileExplorer' then
-        Result := TFileExplorer.Create;
+      //if ABuilt.PValue = 'TFileExplorer' then
+        //Result := TFileExplorer.Create;
     end
   end
   else
@@ -459,7 +461,12 @@ begin
   AFuncName := ANode.PFuncName;
   ASrcName := AFuncName;
   if ASrcInstance <> nil then
-    ASrcName := ASrcInstance.ClassName + ST_ACCESS + AFuncName;
+  begin
+    if ASrcInstance.ClassNameIs('TBuiltInType') then
+      ASrcName := TBuiltinType(ASrcInstance).PValue + ST_ACCESS + AFuncName
+    else
+      ASrcName := ASrcInstance.ClassName + ST_ACCESS + AFuncName;
+  end;
   LogText(INTER, 'Interpreter', 'Visiting function ' + ANode.PFuncName);
   AActRec := FCallStack.Peek();
   FuncDef := AActRec.GetFunction(ASrcName, ASrcInstance);
@@ -543,7 +550,9 @@ begin
         SetLength(ArgsList, len);
         ArgsList[len - 1] := Visit(AState, ASrcInstance);
       end;
-      AReturn := ACoreExec.Execute(Self, AFuncName, ArgsList, ASrcInstance);
+      //if FuncDef.ClassNameIs('TBuiltInType') then
+        //ASrcInstance.
+        AReturn := ACoreExec.Execute(Self, AFuncName, ArgsList, ASrcInstance);
       ACoreExec.Free;
       Result := AReturn;
       exit;

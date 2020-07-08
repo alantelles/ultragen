@@ -1,3 +1,2 @@
-a = new Explorer()
-x = a.getAllFiles('./comp_poc')
-print(x)
+a = OS.getAllFiles('/home/alantelles/Arquivos/Alan/EasyLogX_GCP_latest/EasyLogX_latest/exported')
+print(a)

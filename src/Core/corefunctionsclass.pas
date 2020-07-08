@@ -6,7 +6,7 @@ interface
 
 uses
       Classes, SysUtils, Strutils, InstanceOfClass, InterpreterClass, StringInstanceClass,
-      ListInstanceClass, FileExplorerInstanceClass;
+      ListInstanceClass;
 
 type
   TParamList = array of string;
@@ -38,7 +38,7 @@ type
       {$INCLUDE 'string/declarations.pp'}
       {$INCLUDE 'list/declarations.pp'}
       {$INCLUDE 'integer/declarations.pp'}
-      {$INCLUDE 'fileexplorer/declarations.pp'}
+      {$INCLUDE 'os/declarations.pp'}
 	end;
 
 
@@ -46,7 +46,7 @@ type
 implementation
 
 uses
-  CoreUtils, ExceptionsClasses, Math, ASTClass, crt, LazUTF8;
+  CoreUtils, ExceptionsClasses, Math, ASTClass, crt, LazUTF8, FileUtil;
 
 function TCoreFunction.Execute(AInter: TInterpreter; Fname:string; var AArgList:TInstanceList; AObj: TInstanceOf = nil):TInstanceOf;
 var
@@ -57,17 +57,17 @@ var
 begin
   FInter := AInter;
   Ret := TNullInstance.create;
-  {DotPos := Pos('.', FName);
-  if DotPos > 0 then
-  begin
-    AType := Copy(FName, 1, DotPos - 1);
-    FName := Copy(FName, DotPos+1, Length(FName));
-  end;                }
   if AObj <> nil then
-    AType := AObj.ClassName;
+  begin
+    if AObj.ClassNameIs('TBuiltInType') then
+      AType := TBuiltInType(AObj).PValue
+    else
+    begin
+      AType := AObj.ClassName;
+      FObj := AObj;
+    end;
+  end;
   FParams := AArgList;
-	if AObj <> nil then
-    FObj := AObj;
 
   if AType = '' then
   begin
@@ -109,7 +109,7 @@ begin
   {$INCLUDE 'string/options.pp'}
   {$INCLUDE 'list/options.pp'}
   {$INCLUDE 'integer/options.pp'}
-  {$INCLUDE 'fileexplorer/options.pp'}
+  {$INCLUDE 'os/options.pp'}
   else
     raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.');
   // functions
@@ -280,7 +280,7 @@ end;
 
 {$INCLUDE 'string/functions.pp'}
 {$INCLUDE 'list/functions.pp'}
-{$INCLUDE 'fileexplorer/functions.pp'}
+{$INCLUDE 'os/functions.pp'}
 {$INCLUDE 'integer/functions.pp'}
 
 
