@@ -1,5 +1,0 @@
-:zika.test = 'baholeros'
-
-:zika function myPrint(arg)
-    print(arg)
-end

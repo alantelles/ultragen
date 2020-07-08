@@ -28,6 +28,34 @@ begin
   Result := TStringInstance.Create(part);
 end;
 
+function TCoreFunction.GetFileName(AObj: TStringInstance):TStringInstance;
+var
+  AFile, Ares: string;
+  WithExt: boolean = True;
+  dotpos, len: integer;
+
+begin
+  len := Length(FParams);
+  AFile := AObj.PValue;
+  if (len > 1) then
+    raise EArgumentsError.Create(E_INVALID_ARGS);
+  if (len = 1) then
+  begin
+    if FParams[0].ClassNameIs('TBooleanInstance') then
+      WithExt := TBooleanInstance(FParams[0]).PValue
+    else
+      raise EArgumentsError.Create(E_INVALID_ARGS_TYPE);
+  end;
+  ARes := Copy(AFile, RPos(DirectorySeparator, AFile) + 1, Length(AFile));
+  if not WithExt then
+  begin
+    dotpos := Pos('.', ARes);
+    if dotpos > 0 then
+      ARes := Copy(ARes, 1, dotpos-1);
+  end;
+  Result := TStringInstance.Create(ARes);
+end;
+
 function TCoreFunction.CapitalString(AObj: TStringInstance):TStringInstance;
 var
 

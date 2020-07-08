@@ -653,7 +653,6 @@ begin
   begin
     Eat(T_LINE_SCRIPT_EMBED);
     Ret := Statement();
-    FLexer.PScriptMode := False;
   end
   else if AToken.PType = T_RETURN then
   begin
@@ -702,6 +701,7 @@ begin
   end
   else
     Ret := TNoOp.Create;
+
   Result := Ret;
 end;
 
@@ -717,6 +717,8 @@ begin
   Results[len - 1] := Ret;
   while FCurrentToken.PType = T_NEWLINE do
   begin
+    if FLexer.PExtension <> '.ultra' then
+        FLexer.PScriptMode := False;
     Eat(T_NEWLINE);
 
     if FCurrentToken.PType = T_NEWLINE then
@@ -747,16 +749,21 @@ begin
     end
     else if FCurrentToken.PType = T_END + T_WHILE_LOOP then
     begin
+
       Eat(T_END + T_WHILE_LOOP);
       Break;
     end
     else if FCurrentToken.PType = T_END + T_FOR_LOOP then
     begin
+
       Eat(T_END + T_FOR_LOOP);
+
       Break;
     end
     else if FCurrentToken.PType = T_END + T_IF_START then
     begin
+      if FLexer.PExtension <> '.ultra' then
+        FLexer.PScriptMode := False;
       Eat(T_END + T_IF_START);
       Break;
     end;
@@ -980,8 +987,8 @@ procedure TTParser.EParseError;
 var
   msg: string;
 begin
-  msg := 'Unexpected token "' + FCurrentToken.PType + '" at < Line: ' +
-    IntToStr(FLexer.PScriptLine) + ', Char: ' + IntToStr(FLexer.PLineChar - 1) + ' >';
+  msg := 'Unexpected token "' + FCurrentToken.PValue + '" from type "'+FCurrentToken.PType+'" at < Line: ' +
+    IntToStr(FLexer.PScriptLine) + ', Char: ' + IntToStr(FLexer.PLineChar - 1) + ' > in '+ FLexer.PFileName;
   raise EParserError.Create(msg);
 end;
 

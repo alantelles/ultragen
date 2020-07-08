@@ -75,11 +75,13 @@ begin
   AOSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TOSInstance', True);
   AActRec := FCallStack.GetFirst();
 
-  AActRec.AddMember('Explorer', TBuiltInType.Create('TFileExplorer'));
+  // BuiltInTypesRegister
+
   AActRec.AddMember('OS', TBuiltInType.Create('TOSInstance'));
 
   AActRec.AddMember(AOSType.PType+ST_ACCESS+'getAllFiles', AOSType);
   AActRec.AddMember(AIntType.PType + ST_ACCESS + 'leftZeros', AIntType);
+
   {$INCLUDE 'builtin_functions/register_builtins.pp' }
 end;
 
@@ -369,13 +371,13 @@ begin
     begin
       break;
     end;
-    AIndex.Free;
+    //AIndex.Free;
   end;
-  for i := 0 to ACandidate.Count - 1 do
+  {for i := 0 to ACandidate.Count - 1 do
   begin
     ACandidate.PValue[i].Free;
   end;
-  ACandidate.Free;
+  ACandidate.Free;}
   FBreakSignal := False;
 end;
 

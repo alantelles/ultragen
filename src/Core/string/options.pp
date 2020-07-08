@@ -20,6 +20,10 @@ begin
 		    )
 		  else if FName = 'length' then
 		    Ret := TIntegerInstance.Create(UTF8Length(TStringInstance(FObj).PValue))
+      else if FName = 'fileName' then
+        Ret := GetFileName(TStringInstance(FObj))
+      else if FName = 'indexOf' then
+        Ret := TIntegerInstance.Create(UTF8Pos(TStringInstance(FParams[0]).PValue, TStringInstance(FObj).PValue) - 1)
       else
         raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.');;
 end

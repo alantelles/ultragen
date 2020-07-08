@@ -1,0 +1,34 @@
+pages = OS.getAllFiles('./pages', false)
+for (pages, p)
+    include p
+end
+#include "pages/base_site.ultra.html"
+#include "pages/nav_bar.ultra.html"
+#include "pages/article.ultra.html"
+base_path = './pages/files'
+output = './compiled'
+files = OS.getAllFiles(base_path)
+links = []
+:cont.start = ''
+:contents.start = ''
+main_contents = []
+for (files, f)
+    fn = f.fileName(false)
+    link = output + '/' + fn + '.html'
+    now = new cont()
+    :now.link = link
+    :now.text = fn
+    include f : article    
+    render_art = Article(article)
+    main_contents.append(render_art)
+    links.append(now)
+end
+nav_bar = NavBar(links)
+:page.title = 'UltraGen docs'
+:page.nav_bar = nav_bar
+
+for (main_contents, cont)
+    :page.main_content = cont
+    live BaseSite(page)
+    saveLive('./compiled/' + str(_cont) + '.html')
+end

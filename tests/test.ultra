@@ -1,2 +1,2 @@
-a = OS.getAllFiles('/home/alantelles/Arquivos/Alan/EasyLogX_GCP_latest/EasyLogX_latest/exported')
-print(a)
+a = ["/home/teste.mp4"]
+print(a[0].fileName())

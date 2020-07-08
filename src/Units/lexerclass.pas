@@ -12,13 +12,14 @@ type
   private
     FPos: integer;
     FText: string;
-    FExtension: string;
+    FExtension, FFileName: string;
     FCurrChar: string;
     FScriptLine, FLineChar: integer;
     FScopeType: TStringList;
     FScriptMode, FLineScript, FInterpol: boolean;
   public
     property PExtension: string read FExtension;
+    property PFileName: string read FFileName;
     property PLineChar: integer read FLineChar;
     property PScriptLine: integer read FScriptLine;
     property PScriptMode: boolean read FScriptMode write FScriptMode;
@@ -53,6 +54,7 @@ begin
   FLineScript := False;
   FInterpol := False;
   AFile := TStringList.Create;
+  FFileName := AFileName;
   try
     try
       AFile.LoadFromFile(AFileName);

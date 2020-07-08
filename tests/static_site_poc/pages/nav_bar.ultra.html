@@ -1,0 +1,13 @@
+@function NavBar(file_list)
+<nav>
+        <ul>
+@   for (file_list, f)
+        {{ NavEntry(f) }}
+@   end
+        </ul>   
+    </nav>
+@end
+
+@function NavEntry(file)
+    <li><a href="{{ :file.link }}">{{ :file.text }}</a></li>
+@end

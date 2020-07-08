@@ -9,6 +9,7 @@ uses
 
 const
   E_INVALID_ARGS = 'Invalid number of arguments for this function';
+  E_INVALID_ARGS_TYPE = 'Invalid type of argument for this function';
 
 type
   ELexicalError = class (Exception) end;
