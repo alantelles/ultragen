@@ -42,3 +42,28 @@ begin
     AList.Free;
   end;
 end;
+
+function TCoreFunction.CreateDirOpt: TBooleanInstance;
+var
+  len :integer;
+begin
+  len := Length(FParams);
+  if (len > 2) or (len < 1) then
+    raise EArgumentsError.Create(E_INVALID_ARGS);
+  if not FParams[0].ClassNameIs('TStringInstance') then
+    raise EArgumentsError.Create(E_INVALID_ARGS_TYPE);
+  if len = 2 then
+  begin
+    if FParams[1].ClassNameIs('TBooleanInstance') then
+    begin
+      if TBooleanInstance(FParams[1]).PValue then
+        Result := TBooleanInstance.Create(ForceDirectories(TStringInstance(FParams[0]).PValue))
+      else
+        Result := TBooleanInstance.Create(CreateDir(TStringInstance(FParams[0]).PValue));
+    end
+    else
+      raise EArgumentsError.Create(E_INVALID_ARGS_TYPE);
+  end
+  else
+    Result := TBooleanInstance.Create(CreateDir(TStringInstance(FParams[0]).PValue));
+end;

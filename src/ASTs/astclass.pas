@@ -18,6 +18,8 @@ type
     constructor Create(AToken: TToken);
   end;
 
+
+
   TASTList = array of TAST;
 
   TProgram = class(TAST)
@@ -28,6 +30,24 @@ type
     constructor Create;
     procedure Add(ANode: TAST);
     function Count: integer;
+  end;
+
+  TDictKeyNode = class (TAST)
+    protected
+      FKey: string;
+      FValue: TAST;
+    public
+      property PKey: string read Fkey;
+      property PValue: TAST read FValue;
+      constructor Create(AKey: string; AValue: TAST; AToken: TToken);
+  end;
+
+  TDictNode = class (TAST)
+    protected
+      FKeys: TASTList;
+    public
+      property PKeys: TASTList read Fkeys;
+      constructor Create(AKeys: TASTList; AToken: TToken);
   end;
 
   TNewObject = class (TAST)
@@ -219,6 +239,18 @@ type
   end;
 
 implementation
+
+constructor TDictKeyNode.Create(AKey: string; AValue: TAST; AToken: TToken);
+begin
+  FKey := Akey;
+  FValue := AValue;
+end;
+
+constructor TDictNode.Create(Akeys: TASTList; AToken: TToken);
+begin
+  FKeys := AKeys;
+  FToken := AToken;
+end;
 
 constructor TIncludeScript.Create(AFilename: TAST; AToken: TToken; ANamespace: string);
 begin

@@ -62,7 +62,7 @@ var
   AActRec: TActivationRecord;
   FileExplorer: TActivationRecord;
   ACoreType, AStrType, AIntType, AFloatType, AListType,
-  ABoolType, AFuncType, AOSType: TFunctionInstance;
+  ABoolType, AFuncType, AOSType, AFSType: TFunctionInstance;
   ANameSpace: TActRecInstance;
 begin
   ACoreType := TFunctionInstance.Create('BuiltIn', nil, nil, 'CoreFunction', True);
@@ -73,13 +73,14 @@ begin
   AFuncType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFunctionInstance', True);
   ABoolType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBooleanInstance', True);
   AOSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TOSInstance', True);
+  AFSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFileSystemInstance', True);
   AActRec := FCallStack.GetFirst();
 
   // BuiltInTypesRegister
 
-  AActRec.AddMember('OS', TBuiltInType.Create('TOSInstance'));
+  AActRec.AddMember('FileSystem', TBuiltInType.Create('TFileSystemInstance'));
 
-  AActRec.AddMember(AOSType.PType+ST_ACCESS+'getAllFiles', AOSType);
+  AActRec.AddMember(AFSType.PType+ST_ACCESS+'mkdir', AFSType);
   AActRec.AddMember(AIntType.PType + ST_ACCESS + 'leftZeros', AIntType);
 
 

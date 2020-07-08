@@ -57,6 +57,8 @@ type
     function NamespaceGet: TAST;
     function NamespaceState: TAST;
     function NewObject: TAST;
+    function Dict: TAST;
+    function DictKey: TAST;
 
   end;
 
@@ -93,9 +95,9 @@ var
 begin
   Eat(T_INCLUDE);
   AFileName := MethodCall();
-  if FCurrentToken.PType = T_NAMESPACE then
+  if FCurrentToken.PType = T_DICT_ASSIGN then
   begin
-    Eat(T_NAMESPACE);
+    Eat(T_DICT_ASSIGN);
     if FCurrentToken.PType = T_ID then
     begin
       ANamespace := FCurrentToken.PValue;
@@ -107,12 +109,55 @@ begin
   Result := TIncludeScript.Create(AFileName, FCurrentToken, ANamespace);
 end;
 
+function TTParser.Dict: TAST;
+var
+  AllKeys: TASTList;
+  ret: TAST;
+  len: integer = 0;
+begin
+  eat(T_DICT_START);
+  SetLength(AllKeys, 0);
+  if FCurrentToken.PType <> T_DICT_END then
+  begin
+    len := len + 1;
+    SetLength(Allkeys, len);
+    Allkeys[len - 1] := DictKey();
+  end;
+  while (FCurrentToken.PType = T_COMMA) do
+  begin
+    Eat(T_COMMA);
+    while (FCurrentToken.PType = T_NEWLINE) do
+      Eat(T_NEWLINE);
+    len := len + 1;
+    SetLength(Allkeys, len);
+    Allkeys[len - 1] := DictKey();
+  end;
+  while (FCurrentToken.PType = T_NEWLINE) do
+    Eat(T_NEWLINE);
+  Eat(T_DICT_END);
+  Result := TDictNode.Create(AllKeys, FCurrentToken);
+end;
+
+function TTParser.DictKey: TAST;
+var
+  AKey: string;
+  AVal: TAST;
+begin
+  Akey := FCurrentToken.PValue;
+  Eat(T_ID);
+  Eat(T_DICT_ASSIGN);
+  while (FCurrentToken.PType = T_NEWLINE) do
+    Eat(T_NEWLINE);
+  AVal := MethodCall();
+  Result := TDictKeyNode.Create(AKey, AVal, FCurrentToken);
+end;
+
 function TTParser.NamespaceGet: TAST;
 var
   Oper: TAST;
   AName: string;
 begin
-  Eat(T_NAMESPACE);
+  Eat(T_DICT_ASSIGN);
   AName := FCurrentToken.PValue;
   Eat(T_ID);
   if FcurrentToken.PType = T_ATTR_ACCESSOR then
@@ -121,7 +166,7 @@ begin
     Oper := MethodCall();
     Result := TNamespaceGet.Create(Aname, Oper);
   end
-  else if FCurrentToken.PType = T_NAMESPACE then
+  else if FCurrentToken.PType = T_DICT_ASSIGN then
     Result := TnamespaceGet.Create(AName, NamespaceGet());
 end;
 
@@ -130,7 +175,7 @@ var
   AName: string;
   Aoper: TAST;
 begin
-  Eat(T_NAMESPACE);
+  Eat(T_DICT_ASSIGN);
   AName := FCurrentToken.PValue;
   Eat(T_ID);
   if (FcurrentToken.PType = T_ATTR_ACCESSOR) or
@@ -141,7 +186,7 @@ begin
     AOper := Statement();
     Result := TNamespaceState.Create(Aname, AOper, FCurrentToken);
   end
-  else if FCurrentToken.PType = T_NAMESPACE then
+  else if FCurrentToken.PType = T_DICT_ASSIGN then
     Result := TnamespaceState.Create(AName, NamespaceState(), FCurrentToken);
 
 {  Eat(T_ATTR_ACCESSOR);
@@ -166,9 +211,9 @@ begin
   FInArgsDef := True;
   ParamList := DefParams();
   Eat(T_RPAREN);
-  if FCurrentToken.PType = T_NAMESPACE then
+  if FCurrentToken.PType = T_DICT_ASSIGN then
   begin
-    Eat(T_NAMESPACE);
+    Eat(T_DICT_ASSIGN);
     AType := FCurrentToken.PValue;
     Eat(T_ID);
   end;
@@ -631,7 +676,7 @@ begin
     Logtext('PARSER', 'Parser', 'Creating include node');
     Ret := IncludeScript();
   end
-  else if (AToken.PType = T_NAMESPACE) then
+  else if (AToken.PType = T_DICT_ASSIGN) then
   begin
     Logtext('PARSER', 'Parser', 'Creating namespace');
     Ret := NamespaceState();
@@ -819,7 +864,7 @@ begin
     logtext('PARSER', 'Parser', 'Creating unary op node');
     Ret := TUnaryOp.Create(AToken, Factor());
   end
-  else if (AToken.PType = T_NAMESPACE) then
+  else if (AToken.PType = T_DICT_ASSIGN) then
   begin
     Ret := NamespaceGet();
   end
@@ -847,6 +892,12 @@ begin
     Eat(T_NOT);
     logtext('PARSER', 'Parser', 'Creating logic not node');
     Ret := TUnaryLogicOp.Create(AToken, Factor());
+  end
+
+  else if (AToken.PType = T_DICT_START) then
+  begin
+    logtext('PARSER', 'Parser', 'Creating dict node');
+    ret := Dict();
   end
 
   // INNER ATRIBUTTES

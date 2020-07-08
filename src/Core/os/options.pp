@@ -1,6 +1,8 @@
 // teste
-else if AType = 'TOSInstance' then
+else if AType = 'TFileSystemInstance' then
 begin
   if FName = 'getAllFiles' then
-    Ret := GetAllFiles();
+    Ret := GetAllFiles()
+  else if FName = 'mkdir' then
+    Ret := CreateDirOpt;
 end

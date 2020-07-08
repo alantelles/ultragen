@@ -247,7 +247,7 @@
           if FCurrChar = ':' then
           begin
             Advance;
-            Result := TToken.Create(T_NAMESPACE, T_NAMESPACE);
+            Result := TToken.Create(T_DICT_ASSIGN, T_DICT_ASSIGN);
             exit
           end;
 
@@ -264,6 +264,20 @@
 		        Result := TToken.Create(T_ATTR_ACCESSOR, ATTR_ACCESSOR);
 		        exit;
 		      end;
+
+          if FCurrChar = '{' then
+          begin
+            Advance;
+            Result := TToken.Create(T_DICT_START, '{');
+            exit
+          end;
+
+          if FCurrChar = '}' then
+          begin
+            Advance;
+            Result := TToken.Create(T_DICT_END, '}');
+            exit
+          end;
 
 		      if (FCurrChar = ',') then
 		      begin

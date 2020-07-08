@@ -25,7 +25,7 @@ begin
 end
 {$ENDIF}
 {$IFDEF Windows}
-if (FCurrChar + Peek(1)) = sLineBreak  then
+else if (FCurrChar + Peek(1)) = sLineBreak  then
 begin
   Advance;
   Advance;
@@ -33,7 +33,7 @@ begin
   FLineChar := 1;
   Result := TToken.Create(T_NEWLINE, sLineBreak);
   exit
-end;
+end
 {$ENDIF}
 
 else if (FCurrchar = '@') then
