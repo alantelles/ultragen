@@ -1,6 +1,7 @@
 {$INCLUDE 'stringmethods.pp'}
 {$INCLUDE 'listmethods.pp'}
 {$INCLUDE 'integermethods.pp'}
+{$INCLUDE 'servermethods.pp'}
 {$INCLUDE 'osmethods.pp'}
 
 // builtins

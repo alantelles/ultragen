@@ -10,7 +10,7 @@
 		        exit;
 		      end;
 
-          if (FCurrChar + Peek(1)) = '}}' then
+          if (FExtension <> '.ultra') and ((FCurrChar + Peek(1)) = '}}') then
 				  begin
 				      FInterpol := False;
               FScriptMode := False;
@@ -27,7 +27,7 @@
 		        exit
 		      end;
 
-		      if (FCurrChar = '$') then
+		      if (FCurrChar + Peek(1) = '$_') then
 		      begin
 		        Result := GetInnerAttribute();
 		        exit

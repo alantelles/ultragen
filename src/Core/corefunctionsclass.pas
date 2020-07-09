@@ -6,7 +6,7 @@ interface
 
 uses
       Classes, SysUtils, Strutils, InstanceOfClass, InterpreterClass, StringInstanceClass,
-      ListInstanceClass, ARClass;
+      ListInstanceClass, ServerClass, ARClass;
 
 type
   TParamList = array of string;
@@ -18,7 +18,7 @@ type
       FObj: TInstanceOf;
       FInter: TInterpreter;
     public
-      function Execute(AInter: TInterpreter; Fname:string; var AArgList:TInstanceList; AObj: TInstanceOf = nil):TInstanceOf;
+      function Execute(AInter: TInterpreter; Fname:string; var AArgList:TInstanceList;var  AObj: TInstanceOf):TInstanceOf;
 
 
       //core
@@ -40,6 +40,7 @@ type
       {$INCLUDE 'integer/declarations.pp'}
       {$INCLUDE 'os/declarations.pp'}
       {$INCLUDE 'dict/declarations.pp'}
+      {$INCLUDE 'server/declarations.pp'}
 	end;
 
 
@@ -49,7 +50,7 @@ implementation
 uses
   CoreUtils, ExceptionsClasses, Math, ASTClass, crt, LazUTF8, FileUtil;
 
-function TCoreFunction.Execute(AInter: TInterpreter; Fname:string; var AArgList:TInstanceList; AObj: TInstanceOf = nil):TInstanceOf;
+function TCoreFunction.Execute(AInter: TInterpreter; Fname:string; var AArgList:TInstanceList; var AObj: TInstanceOf):TInstanceOf;
 var
   AType:string = '';
   AuxStr:string;
@@ -112,6 +113,7 @@ begin
   {$INCLUDE 'integer/options.pp'}
   {$INCLUDE 'dict/options.pp'}
   {$INCLUDE 'os/options.pp'}
+  {$INCLUDE 'server/options.pp'}
   else
     raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.');
   // functions
@@ -230,27 +232,17 @@ begin
 end;
 
 function TCoreFunction.GetTypeOf:TStringInstance;
+var
+  Astr: string;
 begin
-  Result := TStringInstance.Create(FParams[0].ClassName);
+  AStr := FParams[0].ClassName;
+  if FParams[0].ClassNameIs('TBuiltInType') then
+    AStr := 'BuiltInType: '+TBuiltInType(FParams[0]).AsString;
+  Result := TStringInstance.Create(AStr);
 end;
 
 function TCoreFunction.CastToStr:TStringInstance;
 begin
-  {if FParams[0].ClassNameIs('TIntegerInstance') then
-    Result := TStringInstance.Create(IntToStr(TIntegerInstance(FParams[0]).PValue))
-  else if FParams[0].ClassNameIs('TStringInstance') then
-    Result := TStringInstance(FParams[0])
-  else if FParams[0].ClassNameIs('TFloatInstance') then
-    Result := TStringInstance.Create(FloatToStr(TFloatInstance(FParams[0]).PValue))
-  else if FParams[0].ClassNameIs('TNullInstance') then
-    Result := TStringInstance.Create(TNullInstance(FParams[0]).PValue)
-  else if FParams[0].ClassNameIs('TBooleanInstance') then
-  begin
-    if TBooleanInstance(FParams[0]).PValue then
-      Result := TStringInstance.Create('true')
-    else
-      Result := TStringInstance.Create('false');
-	end;}
   Result := TStringInstance.Create(FParams[0].AsString);
 end;
 
@@ -284,6 +276,7 @@ end;
 {$INCLUDE 'list/functions.pp'}
 {$INCLUDE 'os/functions.pp'}
 {$INCLUDE 'dict/functions.pp'}
+{$INCLUDE 'server/functions.pp'}
 
 {$INCLUDE 'integer/functions.pp'}
 

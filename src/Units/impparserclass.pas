@@ -59,6 +59,7 @@ type
     function NewObject: TAST;
     function Dict: TAST;
     function DictKey: TAST;
+    function ListAssign(ASrc, AKey: TAST): TAST;
 
   end;
 
@@ -81,10 +82,10 @@ begin
   eat(T_NEW_OBJECT);
   AName := FCurrentToken.PValue;
   Eat(T_ID);
-  Eat(T_LPAREN);
+  {Eat(T_LPAREN);
   ConstArgs := Args();
   Eat(T_RPAREN);
-  LogText('PARSER', 'Parser', 'Creating a new object node');
+  LogText('PARSER', 'Parser', 'Creating a new object node');}
   Result := TNewObject.Create(ConstArgs, AName);
 end;
 
@@ -107,6 +108,15 @@ begin
       ANamespace := '0';
   end;
   Result := TIncludeScript.Create(AFileName, FCurrentToken, ANamespace);
+end;
+
+function TTParser.ListAssign(ASrc, AKey: TAST): TAST;
+var
+  AVal: TAST;
+begin
+  Eat(T_ASSIGN);
+  AVal := MethodCall();
+  Result := TListAssign.Create(ASrc, Akey, AVal, FCurrentToken);
 end;
 
 function TTParser.Dict: TAST;
@@ -463,18 +473,27 @@ begin
   AToken := TToken.Create(FcurrentToken.PType, FCurrentToken.PValue);
   Ret := TListAST.Create(AToken, ListArgs());
   Eat(T_LIST_END);
-  while FCurrentToken.PType = T_LIST_START do
+  if FCurrentToken.PType = T_ASSIGN then
   begin
-    Eat(T_LIST_START);
-    Ret := TListAccessAST.Create(Ret, MethodCall(), FCurrentToken);
-    Eat(T_LIST_END);
+    Ret := ListAssign(Ret, Ret);
+  end
+  else
+  begin
+    while FCurrentToken.PType = T_LIST_START do
+    begin
+      Eat(T_LIST_START);
+      Ret := TListAccessAST.Create(Ret, MethodCall(), FCurrentToken);
+      Eat(T_LIST_END);
+    end;
   end;
+
   Result := Ret;
 end;
 
 function TTParser.MethodCallState: TAST;
 var
-  Ret: TAST;
+  Ret, IndexOrAcc, ASrc: TAST;
+
 begin
   // Eat(T_ATTR_ACCESSOR);
   Ret := LogicEval();
@@ -498,13 +517,19 @@ begin
       end;
       if (FCurrentToken.PType = T_LIST_START) then
       begin
+        ASrc := Ret;
         Eat(T_LIST_START);
         if FCurrentToken.ptype = T_NEWLINE then
           Eat(T_NEWLINE);
-        Ret := TListAccessAST.Create(Ret, MethodCall(), FCurrentToken);
+        IndexOrAcc := MethodCall();
+        Ret := TListAccessAST.Create(Ret, IndexOrAcc, FCurrentToken);
         if FCurrentToken.ptype = T_NEWLINE then
           Eat(T_NEWLINE);
         Eat(T_LIST_END);
+        if FCurrentToken.PType = T_ASSIGN then
+        begin
+          Ret := ListAssign(ASrc, IndexOrAcc);
+        end
       end
     end;
   end;

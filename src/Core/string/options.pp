@@ -2,6 +2,8 @@ else if AType = 'TStringInstance' then
 begin
       if FName = 'split' then
 		    Ret := SplitString(TStringInstance(FObj))
+      else if FName = 'init' then
+        InitString(TStringInstance(FObj))
 		  else if FName = 'upper' then
 		    Ret := TStringInstance.Create(UTF8UpperCase(TStringInstance(FObj).PValue))
 		  else if FName = 'lower' then

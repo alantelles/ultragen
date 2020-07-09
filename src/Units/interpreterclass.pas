@@ -38,15 +38,19 @@ type
     function Interpret(DontPush: boolean = False;
       ANameActRec: TActivationRecord = nil): string;
 
+
+
     function Visit(ANode: TAST; ASrcInstance: TInstanceOf = nil): TInstanceOf;
-      {$INCLUDE 'interpreter_visitations_declarations.pp'}
+      {$INCLUDE 'interpreter/visitations_declarations.pp'}
 
   end;
 
 implementation
 
 uses
-  Math, ExceptionsClasses, TokenClass, Tokens, CoreFunctionsClass, LexerClass;
+  Math, ExceptionsClasses, TokenClass, Tokens, CoreFunctionsClass, LexerClass,
+
+  ServerClass;
 
 constructor TInterpreter.Create(var ATree: TAST);
 begin
@@ -62,7 +66,8 @@ var
   AActRec: TActivationRecord;
   FileExplorer: TActivationRecord;
   ACoreType, AStrType, AIntType, AFloatType, AListType,
-  ABoolType, AFuncType, AOSType, AFSType, ADictType: TFunctionInstance;
+  ABoolType, AFuncType, AOSType, AFSType, ADictType,
+  AServerType: TFunctionInstance;
   ANameSpace: TActRecInstance;
 begin
   ACoreType := TFunctionInstance.Create('BuiltIn', nil, nil, 'CoreFunction', True);
@@ -75,17 +80,26 @@ begin
   AOSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TOSInstance', True);
   AFSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFileSystemInstance', True);
   ADictType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TActRecInstance', True);
+  AServerType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TServerInstance', True);
   AActRec := FCallStack.GetFirst();
 
   // BuiltInTypesRegister
 
   AActRec.AddMember('FileSystem', TBuiltInType.Create('TFileSystemInstance'));
   AActrec.AddMember('Dict', TBuiltInType.Create('TActRecInstance'));
+  AActRec.AddMember('Server', TBuiltInType.Create('TServerInstance'));
+  AActRec.AddMember('String', TBuiltInType.Create('TStringInstance'));
+
+
+  AActRec.AddMember(AStrType.PType+ST_ACCESS+'init', AStrType);
   AActRec.AddMember(ADictType.PType+ST_ACCESS+'set', ADictType);
   AActRec.AddMember(ADictType.PType+ST_ACCESS+'get', ADictType);
   AActRec.AddMember(ADictType.PType+ST_ACCESS+'keys', ADictType);
-
+  AActRec.AddMember(AServerType.PType+ST_ACCESS+'init', AServerType);
+  AActRec.AddMember(AServerType.PType+ST_ACCESS+'setTitle', AServerType);
   AActRec.AddMember(AFSType.PType+ST_ACCESS+'mkdir', AFSType);
+
+  AActRec.AddMember(AServerType.PType+ST_ACCESS+'setStopRoute', AServerType);
   AActRec.AddMember(AIntType.PType + ST_ACCESS + 'leftZeros', AIntType);
 
 
@@ -123,7 +137,7 @@ var
   AVal: TStringInstance;
 begin
   AActrec := FCallStack.Peek();
-  Aval := TStringInstance(AActRec.GetMember('$LIVE'));
+  Aval := TStringInstance(AActRec.GetMember('$_LIVE'));
   Result := AVal.PValue;
 end;
 
@@ -160,9 +174,9 @@ var
 begin
   AVal := Visit(ANode.PValue);
   AActRec := FCallStack.Peek();
-  ALiveVal := TStringInstance(AActrec.GetMember('$LIVE'));
+  ALiveVal := TStringInstance(AActrec.GetMember('$_LIVE'));
   ALiveVal.PValue := ALiveVal.PValue + AVal.AsString;
-  AActRec.AddMember('$LIVE', ALiveVal);
+  AActRec.AddMember('$_LIVE', ALiveVal);
 end;
 
 function TInterpreter.VisitLivePrint(ANode: TLivePrint): TStringInstance;
@@ -170,7 +184,7 @@ var
   AActRec: TActivationRecord;
 begin
   AActRec := FCallStack.Peek();
-  Result := TStringInstance(AActrec.GetMember('$LIVE'));
+  Result := TStringInstance(AActrec.GetMember('$_LIVE'));
 end;
 
 procedure TInterpreter.VisitBreak(Anode: TBreakLoop);
@@ -199,8 +213,8 @@ var
   aLive: string;
 begin
   AActRec := FCallStack.Peek();
-  ALive := TStringInstance(AActrec.GetMember('$LIVE')).PValue;
-  TStringInstance(AActrec.GetMember('$LIVE')).PValue := ALive + ANode.PValue;
+  ALive := TStringInstance(AActrec.GetMember('$_LIVE')).PValue;
+  TStringInstance(AActrec.GetMember('$_LIVE')).PValue := ALive + ANode.PValue;
 end;
 
 procedure TInterpreter.VisitInterpolation(ANode: TInterpolation);
@@ -209,8 +223,8 @@ var
   ALive: string;
 begin
   AActRec := FCallStack.Peek();
-  ALive := AActrec.GetMember('$LIVE').AsString;
-  TStringInstance(AActrec.GetMember('$LIVE')).PValue :=
+  ALive := AActrec.GetMember('$_LIVE').AsString;
+  TStringInstance(AActrec.GetMember('$_LIVE')).PValue :=
     ALive + Visit(ANode.POper).AsString;
 end;
 
@@ -250,8 +264,13 @@ begin
     else if Gene.ClassNameIs('TBuiltInType') then
     begin
       ABuilt := TBuiltInType(Gene);
-      //if ABuilt.PValue = 'TFileExplorer' then
-        //Result := TFileExplorer.Create;
+
+
+      if ABuilt.PValue = 'TServerInstance' then
+        Ret := TServerInstance.Create;
+
+
+      Result := Ret;
     end
   end
   else
@@ -409,9 +428,8 @@ end;
 procedure TInterpreter.VisitVarAssign(ANode: TVarAssign);
 var
   AValue: TInstanceOf;
-  newAct: TActRecInstance;
   AName: string;
-  AActRec, A2 : TActivationRecord;
+  AActRec : TActivationRecord;
 begin
   LogText(INTER, 'Interpreter', 'VarAssign visitation');
   AName := ANode.PVarName.PValue;
@@ -424,17 +442,36 @@ begin
   end;
   AActrec := FCallStack.Peek;
   AActRec.AddMember(AName, AValue);
-  {if AValue.ClassNameIs('TActrecInstance') then
+end;
+
+procedure TInterpreter.VisitListAssign(ANode: TListAssign);
+var
+  ASrc, AValue, AIndex: TInstanceOf;
+  ASrcAct: TActRecInstance;
+  ASrcList: TListInstance;
+begin
+  LogText(INTER, 'Interpreter', 'VarList visitation');
+  ASrc := Visit(ANode.PSrc);
+  Aindex := Visit(ANode.PEntry);
+  AValue := Visit(ANode.PValue);
+  if ASrc.ClassNameIs('TActRecInstance') then
   begin
-    TActRecInstance(AValue).PValue.CopyActRec(A2);
-    AActrec := FCallStack.Peek;
-    AActRec.AddMember(AName, TActRecInstance.Create(A2));
+    ASrcAct := TActrecInstance(ASrc);
+    if AIndex.ClassNameIs('TStringInstance') then
+      ASrcAct.PValue.AddMember(TStringInstance(AIndex).PValue, AValue)
+    else
+      raise ERunTimeError.Create('Invalid type for Dict index');
   end
-  else
+  else if ASrc.ClassNameIs('TListInstance') then
   begin
-    AActrec := FCallStack.Peek;
-    AActRec.AddMember(AName, AValue);
-  end;}
+    ASrcList := TListInstance(ASrc);
+    if AIndex.ClassNameIs('TIntegerInstance') then
+      ASrcList.SetItem(TIntegerInstance(AIndex).PValue, AValue)
+    else
+      raise ERunTimeError.Create('Invalid type for List index');
+  end;
+
+
 end;
 
 function TInterpreter.VisitVariableReference(ANode: TVariableReference): TInstanceOf;
@@ -507,7 +544,7 @@ begin
     begin
       AActRec := TActivationRecord.Create(FuncDef.PName, AR_FUNCTION,
         FCallStack.PLevel + 1);
-      AActRec.AddMember('$LIVE', TStringInstance.Create(''));
+      AActRec.AddMember('$_LIVE', TStringInstance.Create(''));
       AActRec.AddMember('self', ASrcInstance);
       LenArgs := Length(Anode.PEvalParams);
       LenParams := Length(FuncDef.PParams);
@@ -559,7 +596,7 @@ begin
         else
           Visit(AState);
       end;
-      AReturn := AActRec.GetMember('$LIVE');
+      AReturn := AActRec.GetMember('$_LIVE');
       FCallStack.Pop();
       Result := AReturn;
       exit;
@@ -604,7 +641,7 @@ begin
     AActRec := TActivationRecord.Create('PROGRAM', AR_PROGRAM, 1)
   else
     AActRec := TActivationRecord.Create(FNameSpace.PName, AR_NAMESPACE, 1);
-  AActRec.AddMember('$LIVE', TStringInstance.Create(''));
+  AActRec.AddMember('$_LIVE', TStringInstance.Create(''));
   if not FDontPush then
     // root execution
   begin
@@ -618,6 +655,9 @@ begin
       FCallStack.Push(AActRec);
     end;
   end;
+
+  for AChild in Anode.PPreludes do
+    Visit(AChild);
 
   for AChild in ANode.PChildren do
   begin
@@ -681,15 +721,22 @@ function TInterpreter.VisitNameSpaceGet(Anode: TNamespaceGet): TInstanceOf;
 var
   AActRec, ARef: TActivationRecord;
   ANameRec: TActRecInstance;
-  Ret: TInstanceOf;
+  Ret, ADictCand, AKeyCand: TInstanceOf;
+  AKey: TStringInstance;
 begin
   AActrec := FCallStack.Peek();
-  Aref := TActrecInstance(AActRec.GetMember(ANode.PName)).PValue;
-  ANameRec := TActRecInstance.Create(Aref);
-  FCallStack.Push(AnameRec.PValue);
-  Ret := Visit(ANode.POper);
-  FcallStack.Pop();
+  ADictCand := AActRec.GetMember(ANode.PName);
+  if ADictCand.ClassNameIs('TActRecInstance') then
+  begin
+    Aref := TActrecInstance(ADictCand).PValue;
+    FCallStack.Push(ARef);
+  end
+  else
+    raise ERunTimeError.Create('Referenced name is not a Dict type');
+  Ret := Visit(ANode.Poper);
+  FCallStack.Pop();
   Result := ret;
+
 end;
 
 function TInterpreter.VisitNameSpaceState(Anode: TNamespaceState): TInstanceOf;
@@ -721,7 +768,7 @@ function TInterpreter.Visit(ANode: TAST; ASrcInstance: TInstanceOf = nil): TInst
 var
   AuxBool: boolean;
 begin
-  {$INCLUDE 'interpreter_node_switcher.pp'}
+  {$INCLUDE 'interpreter/node_switcher.pp'}
 end;
 
 function TInterpreter.VisitUnaryOpFloat(ANode: TUnaryOp): TFloatInstance;

@@ -44,6 +44,7 @@ type
       FValue: string;
     public
       property PValue: string read FValue write FValue;
+      function AsString: string; override;
       constructor Create(ANAme: string);
   end;
 
@@ -101,6 +102,11 @@ uses
 constructor TBuiltInType.Create(AName: string);
 begin
   FValue := AName;
+end;
+
+function TBuiltInType.AsString: string;
+begin
+  Result := FValue;
 end;
 
 function TInstanceOf.AsString: string;

@@ -5,6 +5,9 @@
   else if ANode.ClassNameIs('TVarAssign') then   
     VisitVarAssign(TVarAssign(ANode))
 
+  else if ANode.ClassNameIs('TListAssign') then
+    VisitListAssign(TListAssign(ANode))
+
   else if ANode.ClassNameIs('TVariableReference') then
     Result := VisitVariableReference(TVariableReference(ANode))
 

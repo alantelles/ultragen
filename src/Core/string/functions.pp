@@ -1,3 +1,8 @@
+procedure TCoreFunction.InitString(AObj: TStringInstance);
+begin
+  AObj.PValue := TStringInstance(FParams[0]).PValue;
+end;
+
 function TCoreFunction.JoinString(AObj: TStringInstance):TStringInstance;
 var
   len, i: integer;

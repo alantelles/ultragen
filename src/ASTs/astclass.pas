@@ -25,10 +25,13 @@ type
   TProgram = class(TAST)
   protected
     FChildren: TASTList;
+    FPreludes: TASTList;
   public
     property PChildren: TASTList read FChildren write FChildren;
+    property PPreludes: TASTList read FPreludes write FPreludes;
     constructor Create;
     procedure Add(ANode: TAST);
+    procedure AddPrelude(ANode: TAST);
     function Count: integer;
   end;
 
@@ -238,11 +241,31 @@ type
      constructor Create;
   end;
 
+  TListAssign = class (TAST)
+  protected
+    FEntry: TAST;
+    FSrc: TAST;
+    FValue: TAST;
+  public
+    property PEntry: TAST read FEntry;
+    property PValue: TAST read FValue;
+    property PSrc: TAST read FSrc;
+    constructor Create(ASrc, AEntry, AValue: TAST; AToken: TToken);
+  end;
+
 implementation
 
 constructor TDictKeyNode.Create(AKey: TAST; AValue: TAST; AToken: TToken);
 begin
-  FKey := Akey;
+  FKey := AKey;
+  FValue := AValue;
+  FToken := AToken;
+end;
+
+constructor TListAssign.Create(ASrc, AEntry, AValue: TAST; AToken: TToken);
+begin
+  FSrc := ASrc;
+  FEntry := AEntry;
   FValue := AValue;
 end;
 
@@ -394,6 +417,16 @@ end;
 function TProgram.Count: integer;
 begin
   Result := Length(FChildren);
+end;
+
+procedure TProgram.AddPrelude(ANode: TAST);
+var
+  len: integer;
+begin
+  len := Length(FPreludes);
+  len := len + 1;
+  SetLength(FPreludes, len);
+  FPreludes[len - 1] := ANode;
 end;
 
 procedure TProgram.Add(ANode: TAST);

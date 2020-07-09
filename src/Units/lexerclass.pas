@@ -120,6 +120,7 @@ var
   ret: string = '';
 begin
   Advance;
+  Advance;
   while Pos(FCurrChar, LETTERS) > 0 do
   begin
     Ret := Ret + FCurrChar;
@@ -134,13 +135,13 @@ end;
 function TLexer.PassLineComment: string;
 begin
   {$IFDEF Unix}
-  while FCurrChar <> SLineBreak do
+  while (FCurrChar <> SLineBreak) and (FCurrChar <> EOF) do
   begin
     Advance();
   end;
   {$ENDIF}
   {$IFDEF Windows}
-  while (FCurrChar + Peek(1)) <> SLineBreak do
+  while ((FCurrChar + Peek(1)) <> SLineBreak) and (FCurrChar <> NONE) do
     Advance();
   {$ENDIF}
   Result := '';

@@ -31,7 +31,7 @@
         <PackageName Value="LazUtils"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="24">
+    <Units Count="25">
       <Unit0>
         <Filename Value="UltraGenParser.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -151,6 +151,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="ListInstanceClass"/>
       </Unit23>
+      <Unit24>
+        <Filename Value="src\BuiltInTypes\serverclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ServerClass"/>
+      </Unit24>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
