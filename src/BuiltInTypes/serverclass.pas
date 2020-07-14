@@ -6,8 +6,8 @@ interface
 
 uses
   Classes, SysUtils, InstanceOfClass,
-  httpdefs, httproute, fphttpapp, fphttpserver, fpwebfile,
-    blcksock, sockets, Synautil;
+  httpdefs, httproute, fphttpapp, fphttpserver, fpwebfile{,
+    blcksock, sockets, Synautil};
 
   type TServerInstance = class (TInstanceOf)
     protected
@@ -23,7 +23,7 @@ uses
       procedure ExecuteAction(ARequest: TRequest; AResponse: TResponse);
       procedure StopServer(ARequest: TRequest;AResponse: TResponse);
 
-      procedure AttendConnection(ASocket: TTCPBlockSocket);
+      //procedure AttendConnection(ASocket: TTCPBlockSocket);
 
       procedure SetServerStopRoute(ARoute:string);
       procedure RunServer;
@@ -64,7 +64,7 @@ begin
 
 end;
 
-procedure TServerInstance.AttendConnection(ASocket: TTCPBlockSocket);
+{procedure TServerInstance.AttendConnection(ASocket: TTCPBlockSocket);
 var
   timeout: integer;
   s, resp: string;
@@ -119,7 +119,7 @@ begin
   //end
   //else
     //ASocket.SendString('HTTP/1.0 404' + CRLF);
-end;
+end;}
 
 procedure TServerInstance.ExecuteAction(ARequest: TRequest;AResponse: TResponse);
 var
@@ -147,8 +147,6 @@ begin
     AParser.Free;
     ALexer.Free;
     AResponse.Content := Output;
-    AResponse.SendResponse;
-    AResponse.CleanupInstance;
     WriteLn('['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
       ARequest.Method + ': '+
       ARequest.URI+' -- '+ IntToStr(AResponse.Code)+

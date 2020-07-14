@@ -136,7 +136,8 @@ begin
     Ret := Ret + FCurrChar;
     advance;
   end;
-  TF := TToken(InnerAttributes[Ret]);
+  //TF := TToken(InnerAttributes[Ret]);
+  TF := TToken(InnerAttributes.Find(Ret));
   if TF = nil then
     raise EParserError.Create('Undefined referenced inner attribute "' + Ret + '"', FFileName, FScriptLine, FLineChar);
   Result := TF;
@@ -186,7 +187,8 @@ begin
     Ret := Ret + FCurrChar;
     Advance;
   end;
-  Tokenfound := TToken(ReservedWords[ret]);
+  //Tokenfound := TToken(ReservedWords[ret]);
+  Tokenfound := TToken(ReservedWords.Find(ret));
   if Tokenfound = nil then
     TokenFound := TToken.Create(T_ID, Ret, FScriptLine, FLineChar, FFileName)
   else

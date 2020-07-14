@@ -21,7 +21,7 @@ type
       FName:string;
       FType:string;
       FNestingLevel: integer;
-      FMembers: TFPObjectHashTable;
+      FMembers: TFPHashObjectList;
       //FMembers: TStringList;
       FNowType: TInstanceOf;
       FNowKey: string;
@@ -41,7 +41,7 @@ type
 
       procedure FreeAllMembers;
       procedure CopyActRec(var AReceiver: TActivationRecord);
-      property PMembers: TFPObjectHashTable read FMembers write FMembers;
+      property PMembers: TFPHashObjectList read FMembers write FMembers;
       constructor Create(AName:string; AType: string; ALevel: integer);
 
 
@@ -69,14 +69,14 @@ begin
   FName := AName;
   FType := AType;
   FNestingLevel := ALevel;
-  FMembers := TFPObjectHashTable.Create();
+  FMembers := TFPHashObjectList.Create();
   //FMembers := TStringList.Create;
 end;
 
 procedure TActivationRecord.GetKeys(var Alist: TListInstance);
 begin
   FList := Alist;
-  FMembers.Iterate(@IterGetKeys);
+  //FMembers.Iterate(@IterGetKeys);
 end;
 
 procedure TActivationRecord.IterGetkeys(AItem: TObject; const Aname:string; var Cont: boolean);
@@ -96,7 +96,7 @@ end;
 
 procedure TActivationRecord.FreeAllMembers;
 begin
-  FMembers.Iterate(@FreeMembers);
+  //FMembers.Iterate(@FreeMembers);
   FNowType.Free;
 end;
 
@@ -107,7 +107,7 @@ begin
   FFound := False;
   FNowKey := AKey;
   FNowType := ASrc;
-  FMembers.Iterate(@SearchFunction);
+  //FMembers.Iterate(@SearchFunction);
   FNowKey := '';
   FNowType := nil;
   Ret := TFunctionInstance(GetMember(AKey));
@@ -158,25 +158,26 @@ end;
 
 procedure TActivationRecord.AddMember(AKey:string; AObj:TInstanceOf);
 begin
-  try
+  //try
     FMembers.Add(AKey, AObj)
-	except
-    FMembers[Akey] := AObj
-	end;
+	//except
+    //FMembers[Akey] := AObj
+	//end;
 end;
 
 function TActivationRecord.GetMember(AKey:string):TInstanceOf;
 var
   Ret:TInstanceOf;
 begin
-  Ret := TInstanceOf(FMembers[AKey]);
+  //Ret := TInstanceOf(FMembers[AKey]);
+  Ret := TInstanceOf(FMembers.Find(AKey));
   Result := Ret;
 end;
 
 procedure TActivationRecord.CopyActRec(var AReceiver: TActivationrecord);
 begin
   FReceiver := TActivationRecord.Create(Fname, FType, FNestinglevel);
-  FMembers.Iterate(@CopyItems);
+  //FMembers.Iterate(@CopyItems);
   AReceiver := FReceiver;
 end;
 
@@ -190,7 +191,7 @@ var
   Ret: string = '';
 begin
   WriteLn('Activation record named '+FName+' of type '+FType);
-  FMembers.Iterate(@MemberAsString);
+  //FMembers.Iterate(@MemberAsString);
   Result := Ret;
 
 end;

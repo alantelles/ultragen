@@ -84,10 +84,14 @@ begin
   AToken := TToken.Create(FCurrentToken.PType,FCurrentToken.PValue,FCurrentToken.PLineNo,FCurrentToken.PCharNo,FCurrentToken.PScriptName);
   AName := FCurrentToken.PValue;
   Eat(T_ID);
-  {Eat(T_LPAREN);
-  ConstArgs := Args();
-  Eat(T_RPAREN);
-  LogText('PARSER', 'Parser', 'Creating a new object node');}
+  SetLength(ConstArgs, 0);
+  logtext('PARSER', 'Parser', 'Creating new object node');
+  if FCurrentToken.PType = T_LPAREN then
+  begin
+    Eat(T_LPAREN);
+    ConstArgs := Args();
+    Eat(T_RPAREN);
+  end;
   Result := TNewObject.Create(ConstArgs, AName, AToken);
 end;
 

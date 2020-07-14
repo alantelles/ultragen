@@ -1,10 +1,4 @@
-function isEven(arg)
-    return arg % 2 == 0
-end
-for (2000, i)
-    if (i % 2 == 0)
-        print(str(i) + ': par')
-    else
-        print(str(i) + ': impar')
-    end
-end
+a = 56
+print(a)
+a = 'teste'
+print(a)

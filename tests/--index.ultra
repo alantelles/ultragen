@@ -8,6 +8,4 @@ post = {
     'header': 'UltraPower',
     'post': content
 }
-for(10, i)
-    live BaseSite(post)
-end
+live BaseSite(post)

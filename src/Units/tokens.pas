@@ -82,12 +82,12 @@ const
 
 
 var
-  ReservedWords: TFPObjectHashTable;
-  InnerAttributes: TFPObjectHashTable;
+  ReservedWords: TFPHashObjectList;
+  InnerAttributes: TFPHashObjectList;
 
 implementation
 begin
-  ReservedWords := TFPObjectHashTable.Create();
+  ReservedWords := TFPHashObjectList.Create();
   ReservedWords.Add('function', TToken.Create(T_FUNC_DEF, 'block:function definition'));
   ReservedWords.Add('if', TToken.Create(T_IF_START, 'block:IF START'));
   ReservedWords.Add('elsif', TToken.Create(T_ELSE_IF, 'ELSE IF'));
@@ -104,7 +104,7 @@ begin
   ReservedWords.Add('include', TToken.Create(T_INCLUDE, T_INCLUDE));
   ReservedWords.Add('new', TToken.Create(T_NEW_OBJECT, T_NEW_OBJECT));
 
-  InnerAttributes := TFPObjectHashTable.Create();
+  InnerAttributes := TFPHashObjectList.Create();
   InnerAttributes.Add('LIVE', TToken.Create(T_LIVE_PRINT, T_LIVE_PRINT));
 
 
