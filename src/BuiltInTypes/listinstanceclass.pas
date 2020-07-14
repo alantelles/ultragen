@@ -63,7 +63,7 @@ end;
 procedure TListInstance.SetItem(Aindex:integer; AItem: TInstanceOf);
 begin
   if Aindex > LenList - 1 then
-    raise EListError.Create('Undefined index '+IntToStr(Aindex)+' at list');
+    raise EListError.Create('Undefined index '+IntToStr(Aindex)+' at list', '', 1, 1);
   FValue[AIndex] := Aitem;
 end;
 
@@ -85,7 +85,7 @@ begin
   if Ret <> nil then
     Result := Ret
   else
-    raise EListError.Create('Undefined index '+IntToStr(Aindex.PValue)+' at list');
+    raise EListError.Create('Undefined index '+IntToStr(Aindex.PValue)+' at list', '', 1, 1);
 end;
 
 function TListInstance.GetItem(AIndex: integer):TInstanceOf;
@@ -96,7 +96,7 @@ begin
   if Ret <> nil then
     Result := Ret
   else
-    raise EListError.Create('Undefined index '+IntToStr(Aindex)+' at list');
+    raise EListError.Create('Undefined index '+IntToStr(Aindex)+' at list', '', 1, 1);
 end;
 
 function TListInstance.LenList:integer;

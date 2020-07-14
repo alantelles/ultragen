@@ -9,8 +9,11 @@ uses
   BinOpClass, NumClass, UnaryOpClass, BinLogicOpClass, UnaryLogicopClass,
   ImpParserClass, StrUtils, LoggingClass, FlowControlASTClass,
   StackClass, ARClass, InstanceofClass,
-  StringInstanceClass,
-  ListInstanceClass ;
+  StringInstanceClass, ExceptionsClasses,
+  ListInstanceClass;
+
+  type
+    PtrInst = ^TInstanceOf;
 
 type
   TInterpreter = class
@@ -24,17 +27,23 @@ type
     FLiveOutput: string;
     FDontPush: boolean;
     FNameSpace: TActivationRecord;
-    FParentStack: TStack;
+    FParentStack: TStack;       
+    FTrace: TStringList;
+    FNowNode: TAST;
+    FRunTimeInstances: TInstanceList;
     procedure BootStrapRegister;
 
 
   public
+
     property PTree: TAST read FTree;
     property PLive: string read FLiveOutput;
+    procedure RaiseException(AMsg:string; AType: string);
     constructor Create(var ATree: TAST);
     function GetLive: string;
     procedure PassCallStack(var ACallStack: TStack; ToParent: boolean);
     procedure CleanStack;
+    procedure FreeInstances;
     function Interpret(DontPush: boolean = False;
       ANameActRec: TActivationRecord = nil): string;
 
@@ -45,10 +54,12 @@ type
 
   end;
 
+
+
 implementation
 
 uses
-  Math, ExceptionsClasses, TokenClass, Tokens, CoreFunctionsClass, LexerClass,
+  Math,  TokenClass, Tokens, CoreFunctionsClass, LexerClass,
 
   ServerClass;
 
@@ -57,6 +68,42 @@ begin
   FTree := ATree;
   FCallStack := TStack.Create;
   FBreakSignal := False;
+  FTrace := TStringList.Create;
+  FTrace.SkipLastLineBreak := True;
+  FTrace.LineBreak := sLineBreak + '+ ';
+  SetLength(FRunTimeInstances, 0);
+end;
+
+procedure TInterpreter.FreeInstances;
+var
+  len, i: integer;
+  x : PtrInst;
+  y: ^word;
+begin
+  len := Length(FRunTimeInstances);
+  if len > 0 then
+  begin
+    for i:=0 to len-1 do
+    begin
+      try
+        //FRunTimeInstances[i].Free;
+        //x := @FRunTimeInstances[i];
+        //y := addr(x);
+        FRunTimeInstances[i].Free;
+        //writeln(i, ' -- freeing: ', FRunTimeInstances[i].ToString);
+
+        //Writeln(@FRunTimeInstances);
+      except
+         //writeln(i, ' -- jump');
+      end;
+
+    end;
+  end;
+end;
+
+procedure TInterpreter.RaiseException(AMsg:string; AType: string);
+begin
+  EClientException.Create(AMsg, FTrace, FNowNode.PToken, AType);
 end;
 
 procedure TInterpreter.BootstrapRegister;
@@ -128,6 +175,7 @@ begin
   FNameSpace := ANameActRec;
 
   Ret := Visit(FTree);
+  //writeln(Length(FRunTimeInstances));
   Result := '';
 end;
 
@@ -143,24 +191,35 @@ end;
 
 procedure TInterpreter.VisitPlainTextEmbed(ANode: TPlainTextEmbed);
 var
-  AState: TAST;
+  //AState: TAST;
+  i, len:integer;
 begin
-  for AState in Anode.PNodes do
-    Visit(AState);
+  len := Length(Anode.PNodes);
+  if len > 0 then
+    for i:=0 to len-1 do
+      Visit(ANode.PNodes[i]);
+  //for AState in Anode.PNodes do
+    //Visit(AState);
 end;
 
 function TInterpreter.VisitDict(ANode: TDictNode): TActRecInstance;
 var
   AActRec: TActivationRecord;
-  AKey: TAST;
+  //AKey: TAST;
   ATypedKey: TDictKeyNode;
   ARepo: TInstanceOf;
+  len, i:integer;
 begin
   AActRec := TActivationRecord.Create('Any', AR_DICT, 1);
-  for Akey in ANode.PKeys do
+  //for Akey in ANode.PKeys do
+  len := Length(ANode.PKeys);
+  if len > 0 then
   begin
-    ATypedKey := TDictkeyNode(AKey);
-    AActRec.AddMember(Visit(ATypedkey.PKey).AsString,Visit(ATypedKey.PValue));
+    for i:=0 to len-1 do
+    begin
+      ATypedKey := TDictkeyNode(ANode.PKeys[i]);
+      AActRec.AddMember(Visit(ATypedkey.PKey).AsString,Visit(ATypedKey.PValue));
+    end;
   end;
   Result := TActRecInstance.Create(AActRec);
 end;
@@ -259,6 +318,7 @@ begin
     begin
       ActInst := TActRecInstance(Gene);
       ActInst.PValue.CopyActRec(NewAct);
+
       Result := TActrecInstance.Create(NewAct);
     end
     else if Gene.ClassNameIs('TBuiltInType') then
@@ -274,58 +334,79 @@ begin
     end
   end
   else
-    raise ERunTimeError.Create('Referenced type or namespace ' + ANode.PName + ' does not exist');
+  begin
+     ERunTimeError.Create('Referenced type or namespace ' + ANode.PName + ' does not exist',
+          FTrace, ANode.PToken);
+  end;
 
 end;
 
 procedure TInterpreter.VisitConditional(ANode: TConditional);
 var
-  ACondition: TAST;
+  //ACondition: TAST;
+  len, i: integer;
   Return: TBooleanInstance;
 begin
-  for ACondition in ANode.PConditions do
+  len := Length(ANode.PConditions);
+  if len > 0 then
   begin
-    Return := VisitIfCondition(TIfConditionBlock(ACondition));
-    if Return.PValue then
-      break;
+    //for ACondition in ANode.PConditions do
+    for i:=0 to len-1 do
+    begin
+      Return := VisitIfCondition(TIfConditionBlock(ANode.PConditions[i]));
+      if Return.PValue then
+        break;
+    end;
   end;
 end;
 
 function TInterpreter.VisitIfCondition(ANode: TIfConditionBlock): TBooleanInstance;
 var
   AEval: TBooleanInstance = nil;
-  AState: TAST;
+  //AState: TAST;
+  len, i: integer;
 begin
   if ANode.PCondition <> nil then
   begin
     AEval := TBooleanInstance(Visit(ANode.PCondition));
     if AEval.PValue or (ANode.PCondition = nil) then
     begin
-      for AState in ANode.PBLock do
+      len := Length(ANode.PBlock);
+      if len > 0 then
       begin
-        if FBreakSignal or
-           FContinueSignal then
-          break
-        else if FReturnSignal then
-          break
-        else
-          Visit(AState);
+        //for AState in ANode.PBLock do
+        for i:=0 to len-1 do
+        begin
+          if FBreakSignal or
+             FContinueSignal then
+            break
+          else if FReturnSignal then
+            break
+          else
+            Visit(ANode.PBlock[i]);
+        end;
+
       end;
     end;
   end
   else
   begin
     AEval := TBooleanInstance.Create(False);
-    for AState in ANode.PBLock do
+    len := Length(ANode.PBlock);
+    if len > 0 then
     begin
-      if FBreakSignal or FContinueSignal then
+      //for AState in ANode.PBLock do
+    for i:=0 to len-1 do
       begin
-        break;
-      end
-      else if FReturnSignal then
-        break
-      else
-        Visit(AState);
+        if FBreakSignal or FContinueSignal then
+        begin
+          break;
+        end
+        else if FReturnSignal then
+          break
+        else
+          Visit(ANode.PBlock[i]);
+      end;
     end;
   end;
   Result := AEval;
@@ -333,22 +414,28 @@ end;
 
 procedure TInterpreter.VisitWhileLoop(ANode: TWhileLoop);
 var
-  AState: TAST;
+  //AState: TAST;
+  len, i:integer;
 begin
   while TBooleanInstance(Visit(ANode.PCondition)).PValue do
   begin
-    for AState in ANode.PBLock do
+    len := Length(ANode.PBlock);
+    if len > 0 then
     begin
-      if FBreakSignal or FContinueSignal then
+      //for AState in ANode.PBLock do
+      for i:=0 to len-1 do
       begin
-        FContinueSignal := False;
+        if FBreakSignal or FContinueSignal then
+        begin
+          FContinueSignal := False;
+          break;
+        end
+        else
+          Visit(ANode.PBLock[i]);
+      end;
+      if FBreakSignal then
         break;
-      end
-      else
-        Visit(AState);
     end;
-    if FBreakSignal then
-      break;
   end;
   FBreakSignal := False;
 end;
@@ -361,7 +448,7 @@ var
   AInt, AIndex: TIntegerInstance;
   AActRec: TActivationRecord;
   i: integer = 0;
-  len: integer;
+  len, len2, j: integer;
   ACandidate: TListInstance;
   AStr: string;
 begin
@@ -387,33 +474,48 @@ begin
     end
     else
     begin
-      ACandidate.Free;
-      raise ERunTimeError.Create(AListRes.ClassName + ' is not iterable');
+      //ACandidate.Free;
+       ERunTimeError.Create(AListRes.ClassName + ' is not iterable',
+          FTrace, ANode.PToken);
     end;
   end
   else
-    raise ERunTimeError.Create(AListRes.ClassName + ' is not iterable');
-  for AInst in ACandidate.PValue do
   begin
-    AActRec.AddMember(Anode.PVar.PVarName.PValue, AInst);
-    AIndex := TIntegerInstance.Create(i);
-    AActRec.AddMember('_' + Anode.PVar.PVarName.PValue, AIndex);
-    for AState in ANode.PBlock do
+     ERunTimeError.Create(AListRes.ClassName + ' is not iterable',
+          FTrace, ANode.PToken);
+  end;
+  len2 := Length(ACandidate.PValue);
+  if len2 > 0 then
+  begin
+    //for AInst in ACandidate.PValue do
+    for i:=0 to len2-1 do
     begin
-      if FBreakSignal or FContinueSignal or FReturnSignal then
+      //AActRec.AddMember(Anode.PVar.PVarName.PValue, AInst);
+      AActRec.AddMember(Anode.PVar.PVarName.PValue, ACandidate.PValue[i]);
+      AIndex := TIntegerInstance.Create(i);
+      AActRec.AddMember('_' + Anode.PVar.PVarName.PValue, AIndex);
+      len := Length(ANode.PBlock);
+      if len > 0 then
       begin
-        FContinueSignal := False;
+        //for AState in ANode.PBlock do
+        for j:=0 to len-1 do
+        begin
+          if FBreakSignal or FContinueSignal or FReturnSignal then
+          begin
+            FContinueSignal := False;
+            break;
+          end
+          else
+            Visit(ANode.PBlock[j]);
+        end;
+      end;
+      //i := 1 + i;
+      if FBreakSignal or FReturnSignal then
+      begin
         break;
-      end
-      else
-        Visit(AState);
+      end;
+      AIndex.Free;
     end;
-    i := 1 + i;
-    if FBreakSignal or FReturnSignal then
-    begin
-      break;
-    end;
-    //AIndex.Free;
   end;
   {for i := 0 to ACandidate.Count - 1 do
   begin
@@ -437,8 +539,11 @@ begin
   if AValue.ClassNameIs('TFunctionInstance') then
   begin
     if TFunctionInstance(AValue).PIsBuiltin then
-      raise ERunTimeError.Create('Can''t assign builtin function "' +
-        ANode.PValue.PToken.PValue + '" to variable "' + AName + '"');
+    begin
+       ERunTimeError.Create('Can''t assign builtin function "' +
+        ANode.PValue.PToken.PValue + '" to variable "' + AName + '"',
+          FTrace, ANode.PToken);
+    end;
   end;
   AActrec := FCallStack.Peek;
   AActRec.AddMember(AName, AValue);
@@ -460,7 +565,10 @@ begin
     if AIndex.ClassNameIs('TStringInstance') then
       ASrcAct.PValue.AddMember(TStringInstance(AIndex).PValue, AValue)
     else
-      raise ERunTimeError.Create('Invalid type for Dict index');
+    begin
+       ERunTimeError.Create('Invalid type for Dict index',
+          FTrace, ANode.PToken);
+    end;
   end
   else if ASrc.ClassNameIs('TListInstance') then
   begin
@@ -468,7 +576,10 @@ begin
     if AIndex.ClassNameIs('TIntegerInstance') then
       ASrcList.SetItem(TIntegerInstance(AIndex).PValue, AValue)
     else
-      raise ERunTimeError.Create('Invalid type for List index');
+    begin
+       ERunTimeError.Create('Invalid type for List index',
+          FTrace, ANode.PToken);
+    end;
   end;
 
 
@@ -491,7 +602,11 @@ begin
     Ret := GlobalAR.GetMember(AName);
   end;
   if Ret = nil then
-    raise ERunTimeError.Create('Referenced variable "' + Aname + '" does not exist');
+  begin
+
+     ERunTimeError.Create('Referenced variable "' + Aname + '" does not exist',
+          FTrace, ANode.PToken);
+  end;
   LogText(INTER, 'Interpreter', 'Getting value of "' +
     ANode.PToken.PValue + '" from type ' + Ret.ClassName);
   Result := Ret;
@@ -508,16 +623,18 @@ function TInterpreter.VisitFunctionCall(ANode: TFunctionCall;
 const
   ST_ACCESS = ':';
 var
+  x : ^word;
   ACoreExec: TCoreFunction;
   AFuncName, ASrcName, compl: string;
   AActRec: TActivationRecord;
   AParamName: string;
-  AState: TAST;
+  //AState: TAST;
+  len, len2, i:integer;
   AParamState: TParam;
   FuncDef, Aux: TFunctioninstance;
   ADef: TInstanceOf = nil;
-  AReturn: TInstanceOf;
-  LenArgs, LenParams, Len, i: integer;
+  AReturn, AIter: TInstanceOf;
+  LenArgs, LenParams: integer;
   ArgsList: TInstanceList;
 begin
   AFuncName := ANode.PFuncName;
@@ -558,12 +675,12 @@ begin
             if TParam(FuncDef.PParams[i]).PDefValue <> nil then
               ADef := Visit(TParam(FuncDef.PParams[i]).PDefValue)
             else
-              raise EArgumentsError.Create(
+               EArgumentsError.Create(
                 'Wrong number of arguments to call this function');
           end
           else if i > (LenParams - 1) then
           begin
-            raise EArgumentsError.Create(
+             EArgumentsError.Create(
               'Wrong number of arguments to call this function');
           end
           else
@@ -575,7 +692,7 @@ begin
           begin
             Aux := TFunctionInstance(ADef);
             if Aux.PIsBuiltin then
-              raise ERunTimeError.Create('Can''t assign builtin function "' +
+               ERunTimeError.Create('Can''t assign builtin function "' +
                 ANode.PEvalParams[i].PToken.PValue + '" as argument');
             //AParamName := ANode.PEvalParams[i].PToken.PValue;
           end;
@@ -583,20 +700,30 @@ begin
         end;
       end;
       FCallStack.Push(AActRec);
-      for AState in FuncDef.PBlock do
+      len := Length(Funcdef.PBlock);
+      if len > 0 then
       begin
-        if FReturnSignal then
+        //for AState in FuncDef.PBlock do
+        for i:=0 to len-1 do
         begin
-          FReturnSignal := False;
-          AReturn := FReturnValue;
-          FCallStack.Pop();
-          Result := FReturnValue;
-          exit;
-        end
-        else
-          Visit(AState);
+          if FReturnSignal then
+          begin
+            FReturnSignal := False;
+            AReturn := FReturnValue;
+            FCallStack.Pop();
+            Result := FReturnValue;
+            exit;
+          end
+          else
+            //Visit(AState);
+            Visit(FuncDef.PBlock[i]);
+
+        end;
       end;
       AReturn := AActRec.GetMember('$_LIVE');
+      //x := addr(AReturn);
+      //writeln(x^);
+      //writeln(sizeof(AReturn));
       FCallStack.Pop();
       Result := AReturn;
       exit;
@@ -606,24 +733,37 @@ begin
       ACoreExec := TCoreFunction.Create;
       Len := 0;
       SetLength(ArgsList, 0);
-      for AState in ANode.PEvalParams do
+      len2 := Length(ANode.PEvalParams);
+      if len2 > 0 then
       begin
-        Len := Len + 1;
-        SetLength(ArgsList, len);
-        ArgsList[len - 1] := Visit(AState, ASrcInstance);
-      end;
+        //for AState in ANode.PEvalParams do
+        for i:=0 to len2-1 do
+        begin
+          Len := Len + 1;
+          SetLength(ArgsList, len);
+          //ArgsList[len - 1] := Visit(AState, ASrcInstance);
+          ArgsList[len - 1] := Visit(ANode.PEvalParams[i], ASrcInstance);
+        end;
       //if FuncDef.ClassNameIs('TBuiltInType') then
         //ASrcInstance.
         AReturn := ACoreExec.Execute(Self, AFuncName, ArgsList, ASrcInstance);
+      end;
       ACoreExec.Free;
       Result := AReturn;
       exit;
+    end;
+    FuncDef.Free;
+    len := Length(ArgsList);
+    if len > 0 then
+    begin
+      for i:=0 to len-1 do
+        ArgsList[i].Free;
     end;
   end
   else
   begin
 
-    raise ERunTimeError.Create('Referenced function "' + AFuncName +
+     ERunTimeError.Create('Referenced function "' + AFuncName +
       '" does not exist.');
   end;
   // end of new
@@ -632,9 +772,9 @@ end;
 
 procedure TInterpreter.VisitProgram(ANode: TProgram);
 var
-  AChild: TAST;
+  //AChild: TAST;
+  len, i: integer;
   AActRec, AParRec: TActivationRecord;
-
 begin
   LogText(INTER, 'Interpreter', 'Visiting a program');
   if FNameSpace = nil then
@@ -655,14 +795,26 @@ begin
       FCallStack.Push(AActRec);
     end;
   end;
-
-  for AChild in Anode.PPreludes do
-    Visit(AChild);
-
-  for AChild in ANode.PChildren do
+  len := Length(ANode.PPreludes);
+  if len > 0 then
   begin
-    LogText(INTER, 'Interpreter', 'Visiting a child ' + AChild.ToString);
-    Visit(AChild);
+    //for AChild in Anode.PPreludes do
+    for i:=0 to len - 1 do
+      //Visit(AChild);
+      Visit(ANode.PPreludes[i]);
+  end;
+
+  len := Length(ANode.PChildren);
+  if len > 0 then
+  begin
+    //for AChild in ANode.PChildren do
+    for i:=0 to len-1 do
+    begin
+      //LogText(INTER, 'Interpreter', 'Visiting a child ' + AChild.ToString);
+      FTrace.Clear;
+      //Visit(AChild);
+      Visit(ANode.PChildren[i]);
+    end;
   end;
   if FNameSpace <> nil then
   begin
@@ -672,6 +824,7 @@ begin
     FCallStack := FParentStack;
 
   end;
+  FTrace.Free;
 
   FLiveOutput := GetLive();
 end;
@@ -714,7 +867,7 @@ begin
     AInter.PassCallStack(FCallStack, False);
     AInter.Interpret(True);
   end;
-  AInter.Free;
+  // AInter.Free;
 end;
 
 function TInterpreter.VisitNameSpaceGet(Anode: TNamespaceGet): TInstanceOf;
@@ -732,7 +885,7 @@ begin
     FCallStack.Push(ARef);
   end
   else
-    raise ERunTimeError.Create('Referenced name is not a Dict type');
+     ERunTimeError.Create('Referenced name is not a Dict type');
   Ret := Visit(ANode.Poper);
   FCallStack.Pop();
   Result := ret;
@@ -767,8 +920,32 @@ end;
 function TInterpreter.Visit(ANode: TAST; ASrcInstance: TInstanceOf = nil): TInstanceOf;
 var
   AuxBool: boolean;
+  Acd, Adir, Afn:string;
+  len: integer;
+  Ret: TInstanceOf;
 begin
+  len := Length(FRunTimeInstances);
+  SetLength(FRunTimeInstances, len + 1);
+  FNowNode := ANode;
+  if ANode.ClassName <> 'TProgram' then
+  begin
+    if FTrace.Count = 0 then
+    begin
+      Acd := GetCurrentDir;
+      if Length(Acd) > 0 then
+        Acd := Acd + DirectorySeparator;
+      Adir := ExtractFilePath(ANode.PToken.PScriptName);
+      if Length(Adir) > 0 then
+        Adir := Adir + DirectorySeparator;
+      AFn := ExtractFileName(ANode.PToken.PScriptName);
+      FTrace.Add(ANode.PToken.PScriptName +' at < ' +
+        IntToStr(ANode.PToken.PLineNo)+':'+ IntToStr(ANode.PToken.PCharNo) + ' >');
+    end;
+    FTrace.Add(ANode.ToString);
+  end;
   {$INCLUDE 'interpreter/node_switcher.pp'}
+
+  Result := Ret;
 end;
 
 function TInterpreter.VisitUnaryOpFloat(ANode: TUnaryOp): TFloatInstance;
@@ -787,7 +964,7 @@ begin
     end;
     Result := ret;
   except
-    raise ERunTimeError.Create('Invalid operation for class ' + Ret.ClassName);
+     ERunTimeError.Create('Invalid operation for class ' + Ret.ClassName);
   end;
 end;
 
@@ -807,7 +984,7 @@ begin
     end;
     Result := ret;
   except
-    raise ERunTimeError.Create('Invalid operation for class ' + Ret.ClassName);
+     ERunTimeError.Create('Invalid operation for class ' + Ret.ClassName);
   end;
 end;
 
@@ -823,7 +1000,7 @@ begin
     Result := ARes;
 
   except
-    raise ERunTimeError.Create('Invalid operation for class ' + ARes.ClassName);
+     ERunTimeError.Create('Invalid operation for class ' + ARes.ClassName);
   end;
 end;
 
@@ -885,7 +1062,7 @@ begin
         else if (ANode.POper.PType = T_NEQ) then
           Cmp := LeftStr <> RightStr
         else
-          raise ERunTimeError.Create('Logic operation ' + ANode.POper.PType +
+           ERunTimeError.Create('Logic operation ' + ANode.POper.PType +
             ' forbidden for type ' + LeftClass);
         Result := TBooleanInstance.Create(Cmp);
         exit;
@@ -937,10 +1114,10 @@ begin
         exit;
       end
       else
-        raise ERunTimeError.Create('Can''t compare instances of type ' + LeftClass);
+         ERunTimeError.Create('Can''t compare instances of type ' + LeftClass);
     end
     else
-      raise ERunTimeError.Create('Can''t compare different types ' +
+       ERunTimeError.Create('Can''t compare different types ' +
         LeftClass + ' and ' + RightClass + ' implicitly.');
   except
   end;
@@ -984,7 +1161,7 @@ begin
       Result := TStringInstance.Create(Strres);
     end
     else
-      raise ERunTimeError.Create('Invalid operation ' + Anode.POper.PType +
+       ERunTimeError.Create('Invalid operation ' + Anode.POper.PType +
         ' between strings');
   end
   else if Numeric then
@@ -1017,10 +1194,10 @@ begin
       Result := TFloatInstance.Create(ResExt);
   end
   else if LeftClass = RightClass then
-    raise ERunTimeError.Create('Invalid operation ' + ANode.POper.ptype +
+     ERunTimeError.Create('Invalid operation ' + ANode.POper.ptype +
       ' for type ' + LeftClass)
   else
-    raise ERunTimeError.Create('Can''t perform opertions between different types ' +
+     ERunTimeError.Create('Can''t perform opertions between different types ' +
       LeftClass + ' and ' + RightClass + ' implicitly.');
 
 end;
@@ -1054,13 +1231,20 @@ var
   AnItem: TAST;
   AList: TInstanceList;
   len: integer = 0;
+  len2, i: integer;
 begin
   SetLength(AList, 0);
-  for AnItem in Anode.PArgs do
+  len2 := Length(ANode.PArgs);
+  if len2 > 0 then
   begin
-    len := len + 1;
-    SetLength(AList, len);
-    AList[len - 1] := Visit(AnItem);
+    //for AnItem in Anode.PArgs do
+    for i:=0 to len2-1 do
+    begin
+      len := len + 1;
+      SetLength(AList, len);
+      //AList[len - 1] := Visit(AnItem);
+      AList[len - 1] := Visit(ANode.PArgs[i]);
+    end;
   end;
   Result := TListInstance.Create(AList);
 end;
@@ -1079,7 +1263,7 @@ begin
   else if AIndex.ClassNameIs('TIntegerInstance') then
     AIndexInt := TIntegerInstance(AIndex)
   else
-    raise ERunTimeError.Create('Foridden type for index using');
+     ERunTimeError.Create('Foridden type for index using');
   ASrc := Visit(Anode.PList);
   if ASrc.ClassNameIs('TListInstance') then
     ARet := TListInstance(ASrc).GetItem(AIndexInt)
@@ -1088,17 +1272,17 @@ begin
     if AIndex.ClassNameIs('TIntegerInstance') then
       ARet := TStringInstance(ASrc).GetChar(AIndexInt)
     else
-      raise ERunTimeError.Create('Foridden type for index using with List');
+       ERunTimeError.Create('Foridden type for index using with List');
   end
   else if ASrc.ClassNameIs('TActRecInstance') then
   begin
     if AIndex.ClassNameIs('TStringInstance') then
       ARet := TActRecInstance(ASrc).PValue.GetMember(AindexStr.PValue)
     else
-      raise ERunTimeError.Create('Foridden type for index using with Dict');
+       ERunTimeError.Create('Foridden type for index using with Dict');
   end
   else
-    raise ERunTimeError.Create('Foridden type for indexing as list');
+     ERunTimeError.Create('Foridden type for indexing as list');
   Result := ARet;
 end;
 

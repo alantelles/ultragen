@@ -27,5 +27,5 @@ begin
       else if FName = 'indexOf' then
         Ret := TIntegerInstance.Create(UTF8Pos(TStringInstance(FParams[0]).PValue, TStringInstance(FObj).PValue) - 1)
       else
-        raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.');;
+        raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.');
 end

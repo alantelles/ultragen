@@ -1,0 +1,4 @@
+POST http://localhost:3500/baholeros
+content-type: application/json
+
+{"name": "Alan","child": "Marina"}

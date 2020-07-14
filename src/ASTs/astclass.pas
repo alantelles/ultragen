@@ -12,9 +12,12 @@ type
 
   TAST = class
   protected
+    FNodeLine: integer;
+    FNodeChar: integer;
     FToken: TToken;
   public
     property PToken: TToken read FToken write FToken;
+    function ToString:string; override;
     constructor Create(AToken: TToken);
   end;
 
@@ -29,7 +32,7 @@ type
   public
     property PChildren: TASTList read FChildren write FChildren;
     property PPreludes: TASTList read FPreludes write FPreludes;
-    constructor Create;
+    constructor Create(AToken: TToken);
     procedure Add(ANode: TAST);
     procedure AddPrelude(ANode: TAST);
     function Count: integer;
@@ -60,7 +63,7 @@ type
     public
       property PArgs: TASTList read FArgs write FArgs;
       property PName: string read Fname write FName;
-      constructor Create(AArgs: TASTList; AName: string);
+      constructor Create(AArgs: TASTList; AName: string; AToken: TToken);
   end;
 
   TNamespaceGet = class (TAST)
@@ -70,7 +73,7 @@ type
     public
       property PName: string read FName;
       property POper: TAST read FOper;
-      constructor Create(AName:string; AOper: TAST);
+      constructor Create(AName:string; AOper: TAST; AToken: TToken);
   end;
 
   TNamespaceState = class (TAST)
@@ -140,6 +143,7 @@ type
     public
       property PFuncName:string read FFuncName;
       property PEvalParams: TASTList read FEvalParams;
+
       constructor Create(AFuncName:string; AEvalParams: TASTList; AToken:TToken);
   end;
 
@@ -238,7 +242,7 @@ type
   end;
 
   TNoOp = class (TAST)
-     constructor Create;
+     constructor Create(AToken: TToken);
   end;
 
   TListAssign = class (TAST)
@@ -254,6 +258,15 @@ type
   end;
 
 implementation
+
+function TAST.ToString:string;
+begin
+  if FToken <> nil then
+    Result := ClassName + ': "' + FToken.PValue + '" at ' +
+      IntToStr(FToken.PLineNo) + ':'+ IntToStr(FToken.PCharNo) + ', in ' + FToken.PScriptName
+  else
+    Result := ClassName + ' (no token available)';
+end;
 
 constructor TDictKeyNode.Create(AKey: TAST; AValue: TAST; AToken: TToken);
 begin
@@ -282,10 +295,11 @@ begin
   FToken := AToken;
 end;
 
-constructor TNamespaceGet.Create(AName: string;AOper: TAST);
+constructor TNamespaceGet.Create(AName: string;AOper: TAST; AToken: TToken);
 begin
   FName := AName;
   FOper := AOper;
+  FToken := AToken;
 end;
 
 constructor TNamespaceState.Create(AName: string;AOper: TAST; AToken: TToken);
@@ -295,7 +309,7 @@ begin
   FToken := AToken;
 end;
 
-constructor TNewObject.Create(AArgs: TASTList; AName: string);
+constructor TNewObject.Create(AArgs: TASTList; AName: string; AToken: TToken);
 begin
   FArgs := AArgs;
   FName := AName;
@@ -337,6 +351,7 @@ end;
 
 constructor TParam.Create(ANode:TToken; ADefValue: TAST = nil);
 begin
+  FToken := ANode;
   FNode := ANode;
   FDefValue := ADefValue;
   logDebug('Creating a parameter node', 'AST');
@@ -391,6 +406,7 @@ begin
 end;
 
 
+
 constructor TFunctionDefinition.Create(AToken: TToken; AName:string; ABlock, AParamList: TASTList; AType:string);
 begin
   FName := AName;
@@ -401,15 +417,17 @@ begin
   FParamList := AParamList;
 end;
 
-constructor TNoOp.Create;
+constructor TNoOp.Create(AToken: TToken);
 begin
+  FToken := AToken;
   LogText(DEBUG, 'AST', 'Creating a NoOp Node');
 end;
 
 // --------- Program
 
-constructor TProgram.Create;
+constructor TProgram.Create(AToken: TToken);
 begin
+  FToken := AToken;
   SetLength(FChildren, 0);
   LogText(DEBUG, 'AST', 'Starting a new program');
 end;

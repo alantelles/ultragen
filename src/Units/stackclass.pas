@@ -61,11 +61,15 @@ begin
   len := Length(FItems);
   if len > 0 then
   begin
+    //FItems[len - 1].CopyActRec(Ret);
     Ret := FItems[len - 1];
-    if FItems[len - 1].PType <> AR_NAMESPACE then
-      Fitems[len - 1].Free;
-    SetLength(FItems, len - 1);
+    {if FItems[len - 1].PType <> AR_NAMESPACE then
+      Fitems[len - 1].Free;}
+
+    FItems[len - 1].FreeAllMembers;
+    FItems[len - 1].Free;
     FLevel := FLevel - 1;
+    SetLength(FItems, len - 1);
   end;
   Result := Ret;
 end;

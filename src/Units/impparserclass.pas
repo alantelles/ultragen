@@ -78,15 +78,17 @@ function TTParser.NewObject: TAST;
 var
   ConstArgs: TASTList;
   AName:string;
+  AToken: TToken;
 begin
   eat(T_NEW_OBJECT);
+  AToken := TToken.Create(FCurrentToken.PType,FCurrentToken.PValue,FCurrentToken.PLineNo,FCurrentToken.PCharNo,FCurrentToken.PScriptName);
   AName := FCurrentToken.PValue;
   Eat(T_ID);
   {Eat(T_LPAREN);
   ConstArgs := Args();
   Eat(T_RPAREN);
   LogText('PARSER', 'Parser', 'Creating a new object node');}
-  Result := TNewObject.Create(ConstArgs, AName);
+  Result := TNewObject.Create(ConstArgs, AName, AToken);
 end;
 
 function TTParser.IncludeScript: TAST;
@@ -177,10 +179,10 @@ begin
   begin
     Eat(T_ATTR_ACCESSOR);
     Oper := MethodCall();
-    Result := TNamespaceGet.Create(Aname, Oper);
+    Result := TNamespaceGet.Create(Aname, Oper, FCurrentToken);
   end
   else if FCurrentToken.PType = T_DICT_ASSIGN then
-    Result := TnamespaceGet.Create(AName, NamespaceGet());
+    Result := TnamespaceGet.Create(AName, NamespaceGet(), FCurrentToken);
 end;
 
 function TTParser.NamespaceState: TAST;
@@ -217,7 +219,8 @@ var
 begin
   SetLength(ParamList, 0);
   Eat(T_FUNC_DEF);
-  AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue);
+  AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue,
+         FLexer.PScriptLine, FLexer.PLineChar, FLexer.PFileName);
   AStrId := FCurrentToken.PValue;
   Eat(T_ID);
   Eat(T_LPAREN);
@@ -253,7 +256,7 @@ begin
   AToken := TToken.Create;
   while (FCurrentToken.PType <> T_NEWLINE) and (FCurrentToken.PType <> EOF) do
   begin
-    AToken.SetValue(FCurrentToken.PType, FCurrentToken.PValue);
+    AToken.SetValue(FCurrentToken.PType, FCurrentToken.PValue, FLexer.PScriptLine, FLexer.PLineChar, FLexer.PFileName);
     len := len + 1;
     SetLength(Ret, len);
     if FCurrentToken.PType = T_PLAIN_TEXT then
@@ -276,7 +279,7 @@ function TTParser.ElseBlock: TAST;
 begin
   Eat(T_NEWLINE);
   logtext('PARSER', 'Parser', 'Creating else block node');
-  Result := TIfConditionBlock.Create(Statements());
+  Result := TIfConditionBlock.Create(Statements(), nil, FCurrentToken);
 end;
 
 function TTParser.Interpolated: TAST;
@@ -310,7 +313,7 @@ begin
   Eat(T_NEWLINE);
 
   logtext('PARSER', 'Parser', 'Creating if block node');
-  Result := TIfConditionBlock.Create(Statements(), AExpr);
+  Result := TIfConditionBlock.Create(Statements(), AExpr, FCurrentToken);
 end;
 
 function TTParser.WhileLoop: TAST;
@@ -326,29 +329,33 @@ begin
   if FLexer.PExtension <> '.ultra' then
     FLexer.PScriptMode := False;
   Eat(T_NEWLINE);
-  Result := TWhileLoop.Create(Statements(), AExpr);
+  Result := TWhileLoop.Create(Statements(), AExpr, FCurrentToken);
 end;
 
 function TTParser.ForLoop: TAST;
 var
   AList: TAST;
   Avar: TAST;
-  AToken: TToken;
+  AToken, ForToken: TToken;
 begin
+  ForToken := TToken.Create(FCurrentToken);
   Eat(T_FOR_LOOP);
   Eat(T_LPAREN);
   FInArgsDef := True;
   AList := MethodCall();
   Eat(T_COMMA);
-  AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue);
-  AVar := VarAssign(AToken, TNull.Create(TToken.Create(TYPE_NULL, T_LANG_NULL)));
+  AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue, FLexer.PScriptLine,
+         FLexer.PLineChar, FLexer.PFileName);
+  AVar := VarAssign(AToken,
+    TNull.Create(TToken.Create(TYPE_NULL, T_LANG_NULL, FLexer.PScriptLine, FLexer.PLineChar, FLexer.PFIleName))
+    );
   FInArgsDef := False;
   Eat(T_RPAREN);
   if FLexer.PExtension <> '.ultra' then
     FLexer.PScriptMode := False;
   Eat(T_NEWLINE);
   logtext('PARSER', 'Parser', 'Creating for node');
-  Result := TForLoop.Create(Statements(), AList, TVarAssign(AVar));
+  Result := TForLoop.Create(Statements(), AList, TVarAssign(AVar), ForToken);
 end;
 
 function TTParser.Conditional: TAST;
@@ -379,7 +386,7 @@ begin
     Conditions[len - 1] := ElseBlock();
   end;
   logtext('PARSER', 'Parser', 'Creating if block node');
-  Result := TConditional.Create(Conditions);
+  Result := TConditional.Create(Conditions, FCurrentToken);
 end;
 
 function TTParser.Args: TASTList;
@@ -470,7 +477,7 @@ var
   AToken: TToken;
 begin
   Eat(T_LIST_START);
-  AToken := TToken.Create(FcurrentToken.PType, FCurrentToken.PValue);
+  AToken := TToken.Create(FcurrentToken.PType, FCurrentToken.PValue, FLexer.PScriptLine, FLexer.PLineChar, FLexer.PFileName);
   Ret := TListAST.Create(AToken, ListArgs());
   Eat(T_LIST_END);
   if FCurrentToken.PType = T_ASSIGN then
@@ -593,7 +600,7 @@ var
   AToken: TToken;
   AVarAssign: TAST;
 begin
-  AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue);
+  AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue, FLexer.PScriptLine, FLexer.PLineChar, FLexer.PFileName);
   ADef := nil;
   //AVarAssign := TVarAssign.Create(AToken, nil);
   // Ret := TParam.Create(AToken);
@@ -680,7 +687,7 @@ var
   Ret: TAST;
 begin
 
-  AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue);
+  AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue, FLexer.PScriptLine, FLexer.PLineChar, FLexer.PFileName);
   logtext('PARSER', 'Parser', 'Creating statement node');
   if (AToken.PType = T_ID) then
   begin
@@ -732,7 +739,7 @@ begin
   else if AToken.PType = T_RETURN then
   begin
     Eat(T_RETURN);
-    Ret := TReturnFunction.Create(MethodCall());
+    Ret := TReturnFunction.Create(MethodCall(),AToken);
   end
   else if (AToken.PType = T_BREAK) then
   begin
@@ -748,11 +755,11 @@ begin
   begin
     Eat(T_COMMENT);
 //    FLexer.PassLineComment;
-    Ret := TNoOp.Create;
+    Ret := TNoOp.Create(AToken);
   end
   else if (AToken.PType = T_END + T_FUNC_DEF) then
   begin
-    Ret := TNoOp.Create;
+    Ret := TNoOp.Create(AToken);
   end
   else if (AToken.PType = T_FUNC_DEF) then
   begin
@@ -775,7 +782,7 @@ begin
     Ret := ForLoop();
   end
   else
-    Ret := TNoOp.Create;
+    Ret := TNoOp.Create(FCurrentToken);
 
   Result := Ret;
 end;
@@ -854,7 +861,7 @@ var
   Ret: TAST;
 begin
   AList := Statements();
-  AProgram := TProgram.Create;
+  AProgram := TProgram.Create(FCurrentToken);
   for Ret in AList do
   begin
     Aprogram.Add(Ret);
@@ -870,7 +877,7 @@ var
   AToken: TToken;
 begin
   Ret := SourceProgram();
-  AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue);
+  AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue, FLexer.PScriptLine, FLexer.PLineChar, FLexer.PFileName);
   if AToken.PType <> EOF then
     EParseError;
   Result := Ret;
@@ -882,7 +889,7 @@ var
   Ret: TAST;
 
 begin
-  AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue);
+  AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue, FLexer.PScriptLine, FLexer.PLineChar, FLexer.PFileName);
   ParToken := TToken.Create();
   if (FCurrentToken.PType = T_NEWLINE) then
     Eat(T_NEWLINE);
@@ -993,7 +1000,7 @@ begin
       (FCurrentToken.PType = T_DIV) or (FCurrentToken.PType = T_MODULUS) or
       (FCurrentToken.PType = T_INT_DIV)) do
   begin
-    AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue);
+    AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue, FLexer.PScriptLine, FLexer.PLineChar, FLexer.PFileName);
     if AToken.PType = T_MULT then
       Eat(T_MULT)
     else if AToken.PType = T_DIV then
@@ -1017,7 +1024,7 @@ begin
   while (FCurrentToken <> nil) and ((FCurrentToken.PType = T_PLUS) or
       (FCurrentToken.PType = T_MINUS)) do
   begin
-    AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue);
+    AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue, FLexer.PScriptLine, FLexer.PLineChar, FLexer.PFileName);
     if AToken.PType = T_PLUS then
       Eat(T_PLUS)
     else if AToken.PType = T_MINUS then
@@ -1037,7 +1044,7 @@ begin
   while (FCurrentToken <> nil) and ((FCurrentToken.PType = T_AND) or
       (FCurrentToken.PType = T_OR)) do
   begin
-    AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue);
+    AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue, FLexer.PScriptLine, FLexer.PLineChar, FLexer.PFileName);
     Eat(AToken.PType);
     logtext('PARSER', 'Parser', 'Creating bin logic op node');
     Ret := TBinLogicOp.Create(Ret, Expr(), AToken);
@@ -1056,7 +1063,8 @@ begin
       (FCurrentToken.PType = T_GEQ) or (FCurrentToken.PType = T_NEQ) or
       (FCurrentToken.PType = T_LEQ)) do
   begin
-    AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue);
+    AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue,
+      FLexer.PScriptLine, FLexer.PLineChar, FLexer.PFileName);
     Eat(AToken.PType);
     logtext('PARSER', 'Parser', 'Creating bin logic op node');
     Ret := TBinLogicOp.Create(Ret, LogicExpr(), AToken);
@@ -1068,9 +1076,9 @@ procedure TTParser.EParseError;
 var
   msg: string;
 begin
-  msg := 'Unexpected token "' + FCurrentToken.PValue + '" from type "'+FCurrentToken.PType+'" at < Line: ' +
-    IntToStr(FLexer.PScriptLine) + ', Char: ' + IntToStr(FLexer.PLineChar - 1) + ' > in '+ FLexer.PFileName;
-  raise EParserError.Create(msg);
+
+  msg := 'Unexpected token "' + FCurrentToken.PValue + '" from type "'+FCurrentToken.PType+'"';
+  raise EParserError.Create(msg, FLexer.PFileName, FLexer.PScriptLine, FLexer.PLineChar);
 end;
 
 procedure TTParser.Eat(AType: string);

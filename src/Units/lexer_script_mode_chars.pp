@@ -16,14 +16,14 @@
               FScriptMode := False;
 				      Advance;
 				      Advance;
-				      Result := TToken.Create(T_INTERPOLATION_END, '}}');
+				      Result := TToken.Create(T_INTERPOLATION_END, '}}', FScriptLine, FLineChar, FFileName);
 				      exit
 				  end;
 
 		      if (FCurrChar = T_LINE_COMMENT) then
 		      begin
 		        Advance;
-		        Result := TToken.Create(T_COMMENT, PassLineComment);
+		        Result := TToken.Create(T_COMMENT, PassLineComment, FScriptLine, FLineChar, FFileName);
 		        exit
 		      end;
 
@@ -50,7 +50,7 @@
 		        Advance(3);
 		        AuxStr := FScopeType[FSCopeType.Count-1];
 		        FScopeType.Delete(FScopeType.Count-1);
-		        Result := TToken.Create(T_END+AuxStr,'end of block '+AuxStr);
+		        Result := TToken.Create(T_END+AuxStr,'end of block '+AuxStr, FScriptLine, FLineChar, FFileName);
 		        exit
 		      end;
 
@@ -62,7 +62,7 @@
 		      begin
 		        Advance;
 		        Advance;
-		        Result := TToken.Create(T_AND, '&&');
+		        Result := TToken.Create(T_AND, '&&', FScriptLine, FLineChar, FFileName);
 		        exit
 		      end;
 
@@ -70,7 +70,7 @@
 		      begin
 		        Advance;
 		        Advance;
-		        Result := TToken.Create(T_OR, '||');
+		        Result := TToken.Create(T_OR, '||', FScriptLine, FLineChar, FFileName);
 		        exit
 		      end;
 
@@ -79,7 +79,7 @@
 		      begin
 		        Advance;
 		        Advance;
-		        Result := TToken.Create(T_LEQ, '<=');
+		        Result := TToken.Create(T_LEQ, '<=', FScriptLine, FLineChar, FFileName);
 		        exit
 		      end;
 
@@ -87,7 +87,7 @@
 		      begin
 		        Advance;
 		        Advance;
-		        Result := TToken.Create(T_GEQ, '>=');
+		        Result := TToken.Create(T_GEQ, '>=', FScriptLine, FLineChar, FFileName);
 		        exit
 		      end;
 
@@ -95,7 +95,7 @@
 		      begin
 		        Advance;
 		        Advance;
-		        Result := TToken.Create(T_NEQ, '!=');
+		        Result := TToken.Create(T_NEQ, '!=', FScriptLine, FLineChar, FFileName);
 		        exit
 		      end;
 
@@ -107,21 +107,21 @@
 		      if FCurrChar = '!' then
 		      begin
 		        Advance;
-		        Result := TToken.Create(T_NOT, '!');
+		        Result := TToken.Create(T_NOT, '!', FScriptLine, FLineChar, FFileName);
 		        exit
 		      end;
 
 		      if FCurrChar = '>' then
 		      begin
 		        Advance;
-		        Result := TToken.Create(T_GT, '>');
+		        Result := TToken.Create(T_GT, '>', FScriptLine, FLineChar, FFileName);
 		        exit
 		      end;
 
 		      if FCurrChar = '<' then
 		      begin
 		        Advance;
-		        Result := TToken.Create(T_LT, '<');
+		        Result := TToken.Create(T_LT, '<', FScriptLine, FLineChar, FFileName);
 		        exit
 		      end;
 
@@ -129,14 +129,14 @@
 		      begin
 		        Advance;
 		        Advance;
-		        Result := TToken.Create(T_EQ, '==');
+		        Result := TToken.Create(T_EQ, '==', FScriptLine, FLineChar, FFileName);
 		        exit
 		      end;
 
 		      if FCurrChar = '=' then
 		      begin
 		        Advance;
-		        Result := TToken.Create(T_ASSIGN, '=');
+		        Result := TToken.Create(T_ASSIGN, '=', FScriptLine, FLineChar, FFileName);
 		        exit
 		      end;
 		      {$IFDEF UNIX}
@@ -145,7 +145,7 @@
 		        Advance;
 		        FScriptLine := FScriptLine + 1;
 		        FLineChar := 1;
-		        Result := TToken.Create(T_NEWLINE, sLineBreak);
+		        Result := TToken.Create(T_NEWLINE, sLineBreak, FScriptLine, FLineChar, FFileName);
 		        exit
 		      end;
 		      {$ENDIF}
@@ -156,7 +156,7 @@
 		        Advance;
 		        FScriptLine := FScriptLine + 1;
 		        FLineChar := 1;
-		        Result := TToken.Create(T_NEWLINE, sLineBreak);
+		        Result := TToken.Create(T_NEWLINE, sLineBreak, FScriptLine, FLineChar, FFileName);
 		        exit
 		      end;
 		      {$ENDIF}
@@ -165,23 +165,23 @@
 		      begin
 		        AuxStr := GetNumber();
 		        if (Pos('.', AuxStr) = 0) then
-		          Result := TToken.Create(TYPE_INTEGER, AuxStr)
+		          Result := TToken.Create(TYPE_INTEGER, AuxStr, FScriptLine, FLineChar, FFileName)
 		        else
-		          Result := TToken.Create(TYPE_FLOAT, AuxStr);
+		          Result := TToken.Create(TYPE_FLOAT, AuxStr, FScriptLine, FLineChar, FFileName);
 		        exit
 				  end;
 
 		      if FCurrChar = '+' then
 		      begin
 		        Advance;
-		        Result := TToken.Create(T_PLUS, '+');
+		        Result := TToken.Create(T_PLUS, '+', FScriptLine, FLineChar, FFileName);
 		        exit
 				  end;
 
 		      if FCurrChar = '*' then
 		      begin
 		        Advance;
-		        Result := TToken.Create(T_MULT, '*');
+		        Result := TToken.Create(T_MULT, '*', FScriptLine, FLineChar, FFileName);
 		        exit
 				  end;
 
@@ -190,21 +190,21 @@
 		      begin
 		        Advance;
 		        Advance;
-		        Result := TToken.Create(T_INT_DIV, '//');
+		        Result := TToken.Create(T_INT_DIV, '//', FScriptLine, FLineChar, FFileName);
 		        exit
 				  end;
 
 		      if FCurrChar = '/' then
 		      begin
 		        Advance;
-		        Result := TToken.Create(T_DIV, '/');
+		        Result := TToken.Create(T_DIV, '/', FScriptLine, FLineChar, FFileName);
 		        exit
 				  end;
 
 		      if FCurrChar = '%' then
 		      begin
 		        Advance;
-		        Result := TToken.Create(T_MODULUS, '%');
+		        Result := TToken.Create(T_MODULUS, '%', FScriptLine, FLineChar, FFileName);
 		        exit
 				  end;
 
@@ -212,42 +212,42 @@
 		      if FCurrChar = '-' then
 		      begin
 		        Advance;
-		        Result := TToken.Create(T_MINUS, '-');
+		        Result := TToken.Create(T_MINUS, '-', FScriptLine, FLineChar, FFileName);
 		        exit
 				  end;
 
 		      if FCurrChar = '(' then
 		      begin
 		        Advance;
-		        Result := TToken.Create(T_LPAREN, '(');
+		        Result := TToken.Create(T_LPAREN, '(', FScriptLine, FLineChar, FFileName);
 		        exit
 				  end;
 
 		      if FCurrChar = ')' then
 		      begin
 		        Advance;
-		        Result := TToken.Create(T_RPAREN, ')');
+		        Result := TToken.Create(T_RPAREN, ')', FScriptLine, FLineChar, FFileName);
 		        exit
 				  end;
 
 		      if FCurrChar = '[' then
 		      begin
 		        Advance;
-		        Result := TToken.Create(T_LIST_START, T_LIST_START);
+		        Result := TToken.Create(T_LIST_START, T_LIST_START, FScriptLine, FLineChar, FFileName);
 		        Exit
 		      end;
 
 		      if FCurrChar = ']' then
 		      begin
 		        Advance;
-		        Result := TToken.Create(T_LIST_END, T_LIST_END);
+		        Result := TToken.Create(T_LIST_END, T_LIST_END, FScriptLine, FLineChar, FFileName);
 		        exit
 		      end;
 
           if FCurrChar = ':' then
           begin
             Advance;
-            Result := TToken.Create(T_DICT_ASSIGN, T_DICT_ASSIGN);
+            Result := TToken.Create(T_DICT_ASSIGN, T_DICT_ASSIGN, FScriptLine, FLineChar, FFileName);
             exit
           end;
 
@@ -261,27 +261,27 @@
 		      if FCurrChar = '.' then
 		      begin
 		        Advance;
-		        Result := TToken.Create(T_ATTR_ACCESSOR, ATTR_ACCESSOR);
+		        Result := TToken.Create(T_ATTR_ACCESSOR, ATTR_ACCESSOR, FScriptLine, FLineChar, FFileName);
 		        exit;
 		      end;
 
           if FCurrChar = '{' then
           begin
             Advance;
-            Result := TToken.Create(T_DICT_START, '{');
+            Result := TToken.Create(T_DICT_START, '{', FScriptLine, FLineChar, FFileName);
             exit
           end;
 
           if FCurrChar = '}' then
           begin
             Advance;
-            Result := TToken.Create(T_DICT_END, '}');
+            Result := TToken.Create(T_DICT_END, '}', FScriptLine, FLineChar, FFileName);
             exit
           end;
 
 		      if (FCurrChar = ',') then
 		      begin
 		        Advance;
-		        Result := TToken.Create(T_COMMA, ',');
+		        Result := TToken.Create(T_COMMA, ',', FScriptLine, FLineChar, FFileName);
 		        exit
 		      end;

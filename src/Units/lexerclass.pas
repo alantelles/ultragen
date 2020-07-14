@@ -49,12 +49,22 @@ var
   dotpos: integer;
   ext: string;
   AFile: TStringList;
+  Acd, Adir, Afn:string;
 begin
   FScriptMode := False;
   FLineScript := False;
   FInterpol := False;
   AFile := TStringList.Create;
-  FFileName := AFileName;
+
+
+  Acd := GetCurrentDir;
+  if Length(Acd) > 0 then
+    Acd := Acd + DirectorySeparator;
+  Adir := ExtractFilePath(AFileName);
+  if Length(Adir) > 0 then
+    Adir := Adir + DirectorySeparator;
+  AFn := ExtractFileName(AFileName);
+  FFileName := Acd + ADir + Afn;
   try
     try
       AFile.LoadFromFile(AFileName);
@@ -74,7 +84,7 @@ begin
       FCurrChar := FText[FPos];
       FScopeType := TStringList.Create;
     except
-      raise ERunTimeError.Create('The specified file "' + AFileName + '" does not exist');
+      raise ERunTimeError.Create('The specified file "' + AFileName + '" does not exist', AFileName, -1, -1);
     end;
 
   finally
@@ -111,7 +121,7 @@ begin
 		end;
 
   end;
-  Result := TToken.Create(T_PLAIN_TEXT, Ret);
+  Result := TToken.Create(T_PLAIN_TEXT, Ret, FScriptLine, FLineChar, FFileName);
 end;
 
 function TLexer.GetInnerAttribute: TToken;
@@ -128,7 +138,7 @@ begin
   end;
   TF := TToken(InnerAttributes[Ret]);
   if TF = nil then
-    raise EParserError.Create('Undefined referenced inner attribute "' + Ret + '"');
+    raise EParserError.Create('Undefined referenced inner attribute "' + Ret + '"', FFileName, FScriptLine, FLineChar);
   Result := TF;
 end;
 
@@ -178,7 +188,7 @@ begin
   end;
   Tokenfound := TToken(ReservedWords[ret]);
   if Tokenfound = nil then
-    TokenFound := TToken.Create(T_ID, Ret)
+    TokenFound := TToken.Create(T_ID, Ret, FScriptLine, FLineChar, FFileName)
   else
   begin
     if Copy(TokenFound.PValue, 1, 6) = 'block:' then
@@ -221,7 +231,7 @@ begin
     Advance;
   end;
   Advance(Length(Delim));
-  Result := TToken.Create(TYPE_STRING, Ret);
+  Result := TToken.Create(TYPE_STRING, Ret, FScriptLine, FLineChar, FFileName);
 end;
 
 procedure TLexer.EParseError;
@@ -230,7 +240,7 @@ var
 begin
   msg := 'Unexpected character "' + FCurrChar + '" at < Line: ' +
     IntToStr(FScriptLine) + ', Char: ' + IntToStr(FLineChar) + ' >';
-  raise ELexicalError.Create(msg);
+  raise ELexicalError.Create(msg, FFileName, FScriptLine, FLineChar);
 end;
 
 function TLexer.GetNumber: string;
@@ -309,7 +319,7 @@ begin
     EParseError;
     Break;
   end;
-  Result := TToken.Create(EOF, NONE);
+  Result := TToken.Create(EOF, NONE, FScriptLine, FLineChar, FFileName);
 end;
 
 end.

@@ -9,22 +9,22 @@
     VisitListAssign(TListAssign(ANode))
 
   else if ANode.ClassNameIs('TVariableReference') then
-    Result := VisitVariableReference(TVariableReference(ANode))
+    Ret := VisitVariableReference(TVariableReference(ANode))
 
   else if ANode.ClassNameIs('TIncludeScript') then
     VisitIncludeScript(TIncludeScript(ANode))
 
   else if ANode.ClassNameIs('TNamespaceGet') then
-    Result := VisitNamespaceGet(TNamespaceGet(Anode))
+    Ret := VisitNamespaceGet(TNamespaceGet(Anode))
 
   else if ANode.ClassNameIs('TDictNode') then
-    Result := VisitDict(TDictNode(ANode))
+    Ret := VisitDict(TDictNode(ANode))
 
   else if ANode.ClassNameIs('TNamespaceState') then
-    Result := VisitNamespaceState(TNamespaceState(Anode))
+    Ret := VisitNamespaceState(TNamespaceState(Anode))
 
   else if ANode.ClassNameIs('TNewObject') then
-    Result := VisitNewObject(TNewObject(ANode))
+    Ret := VisitNewObject(TNewObject(ANode))
 
   else if ANode.ClassNameIs('TPlainTextEmbed') then
     VisitPlainTextEmbed(TPlainTextEmbed(Anode))
@@ -36,39 +36,39 @@
     VisitPlainText(TPlainText(Anode))
 
   else if ANode.ClassNameIs('TLivePrint') then
-    Result := VisitLivePrint(TLivePrint(ANode))
+    Ret := VisitLivePrint(TLivePrint(ANode))
   else if ANode.ClassNameIs('TMethodCall') then
-    Result := VisitMethodCall(TMethodCall(Anode))
+    Ret := VisitMethodCall(TMethodCall(Anode))
   else if ANode.ClassNameIs('TFunctionCall') then
-    Result := VisitFunctionCall(TFunctionCall(Anode), ASrcInstance)
+    Ret := VisitFunctionCall(TFunctionCall(Anode), ASrcInstance)
   else if ANode.ClassNameIs('TReturnFunction') then
-    Result := VisitReturn(TReturnFunction(ANode))
+    Ret := VisitReturn(TReturnFunction(ANode))
   else if ANode.ClassNameIs('TFunctionDefinition') then
     VisitFunctionDefinition(TFunctionDefinition(Anode))
   else if Anode.ClassNameIs('TNumInt') then
-    Result := VisitNumInt(TNumInt(ANode))
+    Ret := VisitNumInt(TNumInt(ANode))
   else if Anode.ClassNameIs('TNull') then
-    Result := VisitNull(TNull(ANode))
+    Ret := VisitNull(TNull(ANode))
   else if Anode.ClassNameIs('TNumFloat') then
-    Result := VisitNumFloat(TNumFloat(ANode))
+    Ret := VisitNumFloat(TNumFloat(ANode))
   else if Anode.ClassNameIs('TListAST') then
-    Result := VisitList(TListAST(ANode))
+    Ret := VisitList(TListAST(ANode))
   else if Anode.ClassNameIs('TListAccessAST') then
-    Result := VisitListAccess(TListAccessAST(ANode))
+    Ret := VisitListAccess(TListAccessAST(ANode))
   else if Anode.ClassNameIs('TString') then
-    Result := VisitString(TString(ANode))
+    Ret := VisitString(TString(ANode))
   else if Anode.ClassNameIs('TBoolean') then
-    Result := VisitBoolean(TBoolean(ANode))
+    Ret := VisitBoolean(TBoolean(ANode))
   else if ANode.ClassNameIs('TUnaryOp') then
   begin
-      Result := VisitUnaryOp(TUnaryOp(ANode))
+      Ret := VisitUnaryOp(TUnaryOp(ANode))
   end
   else if ANode.ClassNameIs('TBinOp') then
-    Result := VisitBinOp(TBinOp(ANode))
+    Ret := VisitBinOp(TBinOp(ANode))
   else if ANode.ClassNameIs('TBinLogicOp') then
-    Result := VisitBinLogicOp(TBinLogicOp(ANode))
+    Ret := VisitBinLogicOp(TBinLogicOp(ANode))
   else if ANode.ClassNameIs('TUnaryLogicOp') then
-    Result := VisitUnaryLogicOp(TUnaryLogicOp(ANode))
+    Ret := VisitUnaryLogicOp(TUnaryLogicOp(ANode))
   else if ANode.ClassNameIs('TConditional') then
     VisitConditional(TConditional(ANode))
   else if ANode.ClassNameIs('TIfConditionBlock') then

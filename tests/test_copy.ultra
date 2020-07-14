@@ -1,0 +1,11 @@
+function: isEven, i
+    return: eq(mod(i, 2), 0)
+endFunction
+
+for: range(2000), i
+    if: isEven(i)
+        print: i, ': par'
+    else
+        print: i, ': impar'
+    endIf
+endFor

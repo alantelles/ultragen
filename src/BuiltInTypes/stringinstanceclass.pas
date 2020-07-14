@@ -41,7 +41,7 @@ end;
 function TStringInstance.GetChar(AnIndex: TIntegerInstance):TStringInstance;
 begin
   if UTF8Length(FValue) < AnIndex.PValue + 1 then
-    raise ERunTimeError.Create('Index is greater than string size');
+    raise ERunTimeError.Create('Index is greater than string size', '', 1, 1);
   Result := TStringInstance.Create(FValue[AnIndex.PValue + 1]);
 end;
 

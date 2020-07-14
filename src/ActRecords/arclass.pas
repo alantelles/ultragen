@@ -5,7 +5,7 @@ unit ARClass;
 interface
 
 uses
-  Classes, SysUtils, Contnrs, InstanceOfClass, ListInstanceClass, StringInstanceClass;
+  Classes, SysUtils, Contnrs, InstanceOfClass, StrUtils, ListInstanceClass, StringInstanceClass;
 
 const
   AR_PROGRAM = 'AR_PROGRAM';
@@ -22,6 +22,7 @@ type
       FType:string;
       FNestingLevel: integer;
       FMembers: TFPObjectHashTable;
+      //FMembers: TStringList;
       FNowType: TInstanceOf;
       FNowKey: string;
       FFound: boolean;
@@ -36,10 +37,13 @@ type
       procedure SearchFunction(AItem: TObject; const AName:string; var Cont: boolean);
       procedure CopyItems(AItem: TObject; const Aname:string; var Cont: boolean);
       procedure IterGetkeys(AItem: TObject; const Aname:string; var Cont: boolean);
+      procedure FreeMembers(AItem: TObject; const Aname:string; var Cont: boolean);
 
+      procedure FreeAllMembers;
       procedure CopyActRec(var AReceiver: TActivationRecord);
       property PMembers: TFPObjectHashTable read FMembers write FMembers;
       constructor Create(AName:string; AType: string; ALevel: integer);
+
 
       procedure AddMember(AKey:string; AObj:TInstanceOf);
       function GetMember(AKey:string):TInstanceOf;
@@ -66,6 +70,7 @@ begin
   FType := AType;
   FNestingLevel := ALevel;
   FMembers := TFPObjectHashTable.Create();
+  //FMembers := TStringList.Create;
 end;
 
 procedure TActivationRecord.GetKeys(var Alist: TListInstance);
@@ -89,6 +94,12 @@ begin
   FValue := AnActRec;
 end;
 
+procedure TActivationRecord.FreeAllMembers;
+begin
+  FMembers.Iterate(@FreeMembers);
+  FNowType.Free;
+end;
+
 function TActivationRecord.GetFunction(AKey: string; ASrc: TInstanceOf = nil): TFunctionInstance;
 var
   Ret: TFunctionInstance;
@@ -110,6 +121,12 @@ begin
   WriteLn('Record member '+Aname+' of type '+AItem.ToString);
   if AItem.ClassNameIs('TActRecInstance') then
     WriteLn(' ---- ' + TActRecInstance(AItem).PValue.AsString);
+end;
+
+procedure TActivationRecord.FreeMembers(AItem:  TObject;const AName:string; var Cont:boolean);
+begin
+  //FNowType := TInstanceOf(AItem);
+  //writeln(AItem.ToString);
 end;
 
 procedure TActivationRecord.SearchFunction(AItem:  TObject;const AName:string; var Cont:boolean);

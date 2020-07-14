@@ -1,4 +1,3 @@
-@function BaseSite(context)
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,8 +7,12 @@
 </head>
 <body>
     <h1>{{ context['header'] }}</h1>
-    {{ Post(context['post']) }}
-    {{ CopyRight() }}
+    <div>
+        <h2>{{ context['post']['title'] }}</h2>
+        <p>{{ context['post']['body'] }}</p>
+    </div>
+    <footer>
+        <h3>Created by Alan Telles</h3>
+    </footer>
 </body>
 </html>
-@end

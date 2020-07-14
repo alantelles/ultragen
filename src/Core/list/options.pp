@@ -12,5 +12,5 @@ begin
      else if FName = 'pop' then
         Ret := PopItem(TListInstance(FObj))
      else
-      raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.');;
+      raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.');
 end

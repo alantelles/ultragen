@@ -93,7 +93,8 @@ begin
       if FParams[0].ClassNameIs('TIntegerInstance') then
         Sleep(TIntegerInstance(FParams[0]).PValue)
       else
-        raise EArgumentsError.Create('Argument type for this function must be integer');
+        //raise EArgumentsError.Create('Argument type for this function must be integer', '', 1, 1);
+        AInter.RaiseException('Argument type for this function must be integer', 'Arguments');
 		end
 		// end system
 		else if FName = 'range' then
@@ -105,7 +106,7 @@ begin
     else if FName = 'int' then
       Ret := CastToInt
     else
-      raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.');
+      raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.', '', 1, 1);
   // procs
 	end
   {$INCLUDE 'string/options.pp'}
@@ -115,7 +116,7 @@ begin
   {$INCLUDE 'os/options.pp'}
   {$INCLUDE 'server/options.pp'}
   else
-    raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.');
+    raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.', '', 1, 1);
   // functions
   Result := Ret;
 end;
@@ -125,7 +126,7 @@ var
   AFile: TStringList;
 begin
   if Length(FParams) <> 1 then
-    raise ERunTimeError.Create(E_INVALID_ARGS);
+    raise ERunTimeError.Create(E_INVALID_ARGS, '', 1, 1);
   AFile := TStringList.Create;
   AFile.SkipLastLineBreak := True;
   AFile.Text := Finter.GetLive;
@@ -135,7 +136,7 @@ begin
 
     except
       on E: Exception do
-        raise ERunTimeError.Create(E.Message);
+        raise ERunTimeError.Create(E.Message, '', 1, 1);
     end;
 
   finally
@@ -197,7 +198,7 @@ begin
     end;
 	end
   else
-    raise EArgumentsError.Create(E_INVALID_ARGS);
+    raise EArgumentsError.Create(E_INVALID_ARGS, '', 1, 1);
   Result := TListInstance.Create(AList);
 end;
 
@@ -258,7 +259,7 @@ begin
       ResInt := StrToInt(TStringInstance(FParams[0]).PValue);
       Result := TIntegerInstance.Create(ResInt);
     except
-      raise ETypeError.Create('Can''t convert value "'+TStringInstance(FParams[0]).PValue+'" to integer');
+      raise ETypeError.Create('Can''t convert value "'+TStringInstance(FParams[0]).PValue+'" to integer', '', 1, 1);
     end;
   end
   else if FParams[0].ClassNameIs('TFloatInstance') then
@@ -266,10 +267,10 @@ begin
     if Trunc(TFloatInstance(FParams[0]).PValue) = TFloatInstance(FParams[0]).PValue then
       Result := TIntegerInstance.Create(Trunc(TFloatInstance(FParams[0]).PValue))
     else
-      raise ETypeError.Create('Can''t convert value "'+FloatToStr(TFloatInstance(FParams[0]).PValue)+'" to integer');
+      raise ETypeError.Create('Can''t convert value "'+FloatToStr(TFloatInstance(FParams[0]).PValue)+'" to integer', '', 1, 1);
   end
   else
-    raise ETypeError.Create('Can''t convert value "'+FParams[0].ClassName+'" to integer');;
+    raise ETypeError.Create('Can''t convert value "'+FParams[0].ClassName+'" to integer', '', 1, 1);
 end;
 
 {$INCLUDE 'string/functions.pp'}

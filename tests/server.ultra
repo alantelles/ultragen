@@ -1,9 +1,6 @@
 a = new Server
 a.init()
 a.setPort(3500)
-a.setTitle('Testando')
-a.setStopRoute('/zika')
+a.setStopRoute('/perestroika')
+a.setTitle('Proxy test')
 a.run()
-print('we have taking over your radio')
-
-# 236

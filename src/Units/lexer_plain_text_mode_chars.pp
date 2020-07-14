@@ -10,7 +10,7 @@ begin
     FScriptMode := True;
     Advance;
     Advance;
-    Result := TToken.Create(T_INTERPOLATION_START, '{{');
+    Result := TToken.Create(T_INTERPOLATION_START, '{{', FScriptLine, FLineChar, FFileName);
     exit
 end
 
@@ -31,7 +31,7 @@ begin
   Advance;
   FScriptLine := FScriptLine + 1;
   FLineChar := 1;
-  Result := TToken.Create(T_NEWLINE, sLineBreak);
+  Result := TToken.Create(T_NEWLINE, sLineBreak, FScriptLine, FLineChar, FFileName);
   exit
 end
 {$ENDIF}
@@ -41,7 +41,7 @@ begin
   FScriptMode := True;
   FLineScript := True;
   Advance;
-  Result := TToken.Create(T_LINE_SCRIPT_EMBED, '@');
+  Result := TToken.Create(T_LINE_SCRIPT_EMBED, '@', FScriptLine, FLineChar, FFileName);
   exit
 end
 

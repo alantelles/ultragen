@@ -34,6 +34,8 @@ begin
     ATree := AParser.ParseCode();
     AInter := TInterpreter.Create(ATree);
     AInter.Interpret;
+    //readln;
+
     Writeln(AInter.PLive);
     if (ParamStr(2) = '--persist') then
     begin
@@ -43,7 +45,9 @@ begin
       AOut.SaveToFile(ParamStr(3));
 		end;
 		Ainter.CleanStack;
+    //AInter.FreeInstances;
     AInter.Free;
+    //Readln;
   end;
 
 end.
