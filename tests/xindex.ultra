@@ -1,11 +1,7 @@
-include "index.ultra.html" 
-include "post.ultra.html" 
 content = {"title": 'Default', 'body': 'Default'}
-# include 'posts/hello.ultra' 
-
-post = {
+context = {
     'title': 'UltraPower page',
     'header': 'UltraPower',
     'post': content
 }
-live BaseSite(post)
+include "index2.ultra.html"

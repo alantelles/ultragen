@@ -746,8 +746,9 @@ begin
         end;
       //if FuncDef.ClassNameIs('TBuiltInType') then
         //ASrcInstance.
-        AReturn := ACoreExec.Execute(Self, AFuncName, ArgsList, ASrcInstance);
+
       end;
+      AReturn := ACoreExec.Execute(Self, AFuncName, ArgsList, ASrcInstance);
       ACoreExec.Free;
       Result := AReturn;
       exit;
