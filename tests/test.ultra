@@ -1,4 +1,5 @@
-a = 56
-print(a)
-a = 'teste'
-print(a)
+for (1000000, i)
+    if (i % 100000 == 0)
+        print(i)
+    end
+end

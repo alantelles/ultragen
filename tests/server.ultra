@@ -1,6 +1,6 @@
 a = new Server
 a.init()
 a.setPort(3500)
-a.setStopRoute('/perestroika')
+a.setStopRoute('/off')
 a.setTitle('Proxy test')
 a.run()

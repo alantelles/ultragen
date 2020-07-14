@@ -1,11 +1,17 @@
 include "index.ultra.html" 
 include "post.ultra.html" 
-content = {"title": 'Default', 'body': 'Default'}
-include 'posts/hello.ultra' 
+file_to_inc = 'posts/' +  (REQUEST['ROUTE'])  + '.ultra'
+exist = FileSystem.isFile(file_to_inc)
+if (exist)
+    include file_to_inc
+else
+    content = {"title": 'Default', 'body': 'Default'}
+end
 
 post = {
     'title': 'UltraPower page',
     'header': 'UltraPower',
     'post': content
 }
+
 live BaseSite(post)

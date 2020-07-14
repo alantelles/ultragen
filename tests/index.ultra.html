@@ -7,8 +7,20 @@
     <title>{{ context['title'] }}</title>
 </head>
 <body>
+    <p>{{ REQUEST['METHOD'] }}</p>
+    <p>{{ REQUEST['ROUTE'] }}</p>
+@for (REQUEST['QUERYSTRING'].split('&'), i)
+    <p>{{ i }}</p>
+@end
     <h1>{{ context['header'] }}</h1>
     {{ Post(context['post']) }}
+    <form action="/send" method="post">
+        <input type="text" name="test" id="">
+        <input type="submit" value="Send">
+    </form>
+
+    <b>{{ REQUEST['QUERY']['ultra'] }}</b>
+    <b>{{ REQUEST['QUERY']['teste'] }}</b>
     {{ CopyRight() }}
 </body>
 </html>

@@ -157,8 +157,13 @@ begin
 end;
 
 procedure TActivationRecord.AddMember(AKey:string; AObj:TInstanceOf);
+var
+  i: integer;
 begin
   //try
+    {i := FMembers.FindIndexOf(AKey);
+    if i > -1 then
+      FMembers.Delete(i);}
     FMembers.Add(AKey, AObj)
 	//except
     //FMembers[Akey] := AObj

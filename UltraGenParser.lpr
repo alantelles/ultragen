@@ -45,7 +45,7 @@ begin
       AOut.SaveToFile(ParamStr(3));
 		end;
 		Ainter.CleanStack;
-    //AInter.FreeInstances;
+    AInter.FreeInstances;
     AInter.Free;
     //Readln;
   end;

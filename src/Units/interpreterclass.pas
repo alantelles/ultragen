@@ -145,6 +145,8 @@ begin
   AActRec.AddMember(AServerType.PType+ST_ACCESS+'init', AServerType);
   AActRec.AddMember(AServerType.PType+ST_ACCESS+'setTitle', AServerType);
   AActRec.AddMember(AFSType.PType+ST_ACCESS+'mkdir', AFSType);
+  AActRec.AddMember(AFSType.PType+ST_ACCESS+'isFile', AFSType);
+  AActRec.AddMember(AFSType.PType+ST_ACCESS+'isDir', AFSType);
 
   AActRec.AddMember(AServerType.PType+ST_ACCESS+'setStopRoute', AServerType);
   AActRec.AddMember(AIntType.PType + ST_ACCESS + 'leftZeros', AIntType);
@@ -488,12 +490,15 @@ begin
   if len2 > 0 then
   begin
     //for AInst in ACandidate.PValue do
+    AIndex := TIntegerInstance.Create();
     for i:=0 to len2-1 do
     begin
       //AActRec.AddMember(Anode.PVar.PVarName.PValue, AInst);
       AActRec.AddMember(Anode.PVar.PVarName.PValue, ACandidate.PValue[i]);
-      AIndex := TIntegerInstance.Create(i);
-      AActRec.AddMember('_' + Anode.PVar.PVarName.PValue, AIndex);
+      //AIndex := TIntegerInstance.Create(i);
+      AIndex.PValue := i;
+      //AActRec.AddMember('_' + Anode.PVar.PVarName.PValue, AIndex);
+      // gotta think if it could be good or not
       len := Length(ANode.PBlock);
       if len > 0 then
       begin
@@ -514,14 +519,15 @@ begin
       begin
         break;
       end;
-      AIndex.Free;
+
     end;
+    AIndex.Free;
   end;
-  {for i := 0 to ACandidate.Count - 1 do
+  for i := 0 to ACandidate.Count - 1 do
   begin
     ACandidate.PValue[i].Free;
   end;
-  ACandidate.Free;}
+  ACandidate.Free;
   FBreakSignal := False;
 end;
 

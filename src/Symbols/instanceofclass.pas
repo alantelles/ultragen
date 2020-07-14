@@ -36,6 +36,7 @@ type
     public
       property PValue:integer read FValue write FValue;
       constructor Create(AValue: integer);
+      constructor Create;
       function AsString: string;  override;
   end;
 
@@ -144,6 +145,10 @@ end;
 constructor TIntegerInstance.Create(AValue: integer);
 begin
   FValue := AValue;
+end;
+
+constructor TIntegerInstance.Create;
+begin
 end;
 
 function TIntegerInstance.AsString:string;

@@ -23,7 +23,7 @@ type
     property PLineChar: integer read FLineChar;
     property PScriptLine: integer read FScriptLine;
     property PScriptMode: boolean read FScriptMode write FScriptMode;
-    constructor Create(AFileName: string);
+    constructor Create(AFileName: string; fromFile: boolean = True);
     procedure EParseError;
     procedure Advance(steps: integer = 1);
     procedure Rewind(steps: integer = 1);
@@ -44,7 +44,7 @@ implementation
 uses
   ExceptionsClasses;
 
-constructor TLexer.Create(AFileName: string);
+constructor TLexer.Create(AFileName: string; fromFile: boolean = True);
 var
   dotpos: integer;
   ext: string;
@@ -67,15 +67,24 @@ begin
   FFileName := Acd + ADir + Afn;
   try
     try
-      AFile.LoadFromFile(AFileName);
-      dotpos := RPos('.', AFileName);
-      if dotpos > 0 then
-        ext := Copy(AFilename, dotpos, Length(AFileName));
-      if ext = '.ultra' then
+      if fromFile then
+      begin
+        AFile.LoadFromFile(AFileName);
+        AFile.SkipLastLineBreak := True;
+        dotpos := RPos('.', AFileName);
+        if dotpos > 0 then
+          ext := Copy(AFilename, dotpos, Length(AFileName));
+        if ext = '.ultra' then
+          FScriptMode := True;
+        FExtension := ext;
+        FText := AFile.Text;
+      end
+      else
+      begin
+        FExtension := '.ultra';
+        FText := Trim(AFileName);
         FScriptMode := True;
-      FExtension := ext;
-      AFile.SkipLastLineBreak := True;
-      FText := AFile.Text;
+      end;
       if Length(FText) = 0 then
         exit;
       FPos := 1;

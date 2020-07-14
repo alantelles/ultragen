@@ -124,20 +124,71 @@ end;}
 procedure TServerInstance.ExecuteAction(ARequest: TRequest;AResponse: TResponse);
 var
   AParser: TTParser;
-  ALexer: TLexer;
-  ATree: TAST;
-  AprogTree: TAST;
+  ALexer, BLexer: TLexer;
+  ATree, BTree: TAST;
   AInter: TInterpreter;
-  Output: string;
-  AToken, BToken: TToken;
+  Output, comma, K, V: string;
+  WebVars:TStringList;
+  len, i: integer;
 begin
+  WebVars := TStringList.Create;
+  WebVars.SkipLastLineBreak := True;
+  WebVars.Add('REQUEST = {');
+  Webvars.Add('"ROUTE": "'+ARequest.URI+'", ');
+  Webvars.Add('"METHOD": "'+ARequest.Method+'", ');
+  Webvars.Add('"QUERYSTRING": "'+ARequest.QueryString+'", ');
+  WebVars.Add('"QUERY": {');
+  len := ARequest.QueryFields.Count;
+  if len > 0 then
+  begin
+    comma := ', ';
+    for i:=0 to len - 1 do
+    begin
+      ARequest.QueryFields.GetNameValue(i, K, V);
+      if i = len - 1 then
+        comma := '';
+      WebVars.Add('"'+K+'": "'+V+'"'+comma);
+    end;
+  end;
+  WebVars.Add('}, ');
+  WebVars.Add('"BODY": {');
+  len := ARequest.ContentFields.Count;
+  if len > 0 then
+  begin
+    comma := ', ';
+    for i:=0 to len - 1 do
+    begin
+      ARequest.ContentFields.GetNameValue(i, K, V);
+      if i = len - 1 then
+        comma := '';
+      WebVars.Add('"'+K+'": "'+V+'"'+comma);
+    end;
+  end;
+  WebVars.Add('}');
+  WebVars.Add('}');
+  BLexer := TLexer.Create(WebVars.Text, False);
+  AParser := TTParser.Create(BLexer);
+  BTree := AParser.ParseCode();
+  BLexer.Free;
+  AParser.Free;
+
   ALexer := TLexer.Create(FRootFile);
   AParser := TTParser.Create(ALexer);
   ATree := AParser.ParseCode();
+
+  len := Length(TProgram(BTree).PChildren);
+  if len > 0 then
+  begin
+    for i:=0 to len-1 do
+      TProgram(ATree).AddPrelude(TProgram(BTree).PChildren[i]);
+  end;
   // commented to show concept
-  //AToken := TToken.Create(T_ID, '_SESSION');
-  //BToken := TToken.Create(TYPE_STRING, 'Uma variável de sessão');
-  //TProgram(ATree).AddPrelude(TVarAssign.Create(AToken, TString.Create(BToken)));
+  {AToken := TToken.Create(T_ID, '_ROUTE');
+  BToken := TToken.Create(TYPE_STRING, ARequest.URI);
+  TProgram(ATree).AddPrelude(TVarAssign.Create(AToken, TString.Create(BToken)));
+  AToken := TToken.Create(T_ID, '_METHOD');
+  BToken := TToken.Create(TYPE_STRING, ARequest.Method);
+  TProgram(ATree).AddPrelude(TVarAssign.Create(AToken, TString.Create(BToken)));}
   AInter := TInterpreter.Create(ATree);
   try
     AInter.Interpret;
@@ -147,7 +198,7 @@ begin
     AParser.Free;
     ALexer.Free;
     AResponse.Content := Output;
-    WriteLn('['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
+    WriteLn(#13+'['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
       ARequest.Method + ': '+
       ARequest.URI+' -- '+ IntToStr(AResponse.Code)+
       ' ' + AResponse.CodeText +
