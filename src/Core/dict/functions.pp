@@ -1,17 +1,17 @@
-procedure TCoreFunction.SetItem(AObj: TActRecInstance);
+procedure TCoreFunction.SetItem(AObj: TDictionaryInstance);
 begin
 //  precisa mudar
   Aobj.PValue.AddMember(TStringInstance(FParams[0]).PValue, FParams[1]);
 end;
 
-function TCoreFunction.GetItem(AObj: TActRecInstance): TInstanceOf;
+function TCoreFunction.GetItem(AObj: TDictionaryInstance): TInstanceOf;
 begin
 //  precisa mudar
   Result := Aobj.PValue.GetMember(TStringInstance(FParams[0]).PValue);
 
 end;
 
-function TCoreFunction.RouteMatch(AObj: TActRecInstance): TInstanceOf;
+function TCoreFunction.RouteMatch(AObj: TDictionaryInstance): TInstanceOf;
 var
   i, j, DotPos: integer;
   Exp, Inp: TStringList;
@@ -32,7 +32,7 @@ begin
   Exp.StrictDelimiter := True;
 end;
 
-function TCoreFunction.GetKeys(AObj: TActRecInstance): TListInstance;
+function TCoreFunction.GetKeys(AObj: TDictionaryInstance): TListInstance;
 var
   ret: TListInstance;
 begin

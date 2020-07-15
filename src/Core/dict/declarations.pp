@@ -1,4 +1,4 @@
-procedure SetItem(AObj: TActrecInstance);
-function GetItem(AObj: TActrecInstance):TInstanceOf;
-function GetKeys(AObj: TActRecInstance): TListInstance;
-function RouteMatch(AObj: TActRecInstance): TInstanceOf;
+procedure SetItem(AObj: TDictionaryInstance);
+function GetItem(AObj: TDictionaryInstance):TInstanceOf;
+function GetKeys(AObj: TDictionaryInstance): TListInstance;
+function RouteMatch(AObj: TDictionaryInstance): TInstanceOf;

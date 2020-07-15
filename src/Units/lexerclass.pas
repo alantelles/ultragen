@@ -202,6 +202,7 @@ begin
     TokenFound := TToken.Create(T_ID, Ret, FScriptLine, FLineChar, FFileName)
   else
   begin
+    TokenFound.SetPosition(FScriptLine, FLineChar, FFileName);
     if Copy(TokenFound.PValue, 1, 6) = 'block:' then
       FScopeType.Add(TokenFound.PType);
   end;

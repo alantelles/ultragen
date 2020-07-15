@@ -36,7 +36,7 @@ type
       procedure MemberAsString(AItem:  TObject;const AName:string; var Cont:boolean);
       procedure SearchFunction(AItem: TObject; const AName:string; var Cont: boolean);
       procedure CopyItems(AItem: TObject; const Aname:string; var Cont: boolean);
-      procedure IterGetkeys(AItem: TObject; const Aname:string; var Cont: boolean);
+
       procedure FreeMembers(AItem: TObject; const Aname:string; var Cont: boolean);
 
       procedure FreeAllMembers;
@@ -54,7 +54,7 @@ type
 
   end;
 
-  TActRecInstance = class (TInstanceOf)
+  TDictionaryInstance = class (TInstanceOf)
     private
       FValue: TActivationRecord;
     public
@@ -74,22 +74,41 @@ begin
 end;
 
 procedure TActivationRecord.GetKeys(var Alist: TListInstance);
+var
+  i: integer;
 begin
-  FList := Alist;
-  //FMembers.Iterate(@IterGetKeys);
+  if FMembers.Count > 0 then
+  begin
+    for i:=0 to FMembers.Count-1 do
+      AList.Add(TStringInstance.Create(FMembers.NameOfIndex(i)));
+  end;
 end;
 
-procedure TActivationRecord.IterGetkeys(AItem: TObject; const Aname:string; var Cont: boolean);
+
+function TDictionaryInstance.AsString:string;
+var
+  Ret:string = '{ ';
+  len, i: integer;
 begin
-  FList.Add(TStringInstance.Create(Aname));
+  len := FValue.FMembers.Count;
+  if len > 0 then
+  begin
+    for i:=0 to len - 1 do
+    begin
+      ret := Ret + FValue.FMembers.NameOfIndex(i) + ': ';
+      if FValue.FMembers[i].ClassNameIs('TStringInstance') then
+        Ret := Ret + '''' + TInstanceOf(FValue.FMembers[i]).AsString + ''''
+      else
+        Ret := Ret + TInstanceOf(FValue.FMembers[i]).AsString;
+      if i < len-1 then
+        ret := Ret + ', '
+    end;
+  end;
+  Ret := Ret + ' }';
+  Result := Ret;
 end;
 
-function TActRecInstance.AsString:string;
-begin
-  Result := 'Dictionary "'+ FValue.FName + '"';
-end;
-
-constructor TActRecInstance.Create(AnActRec: TActivationRecord);
+constructor TDictionaryInstance.Create(AnActRec: TActivationRecord);
 begin
   FValue := AnActRec;
 end;
@@ -119,8 +138,8 @@ end;
 procedure TActivationRecord.MemberAsString(AItem:  TObject;const AName:string; var Cont:boolean);
 begin
   WriteLn('Record member '+Aname+' of type '+AItem.ToString);
-  if AItem.ClassNameIs('TActRecInstance') then
-    WriteLn(' ---- ' + TActRecInstance(AItem).PValue.AsString);
+  if AItem.ClassNameIs('TDictionaryInstance') then
+    WriteLn(' ---- ' + TDictionaryInstance(AItem).PValue.AsString);
 end;
 
 procedure TActivationRecord.FreeMembers(AItem:  TObject;const AName:string; var Cont:boolean);

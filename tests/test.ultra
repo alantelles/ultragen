@@ -1,5 +1,2 @@
-for (1000000, i)
-    if (i % 100000 == 0)
-        print(i)
-    end
-end
+a = {'pro': 'blem'}
+print(a['zika'])

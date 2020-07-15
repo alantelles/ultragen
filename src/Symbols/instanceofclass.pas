@@ -139,7 +139,10 @@ end;
 
 function TFunctionInstance.AsString: string;
 begin
-  Result := 'function ' + FName + ' from type ' + FType;
+  if FType <> '' then
+    Result := '<function ' + FName + ' from type ' + FType + '>'
+  else
+    Result := '<function ' + FName + '>';
 end;
 
 constructor TIntegerInstance.Create(AValue: integer);

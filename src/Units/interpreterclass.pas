@@ -115,7 +115,7 @@ var
   ACoreType, AStrType, AIntType, AFloatType, AListType,
   ABoolType, AFuncType, AOSType, AFSType, ADictType,
   AServerType: TFunctionInstance;
-  ANameSpace: TActRecInstance;
+  ANameSpace: TDictionaryInstance;
 begin
   ACoreType := TFunctionInstance.Create('BuiltIn', nil, nil, 'CoreFunction', True);
   AStrType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TStringInstance', True);
@@ -126,14 +126,14 @@ begin
   ABoolType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBooleanInstance', True);
   AOSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TOSInstance', True);
   AFSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFileSystemInstance', True);
-  ADictType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TActRecInstance', True);
+  ADictType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TDictionaryInstance', True);
   AServerType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TServerInstance', True);
   AActRec := FCallStack.GetFirst();
 
   // BuiltInTypesRegister
 
   AActRec.AddMember('FileSystem', TBuiltInType.Create('TFileSystemInstance'));
-  AActrec.AddMember('Dict', TBuiltInType.Create('TActRecInstance'));
+  AActrec.AddMember('Dict', TBuiltInType.Create('TDictionaryInstance'));
   AActRec.AddMember('Server', TBuiltInType.Create('TServerInstance'));
   AActRec.AddMember('String', TBuiltInType.Create('TStringInstance'));
 
@@ -204,7 +204,7 @@ begin
     //Visit(AState);
 end;
 
-function TInterpreter.VisitDict(ANode: TDictNode): TActRecInstance;
+function TInterpreter.VisitDict(ANode: TDictNode): TDictionaryInstance;
 var
   AActRec: TActivationRecord;
   //AKey: TAST;
@@ -223,7 +223,7 @@ begin
       AActRec.AddMember(Visit(ATypedkey.PKey).AsString,Visit(ATypedKey.PValue));
     end;
   end;
-  Result := TActRecInstance.Create(AActRec);
+  Result := TDictionaryInstance.Create(AActRec);
 end;
 
 procedure TInterpreter.VisitLiveOutput(ANode: TLiveOutput);
@@ -308,7 +308,7 @@ function TInterpreter.VisitNewObject(ANode: TNewObject): TInstanceOf;
 var
   Ret: TInstanceOf;
   NowAct, NewAct: TActivationRecord;
-  ActInst: TActRecInstance;
+  ActInst: TDictionaryInstance;
   Gene: TInstanceOf;
   ABuilt: TBuiltInType;
 begin
@@ -316,12 +316,12 @@ begin
   Gene := NowAct.GetMember(ANode.PName);
   if Gene <> nil then
   begin
-    if Gene.ClassNameIs('TActRecInstance') then
+    if Gene.ClassNameIs('TDictionaryInstance') then
     begin
-      ActInst := TActRecInstance(Gene);
+      ActInst := TDictionaryInstance(Gene);
       ActInst.PValue.CopyActRec(NewAct);
 
-      Result := TActrecInstance.Create(NewAct);
+      Result := TDictionaryInstance.Create(NewAct);
     end
     else if Gene.ClassNameIs('TBuiltInType') then
     begin
@@ -558,16 +558,16 @@ end;
 procedure TInterpreter.VisitListAssign(ANode: TListAssign);
 var
   ASrc, AValue, AIndex: TInstanceOf;
-  ASrcAct: TActRecInstance;
+  ASrcAct: TDictionaryInstance;
   ASrcList: TListInstance;
 begin
   LogText(INTER, 'Interpreter', 'VarList visitation');
   ASrc := Visit(ANode.PSrc);
   Aindex := Visit(ANode.PEntry);
   AValue := Visit(ANode.PValue);
-  if ASrc.ClassNameIs('TActRecInstance') then
+  if ASrc.ClassNameIs('TDictionaryInstance') then
   begin
-    ASrcAct := TActrecInstance(ASrc);
+    ASrcAct := TDictionaryInstance(ASrc);
     if AIndex.ClassNameIs('TStringInstance') then
       ASrcAct.PValue.AddMember(TStringInstance(AIndex).PValue, AValue)
     else
@@ -771,7 +771,8 @@ begin
   begin
 
      ERunTimeError.Create('Referenced function "' + AFuncName +
-      '" does not exist.');
+      '" does not exist.',
+          FTrace, ANode.PToken);
   end;
   // end of new
 end;
@@ -827,7 +828,7 @@ begin
   begin
     AActRec := FCallStack.Peek();
     AParRec := FParentStack.Peek();
-    AParRec.AddMember(FNameSpace.PName, TActRecInstance.Create(AActRec));
+    AParRec.AddMember(FNameSpace.PName, TDictionaryInstance.Create(AActRec));
     FCallStack := FParentStack;
 
   end;
@@ -880,15 +881,15 @@ end;
 function TInterpreter.VisitNameSpaceGet(Anode: TNamespaceGet): TInstanceOf;
 var
   AActRec, ARef: TActivationRecord;
-  ANameRec: TActRecInstance;
+  ANameRec: TDictionaryInstance;
   Ret, ADictCand, AKeyCand: TInstanceOf;
   AKey: TStringInstance;
 begin
   AActrec := FCallStack.Peek();
   ADictCand := AActRec.GetMember(ANode.PName);
-  if ADictCand.ClassNameIs('TActRecInstance') then
+  if ADictCand.ClassNameIs('TDictionaryInstance') then
   begin
-    Aref := TActrecInstance(ADictCand).PValue;
+    Aref := TDictionaryInstance(ADictCand).PValue;
     FCallStack.Push(ARef);
   end
   else
@@ -902,7 +903,7 @@ end;
 function TInterpreter.VisitNameSpaceState(Anode: TNamespaceState): TInstanceOf;
 var
   AActRec, ARef: TActivationRecord;
-  ANameRec: TActRecInstance;
+  ANameRec: TDictionaryInstance;
   Ret, ArefVal: TInstanceOf;
 begin
   AActrec := FCallStack.Peek();
@@ -910,13 +911,13 @@ begin
   if ARefVal = nil then
   begin
     ARef := TActivationRecord.Create(ANode.PName, AR_NAMESPACE, 1);
-    ANameRec := TActRecInstance.Create(Aref);
+    ANameRec := TDictionaryInstance.Create(Aref);
     AActRec.AddMember(ANode.PName, ANameRec);
   end
   else
   begin
-    Aref := TActrecInstance(ARefVal).PValue;
-    ANameRec := TActRecInstance.Create(Aref);
+    Aref := TDictionaryInstance(ARefVal).PValue;
+    ANameRec := TDictionaryInstance.Create(Aref);
   end;
   FCallStack.Push(AnameRec.PValue);
   Ret := Visit(ANode.POper);
@@ -1281,16 +1282,22 @@ begin
     else
        ERunTimeError.Create('Foridden type for index using with List');
   end
-  else if ASrc.ClassNameIs('TActRecInstance') then
+  else if ASrc.ClassNameIs('TDictionaryInstance') then
   begin
     if AIndex.ClassNameIs('TStringInstance') then
-      ARet := TActRecInstance(ASrc).PValue.GetMember(AindexStr.PValue)
+      ARet := TDictionaryInstance(ASrc).PValue.GetMember(AindexStr.PValue)
+    else if AIndex.ClassNameIs('TIntegerInstance') then
+      ARet := TDictionaryInstance(ASrc).PValue.GetMember(IntToStr(AIndexInt.PValue))
     else
        ERunTimeError.Create('Foridden type for index using with Dict');
   end
   else
      ERunTimeError.Create('Foridden type for indexing as list');
-  Result := ARet;
+  if ARet <> nil then
+    Result := ARet
+  else
+    ERunTimeError.Create('The referenced key "'+AIndex.AsString+'" does not exists at given Dict/List',
+          FTrace, ANode.PToken);
 end;
 
 function Tinterpreter.VisitBoolean(ANode: TBoolean): TBooleanInstance;
