@@ -682,12 +682,14 @@ begin
               ADef := Visit(TParam(FuncDef.PParams[i]).PDefValue)
             else
                EArgumentsError.Create(
-                'Wrong number of arguments to call this function');
+                'Wrong number of arguments to call this function',
+          FTrace, ANode.PToken);
           end
           else if i > (LenParams - 1) then
           begin
              EArgumentsError.Create(
-              'Wrong number of arguments to call this function');
+              'Wrong number of arguments to call this function',
+          FTrace, ANode.PToken);
           end
           else
           begin
@@ -699,7 +701,8 @@ begin
             Aux := TFunctionInstance(ADef);
             if Aux.PIsBuiltin then
                ERunTimeError.Create('Can''t assign builtin function "' +
-                ANode.PEvalParams[i].PToken.PValue + '" as argument');
+                ANode.PEvalParams[i].PToken.PValue + '" as argument',
+          FTrace, ANode.PToken);
             //AParamName := ANode.PEvalParams[i].PToken.PValue;
           end;
           AActRec.AddMember(AParamName, ADef);
@@ -893,7 +896,8 @@ begin
     FCallStack.Push(ARef);
   end
   else
-     ERunTimeError.Create('Referenced name is not a Dict type');
+     ERunTimeError.Create('Referenced name is not a Dict type',
+          FTrace, ANode.PToken);
   Ret := Visit(ANode.Poper);
   FCallStack.Pop();
   Result := ret;
@@ -972,7 +976,8 @@ begin
     end;
     Result := ret;
   except
-     ERunTimeError.Create('Invalid operation for class ' + Ret.ClassName);
+     ERunTimeError.Create('Invalid operation for class ' + Ret.ClassName,
+          FTrace, ANode.PToken);
   end;
 end;
 
@@ -992,7 +997,8 @@ begin
     end;
     Result := ret;
   except
-     ERunTimeError.Create('Invalid operation for class ' + Ret.ClassName);
+     ERunTimeError.Create('Invalid operation for class ' + Ret.ClassName,
+          FTrace, ANode.PToken);
   end;
 end;
 
@@ -1008,7 +1014,8 @@ begin
     Result := ARes;
 
   except
-     ERunTimeError.Create('Invalid operation for class ' + ARes.ClassName);
+     ERunTimeError.Create('Invalid operation for class ' + ARes.ClassName,
+          FTrace, ANode.PToken);
   end;
 end;
 
@@ -1071,7 +1078,8 @@ begin
           Cmp := LeftStr <> RightStr
         else
            ERunTimeError.Create('Logic operation ' + ANode.POper.PType +
-            ' forbidden for type ' + LeftClass);
+            ' forbidden for type ' + LeftClass,
+          FTrace, ANode.PToken);
         Result := TBooleanInstance.Create(Cmp);
         exit;
       end
@@ -1122,11 +1130,13 @@ begin
         exit;
       end
       else
-         ERunTimeError.Create('Can''t compare instances of type ' + LeftClass);
+         ERunTimeError.Create('Can''t compare instances of type ' + LeftClass,
+          FTrace, ANode.PToken);
     end
     else
        ERunTimeError.Create('Can''t compare different types ' +
-        LeftClass + ' and ' + RightClass + ' implicitly.');
+        LeftClass + ' and ' + RightClass + ' implicitly.',
+          FTrace, ANode.PToken);
   except
   end;
 end;
@@ -1170,7 +1180,8 @@ begin
     end
     else
        ERunTimeError.Create('Invalid operation ' + Anode.POper.PType +
-        ' between strings');
+        ' between strings',
+          FTrace, ANode.PToken);
   end
   else if Numeric then
   begin
@@ -1203,10 +1214,12 @@ begin
   end
   else if LeftClass = RightClass then
      ERunTimeError.Create('Invalid operation ' + ANode.POper.ptype +
-      ' for type ' + LeftClass)
+      ' for type ' + LeftClass,
+          FTrace, ANode.PToken)
   else
      ERunTimeError.Create('Can''t perform opertions between different types ' +
-      LeftClass + ' and ' + RightClass + ' implicitly.');
+      LeftClass + ' and ' + RightClass + ' implicitly.',
+          FTrace, ANode.PToken);
 
 end;
 
@@ -1271,7 +1284,8 @@ begin
   else if AIndex.ClassNameIs('TIntegerInstance') then
     AIndexInt := TIntegerInstance(AIndex)
   else
-     ERunTimeError.Create('Foridden type for index using');
+     ERunTimeError.Create('Foridden type for index using',
+          FTrace, ANode.PToken);
   ASrc := Visit(Anode.PList);
   if ASrc.ClassNameIs('TListInstance') then
     ARet := TListInstance(ASrc).GetItem(AIndexInt)
@@ -1280,7 +1294,8 @@ begin
     if AIndex.ClassNameIs('TIntegerInstance') then
       ARet := TStringInstance(ASrc).GetChar(AIndexInt)
     else
-       ERunTimeError.Create('Foridden type for index using with List');
+       ERunTimeError.Create('Foridden type for index using with List',
+          FTrace, ANode.PToken);
   end
   else if ASrc.ClassNameIs('TDictionaryInstance') then
   begin
@@ -1289,10 +1304,12 @@ begin
     else if AIndex.ClassNameIs('TIntegerInstance') then
       ARet := TDictionaryInstance(ASrc).PValue.GetMember(IntToStr(AIndexInt.PValue))
     else
-       ERunTimeError.Create('Foridden type for index using with Dict');
+       ERunTimeError.Create('Foridden type for index using with Dict',
+          FTrace, ANode.PToken);
   end
   else
-     ERunTimeError.Create('Foridden type for indexing as list');
+     ERunTimeError.Create('Foridden type for indexing as list',
+          FTrace, ANode.PToken);
   if ARet <> nil then
     Result := ARet
   else
