@@ -1,17 +1,13 @@
-include "index.ultra.html" 
-include "post.ultra.html" 
-file_to_inc = 'posts/' +  (REQUEST['ROUTE'])  + '.ultra'
-exist = FileSystem.isFile(file_to_inc)
-if (exist)
-    include file_to_inc
-else
-    content = {"title": 'Default', 'body': 'Default'}
-end
+# req_type = _request['_content_type']
+# body = _request['_body_content']
+body = 'username=teste&options=opt1&options=opt2&options=opt3'
 
-post = {
-    'title': 'UltraPower page',
-    'header': 'UltraPower',
-    'post': content
-}
+# print(req_type)
+print(body)
+keys = {}
+fields = body.split('&')
+# live body.sub(5)
+live 'zik'
 
-live BaseSite(post)
+
+# include 'index.ultra.html'

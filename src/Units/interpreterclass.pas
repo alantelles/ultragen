@@ -142,6 +142,7 @@ begin
   AActRec.AddMember(ADictType.PType+ST_ACCESS+'set', ADictType);
   AActRec.AddMember(ADictType.PType+ST_ACCESS+'get', ADictType);
   AActRec.AddMember(ADictType.PType+ST_ACCESS+'keys', ADictType);
+  AActRec.AddMember(ADictType.PType+ST_ACCESS+'hasKey', ADictType);
   AActRec.AddMember(AServerType.PType+ST_ACCESS+'init', AServerType);
   AActRec.AddMember(AServerType.PType+ST_ACCESS+'setTitle', AServerType);
   AActRec.AddMember(AFSType.PType+ST_ACCESS+'mkdir', AFSType);
@@ -522,11 +523,16 @@ begin
 
     end;
     AIndex.Free;
+    for i := 0 to len2 - 1 do
+    begin
+      try
+        ACandidate.PValue[i].Free;
+      except
+
+      end;
+    end;
   end;
-  for i := 0 to ACandidate.Count - 1 do
-  begin
-    ACandidate.PValue[i].Free;
-  end;
+
   ACandidate.Free;
   FBreakSignal := False;
 end;
@@ -739,6 +745,7 @@ begin
     end
     else
     begin
+
       ACoreExec := TCoreFunction.Create;
       Len := 0;
       SetLength(ArgsList, 0);
@@ -763,12 +770,6 @@ begin
       exit;
     end;
     FuncDef.Free;
-    len := Length(ArgsList);
-    if len > 0 then
-    begin
-      for i:=0 to len-1 do
-        ArgsList[i].Free;
-    end;
   end
   else
   begin

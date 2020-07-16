@@ -54,8 +54,9 @@ function TCoreFunction.Execute(AInter: TInterpreter; Fname:string; var AArgList:
 var
   AType:string = '';
   AuxStr:string;
-  DotPos: integer;
+  DotPos, len, i: integer;
   Ret: TInstanceOf;
+
 begin
   FInter := AInter;
   Ret := TNullInstance.create;
@@ -118,6 +119,14 @@ begin
   else
     raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.', '', 1, 1);
   // functions
+  len := Length(FParams);
+  {if len > 0 then
+  begin
+    for i:=0 to len-1 do
+    begin
+      FParams[i].Free;
+    end;
+  end;}
   Result := Ret;
 end;
 

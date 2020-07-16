@@ -402,22 +402,20 @@ begin
   //  Eat(T_NEWLINE);
   SetLength(AArgs, 0);
   len := 0;
-  while (FCurrentToken.PType <> T_RPAREN) do
+  while ((FCurrentToken.PType <> T_RPAREN) and
+        (FCurrentToken.PType <> EOF))do
   begin
     if (FCurrentToken.PType = T_NEWLINE) then
-      Eat(T_NEWLINE)
-    else if (FCurrentToken.PType = T_COMMA) then
-      Eat(T_COMMA);
+      Eat(T_NEWLINE);
     len := len + 1;
     SetLength(AArgs, len);
     AArgs[len - 1] := MethodCall();
 
     if (FCurrentToken.PType <> T_RPAREN) then
     begin
+      Eat(T_COMMA);
       if (FCurrentToken.PType = T_NEWLINE) then
         Eat(T_NEWLINE);
-      if (FCurrentToken.PType = T_COMMA) then
-        Eat(T_COMMA);
     end;
   end;
   logtext('PARSER', 'Parser', 'Creating args node');

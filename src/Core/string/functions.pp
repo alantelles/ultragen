@@ -3,6 +3,30 @@ begin
   AObj.PValue := TStringInstance(FParams[0]).PValue;
 end;
 
+function TCoreFunction.Substring(AObj: TStringInstance): TStringInstance;
+var
+  ret: string;
+  start: integer;
+  _end: integer;
+begin
+  if (Length(FParams) > 2) or (Length(FParams) < 1) then
+    FInter.RaiseException(E_INVALID_ARGS, 'Arguments');
+  Ret := AObj.PValue;
+  start := TIntegerInstance(FParams[0]).PValue;
+  if Length(FParams) = 2 then
+  begin
+    start := TIntegerInstance(FParams[0]).PValue;
+    _end := TIntegerInstance(FParams[1]).PValue
+  end
+  else
+  begin
+    _end := TIntegerInstance(FParams[0]).PValue;
+    start := 0;
+  end;
+  Ret := Copy(Ret, start+1, _end);
+  Result := TStringInstance.Create(Ret);
+end;
+
 function TCoreFunction.JoinString(AObj: TStringInstance):TStringInstance;
 var
   len, i: integer;

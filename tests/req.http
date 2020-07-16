@@ -1,0 +1,4 @@
+POST http://localhost:3500
+Content-Type: application/x-www-form-urlencoded
+
+username=teste&options=opt1&options=opt2&options=opt3

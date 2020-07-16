@@ -178,12 +178,25 @@ end;
 procedure TActivationRecord.AddMember(AKey:string; AObj:TInstanceOf);
 var
   i: integer;
+  test: TObject;
 begin
   //try
     {i := FMembers.FindIndexOf(AKey);
     if i > -1 then
       FMembers.Delete(i);}
+  Test := FMembers.Find(AKey);
+  i := FMembers.FindIndexOf(AKey);
+  try
+    try
+      if (Test <> nil) and (i > -1) then
+        FMembers[i] := AObj;
+
+    except
+    end;
+  finally
     FMembers.Add(AKey, AObj)
+  end;
+
 	//except
     //FMembers[Akey] := AObj
 	//end;

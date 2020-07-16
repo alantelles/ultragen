@@ -133,11 +133,11 @@ var
 begin
   WebVars := TStringList.Create;
   WebVars.SkipLastLineBreak := True;
-  WebVars.Add('REQUEST = {');
-  Webvars.Add('"ROUTE": "'+ARequest.URI+'", ');
-  Webvars.Add('"METHOD": "'+ARequest.Method+'", ');
-  Webvars.Add('"QUERYSTRING": "'+ARequest.QueryString+'", ');
-  WebVars.Add('"QUERY": {');
+  WebVars.Add('_request = {');
+  Webvars.Add('"_route": "'+ARequest.URI+'", ');
+  Webvars.Add('"_method": "'+ARequest.Method+'", ');
+  Webvars.Add('"_querystring": "'+ARequest.QueryString+'", ');
+  WebVars.Add('"_query": {');
   len := ARequest.QueryFields.Count;
   if len > 0 then
   begin
@@ -151,7 +151,9 @@ begin
     end;
   end;
   WebVars.Add('}, ');
-  WebVars.Add('"BODY": {');
+  WebVars.Add('"_content_type": "'+ARequest.ContentType+'", ');
+  WebVars.Add('"_body_content": "'+ReplaceStr(ARequest.Content, '"', '\"')+'", ');
+  WebVars.Add('"_body": {');
   len := ARequest.ContentFields.Count;
   if len > 0 then
   begin
@@ -159,6 +161,7 @@ begin
     for i:=0 to len - 1 do
     begin
       ARequest.ContentFields.GetNameValue(i, K, V);
+      writeln(k, ': ', v);
       if i = len - 1 then
         comma := '';
       WebVars.Add('"'+K+'": "'+V+'"'+comma);
@@ -217,7 +220,7 @@ begin
         ARequest.URI+' -- '+ IntToStr(AResponse.Code)+
         ' ' + AResponse.CodeText +
         ', ' + IntToStr(AResponse.ContentLength) + ' B', #13);
-       writeln(E.Message);
+       WriteLn(E.Message);
     end;
   end;
 end;

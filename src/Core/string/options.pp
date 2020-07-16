@@ -12,6 +12,8 @@ begin
 		    Ret := JoinString(TStringInstance(FObj))
 		  else if FName = 'capital' then
 		    Ret := CapitalString(TStringInstance(FObj))
+      else if FName = 'sub' then
+        Ret := Substring (TStringInstance(FObj))
 		  else if FName = 'replace' then
 		    Ret := TStringInstance.Create(
 		      ReplaceStr(

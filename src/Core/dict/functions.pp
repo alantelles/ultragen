@@ -11,6 +11,17 @@ begin
 
 end;
 
+function TCoreFunction.DictHasKey(AObj: TDictionaryInstance): TBooleanInstance;
+var
+  i: integer;
+begin
+  i := AObj.PValue.PMembers.FindIndexOf(TStringInstance(FParams[0]).PValue);
+  if i > -1 then
+    Result := TBooleanInstance.Create(True)
+  else
+    Result := TBooleanInstance.Create(False);
+end;
+
 function TCoreFunction.RouteMatch(AObj: TDictionaryInstance): TInstanceOf;
 var
   i, j, DotPos: integer;

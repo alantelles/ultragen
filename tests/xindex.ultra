@@ -1,7 +1,0 @@
-content = {"title": 'Default', 'body': 'Default'}
-context = {
-    'title': 'UltraPower page',
-    'header': 'UltraPower',
-    'post': content
-}
-include "index2.ultra.html"

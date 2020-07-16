@@ -1,27 +1,23 @@
-@function BaseSite(context)
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ context['title'] }}</title>
+    <title>Document</title>
 </head>
 <body>
-    <p>{{ REQUEST['METHOD'] }}</p>
-    <p>{{ REQUEST['ROUTE'] }}</p>
-@for (REQUEST['QUERYSTRING'].split('&'), i)
-    <p>{{ i }}</p>
-@end
-    <h1>{{ context['header'] }}</h1>
-    {{ Post(context['post']) }}
-    <form action="/send" method="post">
-        <input type="text" name="test" id="">
-        <input type="submit" value="Send">
-    </form>
-
-    <b>{{ REQUEST['QUERY']['ultra'] }}</b>
-    <b>{{ REQUEST['QUERY']['teste'] }}</b>
-    {{ CopyRight() }}
+    <pre>{{ _request }}</pre>
+    <div>
+        <form action="" method="post">
+            <input type="text" name="username"><br>
+            <select name="options" multiple id="">
+                <option value="opt1">opcao 1</option>
+                <option value="opt2">opcao 2</option>
+                <option value="opt3">opcao 3</option>
+                <option value="opt4">opcao 4</option>
+            </select><br>
+            <input type="submit" value="Enviar">
+        </form>
+    </div>
 </body>
 </html>
-@end
