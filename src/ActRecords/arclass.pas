@@ -57,10 +57,12 @@ type
   TDictionaryInstance = class (TInstanceOf)
     private
       FValue: TActivationRecord;
+      FDefault: TInstanceOf;
     public
       property PValue: TActivationRecord read FValue write FValue;
+      property PDefault: TInstanceOf read FDefault write FDefault;
       function AsString:string; override;
-      constructor Create(AnActRec: TActivationRecord);
+      constructor Create(AnActRec: TActivationRecord; ADefault:TInstanceOf = nil);
   end;
 
 implementation
@@ -108,9 +110,13 @@ begin
   Result := Ret;
 end;
 
-constructor TDictionaryInstance.Create(AnActRec: TActivationRecord);
+constructor TDictionaryInstance.Create(AnActRec: TActivationRecord; ADefault:TInstanceOf = nil);
 begin
   FValue := AnActRec;
+  if ADefault = nil then
+    FDefault := nil
+  else
+    FDefault := ADefault;
 end;
 
 procedure TActivationRecord.FreeAllMembers;

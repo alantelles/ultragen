@@ -210,7 +210,7 @@ var
   AActRec: TActivationRecord;
   //AKey: TAST;
   ATypedKey: TDictKeyNode;
-  ARepo, O2: TInstanceOf;
+  ARepo, O2, ADef: TInstanceOf;
   ACast: TListInstance;
   len, i, j:integer;
 begin
@@ -224,8 +224,11 @@ begin
       ATypedKey := TDictkeyNode(ANode.PKeys[i]);
       ARepo := Visit(ATypedkey.PKey);
       //if ATypedkey.PKey.ClassNameIs('TString') or ATypedkey.PKey.ClassNameIs('TNumInt') then
-      if ARepo.ClassNameIs('TStringInstance') or ARepo.ClassNameIs('TIntegerInstance') then
-        AActRec.AddMember(ARepo.AsString,Visit(ATypedKey.PValue))
+      if ARepo.ClassNameIs('TStringInstance') or
+         ARepo.ClassNameIs('TIntegerInstance') then
+         AActRec.AddMember(ARepo.AsString,Visit(ATypedKey.PValue))
+      else if ARepo.ClassNameIs('TNullInstance') then
+         ADef := Visit(ATypedKey.PValue)
       else if ARepo.ClassNameIs('TListInstance') then
       begin
         ACast := TListInstance(ARepo);
@@ -245,7 +248,7 @@ begin
         ERunTimeError.Create('This type can''t be used as a Dict key');
     end;
   end;
-  Result := TDictionaryInstance.Create(AActRec);
+  Result := TDictionaryInstance.Create(AActRec, ADef);
 end;
 
 procedure TInterpreter.VisitLiveOutput(ANode: TLiveOutput);
@@ -512,14 +515,14 @@ begin
   if len2 > 0 then
   begin
     //for AInst in ACandidate.PValue do
-    AIndex := TIntegerInstance.Create();
+    //AIndex := TIntegerInstance.Create();
     for i:=0 to len2-1 do
     begin
       //AActRec.AddMember(Anode.PVar.PVarName.PValue, AInst);
       AActRec.AddMember(Anode.PVar.PVarName.PValue, ACandidate.PValue[i]);
       //AIndex := TIntegerInstance.Create(i);
-      AIndex.PValue := i;
-      //AActRec.AddMember('_' + Anode.PVar.PVarName.PValue, AIndex);
+      //AIndex.PValue := i;
+      AActRec.AddMember('_' + Anode.PVar.PVarName.PValue, TIntegerInstance.Create(i));
       // gotta think if it could be good or not
       len := Length(ANode.PBlock);
       if len > 0 then
@@ -543,15 +546,14 @@ begin
       end;
 
     end;
-    AIndex.Free;
-    for i := 0 to len2 - 1 do
+    {for i := 0 to len2 - 1 do
     begin
       try
         ACandidate.PValue[i].Free;
       except
 
       end;
-    end;
+    end;}
   end;
 
   ACandidate.Free;
@@ -1306,12 +1308,17 @@ var
   AIndexInt: TIntegerInstance;
   AVarRef: TVariableReference;
   ARet, ASrc, AIndex: TInstanceOf;
+  ACompl: string = '';
 begin
   AIndex := Visit(ANode.PIndex);
   if AIndex.ClassNameIs('TStringInstance') then
     AIndexStr := TStringInstance(AIndex)
   else if AIndex.ClassNameIs('TIntegerInstance') then
     AIndexInt := TIntegerInstance(AIndex)
+  else if AIndex.ClassNameIs('TNullInstance') then
+  begin
+
+  end
   else
      ERunTimeError.Create('Foridden type for index using',
           FTrace, ANode.PToken);
@@ -1332,18 +1339,41 @@ begin
       ARet := TDictionaryInstance(ASrc).PValue.GetMember(AindexStr.PValue)
     else if AIndex.ClassNameIs('TIntegerInstance') then
       ARet := TDictionaryInstance(ASrc).PValue.GetMember(IntToStr(AIndexInt.PValue))
+    else if Aindex.ClassNameIs('TNullInstance') then
+      ARet := TDictionaryInstance(ASrc).PDefault
     else
        ERunTimeError.Create('Foridden type for index using with Dict',
           FTrace, ANode.PToken);
+    if ARet = nil then
+      ARet := TDictionaryInstance(ASrc).PDefault
   end
   else
      ERunTimeError.Create('Foridden type for indexing as list',
           FTrace, ANode.PToken);
-  if ARet <> nil then
-    Result := ARet
+  try
+    Aret.AsString;
+    Result := ARet;
+  except
+    ARet := TDictionaryInstance(ASrc).PDefault;
+    try
+      Aret.AsString;
+      Result := ARet;
+    except
+      if AIndex.ClassNameIs('TNullInstance') then
+         ERunTimeError.Create('This dictionary does not have a default value',
+            FTrace, ANode.PToken)
+      else
+         ERunTimeError.Create('The referenced key "'+AIndex.AsString+'" does not exist at given Dict/List and this dictionary does not have a default fallback value.',
+            FTrace, ANode.PToken);
+    end;
+  end;
+  {if (ARet <> nil) and (not ARet.ClassNameIs('TInstanceOf')) then
+  begin
+    Result := ARet;
+  end
   else
     ERunTimeError.Create('The referenced key "'+AIndex.AsString+'" does not exists at given Dict/List',
-          FTrace, ANode.PToken);
+          FTrace, ANode.PToken);}
 end;
 
 function Tinterpreter.VisitBoolean(ANode: TBoolean): TBooleanInstance;

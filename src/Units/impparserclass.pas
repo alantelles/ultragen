@@ -573,6 +573,10 @@ begin
       if FCurrentToken.ptype = T_NEWLINE then
         Eat(T_NEWLINE);
       Eat(T_LIST_END);
+      {if FCurrentToken.PType = T_LPAREN then
+      begin
+        Ret := TMethodCall.Create(Ret, LogicEval(), FCurrentToken);
+      end ;}
     end
   end;
   Result := Ret;

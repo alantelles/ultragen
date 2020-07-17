@@ -1,13 +1,8 @@
-function top() 
-   return 'eh top'
+a = {
+   ['key1', 'key2', 'key3']: 'val1',
+   'null': 'trem azul',
+   null: 'emergency'
+}
+for(['key1', 'key2', 'key3', 'null', 'naotem'], j)
+   print(a[j])
 end
-
-b = ['bah', 'ole', 'ros']
-# lista é passada como chave do dicionário
-a = {b : 'top'}
-print(a['bah'])
-a['ole'] = 'kaka'
-b[0] = 'tom'
-print(a['bah'])
-print(a['ole'])
-print(a['tom'])
