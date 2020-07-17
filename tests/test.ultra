@@ -1,3 +1,13 @@
-for (1000000, i)
-   print(i)
+function top() 
+   return 'eh top'
 end
+
+b = ['bah', 'ole', 'ros']
+# lista é passada como chave do dicionário
+a = {b : 'top'}
+print(a['bah'])
+a['ole'] = 'kaka'
+b[0] = 'tom'
+print(a['bah'])
+print(a['ole'])
+print(a['tom'])

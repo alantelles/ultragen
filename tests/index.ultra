@@ -7,7 +7,7 @@ print(body)
 keys = {}
 fields = body.split('&')
 # live body.sub(5)
-live 'zik'
 
 
 # include 'index.ultra.html'
+live 'zika'

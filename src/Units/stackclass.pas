@@ -66,8 +66,8 @@ begin
     {if FItems[len - 1].PType <> AR_NAMESPACE then
       Fitems[len - 1].Free;}
 
-    FItems[len - 1].FreeAllMembers;
-    FItems[len - 1].Free;
+    //FItems[len - 1].FreeAllMembers;
+    //FItems[len - 1].Free;
     FLevel := FLevel - 1;
     SetLength(FItems, len - 1);
   end;

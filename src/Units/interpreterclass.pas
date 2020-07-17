@@ -89,7 +89,7 @@ begin
         //FRunTimeInstances[i].Free;
         //x := @FRunTimeInstances[i];
         //y := addr(x);
-        FRunTimeInstances[i].Free;
+        //FRunTimeInstances[i].Free;
         //writeln(i, ' -- freeing: ', FRunTimeInstances[i].ToString);
 
         //Writeln(@FRunTimeInstances);
@@ -210,8 +210,9 @@ var
   AActRec: TActivationRecord;
   //AKey: TAST;
   ATypedKey: TDictKeyNode;
-  ARepo: TInstanceOf;
-  len, i:integer;
+  ARepo, O2: TInstanceOf;
+  ACast: TListInstance;
+  len, i, j:integer;
 begin
   AActRec := TActivationRecord.Create('Any', AR_DICT, 1);
   //for Akey in ANode.PKeys do
@@ -221,7 +222,27 @@ begin
     for i:=0 to len-1 do
     begin
       ATypedKey := TDictkeyNode(ANode.PKeys[i]);
-      AActRec.AddMember(Visit(ATypedkey.PKey).AsString,Visit(ATypedKey.PValue));
+      ARepo := Visit(ATypedkey.PKey);
+      //if ATypedkey.PKey.ClassNameIs('TString') or ATypedkey.PKey.ClassNameIs('TNumInt') then
+      if ARepo.ClassNameIs('TStringInstance') or ARepo.ClassNameIs('TIntegerInstance') then
+        AActRec.AddMember(ARepo.AsString,Visit(ATypedKey.PValue))
+      else if ARepo.ClassNameIs('TListInstance') then
+      begin
+        ACast := TListInstance(ARepo);
+        if ACast.Count > 0 then
+        begin
+          for j:=0 to ACast.Count - 1 do
+          begin
+            O2 := ACast.PValue[j];
+            if O2.ClassNameIs('TStringInstance') or O2.ClassNameIs('TIntegerInstance') then
+              AActRec.AddMember(ACast.PValue[j].AsString,Visit(ATypedKey.PValue))
+            else
+              ERunTimeError.Create('This type can''t be used as a Dict key');
+          end;
+        end
+      end
+      else
+        ERunTimeError.Create('This type can''t be used as a Dict key');
     end;
   end;
   Result := TDictionaryInstance.Create(AActRec);
@@ -946,13 +967,20 @@ begin
     begin
       Acd := GetCurrentDir;
       if Length(Acd) > 0 then
-        Acd := Acd + DirectorySeparator;
-      Adir := ExtractFilePath(ANode.PToken.PScriptName);
-      if Length(Adir) > 0 then
-        Adir := Adir + DirectorySeparator;
-      AFn := ExtractFileName(ANode.PToken.PScriptName);
-      FTrace.Add(ANode.PToken.PScriptName +' at < ' +
-        IntToStr(ANode.PToken.PLineNo)+':'+ IntToStr(ANode.PToken.PCharNo) + ' >');
+      begin
+        try
+          Acd := Acd + DirectorySeparator;
+          Adir := ExtractFilePath(ANode.PToken.PScriptName);
+          if Length(Adir) > 0 then
+            Adir := Adir + DirectorySeparator;
+          AFn := ExtractFileName(ANode.PToken.PScriptName);
+          FTrace.Add(ANode.PToken.PScriptName +' at < ' +
+          IntToStr(ANode.PToken.PLineNo)+':'+ IntToStr(ANode.PToken.PCharNo) + ' >');
+        except
+          FTrace.Add('(token unavailable)');
+        end;
+      end;
+
     end;
     FTrace.Add(ANode.ToString);
   end;

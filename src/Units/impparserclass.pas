@@ -59,7 +59,7 @@ type
     function NewObject: TAST;
     function Dict: TAST;
     function DictKey: TAST;
-    function ListAssign(ASrc, AKey: TAST): TAST;
+    function ListAssign(ASrc, AKey: TAST; AToken: TToken): TAST;
 
   end;
 
@@ -116,13 +116,13 @@ begin
   Result := TIncludeScript.Create(AFileName, FCurrentToken, ANamespace);
 end;
 
-function TTParser.ListAssign(ASrc, AKey: TAST): TAST;
+function TTParser.ListAssign(ASrc, AKey: TAST; AToken: TToken): TAST;
 var
   AVal: TAST;
 begin
   Eat(T_ASSIGN);
   AVal := MethodCall();
-  Result := TListAssign.Create(ASrc, Akey, AVal, FCurrentToken);
+  Result := TListAssign.Create(ASrc, Akey, AVal, AToken);
 end;
 
 function TTParser.Dict: TAST;
@@ -164,6 +164,7 @@ begin
   // Akey := FCurrentToken.PValue;
   // Eat(T_ID);
   Akey := MethodCall();
+  Logtext('PARSER', 'Parser', 'Setting a dict key');
   Eat(T_DICT_ASSIGN);
   while (FCurrentToken.PType = T_NEWLINE) do
     Eat(T_NEWLINE);
@@ -484,7 +485,7 @@ begin
   Eat(T_LIST_END);
   if FCurrentToken.PType = T_ASSIGN then
   begin
-    Ret := ListAssign(Ret, Ret);
+    Ret := ListAssign(Ret, Ret, AToken);
   end
   else
   begin
@@ -502,7 +503,6 @@ end;
 function TTParser.MethodCallState: TAST;
 var
   Ret, IndexOrAcc, ASrc: TAST;
-
 begin
   // Eat(T_ATTR_ACCESSOR);
   Ret := LogicEval();
@@ -521,7 +521,7 @@ begin
         Eat(T_ATTR_ACCESSOR);
         if FCurrentToken.ptype = T_NEWLINE then
           Eat(T_NEWLINE);
-        Ret := TMethodCall.Create(Ret, LogicEval(), FCurrentToken);
+        Ret := TMethodCall.Create(Ret, LogicEval(),TToken.Create(FCurrentToken));
         continue;
       end;
       if (FCurrentToken.PType = T_LIST_START) then
@@ -531,13 +531,13 @@ begin
         if FCurrentToken.ptype = T_NEWLINE then
           Eat(T_NEWLINE);
         IndexOrAcc := MethodCall();
-        Ret := TListAccessAST.Create(Ret, IndexOrAcc, FCurrentToken);
+        Ret := TListAccessAST.Create(Ret, IndexOrAcc, TToken.Create(FCurrentToken));
         if FCurrentToken.ptype = T_NEWLINE then
           Eat(T_NEWLINE);
         Eat(T_LIST_END);
         if FCurrentToken.PType = T_ASSIGN then
         begin
-          Ret := ListAssign(ASrc, IndexOrAcc);
+          Ret := ListAssign(ASrc, IndexOrAcc, TToken.Create(FCurrentToken));
         end
       end
     end;

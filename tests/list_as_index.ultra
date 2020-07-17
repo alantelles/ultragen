@@ -1,0 +1,18 @@
+function value2(arg) 
+    return "this is value " + str(arg)
+end
+
+a_dict = {
+    ['key1', 'key2']: 'value1',
+    ['key3', 'key4']: value2
+}
+
+print(a_dict['key1'])
+# value1
+print(a_dict['key2'])
+# value1
+print(:a_dict.key3('three'))
+# this is value 2
+print(:a_dict.key4('four'))
+# this is value 2
+print(a_dict)
