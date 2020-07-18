@@ -11,6 +11,11 @@ begin
     SetRootFile(TServerInstance(FObj))
   else if FName = 'setStopRoute' then
     SetStopServerRoute(TServerInstance(FObj))
+  else if FName = 'setStaticPath' then
+    TServerInstance(FObj).SetStaticPath(
+      TStringInstance(FParams[0]).PValue,
+      TStringInstance(FParams[1]).PValue
+    )
   else if FName = 'run' then
     RunServer(TServerInstance(FObj));
 end

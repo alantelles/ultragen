@@ -15,6 +15,7 @@ var
   ATree: TAST;
   AInter: TInterpreter;
   AOut: TStringList;
+  LiveOut: string;
 begin
   LogLevel := '';
   //DecimalSeparator := '.';
@@ -35,8 +36,9 @@ begin
     AInter := TInterpreter.Create(ATree);
     AInter.Interpret;
     //readln;
-
-    Writeln(AInter.PLive);
+    LiveOut := AInter.PLive;
+    if Trim(LiveOut) <> '' then
+      Writeln(LiveOut);
     if (ParamStr(2) = '--persist') then
     begin
       AOut := TStringList.Create;

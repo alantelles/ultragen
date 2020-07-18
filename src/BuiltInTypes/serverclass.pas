@@ -22,6 +22,7 @@ uses
       property PPort: integer read FPort write FPort;
       procedure ExecuteAction(ARequest: TRequest; AResponse: TResponse);
       procedure StopServer(ARequest: TRequest;AResponse: TResponse);
+      procedure SetStaticPath(AALias, APath: string);
 
       //procedure AttendConnection(ASocket: TTCPBlockSocket);
 
@@ -43,6 +44,11 @@ begin
   FPort := 2020;
   FRootFile := 'index.ultra';
   FStopRoute := '';
+end;
+
+procedure TServerInstance.SetStaticPath(AALias, APath: string);
+begin
+  RegisterFileLocation(AAlias, APath);
 end;
 
 procedure TServerInstance.SetServerStopRoute(ARoute:string);
@@ -185,13 +191,6 @@ begin
     for i:=0 to len-1 do
       TProgram(ATree).AddPrelude(TProgram(BTree).PChildren[i]);
   end;
-  // commented to show concept
-  {AToken := TToken.Create(T_ID, '_ROUTE');
-  BToken := TToken.Create(TYPE_STRING, ARequest.URI);
-  TProgram(ATree).AddPrelude(TVarAssign.Create(AToken, TString.Create(BToken)));
-  AToken := TToken.Create(T_ID, '_METHOD');
-  BToken := TToken.Create(TYPE_STRING, ARequest.Method);
-  TProgram(ATree).AddPrelude(TVarAssign.Create(AToken, TString.Create(BToken)));}
   AInter := TInterpreter.Create(ATree);
   try
     AInter.Interpret;
@@ -224,6 +223,7 @@ begin
     end;
   end;
 end;
+
 
 procedure TServerInstance.RunServer;
 {}

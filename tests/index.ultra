@@ -1,13 +1,1 @@
-# req_type = _request['_content_type']
-# body = _request['_body_content']
-body = 'username=teste&options=opt1&options=opt2&options=opt3'
-
-# print(req_type)
-print(body)
-keys = {}
-fields = body.split('&')
-# live body.sub(5)
-
-
-# include 'index.ultra.html'
-live 'zika'
+include 'index.ultra.html'

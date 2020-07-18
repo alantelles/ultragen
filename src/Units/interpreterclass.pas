@@ -143,8 +143,11 @@ begin
   AActRec.AddMember(ADictType.PType+ST_ACCESS+'get', ADictType);
   AActRec.AddMember(ADictType.PType+ST_ACCESS+'keys', ADictType);
   AActRec.AddMember(ADictType.PType+ST_ACCESS+'hasKey', ADictType);
+
   AActRec.AddMember(AServerType.PType+ST_ACCESS+'init', AServerType);
   AActRec.AddMember(AServerType.PType+ST_ACCESS+'setTitle', AServerType);
+  AActRec.AddMember(AServerType.PType+ST_ACCESS+'setStaticPath', AServerType);
+
   AActRec.AddMember(AFSType.PType+ST_ACCESS+'mkdir', AFSType);
   AActRec.AddMember(AFSType.PType+ST_ACCESS+'isFile', AFSType);
   AActRec.AddMember(AFSType.PType+ST_ACCESS+'isDir', AFSType);
@@ -262,7 +265,7 @@ begin
   AActRec := FCallStack.Peek();
   ALiveVal := TStringInstance(AActrec.GetMember('$_LIVE'));
   ALiveVal.PValue := ALiveVal.PValue + AVal.AsString;
-  AActRec.AddMember('$_LIVE', ALiveVal);
+  // AActRec.AddMember('$_LIVE', ALiveVal);
 end;
 
 function TInterpreter.VisitLivePrint(ANode: TLivePrint): TStringInstance;
@@ -860,7 +863,6 @@ begin
 
   end;
   FTrace.Free;
-
   FLiveOutput := GetLive();
 end;
 
@@ -1348,7 +1350,7 @@ begin
       ARet := TDictionaryInstance(ASrc).PDefault
   end
   else
-     ERunTimeError.Create('Foridden type for indexing as list',
+     ERunTimeError.Create('Forbidden type for indexing as list',
           FTrace, ANode.PToken);
   try
     Aret.AsString;
