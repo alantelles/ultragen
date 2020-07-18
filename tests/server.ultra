@@ -1,6 +1,7 @@
-a = new Server
-a.init()
-a.setPort(3500)
+b = {'styles': './styles'}
+a = new Server(3500)
 a.setStopRoute('/off')
 a.setTitle('Embedded server')
+a.setMimeTypesFile('mime-types.txt')
+a.setStaticPaths(b)
 a.run()

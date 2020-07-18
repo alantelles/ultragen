@@ -147,6 +147,8 @@ begin
   AActRec.AddMember(AServerType.PType+ST_ACCESS+'init', AServerType);
   AActRec.AddMember(AServerType.PType+ST_ACCESS+'setTitle', AServerType);
   AActRec.AddMember(AServerType.PType+ST_ACCESS+'setStaticPath', AServerType);
+  AActRec.AddMember(AServerType.PType+ST_ACCESS+'setStaticPaths', AServerType);
+  AActRec.AddMember(AServerType.PType+ST_ACCESS+'setMimeTypesFile', AServerType);
 
   AActRec.AddMember(AFSType.PType+ST_ACCESS+'mkdir', AFSType);
   AActRec.AddMember(AFSType.PType+ST_ACCESS+'isFile', AFSType);
@@ -339,6 +341,8 @@ var
   ActInst: TDictionaryInstance;
   Gene: TInstanceOf;
   ABuilt: TBuiltInType;
+  ArgsList: TInstanceList;
+  len, i: integer;
 begin
   NowAct := FCallStack.Peek();
   Gene := NowAct.GetMember(ANode.PName);
@@ -354,12 +358,17 @@ begin
     else if Gene.ClassNameIs('TBuiltInType') then
     begin
       ABuilt := TBuiltInType(Gene);
-
-
+      len := Length(ANode.PArgs);
+      SetLength(ArgsList, len);
+      if len > 0 then
+      begin
+        for i:=0 to len-1 do
+          ArgsList[i] := Visit(ANode.PArgs[i]);
+      end;
       if ABuilt.PValue = 'TServerInstance' then
-        Ret := TServerInstance.Create;
-
-
+      begin
+        Ret := TServerInstance.Create(TIntegerInstance(ArgsList[0]).PValue)
+      end;
       Result := Ret;
     end
   end

@@ -5,7 +5,7 @@ unit ServerClass;
 interface
 
 uses
-  Classes, SysUtils, InstanceOfClass,
+  Classes, SysUtils, InstanceOfClass, ARClass,
   httpdefs, httproute, fphttpapp, fphttpserver, fpwebfile{,
     blcksock, sockets, Synautil};
 
@@ -23,12 +23,14 @@ uses
       procedure ExecuteAction(ARequest: TRequest; AResponse: TResponse);
       procedure StopServer(ARequest: TRequest;AResponse: TResponse);
       procedure SetStaticPath(AALias, APath: string);
+      procedure SetStaticPaths(AStatic: TActivationRecord);
+      procedure SetMimeTypesFile(AFile:string);
 
       //procedure AttendConnection(ASocket: TTCPBlockSocket);
 
       procedure SetServerStopRoute(ARoute:string);
       procedure RunServer;
-      constructor Create;
+      constructor Create(APort: integer);
   end;
 
 
@@ -37,23 +39,44 @@ procedure ShowException(AResponse: TResponse; AException: Exception; var Switch:
 implementation
 
 uses
-  ASTClass, TokenClass, Tokens, LexerClass, ImpParserClass, InterpreterClass, StrUtils;
+  ASTClass, TokenClass, Tokens, LexerClass, ImpParserClass, InterpreterClass, StrUtils,
+  StringInstanceClass;
 
-constructor TServerInstance.Create;
+constructor TServerInstance.Create(APort: integer);
 begin
-  FPort := 2020;
+  FPort := Aport;
   FRootFile := 'index.ultra';
   FStopRoute := '';
 end;
 
 procedure TServerInstance.SetStaticPath(AALias, APath: string);
 begin
+  ForceDirectories(Apath);
   RegisterFileLocation(AAlias, APath);
+end;
+
+procedure TServerInstance.SetStaticPaths(AStatic: TActivationRecord);
+var
+  i: integer;
+begin
+  if AStatic.PMembers.Count > 0 then
+  begin
+    for i:=0 to Astatic.PMembers.Count-1 do
+    begin
+      ForceDirectories(TStringInstance(AStatic.PMembers[i]).PValue);
+      RegisterFileLocation(AStatic.PMembers.NameOfIndex(i), TStringInstance(AStatic.PMembers[i]).PValue);
+    end;
+  end;
 end;
 
 procedure TServerInstance.SetServerStopRoute(ARoute:string);
 begin
   FStopRoute := ARoute;
+end;
+
+procedure TServerInstance.SetMimeTypesFile(AFile:string);
+begin
+  MimeTypesFile := AFile;
 end;
 
 procedure TServerInstance.StopServer(ARequest: TRequest;AResponse: TResponse);
@@ -205,7 +228,6 @@ begin
       ARequest.URI+' -- '+ IntToStr(AResponse.Code)+
       ' ' + AResponse.CodeText +
       ', ' + IntToStr(AResponse.ContentLength) + ' B', #13);
-
   except
     on E: Exception do
     begin

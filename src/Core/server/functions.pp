@@ -1,6 +1,6 @@
 procedure TCoreFunction.CreateServer(var AObj: TServerInstance);
 begin
-  AObj.Create;
+  AObj.Create(TIntegerInstance(FParams[0]).PValue);
 end;
 
 procedure TCoreFunction.SetRootFile(var AObj: TServerInstance);
