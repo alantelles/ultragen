@@ -22,6 +22,8 @@ begin
     Result := TBooleanInstance.Create(False);
 end;
 
+
+
 function TCoreFunction.RouteMatch(AObj: TDictionaryInstance): TInstanceOf;
 var
   i, j, DotPos: integer;

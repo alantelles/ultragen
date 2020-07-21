@@ -1,8 +1,6 @@
-a = {
-   ['key1', 'key2', 'key3']: 'val1',
-   'null': 'trem azul',
-   null: 'emergency'
-}
-for(['key1', 'key2', 'key3', 'null', 'naotem'], j)
-   print(a[j])
-end
+x = {'k': 10, 'w': 20}
+print(x)
+b = x['k']
+x['k'] = 90
+print(x)
+print(b)

@@ -49,7 +49,8 @@ type
       function GetMember(AKey:string):TInstanceOf;
       function GetFunction(AKey: string; ASrc: TInstanceOf = nil): TFunctionInstance;
       function AsString:string;
-      procedure GetKeys(var AList: TListInstance);
+      procedure GetKeys(var AList: TListInstance);                                
+      function DropItem(AKey: string): TInstanceOf;
 
 
   end;
@@ -58,6 +59,7 @@ type
     private
       FValue: TActivationRecord;
       FDefault: TInstanceOf;
+
     public
       property PValue: TActivationRecord read FValue write FValue;
       property PDefault: TInstanceOf read FDefault write FDefault;
@@ -86,6 +88,16 @@ begin
   end;
 end;
 
+function TActivationRecord.DropItem(AKey: string): TInstanceOf;
+var
+  AFind: TInstanceOf;
+  AIndex: integer;
+begin
+  AIndex := FMembers.FindIndexOf(AKey);
+  AFind := TInstanceOf(FMembers[AIndex]);
+  FMembers.Delete(AIndex);
+  Result := AFind;
+end;
 
 function TDictionaryInstance.AsString:string;
 var
@@ -184,24 +196,22 @@ end;
 procedure TActivationRecord.AddMember(AKey:string; AObj:TInstanceOf);
 var
   i: integer;
-  test: TObject;
+  test: TInstanceOf;
 begin
   //try
     {i := FMembers.FindIndexOf(AKey);
     if i > -1 then
       FMembers.Delete(i);}
-  Test := FMembers.Find(AKey);
   i := FMembers.FindIndexOf(AKey);
-  try
-    try
-      if (Test <> nil) and (i > -1) then
-        FMembers[i] := AObj;
-
-    except
-    end;
-  finally
-    FMembers.Add(AKey, AObj)
-  end;
+  if (i > -1) then
+  begin
+    //Test := TInstanceOf.Create;
+    //Test.PPtrVal := AObj.PPtrVal;
+    //TInstanceOf(FMembers[i]).PPtrVal := AObj.PPtrVal;
+    FMembers[i] := AObj
+  end
+  else
+    FMembers.Add(AKey, AObj);
 
 	//except
     //FMembers[Akey] := AObj
@@ -218,9 +228,16 @@ begin
 end;
 
 procedure TActivationRecord.CopyActRec(var AReceiver: TActivationrecord);
+var
+  i: integer;
+  APtr: Pointer;
 begin
   FReceiver := TActivationRecord.Create(Fname, FType, FNestinglevel);
-  //FMembers.Iterate(@CopyItems);
+  if FMembers.Count > 0 then
+  begin
+    for i:=0 to FMembers.Count - 1 do
+      FReceiver.AddMember(FMembers.NameOfIndex(i), TInstanceOf(FMembers[i]));
+  end;
   AReceiver := FReceiver;
 end;
 

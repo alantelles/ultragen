@@ -119,7 +119,6 @@ begin
   else
     raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.', '', 1, 1);
   // functions
-  len := Length(FParams);
   Result := Ret;
 end;
 

@@ -5,14 +5,20 @@ unit InstanceOfClass;
 interface
 
 uses
-  Classes, SysUtils, SymbolsClass, SymbolTableClass, ASTClass, ExceptionsClasses;
+  Classes, SysUtils, SymbolsClass, SymbolTableClass, ASTClass, ExceptionsClasses,Variants;
 
 type
+  PtrInst = ^TInstanceOf;
+
   TInstanceOf = class
     protected
       FSymbol: TSymbol;
+      FParValue: Variant;
+      //FPtrVal: PtrInst;
 
     public
+      //property PPtrVal: PtrInst read FPtrVal write FPtrVal;
+      property PParValue: Variant read FPArValue write FParValue;
       property PSymbol: TSymbol read FSymbol;
       function AsString: string; virtual;
   end;
@@ -29,6 +35,7 @@ type
       constructor Create;
       function AsString: string;  override;
 	end;
+
 
   TIntegerInstance = class (TInstanceOf)
     protected
@@ -148,6 +155,7 @@ end;
 constructor TIntegerInstance.Create(AValue: integer);
 begin
   FValue := AValue;
+  FParValue := AValue;
 end;
 
 constructor TIntegerInstance.Create;

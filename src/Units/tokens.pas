@@ -61,6 +61,7 @@ const
   T_LINE_SCRIPT_EMBED = 'T_LINE_SCRIPT_EMBED';
   T_FROM_NAMESPACE = 'T_FROM_NAMESPACE';
   T_INCLUDE = 'T_INCLUDE';
+  T_IMPORT = 'T_IMPORT';
   T_DICT_ASSIGN = 'T_DICT_ASSIGN';
   T_NEW_OBJECT = 'T_NEW_OBJECT';
 
@@ -103,6 +104,7 @@ begin
   ReservedWords.Add('return', TToken.Create(T_RETURN, T_RETURN));
   ReservedWords.Add('include', TToken.Create(T_INCLUDE, T_INCLUDE));
   ReservedWords.Add('new', TToken.Create(T_NEW_OBJECT, T_NEW_OBJECT));
+  ReservedWords.Add('import', TToken.Create(T_IMPORT, T_IMPORT));
 
   InnerAttributes := TFPHashObjectList.Create();
   InnerAttributes.Add('LIVE', TToken.Create(T_LIVE_PRINT, T_LIVE_PRINT));

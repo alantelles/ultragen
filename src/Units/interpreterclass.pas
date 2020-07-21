@@ -31,6 +31,7 @@ type
     FTrace: TStringList;
     FNowNode: TAST;
     FRunTimeInstances: TInstanceList;
+    FUltraHome: string;
     procedure BootStrapRegister;
 
 
@@ -72,6 +73,7 @@ begin
   FTrace.SkipLastLineBreak := True;
   FTrace.LineBreak := sLineBreak + '+ ';
   SetLength(FRunTimeInstances, 0);
+  FUltraHome := GetEnvironmentVariable('ULTRA_HOME');
 end;
 
 procedure TInterpreter.FreeInstances;
@@ -142,6 +144,7 @@ begin
   AActRec.AddMember(ADictType.PType+ST_ACCESS+'set', ADictType);
   AActRec.AddMember(ADictType.PType+ST_ACCESS+'get', ADictType);
   AActRec.AddMember(ADictType.PType+ST_ACCESS+'keys', ADictType);
+  AActRec.AddMember(ADictType.PType+ST_ACCESS+'drop', ADictType);
   AActRec.AddMember(ADictType.PType+ST_ACCESS+'hasKey', ADictType);
 
   AActRec.AddMember(AServerType.PType+ST_ACCESS+'init', AServerType);
@@ -351,6 +354,7 @@ begin
     if Gene.ClassNameIs('TDictionaryInstance') then
     begin
       ActInst := TDictionaryInstance(Gene);
+
       ActInst.PValue.CopyActRec(NewAct);
 
       Result := TDictionaryInstance.Create(NewAct);
@@ -636,7 +640,7 @@ function TInterpreter.VisitVariableReference(ANode: TVariableReference): TInstan
 var
   AName: string;
   AActRec, GlobalAR: TActivationRecord;
-  Ret: TInstanceOf;
+  Ret, AssRet: TInstanceOf;
   ResFloat: TFloatInstance;
 begin
   AName := Anode.PToken.PValue;
@@ -650,12 +654,12 @@ begin
   end;
   if Ret = nil then
   begin
-
      ERunTimeError.Create('Referenced variable "' + Aname + '" does not exist',
           FTrace, ANode.PToken);
   end;
   LogText(INTER, 'Interpreter', 'Getting value of "' +
     ANode.PToken.PValue + '" from type ' + Ret.ClassName);
+
   Result := Ret;
 end;
 
@@ -981,8 +985,8 @@ begin
       Acd := GetCurrentDir;
       if Length(Acd) > 0 then
       begin
+        Acd := Acd + DirectorySeparator;
         try
-          Acd := Acd + DirectorySeparator;
           Adir := ExtractFilePath(ANode.PToken.PScriptName);
           if Length(Adir) > 0 then
             Adir := Adir + DirectorySeparator;
