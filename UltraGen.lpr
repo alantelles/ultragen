@@ -1,4 +1,4 @@
-program UltraGenParser;
+program UltraGen;
 
 {$mode objfpc}{$H+}
 
@@ -48,6 +48,13 @@ begin
       AOut.SaveToFile(ParamStr(3));
 		end;
     //ATree.Free;
+  end
+  else
+  begin
+    WriteLn('UltraGen - Desktop/Web Template engine/Scripting language');
+    WriteLn('Version: 0.7');
+    WriteLn('Usage: ultragen [script path]');
+    WriteLn('Created by Alan Telles');
   end;
 end.
 

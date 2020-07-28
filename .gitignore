@@ -29,4 +29,5 @@ lib/
 # Application bundle for Mac OS
 *.app/
 
-build/ultraparser
+
+build/ultragen

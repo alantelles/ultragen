@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="11"/>
+    <PathDelim Value="\"/>
+    <General>
+      <Flags>
+        <MainUnitHasCreateFormStatements Value="False"/>
+        <MainUnitHasTitleStatement Value="False"/>
+        <MainUnitHasScaledStatement Value="False"/>
+      </Flags>
+      <SessionStorage Value="InProjectDir"/>
+      <MainUnit Value="0"/>
+      <Title Value="UltraGen"/>
+      <UseAppBundle Value="False"/>
+      <ResourceType Value="res"/>
+    </General>
+    <BuildModes Count="1">
+      <Item1 Name="Default" Default="True"/>
+    </BuildModes>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+    <RunParams>
+      <FormatVersion Value="2"/>
+      <Modes Count="0"/>
+    </RunParams>
+    <RequiredPackages Count="1">
+      <Item1>
+        <PackageName Value="LazUtils"/>
+      </Item1>
+    </RequiredPackages>
+    <Units Count="25">
+      <Unit0>
+        <Filename Value="UltraGen.lpr"/>
+        <IsPartOfProject Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="src\ASTs\astclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ASTClass"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="src\Units\lexerclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="LexerClass"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="src\Units\tokenclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TokenClass"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="src\Units\tokens.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Tokens"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="src\ASTs\binopclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="BinOpClass"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="src\ASTs\numclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="NumClass"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="src\Units\impparserclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ImpParserClass"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="src\ASTs\unaryopclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UnaryOpClass"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="src\ASTs\binlogicopclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="BinLogicOpClass"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="src\ASTs\unarylogicopclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UnaryLogicOpClass"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="src\Units\loggingclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="LoggingClass"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="src\Symbols\symbolsclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="SymbolsClass"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="src\Symbols\symboltableclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="SymbolTableClass"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="src\Units\interpreterclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="InterpreterClass"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="src\Exceptions\exceptionsclasses.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ExceptionsClasses"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="src\Symbols\instanceofclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="InstanceOfClass"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="src\Units\stackclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="StackClass"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="src\ActRecords\arclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ARClass"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="src\Core\corefunctionsclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="CoreFunctionsClass"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="src\Utils\coreutils.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="CoreUtils"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="src\ASTs\flowcontrolastclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="FlowControlASTClass"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="src\BuiltInTypes\stringinstanceclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="StringInstanceClass"/>
+      </Unit22>
+      <Unit23>
+        <Filename Value="src\BuiltInTypes\listinstanceclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ListInstanceClass"/>
+      </Unit23>
+      <Unit24>
+        <Filename Value="src\BuiltInTypes\serverclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ServerClass"/>
+      </Unit24>
+    </Units>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="11"/>
+    <PathDelim Value="\"/>
+    <Target>
+      <Filename Value="build\ultragen"/>
+    </Target>
+    <SearchPaths>
+      <IncludeFiles Value="$(ProjOutDir)"/>
+      <OtherUnitFiles Value="src\Units;src\ASTs;src\Symbols;src\Exceptions;src\ActRecords;src\Core;src\Utils;src\BuiltInTypes"/>
+      <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+    </SearchPaths>
+  </CompilerOptions>
+  <Debugging>
+    <Exceptions Count="5">
+      <Item1>
+        <Name Value="EAbort"/>
+      </Item1>
+      <Item2>
+        <Name Value="ECodetoolError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EFOpenError"/>
+      </Item3>
+      <Item4>
+        <Name Value="EDuplicate"/>
+      </Item4>
+      <Item5>
+        <Name Value="RunError(216)"/>
+      </Item5>
+    </Exceptions>
+  </Debugging>
+</CONFIG>

@@ -7,7 +7,7 @@ function pos(c) : TStringInstance
     return -1
 end
 
-function scopedInclude(file, teste)
+function scopedInclude(file)
     include file : inc
     return inc
 end
