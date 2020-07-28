@@ -201,7 +201,6 @@ begin
   BLexer := TLexer.Create(WebVars.Text, False);
   AParser := TTParser.Create(BLexer);
   BTree := AParser.ParseCode();
-  BLexer.Free;
   AParser.Free;
 
   ALexer := TLexer.Create(FRootFile);
@@ -221,7 +220,6 @@ begin
     //AInter.FreeInstances;
     AInter.Free;
     AParser.Free;
-    ALexer.Free;
     AResponse.Content := Output;
     WriteLn(#13+'['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
       ARequest.Method + ': '+
@@ -231,7 +229,6 @@ begin
   except
     on E: Exception do
     begin
-       AInter.FreeInstances;
        AInter.Free;
        AResponse.Code := 500;
        AResponse.CodeText := 'Internal server error';

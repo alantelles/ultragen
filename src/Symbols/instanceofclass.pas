@@ -8,18 +8,25 @@ uses
   Classes, SysUtils, SymbolsClass, SymbolTableClass, ASTClass, ExceptionsClasses,Variants;
 
 type
-  PtrInst = ^TInstanceOf;
-
   TInstanceOf = class
     protected
       FSymbol: TSymbol;
-      FParValue: Variant;
+      FIntValue: integer;
+      FStrValue: string;
+      FBoolValue: boolean;
+      FFloatValue: extended;
+      FCoreType: boolean;
       //FPtrVal: PtrInst;
 
     public
       //property PPtrVal: PtrInst read FPtrVal write FPtrVal;
-      property PParValue: Variant read FPArValue write FParValue;
+      property PCoreType: boolean read FCoreType write FCoreType;
       property PSymbol: TSymbol read FSymbol;
+      property PIntValue: integer read FIntValue write FIntValue;
+      property PStrValue: string read FStrValue write FStrValue;
+      property PBoolValue: boolean read FBoolValue write FBoolValue;
+      property PFloatValue: extended read FFloatValue write FFloatValue;
+      constructor Create;
       function AsString: string; virtual;
   end;
 
@@ -32,8 +39,8 @@ type
       FValue:string;
     public
       property PValue:string read FValue;
-      constructor Create;
       function AsString: string;  override;
+      constructor Create;
 	end;
 
 
@@ -107,6 +114,11 @@ implementation
 uses
   Tokens;
 
+constructor TInstanceOf.Create;
+begin
+  FCoreType := True;
+end;
+
 constructor TBuiltInType.Create(AName: string);
 begin
   FValue := AName;
@@ -125,6 +137,7 @@ end;
 constructor TNullInstance.Create;
 begin
   FValue := T_LANG_NULL;
+  FCoreType := True;
 end;
 
 function TNullInstance.AsString: string;
@@ -155,11 +168,13 @@ end;
 constructor TIntegerInstance.Create(AValue: integer);
 begin
   FValue := AValue;
-  FParValue := AValue;
+  FIntValue := AValue;
+  FCoreType := True;
 end;
 
 constructor TIntegerInstance.Create;
 begin
+  FCoreType := True;
 end;
 
 function TIntegerInstance.AsString:string;
@@ -171,10 +186,12 @@ constructor TFloatInstance.Create(AValue: extended);
 begin
   try
     FValue := AValue;
-
+    FFloatValue := FValue;
   finally
     FValue := AValue * 1.0;
+    FFloatValue := FValue;
   end;
+  FCoreType := True;
 end;
 
 function TFloatInstance.AsString: string;
@@ -190,6 +207,8 @@ end;
 constructor TBooleanInstance.Create(AValue: boolean);
 begin
   FValue := AValue;
+  FBoolValue := AValue;
+  FCoreType := True;
 end;
 
 function TBooleanInstance.AsString: string;

@@ -31,6 +31,8 @@ uses
 constructor TStringInstance.Create(AValue: string);
 begin
   FValue := AValue;
+  FStrValue := AValue;
+  FCoreType := True;
 end;
 
 function TStringInstance.AsString:string;

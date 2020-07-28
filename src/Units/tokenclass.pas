@@ -16,18 +16,19 @@ type
     FCharNo: integer;
     FScriptName: string;
   public
-    property PScriptName:string read FSCriptName write FScriptNAme;
+    property PScriptName:string read FSCriptName write FScriptName;
     property PType:string read FType write FType;
     property PValue:string read FValue write FValue;
     property PLineNo: integer read FLineNo write FLineNo;
     property PCharNo: integer read FCharNo write FCharNo;
     constructor Create(AType, AValue:String; ALineNo, ACharNo: integer; AScriptName: string);
-    constructor Create(AType, AValue:String);
-    constructor Create(AToken: TToken);
+    {constructor Create(AType, AValue:String);
+    constructor Create(AToken: TToken);}
     constructor Create;
     procedure SetValue(AType, AValue:String; ALineNo, ACharNo: integer; AScriptName: string);
-    procedure SetPosition(ALineNo, ACharNo: integer; AScriptName: string);
+   { procedure SetPosition(ALineNo, ACharNo: integer; AScriptName: string);}
     function AsString:string;
+    //destructor Destroy; override;
   end;
 
 implementation
@@ -36,6 +37,16 @@ constructor TToken.Create;
 begin
 
 end;
+
+//destructor TToken.Destroy;
+//begin
+  //writeln('destruindo token: < ' + FType + ' : '+ FValue + ' >');
+  //FType := nil;
+  //FValue := nil;
+
+  //inherited;
+//end;
+
 constructor TToken.Create(AType, AValue:String; ALineNo, ACharNo: integer; AScriptName: string);
 begin
   FType := AType;
@@ -44,7 +55,7 @@ begin
   FCharNo := ACharNo;
   FScriptName := AScriptName;
 end;
-constructor TToken.Create(AType, AValue:String);
+{constructor TToken.Create(AType, AValue:String);
 begin
   FType := AType;
   FValue := AValue;
@@ -64,7 +75,7 @@ begin
   FLineNo := ALineNo;
   FCharNo := ACharNo;
   FScriptName := AScriptName;
-end;
+end;          }
 
 procedure TToken.SetValue(AType, AValue:String; ALineNo, ACharNo: integer; AScriptName: string);
 begin

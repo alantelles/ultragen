@@ -17,7 +17,7 @@ type
       property PToken: TToken read FToken write FToken;
       property POper: TToken read FOper write FOper;
       constructor Create(AToken: TToken; AExpr: TAST);
-
+      destructor Destroy; override;
   end;
 
 implementation
@@ -26,6 +26,12 @@ begin
   FToken := AToken;
   FOper := AToken;
   FExpr := AExpr;
+end;
+
+destructor TUnaryOp.Destroy;
+begin
+  FExpr.Free;
+  inherited;
 end;
 
 end.

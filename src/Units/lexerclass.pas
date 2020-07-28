@@ -71,6 +71,7 @@ begin
       begin
         AFile.LoadFromFile(AFileName);
         AFile.SkipLastLineBreak := True;
+        AFile.LineBreak := #10;
         dotpos := RPos('.', AFileName);
         if dotpos > 0 then
           ext := Copy(AFilename, dotpos, Length(AFileName));
@@ -109,33 +110,23 @@ begin
   while (FCurrchar + Peek(1) <> '{{') and
         (FCurrChar <> NONE)  do
   begin
-    {$IFDEF Unix}
-    if (FCurrChar = sLineBreak)  then
+    if (FCurrChar = #10)  then
     begin
       ret := ret + FCurrChar;
       break
     end
-		{$ENDIF}
-		{$IFDEF Windows}
-		if (FCurrChar + Peek(1)) = sLineBreak  then
-    begin
-      ret := ret + FCurrChar + Peek(1);
-      break 
-		end
-		{$ENDIF}
 		else
     begin
       ret := ret + FCurrChar;
       Advance;
 		end;
-
   end;
   Result := TToken.Create(T_PLAIN_TEXT, Ret, FScriptLine, FLineChar, FFileName);
 end;
 
 function TLexer.GetInnerAttribute: TToken;
 var
-  TF: TToken;
+  iToken: integer;
   ret: string = '';
 begin
   Advance;
@@ -146,24 +137,20 @@ begin
     advance;
   end;
   //TF := TToken(InnerAttributes[Ret]);
-  TF := TToken(InnerAttributes.Find(Ret));
-  if TF = nil then
-    raise EParserError.Create('Undefined referenced inner attribute "' + Ret + '"', FFileName, FScriptLine, FLineChar);
-  Result := TF;
+  //TF := TToken(Inners.Find(Ret));
+  iToken := Inners.IndexOfName(Ret);
+  if (iToken > -1) and (Ret = Inners.Names[iToken]) then
+    Result := TToken.Create(Inners.ValueFromIndex[iToken], Ret, FScriptLine, FLineChar, FFileName)
+  else
+    EParserError.Create('Undefined referenced inner attribute "' + Ret + '"', FFileName, FScriptLine, FLineChar);
 end;
 
 function TLexer.PassLineComment: string;
 begin
-  {$IFDEF Unix}
-  while (FCurrChar <> SLineBreak) and (FCurrChar <> EOF) do
+  while (FCurrChar <> #10) and (FCurrChar <> EOF) do
   begin
     Advance();
   end;
-  {$ENDIF}
-  {$IFDEF Windows}
-  while ((FCurrChar + Peek(1)) <> SLineBreak) and (FCurrChar <> NONE) do
-    Advance();
-  {$ENDIF}
   Result := '';
 end;
 
@@ -187,7 +174,8 @@ end;
 function TLexer.GetId: TToken;
 var
   Ret: string = '';
-  TokenFound: TToken;
+  FoundType: string;
+  iToken: integer;
 begin
   Ret := FCurrChar;
   Advance;
@@ -196,24 +184,22 @@ begin
     Ret := Ret + FCurrChar;
     Advance;
   end;
-  //Tokenfound := TToken(ReservedWords[ret]);
-  Tokenfound := TToken(ReservedWords.Find(ret));
-  if Tokenfound = nil then
-    TokenFound := TToken.Create(T_ID, Ret, FScriptLine, FLineChar, FFileName)
-  else
+  iToken := KW.IndexOfName(Ret);
+  if (iToken > -1) and (KW.Names[iToken] = Ret) then
   begin
-    TokenFound.SetPosition(FScriptLine, FLineChar, FFileName);
-    if Copy(TokenFound.PValue, 1, 6) = 'block:' then
-      FScopeType.Add(TokenFound.PType);
-  end;
-  Result := TokenFound;
+    FoundType := KW.ValueFromIndex[iToken];
+    if Copy(FoundType, 1, 6) = 'block:' then
+      FScopeType.Add(FoundType);
+    Result := TToken.Create(FoundType, FoundType, FScriptLine, FLineChar, FFileName);
+  end
+  else
+    Result := TToken.Create(T_ID, Ret, FScriptLine, FLineChar, FFileName);
 end;
 
 function TLexer.GetString(Delim: string): TToken;
 var
   Ret: string = '';
   IsLong: boolean = False;
-  TokenFound: TToken;
 begin
   Advance;
   if Delim = T_STRENC_MULTI then
@@ -231,9 +217,11 @@ begin
     begin
       Advance;
       if FCurrChar = 'n' then
-        Ret := Ret + sLineBreak
+        Ret := Ret + #10
       else if FCurrChar = 't' then
         Ret := Ret + #9
+      else if FCurrChar = 'r' then
+        Ret := Ret + #13
       else
         Ret := Ret + FCurrChar;
       Advance;
@@ -252,7 +240,7 @@ var
 begin
   msg := 'Unexpected character "' + FCurrChar + '" at < Line: ' +
     IntToStr(FScriptLine) + ', Char: ' + IntToStr(FLineChar) + ' >';
-  raise ELexicalError.Create(msg, FFileName, FScriptLine, FLineChar);
+  ELexicalError.Create(msg, FFileName, FScriptLine, FLineChar);
 end;
 
 function TLexer.GetNumber: string;
@@ -278,7 +266,7 @@ end;
 
 procedure TLexer.SkipSpace;
 begin
-  while (FCurrChar = ' ') do
+  while (FCurrChar = ' ') or (FCurrChar = #13) do
     Advance;
 end;
 

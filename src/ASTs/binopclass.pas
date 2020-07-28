@@ -16,8 +16,8 @@ type
       property PLeft: TAST read FLeft write FLeft;
       property POper: TToken read FOper write FOper;
       property PRight: TAST read FRight write FRight;
-
       constructor Create(ALeft, ARight: TAST; AToken: TToken);
+      destructor Destroy; override;
 	end;
 
 implementation
@@ -29,6 +29,13 @@ begin
   FToken := AToken;
   FRight := ARight;
   LogText(DEBUG, 'BinOp', 'Creating a BinOp between '+ ALeft.PToken.AsString + ' and ' + ARight.PToken.AsString);
+end;
+
+destructor TBinOp.Destroy;
+begin
+  FLeft.Free;
+  FRight.Free;
+  inherited;
 end;
 
 end.

@@ -12,7 +12,7 @@ type
     private
       FValue: TInstanceList;
       FMetName:string;
-      FArgs: TListInstance;
+      //FArgs: TListInstance;
       function LenList:integer;
     public
       property Count: integer read lenList;
@@ -25,12 +25,13 @@ type
       procedure SetItem(AIndex: integer; AItem: TInstanceOf);
       function PopItem:TInstanceOf;
       procedure Add(AItem: TInstanceOf);
+      procedure CopyList(var ANewList: TListInstance);
 
       function Execute: TInstanceOf;
 
       //functions
       function MapList: TListInstance;
-
+      destructor Destroy; override;
 
   end;
 
@@ -43,10 +44,46 @@ begin
   FValue := AList;
 end;
 
+procedure TListInstance.CopyList(var ANewList: TListInstance);
+var
+  i, len: integer;
+begin
+  len := Length(FValue);
+  if len > 0 then
+  begin
+    for i:=0 to len-1 do
+    begin
+      ANewList.Add(FValue[i]);
+    end;
+  end;
+end;
 
 constructor TListInstance.Create;
 begin
 
+end;
+
+destructor TListInstance.Destroy;
+var
+  len, i: integer;
+begin
+  len := Length(FValue);
+  if len > 0 then
+  begin
+    for i:=0 to len-1 do
+    begin
+      if FValue[i] <> nil then
+      begin
+        if FValue[i].ClassNameIs('TIntegerInstance') or
+           FValue[i].ClassNameIs('TBooleanInstance') or
+           FValue[i].ClassNameIs('TStringInstance') or
+           FValue[i].ClassNameIs('TFloatInstance') or
+           FValue[i].ClassNameIs('TNullInstance') then
+          FValue[i].Free;
+      end;
+    end;
+  end;
+  inherited;
 end;
 
 function TListInstance.PopItem:TInstanceOf;
@@ -70,11 +107,26 @@ end;
 procedure TListInstance.Add(AItem: TInstanceOf);
 var
   len: integer;
+  ToAdd: TInstanceOf;
 begin
+  ToAdd := AItem;
+  if AItem <> nil then
+  begin
+    if AItem.ClassNameIs('TIntegerInstance') then
+      ToAdd := TIntegerInstance.Create(AItem.PIntValue)
+    else if AItem.ClassNameIs('TBooleanInstance') then
+      ToAdd := TBooleanInstance.Create(AItem.PBoolValue)
+    else if AItem.ClassNameIs('TStringInstance') then
+      ToAdd := TStringInstance.Create(AItem.PStrValue)
+    else if AItem.ClassNameIs('TFloatInstance') then
+      ToAdd := TFloatInstance.Create(AItem.PFloatValue)
+    else if AItem.ClassNameIs('TNullInstance') then
+      ToAdd := TNullInstance.Create;
+  end;
   len := Length(FValue);
   len := len + 1;
   SetLength(FValue, len);
-  FValue[len - 1] := AItem;
+  FValue[len - 1] := ToAdd;
 end;
 
 function TListInstance.GetItem(AIndex: TIntegerInstance):TInstanceOf;

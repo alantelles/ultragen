@@ -1,1 +1,5 @@
-include 'index.ultra.html'
+include 'strings.ultra'
+
+teste = 'zika zika'
+page = scopedInclude('index.ultra.html')
+live page['$_LIVE']

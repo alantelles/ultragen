@@ -1,0 +1,13 @@
+function pos(c) : TStringInstance
+    for (self, i)
+        if (i == c)
+            return _i
+        end
+    end
+    return -1
+end
+
+function scopedInclude(file, teste)
+    include file : inc
+    return inc
+end

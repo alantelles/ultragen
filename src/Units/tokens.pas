@@ -5,7 +5,7 @@ unit Tokens;
 interface
 
 uses
-  Classes, SysUtils, Contnrs, TokenClass;
+  Classes, SysUtils, StrUtils, TokenClass;
 
 const
   TYPE_INTEGER = 'INTEGER';
@@ -27,15 +27,15 @@ const
   T_GEQ = 'T_GREATER_OR_EQUAL'; T_LEQ = 'T_LESS_OR_EQUAL'; T_NEQ = 'T_NOT_EQUAL';
   T_AND = 'T_AND'; T_OR  = 'T_OR';
 
-  T_IF_START = 'T_IF_START';
+  T_IF_START = 'block:T_IF_START';
   T_IF_END = 'T_IF_END';
   T_ELSE = 'T_ELSE';
   T_ELSE_IF = 'T_ELSE_IF';
   T_CONTINUE = 'T_CONTINUE';
   T_BREAK = 'T_BREAK';
   T_RETURN = 'T_RETURN';
-  T_WHILE_LOOP = 'While loop';
-  T_FOR_LOOP = 'For Loop';
+  T_WHILE_LOOP = 'block:T_WHILE_LOOP';
+  T_FOR_LOOP = 'block:T_FOR_LOOP';
 
   T_LPAREN = 'T_LPAREN';
   T_RPAREN = 'T_RPAREN';
@@ -48,9 +48,9 @@ const
   T_STRENC_MULTI = '"""';
   T_LONG_STR = 'T_LONG_STRING';
   T_FUNC_PARAM = 'T_FUNC_PARAM';
-  T_FUNC_DEF = 'T_FUNCTION_DEFINITION';
+  T_FUNC_DEF = 'block:T_FUNCTION_DEFINITION';
   T_COMMA = 'T_COMMA';
-  T_END = 'block end: ';
+  T_END = 'T_BLOCK_END';
   T_ID = 'T_ID';
   T_ATTR_ACCESSOR = 'ATTRIBUTE ACCESS';
   T_LIVE_OUTPUT = 'T_LIVE_OUTPUT';
@@ -82,32 +82,36 @@ const
   T_DICT_END = 'T_DICT_END';
 
 
+
+
 var
-  ReservedWords: TFPHashObjectList;
-  InnerAttributes: TFPHashObjectList;
+  //ReservedWords: TFPHashObjectList;
+  //InnerAttributes: TFPHashObjectList;
+  KW, Inners: TStringList;
 
 implementation
 begin
-  ReservedWords := TFPHashObjectList.Create();
-  ReservedWords.Add('function', TToken.Create(T_FUNC_DEF, 'block:function definition'));
-  ReservedWords.Add('if', TToken.Create(T_IF_START, 'block:IF START'));
-  ReservedWords.Add('elsif', TToken.Create(T_ELSE_IF, 'ELSE IF'));
-  ReservedWords.Add('else', TToken.Create(T_ELSE, 'T_ELSE'));
-  ReservedWords.Add('while', TToken.Create(T_WHILE_LOOP, 'block:'+T_WHILE_LOOP));
-  ReservedWords.Add('for', TToken.Create(T_FOR_LOOP, 'block:'+T_FOR_LOOP));
-  ReservedWords.Add(T_LANG_TRUE, TToken.Create(TYPE_BOOLEAN, T_LANG_TRUE));
-  ReservedWords.Add(T_LANG_FALSE, TToken.Create(TYPE_BOOLEAN, T_LANG_FALSE));
-  ReservedWords.Add(T_LANG_NULL, TToken.Create(TYPE_NULL, T_LANG_NULL));
-  ReservedWords.Add('continue', TToken.Create(T_CONTINUE, T_CONTINUE));
-  ReservedWords.Add('break', TToken.Create(T_BREAK, T_BREAK));
-  ReservedWords.Add('live', TToken.Create(T_LIVE_OUTPUT, T_LIVE_OUTPUT));
-  ReservedWords.Add('return', TToken.Create(T_RETURN, T_RETURN));
-  ReservedWords.Add('include', TToken.Create(T_INCLUDE, T_INCLUDE));
-  ReservedWords.Add('new', TToken.Create(T_NEW_OBJECT, T_NEW_OBJECT));
-  ReservedWords.Add('import', TToken.Create(T_IMPORT, T_IMPORT));
+  //ReservedWords := TFPHashObjectList.Create();
+  KW := TStringList.Create;
+  KW.Add('function=' +  T_FUNC_DEF);
+  KW.Add('if=' +  T_IF_START);
+  KW.Add('elsif=' +  T_ELSE_IF);
+  KW.Add('else=' +  T_ELSE);
+  KW.Add('while=' +  T_WHILE_LOOP);
+  KW.Add('for=' +  T_FOR_LOOP);
+  // KW.Add(T_LANG_TRUE + '=' + TYPE_BOOLEAN);
+  // KW.Add(T_LANG_FALSE + '=' + TYPE_BOOLEAN);
+  KW.Add(T_LANG_NULL + '=' + TYPE_NULL);
+  KW.Add('continue=' +  T_CONTINUE);
+  KW.Add('break=' +  T_BREAK);
+  KW.Add('live=' +  T_LIVE_OUTPUT);
+  KW.Add('return=' +  T_RETURN);
+  KW.Add('include=' +  T_INCLUDE);
+  KW.Add('new=' +  T_NEW_OBJECT);
+  KW.Add('import=' +  T_IMPORT);
 
-  InnerAttributes := TFPHashObjectList.Create();
-  InnerAttributes.Add('LIVE', TToken.Create(T_LIVE_PRINT, T_LIVE_PRINT));
+  Inners := TStringList.Create;
+  Inners.Add('LIVE=' + T_LIVE_PRINT);
 
 
 end.

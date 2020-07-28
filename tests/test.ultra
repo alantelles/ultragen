@@ -1,6 +1,10 @@
-x = {'k': 10, 'w': 20}
-print(x)
-b = x['k']
-x['k'] = 90
-print(x)
+a = [0, 100, 200]
+b = a
+print(a)
+a[0] = 'mahailo'
+a[2] = (a[2]) * (a[2])
+print(a)
 print(b)
+for (b, i)
+    print(i)
+end

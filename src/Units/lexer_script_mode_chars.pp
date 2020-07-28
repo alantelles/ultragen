@@ -1,4 +1,4 @@
-         if FCurrChar = ' ' then
+         if (FCurrChar = ' ') or (FCurrChar = #13) then
 		      begin
 		        SkipSpace;
 		        continue;
@@ -39,6 +39,20 @@
 		        exit;
 		      end;
 
+          if (FCurrChar + Peek(3)) = T_LANG_TRUE then
+          begin
+            Advance(4);
+            Result := TToken.Create(TYPE_BOOLEAN, T_LANG_TRUE, FScriptLine, FLineChar, FFileName);
+            Exit;
+          end;
+
+          if (FCurrChar + Peek(4)) = T_LANG_FALSE then
+          begin
+            Advance(5);
+            Result := TToken.Create(TYPE_BOOLEAN, T_LANG_FALSE, FScriptLine, FLineChar, FFileName);
+            Exit;
+          end;
+
 		      if (FCurrChar = T_STRENC_DOUBLE) then
 		      begin
 		        Result := GetString(T_STRENC_DOUBLE);
@@ -50,7 +64,7 @@
 		        Advance(3);
 		        AuxStr := FScopeType[FSCopeType.Count-1];
 		        FScopeType.Delete(FScopeType.Count-1);
-		        Result := TToken.Create(T_END+AuxStr,'end of block '+AuxStr, FScriptLine, FLineChar, FFileName);
+		        Result := TToken.Create(T_END+AuxStr,T_END+AuxStr, FScriptLine, FLineChar, FFileName);
 		        exit
 		      end;
 
@@ -139,8 +153,7 @@
 		        Result := TToken.Create(T_ASSIGN, '=', FScriptLine, FLineChar, FFileName);
 		        exit
 		      end;
-		      {$IFDEF UNIX}
-		      if (FCurrChar = sLineBreak)  then
+		      if (FCurrChar = #10)  then
 		      begin
 		        Advance;
 		        FScriptLine := FScriptLine + 1;
@@ -148,18 +161,6 @@
 		        Result := TToken.Create(T_NEWLINE, sLineBreak, FScriptLine, FLineChar, FFileName);
 		        exit
 		      end;
-		      {$ENDIF}
-		      {$IFDEF Windows}
-		      if (FCurrChar + Peek(1)) = sLineBreak  then
-		      begin
-		        Advance;
-		        Advance;
-		        FScriptLine := FScriptLine + 1;
-		        FLineChar := 1;
-		        Result := TToken.Create(T_NEWLINE, sLineBreak, FScriptLine, FLineChar, FFileName);
-		        exit
-		      end;
-		      {$ENDIF}
 
 		      if Pos(FCurrChar, SET_NUMBERS) > 0 then
 		      begin

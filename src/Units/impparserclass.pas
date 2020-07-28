@@ -19,6 +19,7 @@ type
     FInArgsDef: boolean;
   public
     constructor Create(var ALexer: TLexer);
+    destructor Destroy; override;
     procedure EParseError;
     procedure Eat(AType: string);
     function ParseCode: TAST;
@@ -33,12 +34,11 @@ type
     function Statements: TASTList;
     function Statement: TAST;
     function VarAssign(AToken: TToken): TAST;
-    function VarAssign(AToken: TToken; ANull: TAST): TAST;
     function Variable(AToken: TToken): TAST;
     function FunctionBlock: TAST;
     function DefParams: TASTList;
     function DefParam: TAST;
-    function FunctionCall(AToken: TToken): TAST;
+    function FunctionCall(var AToken: TToken): TAST;
     function MethodCall: TAST;
     function MethodCallState: TAST;
     function Args: TASTList;
@@ -59,7 +59,7 @@ type
     function NewObject: TAST;
     function Dict: TAST;
     function DictKey: TAST;
-    function ListAssign(ASrc, AKey: TAST; AToken: TToken): TAST;
+    function ListAssign(ASrc, AKey: TAST; var CToken: TToken): TAST;
 
   end;
 
@@ -74,6 +74,12 @@ begin
   FCurrentToken := ALexer.GetNextToken;
 end;
 
+destructor TTParser.Destroy;
+begin
+  FLexer.Free;
+  inherited;
+end;
+
 function TTParser.NewObject: TAST;
 var
   ConstArgs: TASTList;
@@ -81,8 +87,14 @@ var
   AToken: TToken;
 begin
   eat(T_NEW_OBJECT);
-  AToken := TToken.Create(FCurrentToken.PType,FCurrentToken.PValue,FCurrentToken.PLineNo,FCurrentToken.PCharNo,FCurrentToken.PScriptName);
-  AName := FCurrentToken.PValue;
+  AToken := TToken.Create(
+    FCurrentToken.PType,
+    FCurrentToken.PValue,
+    FCurrentToken.PLineNo,
+    FCurrentToken.PCharNo,
+    FCurrentToken.PScriptName
+  );
+  AName := AToken.PValue;
   Eat(T_ID);
   SetLength(ConstArgs, 0);
   logtext('PARSER', 'Parser', 'Creating new object node');
@@ -99,8 +111,16 @@ function TTParser.IncludeScript: TAST;
 var
   AFileName: TAST;
   ANamespace: string = '';
+  AToken: TToken;
 begin
   Eat(T_INCLUDE);
+  AToken := TToken.Create(
+    FCurrentToken.PType,
+    FCurrentToken.PValue,
+    FCurrentToken.PLineNo,
+    FCurrentToken.PCharNo,
+    FCurrentToken.PScriptName
+  );
   AFileName := MethodCall();
   if FCurrentToken.PType = T_DICT_ASSIGN then
   begin
@@ -113,13 +133,22 @@ begin
     else
       ANamespace := '0';
   end;
-  Result := TIncludeScript.Create(AFileName, FCurrentToken, ANamespace);
+
+  Result := TIncludeScript.Create(AFileName, AToken, ANamespace);
 end;
 
-function TTParser.ListAssign(ASrc, AKey: TAST; AToken: TToken): TAST;
+function TTParser.ListAssign(ASrc, AKey: TAST; var CToken: TToken): TAST;
 var
   AVal: TAST;
+  AToken: TToken;
 begin
+  AToken := TToken.Create(
+    CToken.PType,
+    CToken.PValue,
+    CToken.PLineNo,
+    CToken.PCharNo,
+    CToken.PScriptName
+  );
   Eat(T_ASSIGN);
   AVal := MethodCall();
   Result := TListAssign.Create(ASrc, Akey, AVal, AToken);
@@ -130,6 +159,7 @@ var
   AllKeys: TASTList;
   ret: TAST;
   len: integer = 0;
+  AToken: TToken;
 begin
   eat(T_DICT_START);
   while (FCurrentToken.PType = T_NEWLINE) do
@@ -153,13 +183,21 @@ begin
   while (FCurrentToken.PType = T_NEWLINE) do
     Eat(T_NEWLINE);
   Eat(T_DICT_END);
-  Result := TDictNode.Create(AllKeys, FCurrentToken);
+  AToken := TToken.Create(
+    FCurrentToken.PType,
+    FCurrentToken.PValue,
+    FCurrentToken.PLineNo,
+    FCurrentToken.PCharNo,
+    FCurrentToken.PScriptName
+  );
+  Result := TDictNode.Create(AllKeys, AToken);
 end;
 
 function TTParser.DictKey: TAST;
 var
   AKey: TAST;
   AVal: TAST;
+  AToken: TToken;
 begin
   // Akey := FCurrentToken.PValue;
   // Eat(T_ID);
@@ -169,13 +207,21 @@ begin
   while (FCurrentToken.PType = T_NEWLINE) do
     Eat(T_NEWLINE);
   AVal := MethodCall();
-  Result := TDictKeyNode.Create(AKey, AVal, FCurrentToken);
+  AToken := TToken.Create(
+    FCurrentToken.PType,
+    FCurrentToken.PValue,
+    FCurrentToken.PLineNo,
+    FCurrentToken.PCharNo,
+    FCurrentToken.PScriptName
+  );
+  Result := TDictKeyNode.Create(AKey, AVal, AToken);
 end;
 
 function TTParser.NamespaceGet: TAST;
 var
   Oper: TAST;
   AName: string;
+  AToken: TToken;
 begin
   Eat(T_DICT_ASSIGN);
   AName := FCurrentToken.PValue;
@@ -184,16 +230,33 @@ begin
   begin
     Eat(T_ATTR_ACCESSOR);
     Oper := MethodCall();
-    Result := TNamespaceGet.Create(Aname, Oper, FCurrentToken);
+    AToken := TToken.Create(
+      FCurrentToken.PType,
+      FCurrentToken.PValue,
+      FCurrentToken.PLineNo,
+      FCurrentToken.PCharNo,
+      FCurrentToken.PScriptName
+    );
+    Result := TNamespaceGet.Create(Aname, Oper, AToken);
   end
   else if FCurrentToken.PType = T_DICT_ASSIGN then
-    Result := TnamespaceGet.Create(AName, NamespaceGet(), FCurrentToken);
+  begin
+    AToken := TToken.Create(
+      FCurrentToken.PType,
+      FCurrentToken.PValue,
+      FCurrentToken.PLineNo,
+      FCurrentToken.PCharNo,
+      FCurrentToken.PScriptName
+    );
+    Result := TnamespaceGet.Create(AName, NamespaceGet(), AToken);
+  end;
 end;
 
 function TTParser.NamespaceState: TAST;
 var
   AName: string;
   Aoper: TAST;
+  AToken: TToken;
 begin
   Eat(T_DICT_ASSIGN);
   AName := FCurrentToken.PValue;
@@ -204,14 +267,26 @@ begin
     if FcurrentToken.PType = T_ATTR_ACCESSOR then
       Eat(T_ATTR_ACCESSOR);
     AOper := Statement();
-    Result := TNamespaceState.Create(Aname, AOper, FCurrentToken);
+    AToken := TToken.Create(
+      FCurrentToken.PType,
+      FCurrentToken.PValue,
+      FCurrentToken.PLineNo,
+      FCurrentToken.PCharNo,
+      FCurrentToken.PScriptName
+    );
+    Result := TNamespaceState.Create(Aname, AOper, AToken);
   end
   else if FCurrentToken.PType = T_DICT_ASSIGN then
-    Result := TnamespaceState.Create(AName, NamespaceState(), FCurrentToken);
-
-{  Eat(T_ATTR_ACCESSOR);
-  AOper := Statement();
-  Result := TNamespaceState.Create(Aname, AOper, FCurrentToken);}
+  begin
+    AToken := TToken.Create(
+      FCurrentToken.PType,
+      FCurrentToken.PValue,
+      FCurrentToken.PLineNo,
+      FCurrentToken.PCharNo,
+      FCurrentToken.PScriptName
+    );
+    Result := TnamespaceState.Create(AName, NamespaceState(), AToken);
+  end;
 end;
 
 function TTParser.FunctionBlock: TAST;
@@ -274,39 +349,63 @@ begin
       Ret[len - 1] := Interpolated();
     end;
   end;
-  {len := len + 1;
-  SetLength(Ret, Len);
-  Ret[len - 1] := TLiveOutput.Create(TString.Create(TToken.Create(TYPE_STRING, sLineBreak)), FCurrentToken);}
   Result := TPlainTextEmbed.Create(Ret, AToken);
 end;
 
 function TTParser.ElseBlock: TAST;
+var
+  AToken: TToken;
 begin
   Eat(T_NEWLINE);
   logtext('PARSER', 'Parser', 'Creating else block node');
-  Result := TIfConditionBlock.Create(Statements(), nil, FCurrentToken);
+  AToken := TToken.Create(
+    FCurrentToken.PType,
+    FCurrentToken.PValue,
+    FCurrentToken.PLineNo,
+    FCurrentToken.PCharNo,
+    FCurrentToken.PScriptName
+  );
+  Result := TIfConditionBlock.Create(Statements(), nil, AToken);
 end;
 
 function TTParser.Interpolated: TAST;
 var
   AOper: TAST;
+  AToken: TToken;
 begin
   Eat(T_INTERPOLATION_START);
   AOper := MethodCall();
   Eat(T_INTERPOLATION_END);
   logtext('PARSER', 'Parser', 'Creating inter node');
-  Result := TInterpolation.Create(AOper, FCurrentToken);
+  AToken := TToken.Create(
+    FCurrentToken.PType,
+    FCurrentToken.PValue,
+    FCurrentToken.PLineNo,
+    FCurrentToken.PCharNo,
+    FCurrentToken.PScriptName
+  );
+  Result := TInterpolation.Create(AOper, AToken);
 end;
 
 function TTParser.LiveOutput: TAST;
+var
+  AToken: TToken;
 begin
-  Result := TLiveOutput.Create(MethodCall(), FCurrentToken);
+  AToken := TToken.Create(
+    FCurrentToken.PType,
+    FCurrentToken.PValue,
+    FCurrentToken.PLineNo,
+    FCurrentToken.PCharNo,
+    FCurrentToken.PScriptName
+  );
+  Result := TLiveOutput.Create(MethodCall(), AToken);
 end;
 
 function TTParser.IfBlock: TAST;
 var
   InBlock: TASTList;
   AExpr: TAST;
+  AToken: TToken;
 begin
   Eat(T_LPAREN);
   FInArgsDef := True;
@@ -318,12 +417,20 @@ begin
   Eat(T_NEWLINE);
 
   logtext('PARSER', 'Parser', 'Creating if block node');
-  Result := TIfConditionBlock.Create(Statements(), AExpr, FCurrentToken);
+  AToken := TToken.Create(
+    FCurrentToken.PType,
+    FCurrentToken.PValue,
+    FCurrentToken.PLineNo,
+    FCurrentToken.PCharNo,
+    FCurrentToken.PScriptName
+  );
+  Result := TIfConditionBlock.Create(Statements(), AExpr, AToken);
 end;
 
 function TTParser.WhileLoop: TAST;
 var
   AExpr: TAST;
+  AToken: TToken;
 begin
   Eat(T_WHILE_LOOP);
   Eat(T_LPAREN);
@@ -334,16 +441,22 @@ begin
   if FLexer.PExtension <> '.ultra' then
     FLexer.PScriptMode := False;
   Eat(T_NEWLINE);
-  Result := TWhileLoop.Create(Statements(), AExpr, FCurrentToken);
+  AToken := TToken.Create(
+    FCurrentToken.PType,
+    FCurrentToken.PValue,
+    FCurrentToken.PLineNo,
+    FCurrentToken.PCharNo,
+    FCurrentToken.PScriptName
+  );
+  Result := TWhileLoop.Create(Statements(), AExpr, AToken);
 end;
 
 function TTParser.ForLoop: TAST;
 var
   AList: TAST;
-  Avar: TAST;
-  AToken, ForToken: TToken;
+  AToken: TToken;
+  AControlVar: string;
 begin
-  ForToken := TToken.Create(FCurrentToken);
   Eat(T_FOR_LOOP);
   Eat(T_LPAREN);
   FInArgsDef := True;
@@ -351,22 +464,21 @@ begin
   Eat(T_COMMA);
   AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue, FLexer.PScriptLine,
          FLexer.PLineChar, FLexer.PFileName);
-  AVar := VarAssign(AToken,
-    TNull.Create(TToken.Create(TYPE_NULL, T_LANG_NULL, FLexer.PScriptLine, FLexer.PLineChar, FLexer.PFIleName))
-    );
+  Eat(T_ID);
   FInArgsDef := False;
   Eat(T_RPAREN);
   if FLexer.PExtension <> '.ultra' then
     FLexer.PScriptMode := False;
   Eat(T_NEWLINE);
   logtext('PARSER', 'Parser', 'Creating for node');
-  Result := TForLoop.Create(Statements(), AList, TVarAssign(AVar), ForToken);
+  Result := TForLoop.Create(Statements(), AList, AToken.PValue, AToken);
 end;
 
 function TTParser.Conditional: TAST;
 var
   Conditions: array of TAST;
   len: integer;
+  AToken: TToken;
 begin
   Eat(T_IF_START);
   SetLength(Conditions, 1);
@@ -375,7 +487,6 @@ begin
   Conditions[0] := IfBlock();
   while FCurrentToken.PType = T_ELSE_IF do
   begin
-
     Eat(T_ELSE_IF);
     len := len + 1;
     SetLength(Conditions, len);
@@ -391,7 +502,14 @@ begin
     Conditions[len - 1] := ElseBlock();
   end;
   logtext('PARSER', 'Parser', 'Creating if block node');
-  Result := TConditional.Create(Conditions, FCurrentToken);
+  AToken := TToken.Create(
+    FCurrentToken.PType,
+    FCurrentToken.PValue,
+    FCurrentToken.PLineNo,
+    FCurrentToken.PCharNo,
+    FCurrentToken.PScriptName
+  );
+  Result := TConditional.Create(Conditions, AToken);
 end;
 
 function TTParser.Args: TASTList;
@@ -459,16 +577,31 @@ var
   AIndex: TAST;
   AList: TAST;
   Ret: TAST;
+  AToken, BToken: TToken;
 begin
   Eat(T_LIST_START);
-  //Ret := TListAccessAST.Create(ASrc, MethodCall(), FCurrentToken);
+  AToken := TToken.Create(
+    FCurrentToken.PType,
+    FCurrentToken.PValue,
+    FCurrentToken.PLineNo,
+    FCurrentToken.PCharNo,
+    FCurrentToken.PScriptName
+  );
+  //Ret := TListAccessAST.Create(ASrc, MethodCall(), AToken);
   Eat(T_LIST_END);
   //Ret := MethodCall();
   logtext('PARSER', 'Parser', 'Creating list access node');
   while (FCurrentToken.PType = T_LIST_START) do
   begin
     Eat(T_LIST_START);
-    Ret := TListAccessAST.Create(Ret, MethodCall(), FCurrentToken);
+    Ret := TListAccessAST.Create(Ret, MethodCall(), TToken.Create(
+        FCurrentToken.PType,
+        FCurrentToken.PValue,
+        FCurrentToken.PLineNo,
+        FCurrentToken.PCharNo,
+        FCurrentToken.PScriptName
+      )
+    );
     Eat(T_LIST_END);
   end;
   Result := Ret;
@@ -492,7 +625,13 @@ begin
     while FCurrentToken.PType = T_LIST_START do
     begin
       Eat(T_LIST_START);
-      Ret := TListAccessAST.Create(Ret, MethodCall(), FCurrentToken);
+      Ret := TListAccessAST.Create(Ret, MethodCall(), TToken.Create(
+        FCurrentToken.PType,
+        FCurrentToken.PValue,
+        FCurrentToken.PLineNo,
+        FCurrentToken.PCharNo,
+        FCurrentToken.PScriptName
+      ));
       Eat(T_LIST_END);
     end;
   end;
@@ -503,9 +642,18 @@ end;
 function TTParser.MethodCallState: TAST;
 var
   Ret, IndexOrAcc, ASrc: TAST;
+  AVarToken: TToken;
 begin
   // Eat(T_ATTR_ACCESSOR);
+  AVarToken := TToken.Create(
+      FCurrentToken.PType,
+      FCurrentToken.PValue,
+      FCurrentToken.PLineNo,
+      FCurrentToken.PCharNo,
+      FCurrentToken.PScriptName
+  );
   Ret := LogicEval();
+
   logtext('PARSER', 'Parser', 'Creating method call node');
   if FCurrentToken.PType = T_ASSIGN then
   begin
@@ -521,7 +669,13 @@ begin
         Eat(T_ATTR_ACCESSOR);
         if FCurrentToken.ptype = T_NEWLINE then
           Eat(T_NEWLINE);
-        Ret := TMethodCall.Create(Ret, LogicEval(),TToken.Create(FCurrentToken));
+        Ret := TMethodCall.Create(Ret, LogicEval(),TToken.Create(
+              FCurrentToken.PType,
+              FCurrentToken.PValue,
+              FCurrentToken.PLineNo,
+              FCurrentToken.PCharNo,
+              FCurrentToken.PScriptName
+            ));
         continue;
       end;
       if (FCurrentToken.PType = T_LIST_START) then
@@ -531,14 +685,20 @@ begin
         if FCurrentToken.ptype = T_NEWLINE then
           Eat(T_NEWLINE);
         IndexOrAcc := MethodCall();
-        Ret := TListAccessAST.Create(Ret, IndexOrAcc, TToken.Create(FCurrentToken));
+        Ret := TListAccessAST.Create(Ret, IndexOrAcc, TToken.Create(
+              FCurrentToken.PType,
+              FCurrentToken.PValue,
+              FCurrentToken.PLineNo,
+              FCurrentToken.PCharNo,
+              FCurrentToken.PScriptName
+            ));
         if FCurrentToken.ptype = T_NEWLINE then
           Eat(T_NEWLINE);
         Eat(T_LIST_END);
         if FCurrentToken.PType = T_ASSIGN then
         begin
-          Ret := ListAssign(ASrc, IndexOrAcc, TToken.Create(FCurrentToken));
-        end
+          Ret := ListAssign(ASrc, IndexOrAcc, AVarToken);
+        end;
       end
     end;
   end;
@@ -561,7 +721,13 @@ begin
       Eat(T_ATTR_ACCESSOR);
       if FCurrentToken.ptype = T_NEWLINE then
         Eat(T_NEWLINE);
-      Ret := TMethodCall.Create(Ret, LogicEval(), FCurrentToken);
+      Ret := TMethodCall.Create(Ret, LogicEval(), TToken.Create(
+            FCurrentToken.PType,
+            FCurrentToken.PValue,
+            FCurrentToken.PLineNo,
+            FCurrentToken.PCharNo,
+            FCurrentToken.PScriptName
+          ));
       continue;
     end;
     if (FCurrentToken.PType = T_LIST_START) then
@@ -569,34 +735,43 @@ begin
       Eat(T_LIST_START);
       if FCurrentToken.ptype = T_NEWLINE then
         Eat(T_NEWLINE);
-      Ret := TListAccessAST.Create(Ret, MethodCall(), FCurrentToken);
+      Ret := TListAccessAST.Create(Ret, MethodCall(), TToken.Create(
+              FCurrentToken.PType,
+              FCurrentToken.PValue,
+              FCurrentToken.PLineNo,
+              FCurrentToken.PCharNo,
+              FCurrentToken.PScriptName
+            ));
       if FCurrentToken.ptype = T_NEWLINE then
         Eat(T_NEWLINE);
       Eat(T_LIST_END);
-      {if FCurrentToken.PType = T_LPAREN then
-      begin
-        Ret := TMethodCall.Create(Ret, LogicEval(), FCurrentToken);
-      end ;}
     end
   end;
   Result := Ret;
 end;
 
-function TTParser.FunctionCall(AToken: TToken): TAST;
+function TTParser.FunctionCall(var AToken: TToken): TAST;
 var
   AFuncName: string;
   AArgs: TASTList;
   Ret: TAST;
+  CToken: TTOken;
 begin
+  CToken := TToken.Create(
+        FCurrentToken.PType,
+        AToken.PValue,
+        FCurrentToken.PLineNo,
+        FCurrentToken.PCharNo,
+        FCurrentToken.PScriptName
+      );
   AFuncName := AToken.PValue;
   Eat(T_LPAREN);
-  //if (FCurrentToken.PType = T_NEWLINE) then
-  //  Eat(T_NEWLINE);
   AArgs := Args();
+
   Eat(T_RPAREN);
 
   logtext('PARSER', 'Parser', 'Creating function call node');
-  Result := TFunctionCall.Create(AFuncName, AArgs, AToken);
+  Result := TFunctionCall.Create(AFuncName, AArgs, CToken);
 end;
 
 
@@ -608,8 +783,6 @@ var
 begin
   AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue, FLexer.PScriptLine, FLexer.PLineChar, FLexer.PFileName);
   ADef := nil;
-  //AVarAssign := TVarAssign.Create(AToken, nil);
-  // Ret := TParam.Create(AToken);
   Eat(T_ID);
   if FCurrentToken.PType = T_ASSIGN then
   begin
@@ -648,19 +821,14 @@ end;
 function TTParser.Variable(AToken: TToken): TAST;
 var
   ret: TAST;
-  //AToken: TToken;
 begin
-
-  //AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue);
   Ret := TVariableReference.Create(AToken);
-  // Eat(T_ID);
   Result := Ret;
 end;
 
 function TTParser.VarAssign(AToken: TToken): TAST;
 var
   Aleft, ARight: TAST;
-  AVar: TToken;
 begin
   Eat(T_ASSIGN);
   if FCurrentToken.PType = T_NEW_OBJECT then
@@ -674,17 +842,6 @@ begin
   Result := TVarAssign.Create(AToken, ARight);
 end;
 
-function TTParser.VarAssign(AToken: TToken; Anull: TAST): TAST;
-var
-  Aleft, ARight: TAST;
-  AVar: TToken;
-begin
-  Eat(T_ID);
-  ARight := ANull;
-  Logdebug('Creating a VarAssign to ' + AToken.AsString, 'Parser');
-  logtext('PARSER', 'Parser', 'Creating var assign node');
-  Result := TVarAssign.Create(AToken, ARight);
-end;
 
 function TTParser.Statement: TAST;
 var
@@ -698,18 +855,6 @@ begin
   if (AToken.PType = T_ID) then
   begin
     Ret := MethodCallState();
-
-    {Eat(T_ID);
-    if (FCurrentToken.PType = T_ASSIGN) then
-    begin
-      Ret := VarAssign(AToken);
-    end
-    else if (FCurrentToken.PType = T_LPAREN) then
-    begin
-      Ret := FunctionCall(AToken);
-    end
-    else
-      EParseError;}
   end
 
   else if (ATOken.PType = T_INCLUDE) then
@@ -745,7 +890,7 @@ begin
   else if AToken.PType = T_RETURN then
   begin
     Eat(T_RETURN);
-    Ret := TReturnFunction.Create(MethodCall(),AToken);
+    Ret := TReturnFunction.Create(MethodCall(), AToken);
   end
   else if (AToken.PType = T_BREAK) then
   begin
@@ -788,7 +933,7 @@ begin
     Ret := ForLoop();
   end
   else
-    Ret := TNoOp.Create(FCurrentToken);
+    Ret := TNoOp.Create(AToken);
 
   Result := Ret;
 end;
@@ -827,12 +972,10 @@ begin
     end
     else if FCurrentToken.PType = T_ELSE_IF then
     begin
-      // Eat(T_ELSE_IF);
       break;
     end
     else if FCurrentToken.PType = T_ELSE then
     begin
-      // Eat(T_ELSE);
       Break;
     end
     else if FCurrentToken.PType = T_END + T_WHILE_LOOP then
@@ -865,9 +1008,11 @@ var
   AList: TASTList;
   AProgram: TProgram;
   Ret: TAST;
+  AToken: TToken;
 begin
+  AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue, FLexer.PScriptLine, FLexer.PLineChar, FLexer.PFileName);
   AList := Statements();
-  AProgram := TProgram.Create(FCurrentToken);
+  AProgram := TProgram.Create(AToken);
   for Ret in AList do
   begin
     Aprogram.Add(Ret);
@@ -1084,24 +1229,19 @@ var
 begin
 
   msg := 'Unexpected token "' + FCurrentToken.PValue + '" from type "'+FCurrentToken.PType+'"';
-  raise EParserError.Create(msg, FLexer.PFileName, FLexer.PScriptLine, FLexer.PLineChar);
+  EParserError.Create(msg, FLexer.PFileName, FLexer.PScriptLine, FLexer.PLineChar);
 end;
 
 procedure TTParser.Eat(AType: string);
-var
-  now: string;
 begin
-  now := FCurrentToken.AsString;
-
   if (FCurrentToken.PType = AType) then
   begin
+    //FCurrentToken.Free;
+    FreeAndNil(FCurrentToken);
     FCurrentToken := FLexer.GetNextToken;
   end
   else
     EParseError;
-
-  now := FCurrentToken.AsString;
-
 end;
 
 

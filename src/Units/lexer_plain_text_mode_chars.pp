@@ -14,27 +14,14 @@ begin
     exit
 end
 
-{$IFDEF UNIX}
 else if (FCurrChar = sLineBreak)  then
 begin
   Advance;
   FScriptLine := FScriptLine + 1;
   FLineChar := 1;
-  Result := TToken.Create(T_NEWLINE, sLineBreak);
+  Result := TToken.Create(T_NEWLINE, sLineBreak, FLineChar, FScriptLine, FFileName);
   exit
 end
-{$ENDIF}
-{$IFDEF Windows}
-else if (FCurrChar + Peek(1)) = sLineBreak  then
-begin
-  Advance;
-  Advance;
-  FScriptLine := FScriptLine + 1;
-  FLineChar := 1;
-  Result := TToken.Create(T_NEWLINE, sLineBreak, FScriptLine, FLineChar, FFileName);
-  exit
-end
-{$ENDIF}
 
 else if (FCurrchar = '@') then
 begin

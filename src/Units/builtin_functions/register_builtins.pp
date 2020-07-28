@@ -3,6 +3,7 @@
 {$INCLUDE 'integermethods.pp'}
 {$INCLUDE 'servermethods.pp'}
 {$INCLUDE 'osmethods.pp'}
+{$INCLUDE 'dictmethods.pp'}
 
 // builtins
 AActRec.AddMember('print', ACoreType);

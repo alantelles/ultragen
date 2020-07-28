@@ -18,7 +18,7 @@ var
   LiveOut: string;
 begin
   LogLevel := '';
-  //DecimalSeparator := '.';
+  DecimalSeparator := '.';
   if ParamCount > 0 then
   begin
     if ParamCount > 1 then
@@ -33,24 +33,21 @@ begin
     ALexer := TLexer.Create(ParamStr(1));
     AParser := TTParser.Create(ALexer);
     ATree := AParser.ParseCode();
+    AParser.Free;
     AInter := TInterpreter.Create(ATree);
     AInter.Interpret;
-    //readln;
     LiveOut := AInter.PLive;
+    AInter.Free;
     if Trim(LiveOut) <> '' then
       Writeln(LiveOut);
     if (ParamStr(2) = '--persist') then
     begin
       AOut := TStringList.Create;
       AOut.SkipLastLineBreak := True;
-      AOut.Text := AInter.PLive;
+      AOut.Text := LiveOut;
       AOut.SaveToFile(ParamStr(3));
 		end;
-		Ainter.CleanStack;
-    AInter.FreeInstances;
-    AInter.Free;
-    //Readln;
+    //ATree.Free;
   end;
-
 end.
 

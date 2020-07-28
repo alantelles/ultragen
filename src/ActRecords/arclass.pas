@@ -51,7 +51,7 @@ type
       function AsString:string;
       procedure GetKeys(var AList: TListInstance);                                
       function DropItem(AKey: string): TInstanceOf;
-
+      destructor Destroy; override;
 
   end;
 
@@ -73,8 +73,26 @@ begin
   FName := AName;
   FType := AType;
   FNestingLevel := ALevel;
-  FMembers := TFPHashObjectList.Create();
+  FMembers := TFPHashObjectList.Create(False);
   //FMembers := TStringList.Create;
+end;
+
+destructor TActivationRecord.Destroy;
+var
+  i: integer;
+begin
+  if FMembers.Count > 0 then
+  begin
+    for i := FMembers.Count - 1 downto 0 do
+    begin
+      if FMembers[i] <> nil then
+      begin
+        if TInstanceOf(FMembers[i]).PCoreType then
+          FMembers[i].Free;
+      end;
+      FMembers.Delete(i);
+    end;
+  end;
 end;
 
 procedure TActivationRecord.GetKeys(var Alist: TListInstance);
@@ -198,32 +216,38 @@ var
   i: integer;
   test: TInstanceOf;
 begin
-  //try
-    {i := FMembers.FindIndexOf(AKey);
-    if i > -1 then
-      FMembers.Delete(i);}
   i := FMembers.FindIndexOf(AKey);
   if (i > -1) then
   begin
-    //Test := TInstanceOf.Create;
-    //Test.PPtrVal := AObj.PPtrVal;
-    //TInstanceOf(FMembers[i]).PPtrVal := AObj.PPtrVal;
-    FMembers[i] := AObj
-  end
-  else
-    FMembers.Add(AKey, AObj);
-
-	//except
-    //FMembers[Akey] := AObj
-	//end;
+    if FMembers[i].ClassNameIs('TIntegerInstance') or
+       FMembers[i].ClassNameIs('TBooleanInstance') or
+       FMembers[i].ClassNameIs('TStringInstance') or
+       FMembers[i].ClassNameIs('TFloatInstance') or
+       FMembers[i].ClassNameIs('TNullInstance') then
+      FMembers[i].Free;
+    FMembers.Delete(i);
+  end;
+  FMembers.Add(AKey, AObj);
 end;
 
 function TActivationRecord.GetMember(AKey:string):TInstanceOf;
 var
   Ret:TInstanceOf;
 begin
-  //Ret := TInstanceOf(FMembers[AKey]);
   Ret := TInstanceOf(FMembers.Find(AKey));
+  if Ret <> nil then
+  begin
+    if Ret.ClassNameIs('TIntegerInstance') then
+      Ret := TIntegerInstance.Create(Ret.PIntValue)
+    else if Ret.ClassNameIs('TBooleanInstance') then
+      Ret := TBooleanInstance.Create(Ret.PBoolValue)
+    else if Ret.ClassNameIs('TStringInstance') then
+      Ret := TStringInstance.Create(Ret.PStrValue)
+    else if Ret.ClassNameIs('TFloatInstance') then
+      Ret := TFloatInstance.Create(Ret.PFloatValue)
+    else if Ret.ClassNameIs('TNullInstance') then
+      Ret := TNullInstance.Create;
+  end;
   Result := Ret;
 end;
 
