@@ -1,6 +1,6 @@
 <h2>{{ $title }}</h2>
 <small>{{ $author }}</small>
 @explode: $body, lines, LINE
-{{ map(lines, LINE, ~('<p>', elem,'</p>')) }}
+{{ map(lines, LINE, concat('<p>', elem,'</p>')) }}
 {{ param[2] }}
 {{ param[1] }}

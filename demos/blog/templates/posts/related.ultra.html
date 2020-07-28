@@ -1,6 +1,6 @@
 @{
     function: link, i
-        return: ~('<a href="/post/', genValue(~(i, '.id'), 'param0'),'"><p>', genValue(~(i, '.title'), 'param0'),'</p></a>')
+        return: concat('<a href="/post/', genValue(concat(i, '.id'), 'param0'),'"><p>', genValue(concat(i, '.title'), 'param0'),'</p></a>')
     endFunction
 }
 <h4>Relacionados</h4>

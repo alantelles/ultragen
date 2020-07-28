@@ -3,8 +3,8 @@ proc: new
     $conn.path = dirSep($conn.path)
     post = $request._post.post_id
     user = $session.idUser
-    body = ~('"', $request._post.body, '"')
-    q = ~('INSERT INTO comments (body, user_id, post_id) VALUES (', +(COMMA, body, user, post),')')
+    body = concat('"', $request._post.body, '"')
+    q = concat('INSERT INTO comments (body, user_id, post_id) VALUES (', +(COMMA, body, user, post),')')
     DB>query: 'conn', q
-    redirect: ~('/post/', post)
+    redirect: concat('/post/', post)
 endProc

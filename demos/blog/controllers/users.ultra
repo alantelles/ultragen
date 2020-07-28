@@ -8,7 +8,7 @@ proc: login
         createGen: 'conn', dirSep('migrations/connection.gen')
         $conn.path = dirSep($conn.path)
         groupKeys: 'request', '_post.', 'post'
-        q = ~('SELECT * FROM users WHERE username="', $post.username,'" AND password="', $post.password,'"')
+        q = concat('SELECT * FROM users WHERE username="', $post.username,'" AND password="', $post.password,'"')
         DB>query: 'conn', q, 'user', true
         loginSuccessful = bool(--(keysCount('user')))
         if: loginSuccessful
@@ -35,8 +35,8 @@ proc: new
         $render.main = render(dirSep('templates/users/new_user.ultra.html'))
     else
         groupKeys: 'request', '_post.', 'postData'
-        values = map(+(COMMA, ..'postData'), ~('"', elem,'"'))
-        q = ~('INSERT INTO users (', +(COMMA, .'postData'),') VALUES (', values ,')')
+        values = map(+(COMMA, ..'postData'), concat('"', elem,'"'))
+        q = concat('INSERT INTO users (', +(COMMA, .'postData'),') VALUES (', values ,')')
         init: conn
         createGen: conn, dirSep('migrations/connection.gen')
         $conn.path = dirSep('migrations\blog.db')
@@ -48,7 +48,7 @@ endProc
 
 proc: show
     id = valueAt($_route, 2, '/')
-    q = ~('SELECT * FROM users WHERE id=', id)
+    q = concat('SELECT * FROM users WHERE id=', id)
     createGen: 'conn', dirSep('migrations/connection.gen')
     $conn.path = dirSep($conn.path)
     DB>query: 'conn', q, 'user', true

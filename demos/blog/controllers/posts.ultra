@@ -19,10 +19,10 @@ proc: show
     postId = valueAt($_route, 2, '/')
     createGen: conn, dirSep('migrations/connection.gen')
     $conn.path = dirSep('migrations\blog.db')
-    q = ~('SELECT posts.id, title, body, users.name AS author FROM posts  ++
+    q = concat('SELECT posts.id, title, body, users.name AS author FROM posts  ++
     INNER JOIN users ON posts.user_id=users.id WHERE posts.id=', postId)
     DB>query: conn, q, 'post', true
-    q = ~('SELECT body, users.name AS author FROM comments  ++
+    q = concat('SELECT body, users.name AS author FROM comments  ++
     INNER JOIN users ON comments.user_id=users.id WHERE post_id=', postId, ' ORDER BY comments.id ASC')
     DB>query: 'conn', q, 'comments'
     comments = render(loaders.tempPath('comments.list'), 'comments')
@@ -40,7 +40,7 @@ proc: new
         count = range(intDiv(keysCount('users'), 4))
         list = ''
         for: count, u
-            groupKeys: 'users', ~(u, '.'), 'user'
+            groupKeys: 'users', concat(u, '.'), 'user'
             list = +(LINE, list, render('templates/basics/option.ultra.html', 'user'))
             unloadGen: 'user'
         endFor
@@ -48,9 +48,9 @@ proc: new
     else
         groupKeys: 'request', '_post.', 'postData'
         values = +(COMMA, ..'postData')
-        $postData.body = ~('"', $body, '"')
-        $postData.title = ~('"', $title, '"')
-        q = ~('INSERT INTO posts (body, title, user_id) VALUES (', +(COMMA, $body, $title, $user_id) ,')')
+        $postData.body = concat('"', $body, '"')
+        $postData.title = concat('"', $title, '"')
+        q = concat('INSERT INTO posts (body, title, user_id) VALUES (', +(COMMA, $body, $title, $user_id) ,')')
         init: conn
         createGen: conn, dirSep('migrations/connection.gen')
         $conn.path = dirSep('migrations\blog.db')
