@@ -14,6 +14,11 @@ begin
 		    Ret := CapitalString(TStringInstance(FObj))
       else if FName = 'sub' then
         Ret := Substring (TStringInstance(FObj))
+      else if FName = 'pos' then
+        Ret := TIntegerInstance.Create(UTF8Pos(
+            TStringInstance(FParams[0]).PValue,
+            TStringInstance(AObj).PValue
+        ) - 1)
 		  else if FName = 'replace' then
 		    Ret := TStringInstance.Create(
 		      ReplaceStr(

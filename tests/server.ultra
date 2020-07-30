@@ -2,5 +2,6 @@ b = {'styles': './styles'}
 a = new Server(3500)
 a.setStopRoute('/off')
 a.setTitle('Embedded server')
+a.setRootFile('test.ultra')
 a.setStaticPaths(b)
 a.run()

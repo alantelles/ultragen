@@ -1,12 +1,3 @@
-function pos(c) : TStringInstance
-    for (self, i)
-        if (i == c)
-            return _i
-        end
-    end
-    return -1
-end
-
 function reverse() : TStringInstance
     len = self.length()
     res = ''
@@ -15,4 +6,18 @@ function reverse() : TStringInstance
         res = res + (self[x])
     end
     return res
+end
+
+function isInt() : TStringInstance
+    nums = '0123456789'
+    ret = true
+    for (self, ch)
+        x = nums.pos(ch)
+        
+        if (x == -1)
+            ret = false
+            break
+        end
+    end
+    return ret
 end
