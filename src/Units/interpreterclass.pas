@@ -13,9 +13,6 @@ uses
   ListInstanceClass;
 
 type
-  PtrInst = ^TInstanceOf;
-
-type
   TInterpreter = class
   private
     FTree: TAST;
@@ -140,7 +137,7 @@ var
   i: TInstanceOf;
 begin
   AActrec := FCallStack.Peek();
-  i := AActRec.GetMember('$_LIVE');
+  i := AActRec.GetMember('__LIVE__');
   Aval := TStringInstance(i);
   Result := AVal.PValue;
 end;
@@ -211,9 +208,9 @@ var
 begin
   AVal := Visit(ANode.PValue);
   AActRec := FCallStack.Peek();
-  ALiveVal := TStringInstance(AActrec.GetMember('$_LIVE'));
+  ALiveVal := TStringInstance(AActrec.GetMember('__LIVE__'));
   ASet := ALiveVal.PValue + AVal.AsString;
-  AActRec.AddMember('$_LIVE', TStringInstance.Create(ASet));
+  AActRec.AddMember('__LIVE__', TStringInstance.Create(ASet));
 end;
 
 function TInterpreter.VisitLivePrint(ANode: TLivePrint): TStringInstance;
@@ -221,7 +218,7 @@ var
   AActRec: TActivationRecord;
 begin
   AActRec := FCallStack.Peek();
-  Result := TStringInstance(AActrec.GetMember('$_LIVE'));
+  Result := TStringInstance(AActrec.GetMember('__LIVE__'));
 end;
 
 procedure TInterpreter.VisitBreak(Anode: TBreakLoop);
@@ -251,9 +248,9 @@ var
   aLive: string;
 begin
   AActRec := FCallStack.Peek();
-  ALive := TStringInstance(AActrec.GetMember('$_LIVE')).PValue;
+  ALive := TStringInstance(AActrec.GetMember('__LIVE__')).PValue;
   Alive := ALive + ANode.PValue;
-  AActRec.AddMember('$_LIVE', TStringInstance.Create(ALive));
+  AActRec.AddMember('__LIVE__', TStringInstance.Create(ALive));
 end;
 
 procedure TInterpreter.VisitInterpolation(ANode: TInterpolation);
@@ -262,10 +259,10 @@ var
   ALive, Aval: string;
 begin
   AActRec := FCallStack.Peek();
-  ALive := TStringInstance(AActrec.GetMember('$_LIVE')).PValue;
+  ALive := TStringInstance(AActrec.GetMember('__LIVE__')).PValue;
   AVal := Visit(ANode.POper).AsString;
   Alive := ALive + AVal;
-  AActRec.AddMember('$_LIVE', TStringInstance.Create(ALive));
+  AActRec.AddMember('__LIVE__', TStringInstance.Create(ALive));
 end;
 
 function TInterpreter.VisitFunctionDefinition(ANode: TFunctionDefinition): TInstanceOf;
@@ -573,7 +570,10 @@ begin
   end
   else if ASrc.ClassNameIs('TListInstance') then
   begin
+
     ASrcList := TListInstance(ASrc);
+    if ASrcList.PChangeLocked then
+      EValueError.Create('Can''t change values of change locked List', FTrace, ANode.PToken);
     if AIndex.ClassNameIs('TIntegerInstance') then
       ASrcList.SetItem(TIntegerInstance(AIndex).PValue, AValue)
     else
@@ -657,7 +657,7 @@ begin
     begin
       AActRec := TActivationRecord.Create(FuncDef.PName, AR_FUNCTION,
         FCallStack.PLevel + 1);
-      AActRec.AddMember('$_LIVE', TStringInstance.Create(''));
+      AActRec.AddMember('__LIVE__', TStringInstance.Create(''));
       AActRec.AddMember('self', ASrcInstance);
       LenArgs := Length(Anode.PEvalParams);
       LenParams := Length(FuncDef.PParams);
@@ -718,7 +718,7 @@ begin
 
         end;
       end;
-      AReturn := AActRec.GetMember('$_LIVE');
+      AReturn := AActRec.GetMember('__LIVE__');
       FCallStack.Pop();
       Result := AReturn;
       exit;
@@ -762,7 +762,7 @@ begin
     AActRec := TActivationRecord.Create('PROGRAM', AR_PROGRAM, 1)
   else
     AActRec := TActivationRecord.Create(FNameSpace.PName, AR_NAMESPACE, 1);
-  AActRec.AddMember('$_LIVE', TStringInstance.Create(''));
+  AActRec.AddMember('__LIVE__', TStringInstance.Create(''));
   if not FDontPush then
     // root execution
   begin

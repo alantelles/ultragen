@@ -31,7 +31,7 @@
         <PackageName Value="LazUtils"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="25">
+    <Units Count="26">
       <Unit0>
         <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -156,6 +156,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="ServerClass"/>
       </Unit24>
+      <Unit25>
+        <Filename Value="src\Units\ultrageninterfaceclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UltragenInterfaceClass"/>
+      </Unit25>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -169,11 +174,6 @@
       <OtherUnitFiles Value="src\Units;src\ASTs;src\Symbols;src\Exceptions;src\ActRecords;src\Core;src\Utils;src\BuiltInTypes"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
-    <CodeGeneration>
-      <Optimizations>
-        <OptimizationLevel Value="4"/>
-      </Optimizations>
-    </CodeGeneration>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="6">

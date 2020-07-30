@@ -12,11 +12,13 @@ type
     private
       FValue: TInstanceList;
       FMetName:string;
-      //FArgs: TListInstance;
+      FAddLocked, FChangeLocked: boolean;
       function LenList:integer;
     public
       property Count: integer read lenList;
       property PValue: TInstanceList read FValue write FValue;
+      property PAddLocked: boolean read FAddLocked write FAddLocked;
+      property PChangeLocked: boolean read FChangeLocked write FChangeLocked;
       constructor Create(AList: TInstanceList);
       constructor Create;
       function AsString:string; override;
@@ -42,6 +44,8 @@ uses
 constructor TListInstance.Create(AList: TInstanceList);
 begin
   FValue := AList;
+  FAddLocked := False;
+  FChangeLocked := False;
 end;
 
 procedure TListInstance.CopyList(var ANewList: TListInstance);

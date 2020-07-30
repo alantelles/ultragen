@@ -3,11 +3,5 @@ function loadText(path)
     lines = ns['$_LIVE']
     return lines.split('\n')
 end
-$a = {
-    'takako': 'Mayonaka no jouku',
-    'mariya': 'Plastic Love'
-}
-$a.lock()
-print($a)
-$a.set('barao', 'Night')
-print($a)
+
+print($params)

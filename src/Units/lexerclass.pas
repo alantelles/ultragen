@@ -122,7 +122,7 @@ begin
       Advance;
 		end;
   end;
-  Result := TToken.Create(T_PLAIN_TEXT, TRim(Ret), FScriptLine, FLineChar, FFileName);
+  Result := TToken.Create(T_PLAIN_TEXT, Ret, FScriptLine, FLineChar, FFileName);
 end;
 
 function TLexer.GetInnerAttribute: TToken;
@@ -326,7 +326,6 @@ begin
   begin
     if FScriptMode then
     begin
-
           {$INCLUDE 'lexer_script_mode_chars.pp'}
     end
     else

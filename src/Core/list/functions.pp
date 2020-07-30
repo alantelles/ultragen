@@ -32,9 +32,11 @@ function TCoreFunction.AppendToList(var AObj: TListInstance): TListInstance;
 var
   len, i: integer;
 begin
+  if AObj.PAddLocked then
+    FInter.RaiseException('Can''t add values to add locked List', 'Value');
   len := Length(FParams);
   if len = 0 then
-    raise EArgumentsError.Create(E_INVALID_ARGS);
+    FInter.RaiseException(E_INVALID_ARGS, 'Arguments');
   for i:=0 to len - 1 do
   begin
     AObj.Add(FParams[i]);

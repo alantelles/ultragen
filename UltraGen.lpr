@@ -8,7 +8,7 @@ uses
   Classes, SysUtils,
   { you can add units after this }
   ASTClass, LexerClass, ImpParserClass, InterpreterClass,
-  StrUtils, LoggingClass;
+  StrUtils, LoggingClass, UltraGenInterfaceClass;
 var
   AParser: TTParser;
   ALexer: TLexer;
@@ -35,19 +35,17 @@ begin
     if ParamCount > 1 then
     begin
       ParamsNodes := TStringList.Create;
-      ParamsNodes.LineBreak := #10;
-      ParamsNodes.Add('_params = []');
+      ParamsNodes.Add('$params = []');
       i := 2;
       while ((Copy(ParamStr(i), 1, 2) <> '--')) and
             (i <= ParamCount) do
       begin
-        ParamsNodes.Add('_params.append("' + ParamStr(i) + '")');
+        ParamsNodes.Add('$params.append("' + ParamStr(i) + '")');
         i := i + 1;
       end;
-      ALexer := TLexer.Create(ParamsNodes.Text, False);
-	    AParser := TTParser.Create(ALexer);
-	    BTree := AParser.ParseCode();
-      AParser.Free;
+      ParamsNodes.Add('$params.lock()');
+      BTree := TUltraInterface.ParseStringList(ParamsNodes);
+      ParamsNodes.Free;
 		end;
 
 		ALexer := TLexer.Create(ParamStr(1));

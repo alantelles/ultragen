@@ -1,10 +1,6 @@
 include @Helpers
-
-teste = 'zika zika'
 include 'index.ultra.html'
-
-
-live Base({
+context = {
     'title': 'Minha página top',
     'op2': 'teste',
     'options': [
@@ -12,4 +8,6 @@ live Base({
         {'val': 'item2', 'text': 'Tika'},
         {'val': 'item3', 'text': 'Mika'}
     ]
-})
+}
+live '<pre>' + str($request) + '</pre>'
+live Base(context)
