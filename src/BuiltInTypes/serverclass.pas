@@ -40,7 +40,7 @@ implementation
 
 uses
   ASTClass, TokenClass, Tokens, LexerClass, ImpParserClass, InterpreterClass, StrUtils,
-  StringInstanceClass, Dos;
+  StringInstanceClass, Dos, UltraGenInterfaceClass;
 
 constructor TServerInstance.Create(APort: integer);
 begin
@@ -96,76 +96,11 @@ end;
 
 procedure TServerInstance.ExecuteAction(ARequest: TRequest;AResponse: TResponse);
 var
-  AParser: TTParser;
-  ALexer, BLexer: TLexer;
-  ATree, BTree: TAST;
-  AInter: TInterpreter;
-  Output, comma, K, V: string;
-  WebVars:TStringList;
-  len, i: integer;
+  BTree: TAST;
 begin
-  WebVars := TStringList.Create;
-  WebVars.SkipLastLineBreak := True;
-  WebVars.Add('$request = {');
-  Webvars.Add('"route": "'+ARequest.URI+'", ');
-  Webvars.Add('"method": "'+ARequest.Method+'", ');
-  Webvars.Add('"querystring": "'+ARequest.QueryString+'", ');
-  WebVars.Add('"query": {');
-  len := ARequest.QueryFields.Count;
-  if len > 0 then
-  begin
-    comma := ', ';
-    for i:=0 to len - 1 do
-    begin
-      ARequest.QueryFields.GetNameValue(i, K, V);
-      if i = len - 1 then
-        comma := '';
-      WebVars.Add('"'+K+'": "'+V+'"'+comma);
-    end;
-  end;
-  WebVars.Add('}, ');
-  WebVars.Add('"content_type": "'+ARequest.ContentType+'", ');
-  WebVars.Add('"body_content": "'+ReplaceStr(ARequest.Content, '"', '\"')+'", ');
-  WebVars.Add('"body": {');
-  len := ARequest.ContentFields.Count;
-  if len > 0 then
-  begin
-    comma := ', ';
-    for i:=0 to len - 1 do
-    begin
-      ARequest.ContentFields.GetNameValue(i, K, V);
-      writeln(k, ': ', v);
-      if i = len - 1 then
-        comma := '';
-      WebVars.Add('"'+K+'": "'+V+'"'+comma);
-    end;
-  end;
-  WebVars.Add('}');
-  WebVars.Add('}');
-  WebVars.Add('$request.lock()');
-  BLexer := TLexer.Create(WebVars.Text, False);
-  AParser := TTParser.Create(BLexer);
-  BTree := AParser.ParseCode();
-  AParser.Free;
-
-  ALexer := TLexer.Create(FRootFile);
-  AParser := TTParser.Create(ALexer);
-  ATree := AParser.ParseCode();
-
-  len := Length(TProgram(BTree).PChildren);
-  if len > 0 then
-  begin
-    for i:=0 to len-1 do
-      TProgram(ATree).AddPrelude(TProgram(BTree).PChildren[i]);
-  end;
-  AInter := TInterpreter.Create(ATree);
+  BTree := TUltraInterface.ParseWebRequest(ARequest);
   try
-    AInter.Interpret;
-    Output := AInter.PLive;
-    //AInter.FreeInstances;
-    AInter.Free;
-    AParser.Free;
-    AResponse.Content := Output;
+    AResponse.Content := TUltraInterface.InterpretScript(FRootFile, TProgram(BTree));
     WriteLn(#13+'['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
       ARequest.Method + ': '+
       ARequest.URI+' -- '+ IntToStr(AResponse.Code)+
@@ -174,7 +109,6 @@ begin
   except
     on E: Exception do
     begin
-       AInter.Free;
        AResponse.Code := 500;
        AResponse.CodeText := 'Internal server error';
        AResponse.Content := '<pre style="font-size: 12pt">'+ReplaceStr(E.Message, '<', '&lt') +'</pre>';

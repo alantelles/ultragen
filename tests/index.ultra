@@ -9,5 +9,5 @@ context = {
         {'val': 'item3', 'text': 'Mika'}
     ]
 }
-live '<pre>' + str($request) + '</pre>'
+live str($request).replace(',', ',<br>')
 live Base(context)

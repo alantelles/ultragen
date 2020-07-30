@@ -10,17 +10,13 @@ uses
   ASTClass, LexerClass, ImpParserClass, InterpreterClass,
   StrUtils, LoggingClass, UltraGenInterfaceClass;
 var
-  AParser: TTParser;
-  ALexer: TLexer;
-  ATree, BTree: TAST;
-  AInter: TInterpreter;
-  AOut: TStringList;
+  BTree: TAST;
   LiveOut: string;
-  i, len: integer;
+  i: integer;
   ParamsNodes: TStringList;
 begin
   LogLevel := '';
-  DecimalSeparator := '.';
+  {$IFDEF Windows}DecimalSeparator := '.';{$ENDIF}
   if ParamCount > 0 then
   begin
     {if ParamCount > 1 then
@@ -47,25 +43,7 @@ begin
       BTree := TUltraInterface.ParseStringList(ParamsNodes);
       ParamsNodes.Free;
 		end;
-
-		ALexer := TLexer.Create(ParamStr(1));
-    AParser := TTParser.Create(ALexer);
-    ATree := AParser.ParseCode();
-    if ParamCount > 1 then
-    begin
-      len := Length(TProgram(BTree).PChildren);
-      if len > 0 then
-      begin
-        for i:=0 to len-1 do
-          TProgram(ATree).AddPrelude(TProgram(BTree).PChildren[i]);
-      end;
-		end;
-
-    AParser.Free;
-    AInter := TInterpreter.Create(ATree);
-    AInter.Interpret;
-    LiveOut := AInter.PLive;
-    AInter.Free;
+    LiveOut := TUltraInterface.InterpretScript(ParamStr(1), TProgram(BTree));
     if Trim(LiveOut) <> '' then
       Writeln(LiveOut);
     {if (ParamStr(2) = '--persist') then
