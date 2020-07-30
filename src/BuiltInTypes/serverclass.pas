@@ -162,7 +162,7 @@ var
 begin
   WebVars := TStringList.Create;
   WebVars.SkipLastLineBreak := True;
-  WebVars.Add('_request = {');
+  WebVars.Add('$_request = {');
   Webvars.Add('"_route": "'+ARequest.URI+'", ');
   Webvars.Add('"_method": "'+ARequest.Method+'", ');
   Webvars.Add('"_querystring": "'+ARequest.QueryString+'", ');
@@ -198,6 +198,7 @@ begin
   end;
   WebVars.Add('}');
   WebVars.Add('}');
+  WebVars.Add('$_request.lock()');
   BLexer := TLexer.Create(WebVars.Text, False);
   AParser := TTParser.Create(BLexer);
   BTree := AParser.ParseCode();

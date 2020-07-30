@@ -1,20 +1,21 @@
+@function Base(cont)
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>{{ cont['title'] }}</title>
     <link rel="stylesheet" href="/styles/style.css" >
 </head>
 <body>
+    <p>{{ cont['options'] }}</p>
     <div>
         <form action="" method="post">
             <input type="text" name="username"><br>
-            <select name="options" multiple id="">
-                <option value="opt1">opcao 1</option>
-                <option value="opt2">opcao 2</option>
-                <option value="opt3">opcao 3</option>
-                <option value="opt4">opcao 4</option>
+            <select name="options" id="">
+@           for (cont['options'], opt)
+                <option value="{{ opt['val'] }}">{{ opt['text'] }}</option>
+@           end
             </select><br>
             <input type="submit" value="Enviar">
         </form>
@@ -22,3 +23,4 @@
     </div>
 </body>
 </html>
+@end

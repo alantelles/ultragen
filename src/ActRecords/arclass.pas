@@ -45,7 +45,7 @@ type
       constructor Create(AName:string; AType: string; ALevel: integer);
 
 
-      procedure AddMember(AKey:string; AObj:TInstanceOf);
+      function AddMember(AKey:string; AObj:TInstanceOf): boolean;
       function GetMember(AKey:string):TInstanceOf;
       function GetFunction(AKey: string; ASrc: TInstanceOf = nil): TFunctionInstance;
       function AsString:string;
@@ -59,8 +59,12 @@ type
     private
       FValue: TActivationRecord;
       FDefault: TInstanceOf;
+      FAddLocked: boolean;
+      FChangeLocked: boolean;
 
     public
+      property PAddLocked: boolean read FAddLocked write FAddLocked;
+      property PChangeLocked: boolean read FChangeLocked write FChangeLocked;
       property PValue: TActivationRecord read FValue write FValue;
       property PDefault: TInstanceOf read FDefault write FDefault;
       function AsString:string; override;
@@ -68,13 +72,14 @@ type
   end;
 
 implementation
+uses ExceptionsClasses;
+
 constructor TActivationRecord.Create(AName:string; AType: string; ALevel: integer);
 begin
   FName := AName;
   FType := AType;
   FNestingLevel := ALevel;
   FMembers := TFPHashObjectList.Create(False);
-  //FMembers := TStringList.Create;
 end;
 
 destructor TActivationRecord.Destroy;
@@ -143,6 +148,8 @@ end;
 constructor TDictionaryInstance.Create(AnActRec: TActivationRecord; ADefault:TInstanceOf = nil);
 begin
   FValue := AnActRec;
+  FAddLocked := False;
+  FChangeLocked := False;
   if ADefault = nil then
     FDefault := nil
   else
@@ -211,13 +218,18 @@ begin
   end;
 end;
 
-procedure TActivationRecord.AddMember(AKey:string; AObj:TInstanceOf);
+function TActivationRecord.AddMember(AKey:string; AObj:TInstanceOf):boolean;
 var
   i: integer;
   test: TInstanceOf;
 begin
   i := FMembers.FindIndexOf(AKey);
-  if (i > -1) then
+  if (i > -1) and (AKey[1] = '$') then
+  begin
+    Result := False;
+    exit;
+	end;
+	if (i > -1) then
   begin
     if FMembers[i].ClassNameIs('TIntegerInstance') or
        FMembers[i].ClassNameIs('TBooleanInstance') or
@@ -228,6 +240,7 @@ begin
     FMembers.Delete(i);
   end;
   FMembers.Add(AKey, AObj);
+  Result := True;
 end;
 
 function TActivationRecord.GetMember(AKey:string):TInstanceOf;

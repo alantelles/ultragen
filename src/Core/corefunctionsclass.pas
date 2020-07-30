@@ -39,6 +39,7 @@ type
       {$INCLUDE 'list/declarations.pp'}
       {$INCLUDE 'integer/declarations.pp'}
       {$INCLUDE 'os/declarations.pp'}
+      {$INCLUDE 'filesystem/declarations.pp'}
       {$INCLUDE 'dict/declarations.pp'}
       {$INCLUDE 'server/declarations.pp'}
 	end;
@@ -48,7 +49,7 @@ type
 implementation
 
 uses
-  CoreUtils, ExceptionsClasses, Math, ASTClass, crt, LazUTF8, FileUtil;
+  CoreUtils, ExceptionsClasses, Math, ASTClass, crt, LazUTF8, FileUtil, Dos;
 
 function TCoreFunction.Execute(AInter: TInterpreter; Fname:string; var AArgList:TInstanceList; var AObj: TInstanceOf):TInstanceOf;
 var
@@ -115,6 +116,7 @@ begin
   {$INCLUDE 'integer/options.pp'}
   {$INCLUDE 'dict/options.pp'}
   {$INCLUDE 'os/options.pp'}
+  {$INCLUDE 'filesystem/options.pp'}
   {$INCLUDE 'server/options.pp'}
   else
     raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.', '', 1, 1);
@@ -277,6 +279,8 @@ end;
 {$INCLUDE 'string/functions.pp'}
 {$INCLUDE 'list/functions.pp'}
 {$INCLUDE 'os/functions.pp'}
+
+{$INCLUDE 'filesystem/functions.pp'}
 {$INCLUDE 'dict/functions.pp'}
 {$INCLUDE 'server/functions.pp'}
 

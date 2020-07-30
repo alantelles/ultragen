@@ -27,11 +27,11 @@
 		        exit
 		      end;
 
-		      if (FCurrChar + Peek(1) = '$_') then
+		      {if (FCurrChar + Peek(1) = '$_') then
 		      begin
 		        Result := GetInnerAttribute();
 		        exit
-				  end;
+				  end;}
 
 		      if (FCurrChar + Peek(Length(T_STRENC_MULTI) - 1)) = T_STRENC_MULTI then
 		      begin
@@ -253,7 +253,7 @@
           end;
 
 
-		      if Pos(FCurrChar, LETTERS + '_' ) > 0 then
+		      if Pos(FCurrChar, LETTERS + '_' + '$') > 0 then
 		      begin
 		        Result := GetId();
 		        exit
@@ -265,6 +265,13 @@
 		        Result := TToken.Create(T_ATTR_ACCESSOR, ATTR_ACCESSOR, FScriptLine, FLineChar, FFileName);
 		        exit;
 		      end;
+
+          if FCurrChar = '@' then
+          begin
+            Advance;
+            Result := GetModulePath();
+            exit;
+					end;
 
           if FCurrChar = '{' then
           begin

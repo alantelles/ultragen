@@ -30,8 +30,8 @@ type
     FParentStack: TStack;
     FTrace: TStringList;
     FNowNode: TAST;
-    FRunTimeInstances: TInstanceList;
     FUltraHome: string;
+    FModulesPath: string;
     procedure BootStrapRegister;
 
 
@@ -59,7 +59,7 @@ implementation
 
 uses
   Math, TokenClass, Tokens, CoreFunctionsClass, LexerClass,
-  ServerClass;
+  ServerClass, Dos;
 
 constructor TInterpreter.Create(var ATree: TAST);
 begin
@@ -69,8 +69,8 @@ begin
   FTrace := TStringList.Create;
   FTrace.SkipLastLineBreak := True;
   FTrace.LineBreak := sLineBreak + '+ ';
-  SetLength(FRunTimeInstances, 0);
-  FUltraHome := GetEnvironmentVariable('ULTRA_HOME');
+  FUltraHome := GetEnv('ULTRAGEN_HOME');
+  FModulesPath := FUltraHome + DirectorySeparator + 'modules'
 end;
 
 
@@ -103,7 +103,7 @@ begin
   AActRec := FCallStack.GetFirst();
 
   // BuiltInTypesRegister
-
+  AActRec.AddMember('OS', TBuiltInType.Create('TOSInstance'));
   AActRec.AddMember('FileSystem', TBuiltInType.Create('TFileSystemInstance'));
   AActrec.AddMember('Dict', TBuiltInType.Create('TDictionaryInstance'));
   AActRec.AddMember('Server', TBuiltInType.Create('TServerInstance'));
@@ -174,7 +174,6 @@ begin
     begin
       ATypedKey := TDictkeyNode(ANode.PKeys[i]);
       ARepo := Visit(ATypedkey.PKey);
-      //if ATypedkey.PKey.ClassNameIs('TString') or ATypedkey.PKey.ClassNameIs('TNumInt') then
       if ARepo.ClassNameIs('TStringInstance') or
         ARepo.ClassNameIs('TIntegerInstance') then
         AActRec.AddMember(ARepo.AsString, Visit(ATypedKey.PValue))
@@ -502,8 +501,8 @@ begin
     begin
       for i := 0 to len - 1 do
       begin
-        //AActRec.AddMember(Anode.PVar, TIntegerInstance.Create(i));
-        //AActRec.AddMember('_' + Anode.PVar, TIntegerInstance.Create(i));
+        AActRec.AddMember(Anode.PVar, TIntegerInstance.Create(i));
+        AActRec.AddMember('_' + Anode.PVar, TIntegerInstance.Create(i));
         len2 := Length(ANode.PBlock);
         if len2 > 0 then
         begin
@@ -545,7 +544,8 @@ begin
     end;
   end;
   AActrec := FCallStack.Peek;
-  AActRec.AddMember(AName, AValue);
+   if not AActRec.AddMember(AName, AValue) then
+     ERunTimeError.Create('Can''t redefine constant value "'+Aname+'"', FTrace, ANode.PVarName);
 end;
 
 procedure TInterpreter.VisitListAssign(ANode: TListAssign);
@@ -561,9 +561,11 @@ begin
   if ASrc.ClassNameIs('TDictionaryInstance') then
   begin
     ASrcAct := TDictionaryInstance(ASrc);
+    if ASrcAct.PChangeLocked then
+      EValueError.Create('Can''t change values of change locked Dict', FTrace, ANode.PToken);
     if AIndex.ClassNameIs('TStringInstance') then
       ASrcAct.PValue.AddMember(TStringInstance(AIndex).PValue, AValue)
-    else
+		else
     begin
       ERunTimeError.Create('Invalid type for Dict index',
         FTrace, ANode.PToken);
@@ -821,7 +823,23 @@ var
   ANameSp: TActivationRecord;
   AName: string;
 begin
-  AFileName := TStringInstance(Visit(ANode.PFilename)).PValue;
+  if ANode.PIsModule then
+  begin
+    AFileName := FModulesPath +
+              DirectorySeparator +
+              ReplaceStr(ANode.PModulePath, '.', DirectorySeparator);
+    if FileExists (AFileName + '.ultra') then
+      AFileName := AFileName + '.ultra'
+    else if DirectoryExists(AFileName) then
+    begin
+      if FileExists (AFileName + DirectorySeparator + '_init.ultra') then
+        AFileName := AFileName + DirectorySeparator + '_init.ultra'
+      else
+        ERunTimeError.Create('Specified module "'+ANode.PModulePath+'" does not exist');
+    end
+	end
+	else
+    AFileName := TStringInstance(Visit(ANode.PFilename)).PValue;
   ALexer := TLexer.Create(AFileName);
   AParser := TTParser.Create(ALexer);
   ATree := AParser.ParseCode;
@@ -904,8 +922,6 @@ var
   len: integer;
   Ret: TInstanceOf;
 begin
-  len := Length(FRunTimeInstances);
-  SetLength(FRunTimeInstances, len + 1);
   FNowNode := ANode;
   if ANode.ClassName <> 'TProgram' then
   begin
@@ -931,7 +947,6 @@ begin
     FTrace.Add(ANode.ToString);
   end;
   {$INCLUDE 'interpreter/node_switcher.pp'}
-
   Result := Ret;
 end;
 
@@ -943,9 +958,7 @@ begin
   try
     Ret := TFloatinstance(Visit(ANode.PExpr));
     AOper := ANode.POper.PType;
-    {if AOper = T_PLUS then
-      Ret.PValueInt := Ret.PValueInt
-    else }if AOper = T_MINUS then
+    if AOper = T_MINUS then
     begin
       Ret.PValue := Ret.PValue * (-1);
     end;
@@ -1129,15 +1142,9 @@ var
 
 begin
   LeftStr := ANode.PLeft.PToken.PType;
-  {if LeftStr = T_ID then
-    AResL := VisitVariableReference(TVariableReference(ANode.PLeft))
-  else
-    }AResL := Visit(Anode.PLeft);
+  AResL := Visit(Anode.PLeft);
   RightStr := ANode.PRight.PToken.PType;
-  {if RightStr = T_ID then
-    AResR := VisitVariableReference(TVariableReference(ANode.PRight))
-  else
-    }AResR := Visit(Anode.PRight);
+  AResR := Visit(Anode.PRight);
   LeftClass := AResL.ClassName;
   RightClass := AresR.ClassName;
   LeftNum := (LeftClass = 'TIntegerInstance') or (LeftClass = 'TFloatInstance');
@@ -1250,7 +1257,6 @@ var
   AIndexInt: TIntegerInstance;
   AVarRef: TVariableReference;
   ARet, ASrc, AIndex: TInstanceOf;
-  ACompl: string = '';
 begin
   AIndex := Visit(ANode.PIndex);
   if AIndex.ClassNameIs('TStringInstance') then

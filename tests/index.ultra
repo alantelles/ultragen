@@ -1,5 +1,15 @@
-include 'strings.ultra'
+include @Helpers
 
 teste = 'zika zika'
-page = scopedInclude('index.ultra.html')
-live page['$_LIVE']
+include 'index.ultra.html'
+
+
+live Base({
+    'title': 'Minha página top',
+    'op2': 'teste',
+    'options': [
+        {'val': 'item1', 'text': 'Zika'},
+        {'val': 'item2', 'text': 'Tika'},
+        {'val': 'item3', 'text': 'Mika'}
+    ]
+})

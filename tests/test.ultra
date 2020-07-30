@@ -1,10 +1,13 @@
-a = [0, 100, 200]
-b = a
-print(a)
-a[0] = 'mahailo'
-a[2] = (a[2]) * (a[2])
-print(a)
-print(b)
-for (b, i)
-    print(i)
+function loadText(path)
+    include path : ns
+    lines = ns['$_LIVE']
+    return lines.split('\n')
 end
+$a = {
+    'takako': 'Mayonaka no jouku',
+    'mariya': 'Plastic Love'
+}
+$a.lock()
+print($a)
+$a.set('barao', 'Night')
+print($a)

@@ -31,6 +31,7 @@ type
     function Peek(Ahead: integer = 1): string;
     function GetNextToken: TToken;
     function GetId: TToken;
+    function GetModulePath: TToken;
     function GetNumber: string;
     function PassLineComment: string;
     function GetString(Delim: string): TToken;
@@ -121,7 +122,7 @@ begin
       Advance;
 		end;
   end;
-  Result := TToken.Create(T_PLAIN_TEXT, Ret, FScriptLine, FLineChar, FFileName);
+  Result := TToken.Create(T_PLAIN_TEXT, TRim(Ret), FScriptLine, FLineChar, FFileName);
 end;
 
 function TLexer.GetInnerAttribute: TToken;
@@ -194,6 +195,22 @@ begin
   end
   else
     Result := TToken.Create(T_ID, Ret, FScriptLine, FLineChar, FFileName);
+end;
+
+function TLexer.GetModulePath: TToken;
+var
+  Ret: string = '';
+  FoundType: string;
+  iToken: integer;
+begin
+  Ret := FCurrChar;
+  Advance;
+  while (FCurrChar <> NONE) and (Pos(FCurrChar, LETTERS + SET_NUMBERS + '_' + '.') > 0) do
+  begin
+    Ret := Ret + FCurrChar;
+    Advance;
+  end;
+  Result := TToken.Create(T_MODULE_PATH, Ret, FScriptLine, FLineChar, FFileName);
 end;
 
 function TLexer.GetString(Delim: string): TToken;

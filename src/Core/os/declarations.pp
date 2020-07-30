@@ -1,3 +1,4 @@
-function GetAllFiles(): TListInstance;
-function CreateDirOpt: TBooleanInstance;
+//function GetAllFiles(): TListInstance;
+//function CreateDirOpt: TBooleanInstance;
+function GetEnvVar: TStringInstance;
 

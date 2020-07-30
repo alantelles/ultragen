@@ -97,10 +97,14 @@ type
   protected
     FFileName: TAST;
     FNamespace: string;
+    FIsmodule: boolean;
+    FModulePath: string;
   public
     property PFilename: TAST read FFileName;
     property PNamespace: string read FNamespace;
-    constructor Create(AFileName: TAST; AToken: TToken; ANamespace: string);
+    property PIsModule: boolean read FIsModule;
+    property PModulePath: string read FModulePath;
+    constructor Create(AFileName: TAST; AToken: TToken; ANamespace: string; IsModule: boolean; AModulePath: string);
     destructor Destroy; override;
   end;
 
@@ -366,11 +370,13 @@ begin
   inherited;
 end;
 
-constructor TIncludeScript.Create(AFilename: TAST; AToken: TToken; ANamespace: string);
+constructor TIncludeScript.Create(AFilename: TAST; AToken: TToken; ANamespace: string; IsModule: boolean; AModulePath: string);
 begin
   FFileName := AFileName;
   FNamespace := ANamespace;
   FToken := AToken;
+  FIsModule := IsModule;
+  FModulePath := AModulePath;
 end;
 
 destructor TIncludeScript.Destroy;

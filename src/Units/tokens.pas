@@ -61,9 +61,9 @@ const
   T_LINE_SCRIPT_EMBED = 'T_LINE_SCRIPT_EMBED';
   T_FROM_NAMESPACE = 'T_FROM_NAMESPACE';
   T_INCLUDE = 'T_INCLUDE';
-  T_IMPORT = 'T_IMPORT';
   T_DICT_ASSIGN = 'T_DICT_ASSIGN';
   T_NEW_OBJECT = 'T_NEW_OBJECT';
+  T_MODULE_PATH = 'T_MODULE_PATH';
 
   ESCAPE_SYMBOL = '\';
   ASSIGN_SYMBOL = '=';
@@ -108,7 +108,6 @@ begin
   KW.Add('return=' +  T_RETURN);
   KW.Add('include=' +  T_INCLUDE);
   KW.Add('new=' +  T_NEW_OBJECT);
-  KW.Add('import=' +  T_IMPORT);
 
   Inners := TStringList.Create;
   Inners.Add('LIVE=' + T_LIVE_PRINT);

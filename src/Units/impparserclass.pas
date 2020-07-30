@@ -60,6 +60,7 @@ type
     function Dict: TAST;
     function DictKey: TAST;
     function ListAssign(ASrc, AKey: TAST; var CToken: TToken): TAST;
+    function ImportModule: TAST;
 
   end;
 
@@ -112,6 +113,8 @@ var
   AFileName: TAST;
   ANamespace: string = '';
   AToken: TToken;
+  ModuleName: string = '';
+  IsModule: boolean = False;
 begin
   Eat(T_INCLUDE);
   AToken := TToken.Create(
@@ -121,7 +124,17 @@ begin
     FCurrentToken.PCharNo,
     FCurrentToken.PScriptName
   );
-  AFileName := MethodCall();
+  if FCurrentToken.PType <> T_MODULE_PATH then
+  begin
+    AFileName := MethodCall();
+
+	end
+  else
+  begin
+    IsModule := True;
+    ModuleName := FCurrentToken.PValue;
+    Eat(T_MODULE_PATH);
+	end;
   if FCurrentToken.PType = T_DICT_ASSIGN then
   begin
     Eat(T_DICT_ASSIGN);
@@ -134,7 +147,12 @@ begin
       ANamespace := '0';
   end;
 
-  Result := TIncludeScript.Create(AFileName, AToken, ANamespace);
+  Result := TIncludeScript.Create(AFileName, AToken, ANamespace, IsModule, ModuleName);
+end;
+
+function TTParser.ImportModule: TAST;
+begin
+
 end;
 
 function TTParser.ListAssign(ASrc, AKey: TAST; var CToken: TToken): TAST;
@@ -862,7 +880,7 @@ begin
     Logtext('PARSER', 'Parser', 'Creating include node');
     Ret := IncludeScript();
   end
-  else if (AToken.PType = T_DICT_ASSIGN) then
+	else if (AToken.PType = T_DICT_ASSIGN) then
   begin
     Logtext('PARSER', 'Parser', 'Creating namespace');
     Ret := NamespaceState();
@@ -923,10 +941,6 @@ begin
   else if (AToken.PType = T_WHILE_LOOP) then
   begin
     Ret := WhileLoop();
-  end
-  else if (AToken.PType = T_WHILE_LOOP) then
-  begin
-    Ret := ForLoop();
   end
   else if (AToken.PType = T_FOR_LOOP) then
   begin

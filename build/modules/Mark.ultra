@@ -1,0 +1,8 @@
+include @Dict
+
+function link(attrs, children)
+    output = '<a ' + (attrs.asAttrs()) + '>'
+    output = output + str(children)
+    output = output + '</a>'
+    return output
+end

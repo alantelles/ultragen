@@ -1,0 +1,18 @@
+function pos(c) : TStringInstance
+    for (self, i)
+        if (i == c)
+            return _i
+        end
+    end
+    return -1
+end
+
+function reverse() : TStringInstance
+    len = self.length()
+    res = ''
+    for (len, i)
+        x = len - i - 1
+        res = res + (self[x])
+    end
+    return res
+end

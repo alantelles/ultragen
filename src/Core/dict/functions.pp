@@ -1,7 +1,10 @@
 procedure TCoreFunction.SetItem(AObj: TDictionaryInstance);
 begin
 //  precisa mudar
-  Aobj.PValue.AddMember(TStringInstance(FParams[0]).PValue, FParams[1]);
+  if not AObj.PAddLocked then
+    Aobj.PValue.AddMember(TStringInstance(FParams[0]).PValue, FParams[1])
+  else
+    FInter.RaiseException('Can''t add values to add locked Dict', 'Value');
 end;
 
 function TCoreFunction.GetItem(AObj: TDictionaryInstance): TInstanceOf;
