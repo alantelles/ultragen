@@ -1,4 +1,4 @@
-include @Helpers
+include @Web
 
 route = $request['route'].
     sub(1, $request['route'].
@@ -16,7 +16,15 @@ routes = {
     null : taDoido()
 }
 
-live responseRoute(route, $request['method'], routes)
+routes_imp = {            
+    'posts/mah': 'mostra novo post',
+    'posts/:int.id': 'mostra post por id',
+    'posts/:str.id': 'mostra por nome',
+    'users': 'listar usuarios',
+    null : taDoido()
+}
+
+live responseRoute(routes)
 
 live '<br>'
 live 'rota: ' + ($request['route'])
