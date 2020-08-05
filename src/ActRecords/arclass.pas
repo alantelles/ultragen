@@ -22,29 +22,15 @@ type
       FType:string;
       FNestingLevel: integer;
       FMembers: TFPHashObjectList;
-      //FMembers: TStringList;
-      FNowType: TInstanceOf;
-      FNowKey: string;
-      FFound: boolean;
-      FReceiver: TActivationrecord;
-      FList: TListInstance;
+      FReturnValue: TInstanceOf;
     public
       property PName:string read FName;
       property PType:string read FType;
       property PNestingLevel:integer read FNestingLevel;
-
-      procedure MemberAsString(AItem:  TObject;const AName:string; var Cont:boolean);
-      procedure SearchFunction(AItem: TObject; const AName:string; var Cont: boolean);
-      procedure CopyItems(AItem: TObject; const Aname:string; var Cont: boolean);
-
-      procedure FreeMembers(AItem: TObject; const Aname:string; var Cont: boolean);
-
-      procedure FreeAllMembers;
-      procedure CopyActRec(var AReceiver: TActivationRecord);
+      property PReturnValue: TInstanceOf read FReturnValue write FReturnValue;
       property PMembers: TFPHashObjectList read FMembers write FMembers;
+      procedure CopyActRec(var AReceiver: TActivationRecord);
       constructor Create(AName:string; AType: string; ALevel: integer);
-
-
       function AddMember(AKey:string; AObj:TInstanceOf): boolean;
       function GetMember(AKey:string):TInstanceOf;
       function GetFunction(AKey: string; ASrc: TInstanceOf = nil): TFunctionInstance;
@@ -69,6 +55,7 @@ type
       property PDefault: TInstanceOf read FDefault write FDefault;
       function AsString:string; override;
       constructor Create(AnActRec: TActivationRecord; ADefault:TInstanceOf = nil);
+      procedure CopyInstance(var AReceiver: TInstanceOf); override;
   end;
 
 implementation
@@ -84,20 +71,22 @@ end;
 
 destructor TActivationRecord.Destroy;
 var
-  i: integer;
+  i, selfPos: integer;
 begin
+  selfPos := FMembers.FindIndexOf('self');
   if FMembers.Count > 0 then
   begin
     for i := FMembers.Count - 1 downto 0 do
     begin
       if FMembers[i] <> nil then
       begin
-        if TInstanceOf(FMembers[i]).PCoreType then
+        if (TInstanceOf(FMembers[i]).PCoreType) and (i <> selfPos) then
           FMembers[i].Free;
       end;
       FMembers.Delete(i);
     end;
   end;
+  inherited
 end;
 
 procedure TActivationRecord.GetKeys(var Alist: TListInstance);
@@ -145,7 +134,28 @@ begin
   Result := Ret;
 end;
 
+procedure TDictionaryInstance.CopyInstance(var AReceiver: TInstanceOf);
+var
+  Cast: TDictionaryInstance;
+  ADef: TInstanceOf;
+  AActRec: TActivationRecord;
+begin
+  Cast := TDictionaryInstance.Create(FValue);
+  Cast.PAddLocked := FAddLocked;
+  Cast.PChangeLocked := FChangeLocked;
+  FValue.CopyActRec(AActRec);
+  if FDefault <> nil then
+  begin
+    ADef := TInstanceOf.Create;
+    FDefault.CopyInstance(ADef);
+    Cast.PDefault := ADef;
+  end;
+  AReceiver := Cast;
+end;
+
 constructor TDictionaryInstance.Create(AnActRec: TActivationRecord; ADefault:TInstanceOf = nil);
+var
+  ADef: TInstanceOf;
 begin
   FValue := AnActRec;
   FAddLocked := False;
@@ -153,69 +163,20 @@ begin
   if ADefault = nil then
     FDefault := nil
   else
-    FDefault := ADefault;
-end;
-
-procedure TActivationRecord.FreeAllMembers;
-begin
-  //FMembers.Iterate(@FreeMembers);
-  FNowType.Free;
+  begin
+    ADefault.CopyInstance(ADef);
+    FDefault := ADef;
+  end;
 end;
 
 function TActivationRecord.GetFunction(AKey: string; ASrc: TInstanceOf = nil): TFunctionInstance;
 var
   Ret: TFunctionInstance;
 begin
-  FFound := False;
-  FNowKey := AKey;
-  FNowType := ASrc;
-  //FMembers.Iterate(@SearchFunction);
-  FNowKey := '';
-  FNowType := nil;
   Ret := TFunctionInstance(GetMember(AKey));
   if Ret <> nil then
     Ret.PName := AKey;
   Result := Ret;
-end;
-
-procedure TActivationRecord.MemberAsString(AItem:  TObject;const AName:string; var Cont:boolean);
-begin
-  WriteLn('Record member '+Aname+' of type '+AItem.ToString);
-  if AItem.ClassNameIs('TDictionaryInstance') then
-    WriteLn(' ---- ' + TDictionaryInstance(AItem).PValue.AsString);
-end;
-
-procedure TActivationRecord.FreeMembers(AItem:  TObject;const AName:string; var Cont:boolean);
-begin
-  //FNowType := TInstanceOf(AItem);
-  //writeln(AItem.ToString);
-end;
-
-procedure TActivationRecord.SearchFunction(AItem:  TObject;const AName:string; var Cont:boolean);
-const
-  ST_ACCESS = ':';
-begin
-  if (AName = FNowKey) then
-  begin
-    if FNowType = nil then
-    begin
-      exit;
-      //WriteLn('achei: ', AName, ' -- ', TFunctionInstance(AItem).PType)
-    end
-    else
-    begin
-      if TFunctionInstance(AItem).PType = FNowType.ClassName then
-      begin
-        exit;
-        //WriteLn('achei: ', AName, ' -- ', TFunctionInstance(AItem).PType)
-      end
-      else
-      begin
-        exit;
-        //WriteLn('achei: ', AName, ST_ACCESS, TFunctionInstance(AItem).PType, ' de outro tipo');
-      end;
-    end;
-  end;
 end;
 
 function TActivationRecord.AddMember(AKey:string; AObj:TInstanceOf):boolean;
@@ -231,12 +192,12 @@ begin
 	end;
 	if (i > -1) then
   begin
-    if FMembers[i].ClassNameIs('TIntegerInstance') or
+    {if FMembers[i].ClassNameIs('TIntegerInstance') or
        FMembers[i].ClassNameIs('TBooleanInstance') or
        FMembers[i].ClassNameIs('TStringInstance') or
        FMembers[i].ClassNameIs('TFloatInstance') or
        FMembers[i].ClassNameIs('TNullInstance') then
-      FMembers[i].Free;
+      FMembers[i].Free;}
     FMembers.Delete(i);
   end;
   FMembers.Add(AKey, AObj);
@@ -268,19 +229,15 @@ procedure TActivationRecord.CopyActRec(var AReceiver: TActivationrecord);
 var
   i: integer;
   APtr: Pointer;
+  ARec: TActivationRecord;
 begin
-  FReceiver := TActivationRecord.Create(Fname, FType, FNestinglevel);
+  ARec := TActivationRecord.Create(Fname, FType, FNestinglevel);
   if FMembers.Count > 0 then
   begin
     for i:=0 to FMembers.Count - 1 do
-      FReceiver.AddMember(FMembers.NameOfIndex(i), TInstanceOf(FMembers[i]));
+      ARec.AddMember(FMembers.NameOfIndex(i), TInstanceOf(FMembers[i]));
   end;
-  AReceiver := FReceiver;
-end;
-
-procedure TActivationRecord.CopyItems(AItem:  TObject;const AName:string; var Cont:boolean);
-begin
-  FReceiver.AddMember(AName, TInstanceOf(AItem));
+  AReceiver := ARec;
 end;
 
 function TActivationRecord.AsString:string;
@@ -288,7 +245,6 @@ var
   Ret: string = '';
 begin
   WriteLn('Activation record named '+FName+' of type '+FType);
-  //FMembers.Iterate(@MemberAsString);
   Result := Ret;
 
 end;

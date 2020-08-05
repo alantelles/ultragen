@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "tests"
+		},
+		{
+			"path": "build/modules"
+		}
+	],
+	"settings": {}
+}

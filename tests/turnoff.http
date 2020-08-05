@@ -1,1 +1,27 @@
-GET http://localhost:3500/off
+@url = http://localhost:3500
+@posts = {{url}}/posts
+
+###
+GET {{posts}}
+
+###
+GET {{posts}}/99
+
+###
+POST {{posts}}/99
+
+###
+POST {{posts}}/99
+
+###
+
+GET {{posts}}/ui
+
+###
+POST {{url}}/posts/ui
+
+###
+GET {{url}}/posts/new
+
+###
+GET {{url}}/off

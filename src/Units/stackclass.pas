@@ -24,6 +24,7 @@ type
       function Peek: TActivationRecord;
       function AsString:string;
       function GetFirst: TActivationRecord;
+      function GetByLevel(ALevel: integer): TActivationRecord;
   end;
 
 implementation
@@ -79,6 +80,19 @@ begin
   if len > 0 then
   begin
     Ret := FItems[len - 1];
+  end;
+  Result := Ret;
+end;
+
+function TStack.GetByLevel(ALevel: integer):TActivationRecord;
+var
+  Ret: TActivationRecord = nil;
+  len:integer;
+begin
+  len := Length(FItems);
+  if len > 0 then
+  begin
+    Ret := FItems[ALevel-1];
   end;
   Result := Ret;
 end;

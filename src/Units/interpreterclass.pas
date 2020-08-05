@@ -163,7 +163,7 @@ var
   len, i, j: integer;
 begin
   AActRec := TActivationRecord.Create('Any', AR_DICT, 1);
-  //for Akey in ANode.PKeys do
+  ADef := nil;
   len := Length(ANode.PKeys);
   if len > 0 then
   begin
@@ -175,7 +175,10 @@ begin
         ARepo.ClassNameIs('TIntegerInstance') then
         AActRec.AddMember(ARepo.AsString, Visit(ATypedKey.PValue))
       else if ARepo.ClassNameIs('TNullInstance') then
-        ADef := Visit(ATypedKey.PValue)
+      begin
+        O2 := Visit(ATypedKey.PValue);
+        O2.CopyInstance(ADef);
+      end
       else if ARepo.ClassNameIs('TListInstance') then
       begin
         ACast := TListInstance(ARepo);
@@ -234,11 +237,14 @@ end;
 function TInterpreter.VisitReturn(ANode: TReturnFunction): TInstanceOf;
 var
   AVal: TInstanceOf;
+  AActRec: TActivationRecord;
 begin
+  AActRec := FCallStack.Peek();
   FReturnSignal := True;
-  AVal := Visit(ANode.PValue);
-  FReturnValue := AVal;
-  Result := AVal;
+  //AVal := Visit(ANode.PValue);
+  //AVal.CopyInstance(AActRec.PReturnValue);
+  AActRec.PReturnValue := Visit(ANode.PValue);
+  Result := AActRec.PReturnValue;
 end;
 
 procedure TInterpreter.VisitPlainText(ANode: TPlainText);
@@ -361,7 +367,6 @@ begin
       len := Length(ANode.PBlock);
       if len > 0 then
       begin
-        //for AState in ANode.PBLock do
         for i := 0 to len - 1 do
         begin
           if FBreakSignal or FContinueSignal then
@@ -381,7 +386,6 @@ begin
     len := Length(ANode.PBlock);
     if len > 0 then
     begin
-      //for AState in ANode.PBLock do
       for i := 0 to len - 1 do
       begin
         if FBreakSignal or FContinueSignal then
@@ -461,6 +465,8 @@ begin
               Visit(ANode.PBlock[j]);
           end;
         end;
+        if FBreakSignal then
+          break;
       end;
     end;
     //ACandidate.Free;
@@ -590,7 +596,6 @@ var
   AName: string;
   AActRec, GlobalAR: TActivationRecord;
   Ret: TInstanceOf;
-  a, b, c, d: integer;
 begin
   AName := Anode.PToken.PValue;
   AActRec := FCallStack.Peek();
@@ -621,7 +626,7 @@ function TInterpreter.VisitFunctionCall(ANode: TFunctionCall;
 const
   ST_ACCESS = ':';
 var
-  x: ^word;
+  x, y: ^word;
   ACoreExec: TCoreFunction;
   AFuncName, ASrcName, compl: string;
   AActRec: TActivationRecord;
@@ -630,7 +635,8 @@ var
   AParamState: TParam;
   FuncDef, Aux: TFunctioninstance;
   ADef: TInstanceOf = nil;
-  AReturn, AIter: TInstanceOf;
+  ACopy: TInstanceOf;
+  AReturn, AIter, Zika: TInstanceOf;
   LenArgs, LenParams: integer;
   ArgsList: TInstanceList;
 begin
@@ -658,7 +664,10 @@ begin
       AActRec := TActivationRecord.Create(FuncDef.PName, AR_FUNCTION,
         FCallStack.PLevel + 1);
       AActRec.AddMember('__LIVE__', TStringInstance.Create(''));
-      AActRec.AddMember('self', ASrcInstance);
+      if ASrcInstance <> nil then
+        AActRec.AddMember('self', ASrcInstance);
+      //ASrcInstance.CopyInstance(Zika);
+      //AActRec.AddMember('self', Zika);
       LenArgs := Length(Anode.PEvalParams);
       LenParams := Length(FuncDef.PParams);
       Len := Max(LenArgs, LenParams);
@@ -695,27 +704,27 @@ begin
                 FTrace, ANode.PToken);
             //AParamName := ANode.PEvalParams[i].PToken.PValue;
           end;
-          AActRec.AddMember(AParamName, ADef);
+          ADef.CopyInstance(ACopy);
+
+          AActRec.AddMember(AParamName, ACopy);
         end;
       end;
       FCallStack.Push(AActRec);
       len := Length(Funcdef.PBlock);
       if len > 0 then
       begin
-        //for AState in FuncDef.PBlock do
         for i := 0 to len - 1 do
         begin
           if FReturnSignal then
           begin
             FReturnSignal := False;
-            AReturn := FReturnValue;
+            AActRec.PReturnValue.CopyInstance(AReturn);
             FCallStack.Pop();
-            Result := FReturnValue;
+            Result := AReturn;
             exit;
           end
           else
             Visit(FuncDef.PBlock[i]);
-
         end;
       end;
       AReturn := AActRec.GetMember('__LIVE__');
@@ -732,7 +741,8 @@ begin
       begin
         for i := 0 to len2 - 1 do
         begin
-          ArgsList[i] := Visit(ANode.PEvalParams[i], ASrcInstance);
+          ADef := Visit(ANode.PEvalParams[i], ASrcInstance);
+          ADef.CopyInstance(ArgsList[i]);
         end;
       end;
       AReturn := ACoreExec.Execute(Self, AFuncName, ArgsList, ASrcInstance);

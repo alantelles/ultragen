@@ -1,3 +1,5 @@
+include @Strings
+
 function responseRoute(routes)
     method = $request['method']
     route = $request['route'].
@@ -7,6 +9,9 @@ function responseRoute(routes)
     response = routes[null]
     params = {}
     for (routes.keys(), entry)
+        if (!(routes[entry].hasKey(method)))
+            continue
+        end
         match = true
         verify = entry.split('/')
         if ((verify.length()) == (route_exp.length()))
@@ -27,12 +32,15 @@ function responseRoute(routes)
                         is_int = rp.isInt()
                         match_str = (type_par == 'str') && !is_int
                         match_int = (type_par == 'int') && is_int
-                        if (match_int || match_str)
-                            par_name = part.sub(dot_pos + 1, part.length())
-                            params.set(par_name, route_exp[_part])
-                        else                            
+                        if (!(match_int || match_str))
                             match = false
                             break
+                        else
+                            par_name = part.sub(dot_pos + 1, part.length())
+                            if (type_par == 'int')
+                                rp = int(rp)
+                            end
+                            params.set(par_name, rp)
                         end
                     end
                 end
@@ -40,11 +48,14 @@ function responseRoute(routes)
         else
             match = false
             continue
-        end        
+        end       
         if (match)
-            response = routes[entry]
+            response = routes[entry][method]
             break
         end
     end
-    return response
+    return {
+        'handler': response,
+        'params': params
+        }
 end

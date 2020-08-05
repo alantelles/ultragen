@@ -20,6 +20,7 @@ type
       constructor Create(AValue: string);
       function GetChar(AnIndex: TIntegerInstance):TStringInstance;
       function AsString: string;  override;
+      procedure CopyInstance(var AReceiver: TInstanceOf); override;
       //procedures
 
   end;
@@ -47,7 +48,13 @@ begin
   Result := TStringInstance.Create(FValue[AnIndex.PValue + 1]);
 end;
 
-
+procedure TStringInstance.CopyInstance(var AReceiver: TInstanceOf);
+var
+  Cast: TStringInstance;
+begin
+  Cast := TStringInstance.Create(FValue);
+  AReceiver := Cast;
+end;
 
 
 end.

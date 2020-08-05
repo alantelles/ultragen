@@ -17,7 +17,7 @@ begin
       else if FName = 'pos' then
         Ret := TIntegerInstance.Create(UTF8Pos(
             TStringInstance(FParams[0]).PValue,
-            TStringInstance(AObj).PValue
+            TStringInstance(FObj).PValue
         ) - 1)
 		  else if FName = 'replace' then
 		    Ret := TStringInstance.Create(
@@ -33,6 +33,18 @@ begin
         Ret := GetFileName(TStringInstance(FObj))
       else if FName = 'indexOf' then
         Ret := TIntegerInstance.Create(UTF8Pos(TStringInstance(FParams[0]).PValue, TStringInstance(FObj).PValue) - 1)
+      else if FName = 'isInt' then
+      begin
+        try
+        begin
+          StrToInt(TStringInstance(FObj).PValue);
+          Ret := TBooleanInstance.Create(True)
+
+        end;
+        except
+          Ret := TBooleanInstance.Create(False);
+        end;
+      end
       else
         raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.');
 end

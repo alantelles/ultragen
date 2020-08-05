@@ -26,8 +26,10 @@ type
       property PStrValue: string read FStrValue write FStrValue;
       property PBoolValue: boolean read FBoolValue write FBoolValue;
       property PFloatValue: extended read FFloatValue write FFloatValue;
+
       constructor Create;
       function AsString: string; virtual;
+      procedure CopyInstance(var AReceiver: TInstanceOf); virtual;
   end;
 
   TInstanceList = array of TInstanceOf;
@@ -41,6 +43,7 @@ type
       property PValue:string read FValue;
       function AsString: string;  override;
       constructor Create;
+      procedure CopyInstance(var AReceiver: TInstanceOf); override;
 	end;
 
 
@@ -52,6 +55,7 @@ type
       constructor Create(AValue: integer);
       constructor Create;
       function AsString: string;  override;
+      procedure CopyInstance(var AReceiver: TInstanceOf); override;
   end;
 
   TBuiltInType = class(TInstanceOf)
@@ -99,6 +103,7 @@ type
       property PValue:Extended read FValue write FValue;
       constructor Create(AValue: extended);
       function AsString: string;  override;
+      procedure CopyInstance(var AReceiver: TInstanceOf); override;
   end;
 
   TBooleanInstance = class (TInstanceOf)
@@ -108,6 +113,7 @@ type
       property PValue: boolean read FValue write FValue;
       constructor Create(AValue: boolean);
       function AsString: string;  override;
+      procedure CopyInstance(var AReceiver: TInstanceOf); override;
   end;
 
 implementation
@@ -117,6 +123,11 @@ uses
 constructor TInstanceOf.Create;
 begin
   FCoreType := True;
+end;
+
+procedure TInstanceOf.CopyInstance(var AReceiver: TInstanceOf);
+begin
+  AReceiver := Self;
 end;
 
 constructor TBuiltInType.Create(AName: string);
@@ -138,6 +149,11 @@ constructor TNullInstance.Create;
 begin
   FValue := T_LANG_NULL;
   FCoreType := True;
+end;
+
+procedure TNullInstance.CopyInstance(var AReceiver: TInstanceOf);
+begin
+  AReceiver := TNullInstance.Create;
 end;
 
 function TNullInstance.AsString: string;
@@ -177,6 +193,14 @@ begin
   FCoreType := True;
 end;
 
+procedure TIntegerInstance.CopyInstance(var AReceiver: TInstanceOf);
+var
+  Cast: TIntegerInstance;
+begin
+  Cast := TIntegerInstance.Create(FValue);
+  AReceiver := Cast;
+end;
+
 function TIntegerInstance.AsString:string;
 begin
   Result := IntToStr(FValue);
@@ -194,6 +218,14 @@ begin
   FCoreType := True;
 end;
 
+procedure TFloatInstance.CopyInstance(var AReceiver: TInstanceOf);
+var
+  Cast: TFloatInstance;
+begin
+  Cast := TFloatInstance.Create(FValue);
+  AReceiver := Cast;
+end;
+
 function TFloatInstance.AsString: string;
 var
   AFStr :string;
@@ -209,6 +241,14 @@ begin
   FValue := AValue;
   FBoolValue := AValue;
   FCoreType := True;
+end;
+
+procedure TBooleanInstance.CopyInstance(var AReceiver: TInstanceOf);
+var
+  Cast: TBooleanInstance;
+begin
+  Cast := TBooleanInstance.Create(FValue);
+  AReceiver := Cast;
 end;
 
 function TBooleanInstance.AsString: string;

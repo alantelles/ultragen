@@ -28,6 +28,7 @@ type
       function PopItem:TInstanceOf;
       procedure Add(AItem: TInstanceOf);
       procedure CopyList(var ANewList: TListInstance);
+      procedure CopyInstance(var AReceiver: TInstanceOf); override;
 
       function Execute: TInstanceOf;
 
@@ -60,6 +61,26 @@ begin
       ANewList.Add(FValue[i]);
     end;
   end;
+end;
+
+procedure TListInstance.CopyInstance(var AReceiver: TInstanceOf);
+var
+  i, len: integer;
+  Cast: TListInstance;
+  Itens: TInstanceOf;
+begin
+  Cast := TListInstance.Create;
+  len := Length(FValue);
+  if len > 0 then
+  begin
+    for i:=0 to len-1 do
+    begin
+      Itens := TInstanceOf.Create;
+      FValue[i].CopyInstance(Itens);
+      Cast.Add(Itens);
+    end;
+  end;
+  AReceiver := Cast;
 end;
 
 constructor TListInstance.Create;
