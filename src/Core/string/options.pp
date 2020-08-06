@@ -12,8 +12,8 @@ begin
 		    Ret := JoinString(TStringInstance(FObj))
 		  else if FName = 'capital' then
 		    Ret := CapitalString(TStringInstance(FObj))
-      else if FName = 'sub' then
-        Ret := Substring (TStringInstance(FObj))
+      else if FName = 'slice' then
+        Ret := SliceString (TStringInstance(FObj))
       else if FName = 'pos' then
         Ret := TIntegerInstance.Create(UTF8Pos(
             TStringInstance(FParams[0]).PValue,

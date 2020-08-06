@@ -21,3 +21,7 @@ function isInt() : TStringInstance
     end
     return ret
 end
+
+function writeText(filename) : TStringInstance
+    self.split('\n').writeText(filename)
+end

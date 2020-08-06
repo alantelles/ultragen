@@ -3,28 +3,33 @@ begin
   AObj.PValue := TStringInstance(FParams[0]).PValue;
 end;
 
-function TCoreFunction.Substring(AObj: TStringInstance): TStringInstance;
+function TCoreFunction.SliceString(AObj: TStringInstance):TStringInstance;
 var
-  ret: string;
-  start: integer;
-  _end: integer;
+  Return: string;
+  Astr: string;
+  StrStart, StrEnd: integer;
 begin
+  Return := '';
   if (Length(FParams) > 2) or (Length(FParams) < 1) then
     FInter.RaiseException(E_INVALID_ARGS, 'Arguments');
-  Ret := AObj.PValue;
-  start := TIntegerInstance(FParams[0]).PValue;
-  if Length(FParams) = 2 then
-  begin
-    start := TIntegerInstance(FParams[0]).PValue;
-    _end := TIntegerInstance(FParams[1]).PValue
-  end
+  AStr := AObj.PValue;
+  StrStart := TIntegerInstance(FParams[0]).PValue;
+  if LEngth(FParams) = 2 then
+    StrEnd := TIntegerInstance(FParams[1]).PValue
   else
-  begin
-    _end := TIntegerInstance(FParams[0]).PValue;
-    start := 0;
-  end;
-  Ret := Copy(Ret, start+1, _end);
-  Result := TStringInstance.Create(Ret);
+    StrEnd := Length(AStr);
+  if (StrStart >= 0) and (StrEnd > StrStart) then
+  //Slice('abcdefgh',1,5) = bcde
+    Return := UTF8Copy(AStr,StrStart+1,StrEnd-StrStart)
+  else if (StrStart >= 0) and (StrEnd < 0) then
+  //Slice('abcdefgh',2,-1) = cdefg
+  //Slice('abcdefgh',4,-2) = ef
+    Return := UTF8Copy(AStr,StrStart+1,Length(AStr)+StrEnd-StrStart)
+  else if (StrStart < 0) and (StrEnd <= 0) then
+  //Slice('abcdefgh',-6,-3) = cde
+    Return := UTF8Copy(AStr,Length(AStr)+StrStart+1,(StrStart-StrEnd)*(-1));
+  Result := TStringInstance.Create(Return);
+
 end;
 
 function TCoreFunction.JoinString(AObj: TStringInstance):TStringInstance;

@@ -107,6 +107,10 @@ begin
   AActRec.AddMember('String', TBuiltInType.Create('TStringInstance'));
 
 
+
+
+
+
   {$INCLUDE 'builtin_functions/register_builtins.pp' }
 end;
 
@@ -553,7 +557,7 @@ end;
 
 procedure TInterpreter.VisitListAssign(ANode: TListAssign);
 var
-  ASrc, AValue, AIndex: TInstanceOf;
+  ASrc, AValue, AIndex, AddedValue: TInstanceOf;
   ASrcAct: TDictionaryInstance;
   ASrcList: TListInstance;
 begin
@@ -561,13 +565,14 @@ begin
   ASrc := Visit(ANode.PSrc);
   Aindex := Visit(ANode.PEntry);
   AValue := Visit(ANode.PValue);
+  AValue.CopyInstance(AddedValue);
   if ASrc.ClassNameIs('TDictionaryInstance') then
   begin
     ASrcAct := TDictionaryInstance(ASrc);
     if ASrcAct.PChangeLocked then
       EValueError.Create('Can''t change values of change locked Dict', FTrace, ANode.PToken);
     if AIndex.ClassNameIs('TStringInstance') then
-      ASrcAct.PValue.AddMember(TStringInstance(AIndex).PValue, AValue)
+      ASrcAct.PValue.AddMember(TStringInstance(AIndex).PValue, AddedValue)
 		else
     begin
       ERunTimeError.Create('Invalid type for Dict index',
@@ -581,7 +586,7 @@ begin
     if ASrcList.PChangeLocked then
       EValueError.Create('Can''t change values of change locked List', FTrace, ANode.PToken);
     if AIndex.ClassNameIs('TIntegerInstance') then
-      ASrcList.SetItem(TIntegerInstance(AIndex).PValue, AValue)
+      ASrcList.SetItem(TIntegerInstance(AIndex).PValue, AddedValue)
     else
     begin
       ERunTimeError.Create('Invalid type for List index',
@@ -963,41 +968,54 @@ end;
 function TInterpreter.VisitUnaryOpFloat(ANode: TUnaryOp): TFloatInstance;
 var
   AOper: string;
-  Ret: TFloatInstance;
+  ATerm: TInstanceOf;
 begin
-  try
-    Ret := TFloatinstance(Visit(ANode.PExpr));
+  ATerm := Visit(ANode.PExpr);
+  if ATerm.ClassNameIs('TFloatInstance') then
+  begin
     AOper := ANode.POper.PType;
-    if AOper = T_MINUS then
+    if AOper = T_PLUS then
     begin
-      Ret.PValue := Ret.PValue * (-1);
+      ATerm.PFloatValue := ATerm.PFloatValue;
+      TFloatInstance(ATerm).PValue := TFloatInstance(ATerm).PValue
+    end
+    else if AOper = T_MINUS then
+    begin
+      TFloatInstance(Aterm).PValue := TFloatInstance(ATerm).PValue * (-1);
+      Aterm.PFloatValue := ATerm.PFloatValue * (-1);
     end;
-    Result := ret;
-  except
-    ERunTimeError.Create('Invalid operation for class ' + Ret.ClassName,
+    Result := TFloatInstance(ATerm);
+  end
+  else
+    ERunTimeError.Create('Invalid operation for class ' + ATerm.ClassName,
       FTrace, ANode.PToken);
-  end;
 end;
 
 function TInterpreter.VisitUnaryOp(ANode: TUnaryOp): TIntegerInstance;
 var
   AOper: string;
   Ret: TIntegerInstance;
+  ATerm: TInstanceOf;
 begin
-  try
-    Ret := TIntegerinstance(Visit(ANode.PExpr));
+  ATerm := Visit(ANode.PExpr);
+  if ATerm.ClassNameIs('TIntegerInstance') then
+  begin
     AOper := ANode.POper.PType;
     if AOper = T_PLUS then
-      Ret.PValue := Ret.PValue
+    begin
+      ATerm.PIntValue := ATerm.PIntValue;
+      TIntegerInstance(Aterm).PValue := TIntegerInstance(ATerm).PValue
+    end
     else if AOper = T_MINUS then
     begin
-      Ret.PValue := Ret.PValue * (-1);
+      Aterm.PIntValue := ATerm.PIntValue * (-1);
+      TIntegerInstance(Aterm).PValue := TIntegerInstance(ATerm).PValue * (-1);
     end;
-    Result := ret;
-  except
-    ERunTimeError.Create('Invalid operation for class ' + Ret.ClassName,
+    Result := TIntegerInstance(ATerm);
+  end
+  else
+    ERunTimeError.Create('Invalid operation for class ' + ATerm.ClassName,
       FTrace, ANode.PToken);
-  end;
 end;
 
 function TInterpreter.VisitUnaryLogicOp(ANode: TUnaryLogicOp): TBooleanInstance;
@@ -1028,7 +1046,7 @@ var
   Cmp: boolean;
 
 begin
-  try
+  //try
     AResL := Visit(Anode.PLeft);
     AResR := Visit(Anode.PRight);
     LeftClass := AResL.ClassName;
@@ -1135,8 +1153,8 @@ begin
       ERunTimeError.Create('Can''t compare different types ' +
         LeftClass + ' and ' + RightClass + ' implicitly.',
         FTrace, ANode.PToken);
-  except
-  end;
+  //except
+  //end;
 end;
 
 function TInterpreter.VisitBinOp(ANode: TBinOp): TInstanceOf;

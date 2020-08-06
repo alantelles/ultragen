@@ -3,4 +3,4 @@ function CapitalString(AObj: TStringInstance):TStringInstance;
 function JoinString(AObj: TStringInstance): TStringInstance;
 function GetFileName(AObj: TStringInstance): TStringInstance;
 procedure InitString(AObj: TStringInstance);
-function Substring(AObj: TStringInstance): TStringInstance;
+function SliceString(AObj: TStringInstance): TStringInstance;

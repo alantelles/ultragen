@@ -121,7 +121,7 @@ begin
   begin
     for i:=0 to len - 1 do
     begin
-      ret := Ret + FValue.FMembers.NameOfIndex(i) + ': ';
+      ret := Ret + '''' + FValue.FMembers.NameOfIndex(i) + ''': ';
       if FValue.FMembers[i].ClassNameIs('TStringInstance') then
         Ret := Ret + '''' + TInstanceOf(FValue.FMembers[i]).AsString + ''''
       else

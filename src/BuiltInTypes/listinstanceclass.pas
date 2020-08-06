@@ -14,6 +14,7 @@ type
       FMetName:string;
       FAddLocked, FChangeLocked: boolean;
       function LenList:integer;
+
     public
       property Count: integer read lenList;
       property PValue: TInstanceList read FValue write FValue;
@@ -21,14 +22,18 @@ type
       property PChangeLocked: boolean read FChangeLocked write FChangeLocked;
       constructor Create(AList: TInstanceList);
       constructor Create;
+      procedure Clear;
       function AsString:string; override;
       function GetItem(AIndex: TIntegerInstance):TInstanceOf;
       function GetItem(AIndex: integer):TInstanceOf;
       procedure SetItem(AIndex: integer; AItem: TInstanceOf);
       function PopItem:TInstanceOf;
       procedure Add(AItem: TInstanceOf);
+      procedure Prepend(AItem: TInstanceOf);
       procedure CopyList(var ANewList: TListInstance);
       procedure CopyInstance(var AReceiver: TInstanceOf); override;
+      class function LoadText(AFileName: string): TListInstance;
+      procedure WriteText(AFileName: string);
 
       function Execute: TInstanceOf;
 
@@ -47,6 +52,53 @@ begin
   FValue := AList;
   FAddLocked := False;
   FChangeLocked := False;
+end;
+
+class function TListInstance.LoadText(AFileName: string): TListInstance;
+var
+  AStrList: TStringList;
+  Aret: TListInstance;
+  aLine: string;
+begin
+  AStrlist := TStringList.Create;
+  AStrList.LoadFromFile(AFileName);
+  AStrList.SkipLastLineBreak := True;
+  ARet := TListInstance.Create;
+  for ALine in AStrList do
+    ARet.Add(TStringInstance.Create(ALine));
+  AStrList.Free;
+  Result := ARet;
+end;
+
+procedure TListInstance.WriteText(AFileName: string);
+var
+  AStrList: TStringList;
+  aLine: TInstanceOf;
+  i: integer;
+begin
+  AStrlist := TStringList.Create;
+  AStrList.SkipLastLineBreak := True;
+  if Count > 0 then
+  begin
+    for i:=0 to Count-1 do
+      AStrList.Add(FValue[i].AsString);
+  end;
+  AStrList.SaveToFile(AFileName);
+  AStrList.Free;
+end;
+
+procedure TListInstance.Clear;
+var
+  i: integer;
+begin
+  if Count > 0 then
+  begin
+    for i:=0 to Count-1 do
+    begin
+      FValue[i].Free;
+    end;
+  end;
+  SetLength(FValue, 0);
 end;
 
 procedure TListInstance.CopyList(var ANewList: TListInstance);
@@ -113,13 +165,14 @@ end;
 
 function TListInstance.PopItem:TInstanceOf;
 var
-  Ret: TInstanceOf;
+  Ret, NewRet: TInstanceOf;
   Last: integer;
 begin
   Last := lenList - 1;
   Ret := FValue[last];
   SetLength(FValue, last);
-  Result := Ret;
+  Ret.CopyInstance(NewRet);
+  Result := NewRet;
 end;
 
 procedure TListInstance.SetItem(Aindex:integer; AItem: TInstanceOf);
@@ -135,7 +188,7 @@ var
   ToAdd: TInstanceOf;
 begin
   ToAdd := AItem;
-  if AItem <> nil then
+  {if AItem <> nil then
   begin
     if AItem.ClassNameIs('TIntegerInstance') then
       ToAdd := TIntegerInstance.Create(AItem.PIntValue)
@@ -147,11 +200,43 @@ begin
       ToAdd := TFloatInstance.Create(AItem.PFloatValue)
     else if AItem.ClassNameIs('TNullInstance') then
       ToAdd := TNullInstance.Create;
-  end;
+  end;}
   len := Length(FValue);
   len := len + 1;
   SetLength(FValue, len);
   FValue[len - 1] := ToAdd;
+end;
+
+procedure TListInstance.Prepend(AItem: TInstanceOf);
+var
+  i, len: integer;
+  ToAdd: TInstanceOf;
+begin
+  ToAdd := AItem;
+  {if AItem <> nil then
+  begin
+    if AItem.ClassNameIs('TIntegerInstance') then
+      ToAdd := TIntegerInstance.Create(AItem.PIntValue)
+    else if AItem.ClassNameIs('TBooleanInstance') then
+      ToAdd := TBooleanInstance.Create(AItem.PBoolValue)
+    else if AItem.ClassNameIs('TStringInstance') then
+      ToAdd := TStringInstance.Create(AItem.PStrValue)
+    else if AItem.ClassNameIs('TFloatInstance') then
+      ToAdd := TFloatInstance.Create(AItem.PFloatValue)
+    else if AItem.ClassNameIs('TNullInstance') then
+      ToAdd := TNullInstance.Create;
+  end;}
+  len := Length(FValue);
+  len := len + 1;
+  SetLength(FValue, len);
+  if len > 0 then
+  begin
+    for i:=len-1 downto 1 do
+    begin
+      FValue[i] := FValue[i-1];
+    end;
+    FValue[0] := ToAdd;
+  end;
 end;
 
 function TListInstance.GetItem(AIndex: TIntegerInstance):TInstanceOf;

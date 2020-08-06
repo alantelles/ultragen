@@ -44,6 +44,22 @@ begin
   Result := AObj
 end;
 
+function TCoreFunction.PrependToList(var AObj: TListInstance): TListInstance;
+var
+  len, i: integer;
+begin
+  if AObj.PAddLocked then
+    FInter.RaiseException('Can''t add values to add locked List', 'Value');
+  len := Length(FParams);
+  if len = 0 then
+    FInter.RaiseException(E_INVALID_ARGS, 'Arguments');
+  for i:=0 to len - 1 do
+  begin
+    AObj.Prepend(FParams[i]);
+  end;
+  Result := AObj
+end;
+
 function TCoreFunction.SetItem(var AObj: TListInstance): TListInstance;
 begin
   if Length(FParams) <> 2 then

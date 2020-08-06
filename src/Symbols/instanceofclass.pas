@@ -147,7 +147,6 @@ end;
 
 constructor TNullInstance.Create;
 begin
-  FValue := T_LANG_NULL;
   FCoreType := True;
 end;
 
@@ -158,7 +157,7 @@ end;
 
 function TNullInstance.AsString: string;
 begin
-  Result := FValue;
+  Result := T_LANG_NULL;
 end;
 
 constructor TFunctionInstance.Create(AName:string; AParams, ABlock: TASTList; AType: string; IsBuiltin:boolean; FromNamespace: boolean = False);
