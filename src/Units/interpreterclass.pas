@@ -83,7 +83,7 @@ var
   AActRec: TActivationRecord;
   FileExplorer: TActivationRecord;
   ACoreType, AStrType, AIntType, AFloatType, AListType, ABoolType,
-  AFuncType, AOSType, AFSType, ADictType, AServerType: TFunctionInstance;
+  AFuncType, AOSType, AFSType, ADictType, AServerType, AHttpClientType: TFunctionInstance;
   ANameSpace: TDictionaryInstance;
 begin
   ACoreType := TFunctionInstance.Create('BuiltIn', nil, nil, 'CoreFunction', True);
@@ -97,6 +97,7 @@ begin
   AFSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFileSystemInstance', True);
   ADictType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TDictionaryInstance', True);
   AServerType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TServerInstance', True);
+  AHttpClientType := TFunctionInstance.Create('BuiltIn', nil, nil, 'THttpClientInstance', True);
   AActRec := FCallStack.GetFirst();
 
   // BuiltInTypesRegister
@@ -105,12 +106,12 @@ begin
   AActrec.AddMember('Dict', TBuiltInType.Create('TDictionaryInstance'));
   AActRec.AddMember('Server', TBuiltInType.Create('TServerInstance'));
   AActRec.AddMember('String', TBuiltInType.Create('TStringInstance'));
+  AActRec.AddMember('Request', TBuiltInType.Create('THttpClientInstance'));
 
-
-
-
-
-
+  AActRec.AddMember(AHttpClientType.PType+ST_ACCESS+'get', AHttpClientType);
+  AActRec.AddMember(AHttpClientType.PType+ST_ACCESS+'post', AHttpClientType);
+  AActRec.AddMember(AHttpClientType.PType+ST_ACCESS+'url', AHttpClientType);
+  AActRec.AddMember(AHttpClientType.PType+ST_ACCESS+'response', AHttpClientType);
   {$INCLUDE 'builtin_functions/register_builtins.pp' }
 end;
 

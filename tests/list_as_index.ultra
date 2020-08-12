@@ -1,4 +1,10 @@
-include @List
+include @Strings
 
-b = ['mark1', 'mark2', 'mark3', 'mark4']
-print(b.slice(2))
+# url = 'https://jsonplaceholder.typicode.com/posts'
+url = 'https://reqres.in/api/users'
+# headers = {'Content-type': 'application/json'}
+# payload = '{"name": "Baholeros", "work": "mumbers", "number": 890}'
+payload = "name=Baholeros&work=numbers&number=99902"
+headers = {'Content-type': 'application/x-www-form-urlencoded'}
+a = Request.post(url, payload, headers)
+print(a.response())

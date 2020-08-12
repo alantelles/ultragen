@@ -31,7 +31,7 @@
         <PackageName Value="LazUtils"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="26">
+    <Units Count="27">
       <Unit0>
         <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -161,6 +161,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UltragenInterfaceClass"/>
       </Unit25>
+      <Unit26>
+        <Filename Value="src\BuiltInTypes\httpclientinstanceclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="HttpClientInstanceClass"/>
+      </Unit26>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

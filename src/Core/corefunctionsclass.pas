@@ -5,8 +5,9 @@ unit CoreFunctionsClass;
 interface
 
 uses
-      Classes, SysUtils, Strutils, InstanceOfClass, InterpreterClass, StringInstanceClass,
-      ListInstanceClass, ServerClass, ARClass;
+      Classes, SysUtils, Strutils,
+      InterpreterClass, InstanceOfClass, StringInstanceClass,
+      ListInstanceClass, ServerClass, ARClass, HttpClientInstanceClass;
 
 type
   TParamList = array of string;
@@ -42,6 +43,7 @@ type
       {$INCLUDE 'filesystem/declarations.pp'}
       {$INCLUDE 'dict/declarations.pp'}
       {$INCLUDE 'server/declarations.pp'}
+      {$INCLUDE 'httpclient/declarations.pp'}
 	end;
 
 
@@ -118,6 +120,7 @@ begin
   {$INCLUDE 'os/options.pp'}
   {$INCLUDE 'filesystem/options.pp'}
   {$INCLUDE 'server/options.pp'}
+  {$INCLUDE 'httpclient/options.pp'}
   else
     raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.', '', 1, 1);
   // functions
@@ -285,6 +288,7 @@ end;
 {$INCLUDE 'server/functions.pp'}
 
 {$INCLUDE 'integer/functions.pp'}
+{$INCLUDE 'httpclient/functions.pp'}
 
 
 
