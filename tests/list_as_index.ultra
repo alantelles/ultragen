@@ -1,4 +1,4 @@
-include @List
+include @Core
 a = ['Frank', 'Charlie']
 print(a)
 a.combine(['Iri', 'Marumi'])

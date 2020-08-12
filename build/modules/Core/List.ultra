@@ -1,0 +1,67 @@
+function insert(obj, pos) : TListInstance
+    empty = []
+    len = self.length()
+    if (pos > len)
+        self.append(obj)
+        return null
+    else
+        for (pos, i)
+            empty.append(self[i])
+        end
+        empty.append(obj)
+        for (pos+1, i)
+            empty.append(self[i])
+        end
+        self.clear()
+        for (empty, i)
+            self.append(i)
+        end
+        return self
+    end
+end
+
+function combine(other) : TListInstance
+    for (other, i)
+        self.append(i)
+    end
+    return self
+end
+
+function drop(index) : TListInstance
+    a_new = []
+    for (self, i)
+        if (_i != index)
+            a_new.append(i)
+        end
+    end
+    self.clear()
+    for (a_new, i)
+        self.append(i)
+    end
+end
+
+function remove(index) : TListInstance
+    a_new = []
+    for (self, i)
+        if (i != index)
+            a_new.append(i)
+        end
+    end
+    self.clear()
+    for (a_new, i)
+        self.append(i)
+    end
+end
+
+function slice (sp, ep=null) : TListInstance
+    if (!ep)
+        ep = self.length()
+    else
+        ep = ep + 1
+    end
+    output = []
+    for (range(sp, ep), i)
+        output.append(self[i])
+    end
+    return output
+end

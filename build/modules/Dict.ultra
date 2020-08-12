@@ -1,8 +1,0 @@
-function asAttrs() : TDictionaryInstance
-    keys = self.keys()
-    l = []
-    for (keys, k)
-        l.append(k + '="'+ (self[k]) +'"')
-    end
-    return ' '.join(l)
-end

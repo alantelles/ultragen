@@ -76,7 +76,7 @@ const
   EOF = 'EOF';
   NONE = '';
   SET_NUMBERS = '0123456789';
-  LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz';
+  LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
   T_NEWLINE = 'T_NEWLINE';
   T_COMMENT = 'T_COMMENT';
 

@@ -1,0 +1,59 @@
+function responseRoute(routes)
+    method = $request['method']
+    route = $request['route'].
+        sub(1, $request['route'].
+        length())
+    route_exp = route.split('/')
+    response = routes[null]
+    params = {}
+    for (routes.keys(), entry)
+        if (!(routes[entry].hasKey(method)))
+            continue
+        end
+        match = true
+        verify = entry.split('/')
+        if ((verify.length()) == (route_exp.length()))
+            for (verify, part)       
+                if ((part[0]) != ':')
+                    if (part != (route_exp[_part]))
+                        match = false
+                        break
+                    end
+                else
+                    dot_pos = part.pos('.')
+                    if (dot_pos == -1)
+                        par_name = part.sub(1, part.length())
+                        params.set(par_name, route_exp[_part])
+                    else
+                        type_par = part.sub(1, dot_pos-1)
+                        rp = route_exp[_part]
+                        is_int = rp.isInt()
+                        match_str = (type_par == 'str') && !is_int
+                        match_int = (type_par == 'int') && is_int
+                        if (!(match_int || match_str))
+                            match = false
+                            break
+                        else
+                            par_name = part.sub(dot_pos + 1, part.length())
+                            if (type_par == 'int')
+                                rp = int(rp)
+                            end
+                            params.set(par_name, rp)
+                        end
+                    end
+                end
+            end            
+        else
+            match = false
+            continue
+        end       
+        if (match)
+            response = routes[entry][method]
+            break
+        end
+    end
+    return {
+        'handler': response,
+        'params': params
+        }
+end

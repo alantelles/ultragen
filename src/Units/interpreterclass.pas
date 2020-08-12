@@ -858,7 +858,7 @@ begin
       if FileExists (AFileName + DirectorySeparator + '_init.ultra') then
         AFileName := AFileName + DirectorySeparator + '_init.ultra'
       else
-        ERunTimeError.Create('Specified module "'+ANode.PModulePath+'" does not exist');
+        ERunTimeError.Create('Specified module "'+ANode.PModulePath+'" does not exist', FTrace, ANode.PToken);
     end
 	end
 	else
