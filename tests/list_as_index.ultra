@@ -1,5 +1,7 @@
 include @Core
-a = ['Frank', 'Charlie']
+
+a = ['Frank', 'Charlie'] # comment aqki
+#commetn
 print(a)
 a.combine(['Iri', 'Marumi'])
 print(a)
@@ -7,3 +9,4 @@ a.drop(1)
 print(a)
 a.remove('Iri')
 print(a)
+# comment no fim

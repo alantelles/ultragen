@@ -148,7 +148,7 @@ end;
 
 function TLexer.PassLineComment: string;
 begin
-  while (FCurrChar <> #10) and (FCurrChar <> EOF) do
+  while (FCurrChar <> #10) and (FCurrChar <> NONE) do
   begin
     Advance();
   end;

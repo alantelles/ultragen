@@ -23,7 +23,9 @@
 		      if (FCurrChar = T_LINE_COMMENT) then
 		      begin
 		        Advance;
-		        Result := TToken.Create(T_COMMENT, PassLineComment, FScriptLine, FLineChar, FFileName);
+            PassLineComment;
+		        // Result := TToken.Create(T_COMMENT, PassLineComment, FScriptLine, FLineChar, FFileName);
+            Result := GetNextToken();
 		        exit
 		      end;
 

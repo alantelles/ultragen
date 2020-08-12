@@ -985,12 +985,12 @@ begin
     Eat(T_CONTINUE);
     Ret := TContinueLoop.Create(AToken);
   end
-  else if (AToken.PType = T_COMMENT) then
+  {else if (AToken.PType = T_COMMENT) then
   begin
     Eat(T_COMMENT);
 //    FLexer.PassLineComment;
     Ret := TNoOp.Create(AToken);
-  end
+  end}
   else if (AToken.PType = T_END + T_FUNC_DEF) then
   begin
     Ret := TNoOp.Create(AToken);
