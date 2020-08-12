@@ -20,6 +20,39 @@ function insert(obj, pos) : TListInstance
     end
 end
 
+function combine(other) : TListInstance
+    for (other, i)
+        self.append(i)
+    end
+    return self
+end
+
+function drop(index) : TListInstance
+    a_new = []
+    for (self, i)
+        if (_i != index)
+            a_new.append(i)
+        end
+    end
+    self.clear()
+    for (a_new, i)
+        self.append(i)
+    end
+end
+
+function remove(index) : TListInstance
+    a_new = []
+    for (self, i)
+        if (i != index)
+            a_new.append(i)
+        end
+    end
+    self.clear()
+    for (a_new, i)
+        self.append(i)
+    end
+end
+
 function slice (sp, ep=null) : TListInstance
     if (!ep)
         ep = self.length()

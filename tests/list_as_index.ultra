@@ -1,5 +1,9 @@
-a = 50
-b = 500
-print(b)
-b /= a
-print(b)
+include @List
+a = ['Frank', 'Charlie']
+print(a)
+a.combine(['Iri', 'Marumi'])
+print(a)
+a.drop(1)
+print(a)
+a.remove('Iri')
+print(a)

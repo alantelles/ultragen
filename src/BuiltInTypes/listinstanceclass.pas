@@ -54,6 +54,8 @@ begin
   FChangeLocked := False;
 end;
 
+
+
 class function TListInstance.LoadText(AFileName: string): TListInstance;
 var
   AStrList: TStringList;
