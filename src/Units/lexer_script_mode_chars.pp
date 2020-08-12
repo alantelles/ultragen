@@ -20,14 +20,6 @@
 				      exit
 				  end;
 
-		      if (FCurrChar = T_LINE_COMMENT) then
-		      begin
-		        Advance;
-            PassLineComment;
-		        // Result := TToken.Create(T_COMMENT, PassLineComment, FScriptLine, FLineChar, FFileName);
-            Result := GetNextToken();
-		        exit
-		      end;
 
 		      {if (FCurrChar + Peek(1) = '$_') then
 		      begin
@@ -70,6 +62,13 @@
 		        exit
 		      end;
 
+          if (FCurrChar + Peek(2)) = '###' then
+          begin
+            Advance(3);
+            PassBlockComment();
+            Result := GetNextToken();
+            exit
+          end;
 
 
 		      // and , or
@@ -149,6 +148,14 @@
 		        exit
 		      end;
 
+          if (FCurrChar = T_LINE_COMMENT) then
+		      begin
+		        Advance;
+            PassLineComment;
+            Result := GetNextToken();
+		        exit
+		      end;
+
 		      // end leq, neq, geq
 
 
@@ -189,6 +196,7 @@
 		        Result := TToken.Create(T_ASSIGN, '=', FScriptLine, FLineChar, FFileName);
 		        exit
 		      end;
+
 		      if (FCurrChar = #10)  then
 		      begin
 		        Advance;

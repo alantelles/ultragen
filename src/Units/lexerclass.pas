@@ -34,6 +34,7 @@ type
     function GetModulePath: TToken;
     function GetNumber: string;
     function PassLineComment: string;
+    function PassBlockComment: string;
     function GetString(Delim: string): TToken;
     function GetInnerAttribute: TToken;
     function GetPlainText: TToken;
@@ -152,6 +153,16 @@ begin
   begin
     Advance();
   end;
+  Result := '';
+end;
+
+function TLexer.PassBlockComment: string;
+begin
+  while (FCurrChar + Peek(3)) <> '###!' do
+  begin
+    Advance();
+  end;
+  Advance(4);
   Result := '';
 end;
 
