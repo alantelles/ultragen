@@ -34,6 +34,7 @@ type
     function Statements: TASTList;
     function Statement: TAST;
     function VarAssign(AToken: TToken): TAST;
+    function VarShortAssign(AToken: TToken; ShortCutType: string): TAST;
     function Variable(AToken: TToken): TAST;
     function FunctionBlock: TAST;
     function DefParams: TASTList;
@@ -677,7 +678,14 @@ begin
   begin
     Ret := VarAssign(Ret.PToken);
   end
-  else
+  else if (FCurrentToken.PType = T_SHORT_INC) or
+          (FCurrentToken.PType = T_SHORT_DEC) or
+          (FCurrentToken.PType = T_SHORT_MULT) or
+          (FCurrentToken.PType = T_SHORT_DIV) then
+  begin
+    Ret := VarShortAssign(Ret.PToken, FCurrentToken.PType)
+	end
+	else
   begin
     while (FCurrentToken.PType = T_ATTR_ACCESSOR) or
       (FCurrentToken.PType = T_LIST_START) do
@@ -858,6 +866,63 @@ begin
   Logdebug('Creating a VarAssign to ' + AToken.AsString, 'Parser');
   logtext('PARSER', 'Parser', 'Creating var assign node to ' + AToken.PValue);
   Result := TVarAssign.Create(AToken, ARight);
+end;
+
+function TTParser.VarShortAssign(AToken: TToken; ShortCutType: string): TAST;
+var
+  Aleft, ARight: TAST;
+  OperToken: TTOken;
+begin
+  Eat(ShortCutType);
+  if FCurrentToken.PType = T_NEW_OBJECT then
+  begin
+    ARight := NewObject();
+  end
+  else
+    ARight := MethodCall();
+  Logdebug('Creating a VarAssign to ' + AToken.AsString, 'Parser');
+  logtext('PARSER', 'Parser', 'Creating var assign node to ' + AToken.PValue);
+  if ShortCutType = T_SHORT_INC then
+    OperToken := TToken.Create(
+        T_PLUS,
+        '+',
+        AToken.PLineNo,
+        AToken.PCharNo,
+        AToken.PScriptName
+      )
+  else if ShortCutType = T_SHORT_DEC then
+    OperToken := TToken.Create(
+        T_MINUS,
+        '-',
+        AToken.PLineNo,
+        AToken.PCharNo,
+        AToken.PScriptName
+      )
+  else if ShortCutType = T_SHORT_MULT then
+    OperToken := TToken.Create(
+        T_MULT,
+        '*',
+        AToken.PLineNo,
+        AToken.PCharNo,
+        AToken.PScriptName
+      )
+  else if ShortCutType = T_SHORT_DIV then
+    OperToken := TToken.Create(
+        T_DIV,
+        '/',
+        AToken.PLineNo,
+        AToken.PCharNo,
+        AToken.PScriptName
+      );
+
+  Result := TVarAssign.Create(
+    AToken,
+    TBinOp.Create(
+      TVariableReference.Create(AToken),
+      ARight,
+      OperToken
+    )
+  );
 end;
 
 

@@ -113,6 +113,40 @@
 		        exit
 		      end;
 
+          // inc/dec shortcuts
+
+          if (FCurrChar = '+') and (Peek = '=') then
+		      begin
+		        Advance;
+		        Advance;
+		        Result := TToken.Create(T_SHORT_INC, '+=', FScriptLine, FLineChar, FFileName);
+		        exit
+		      end;
+
+          if (FCurrChar = '-') and (Peek = '=') then
+		      begin
+		        Advance;
+		        Advance;
+		        Result := TToken.Create(T_SHORT_DEC, '-=', FScriptLine, FLineChar, FFileName);
+		        exit
+		      end;
+
+          if (FCurrChar = '*') and (Peek = '=') then
+		      begin
+		        Advance;
+		        Advance;
+		        Result := TToken.Create(T_SHORT_MULT, '*=', FScriptLine, FLineChar, FFileName);
+		        exit
+		      end;
+
+          if (FCurrChar = '/') and (Peek = '=') then
+		      begin
+		        Advance;
+		        Advance;
+		        Result := TToken.Create(T_SHORT_DIV, '/=', FScriptLine, FLineChar, FFileName);
+		        exit
+		      end;
+
 		      // end leq, neq, geq
 
 

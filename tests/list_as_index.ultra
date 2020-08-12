@@ -1,7 +1,5 @@
-url = 'https://reqres.in/api/users'
-# headers = {'Content-type': 'application/json'}
-# payload = '{"name": "Baholeros", "work": "mumbers", "number": 890}'
-payload = "name=Baholeros&work=numbers&number=99902"
-headers = {'Content-type': 'application/x-www-form-urlencoded'}
-a = Request.post(url, payload, headers)
-print(a.content_type)
+a = 50
+b = 500
+print(b)
+b /= a
+print(b)
