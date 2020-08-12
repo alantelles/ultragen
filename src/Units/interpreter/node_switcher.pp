@@ -9,7 +9,7 @@
     VisitListAssign(TListAssign(ANode))
 
   else if ANode.ClassNameIs('TVariableReference') then
-    Ret := VisitVariableReference(TVariableReference(ANode))
+    Ret := VisitVariableReference(TVariableReference(ANode), ASrcInstance)
 
   else if ANode.ClassNameIs('TIncludeScript') then
     VisitIncludeScript(TIncludeScript(ANode))

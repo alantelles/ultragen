@@ -1,4 +1,4 @@
-POST http://localhost:3500
+POST https://reqres.in/api/users
 Content-Type: application/x-www-form-urlencoded
 
-username=teste&options=opt1&options=opt2&options=opt3
+username=teste&options=opt1

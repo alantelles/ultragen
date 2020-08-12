@@ -1,10 +1,7 @@
-include @Strings
-
-# url = 'https://jsonplaceholder.typicode.com/posts'
 url = 'https://reqres.in/api/users'
 # headers = {'Content-type': 'application/json'}
 # payload = '{"name": "Baholeros", "work": "mumbers", "number": 890}'
 payload = "name=Baholeros&work=numbers&number=99902"
 headers = {'Content-type': 'application/x-www-form-urlencoded'}
 a = Request.post(url, payload, headers)
-print(a.response())
+print(a.content_type)

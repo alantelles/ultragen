@@ -1,5 +1,5 @@
 function reverse() : TStringInstance
-    len = self.length()
+    len = self.length
     res = ''
     for (len, i)
         x = len - i - 1

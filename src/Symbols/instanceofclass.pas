@@ -5,11 +5,13 @@ unit InstanceOfClass;
 interface
 
 uses
-  Classes, SysUtils, SymbolsClass, SymbolTableClass, ASTClass, ExceptionsClasses,Variants;
+  Classes, SysUtils, SymbolsClass, SymbolTableClass, ASTClass, ExceptionsClasses,Variants, Contnrs;
 
 type
   TInstanceOf = class
     protected
+
+      FMembers: TFPHashObjectList;
       FSymbol: TSymbol;
       FIntValue: integer;
       FStrValue: string;
@@ -20,6 +22,7 @@ type
 
     public
       //property PPtrVal: PtrInst read FPtrVal write FPtrVal;
+      property PMembers: TFPHashObjectList read FMembers write FMembers;
       property PCoreType: boolean read FCoreType write FCoreType;
       property PSymbol: TSymbol read FSymbol;
       property PIntValue: integer read FIntValue write FIntValue;
@@ -122,7 +125,8 @@ uses
 
 constructor TInstanceOf.Create;
 begin
-  FCoreType := True;
+  // FCoreType := True;
+  FMembers := TFPHashObjectList.Create(False);
 end;
 
 procedure TInstanceOf.CopyInstance(var AReceiver: TInstanceOf);

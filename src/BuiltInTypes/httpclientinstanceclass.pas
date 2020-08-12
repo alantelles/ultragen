@@ -5,31 +5,48 @@ unit HttpClientInstanceClass;
 interface
 
 uses
-  Classes, SysUtils, fphttpclient, openssl, httpprotocol, InstanceOfClass, ARCLass;
+  Classes, SysUtils, fphttpclient, openssl, httpprotocol, InstanceOfClass, ARCLass, contnrs;
 
 type THttpClientInstance = class (TInstanceOf)
   private
     FValue: TFPHttpClient;
-    FResponse: string;
-
-    FUrl: string;
   public
-    property PUrl: string read FUrl;
     property PValue: TFPHttpClient read FValue;
-    property PResponse: string read FResponse;
+
     constructor Create(AClient: TFPHttpClient; AUrl, AResponse: string);
     class function RequestGet(AUrl: string; AHeaders: TDictionaryInstance=nil): THttpClientInstance;
     class function RequestPost(AUrl: string; APayload: TInstanceOf; AHeaders: TDictionaryInstance=nil): THttpClientInstance;
   end;
 
 implementation
-uses CoreUtils;
+uses CoreUtils, StringInstanceCLass;
 
 constructor THttpClientInstance.Create(AClient: TFPHttpClient; AUrl, AResponse: string);
+var
+  AHeaders: TDictionaryInstance;
+  i : integer;
+  head, val: string;
 begin
-  FUrl := AUrl;
   FValue := AClient;
-  FResponse := AResponse;
+  inherited Create;
+  AHeaders := TDictionaryInstance.Create(TActivationRecord.Create('headers', AR_DICT, 1));
+  if AClient.ResponseHeaders.Count > 0  then
+  begin
+    for i:=0 to AClient.ResponseHeaders.Count-1 do
+    begin
+      head := Copy(AClient.ResponseHeaders[i], 1, Pos(':', AClient.ResponseHeaders[i])-1);
+      val := Copy(AClient.ResponseHeaders[i], Pos(':', AClient.ResponseHeaders[i])+2, Length(AClient.ResponseHeaders[i]));
+      if lowercase(head) = 'content-type' then
+        FMembers.Add('content_type', TStringInstance.Create(Copy(val, 1, pos(';', val)-1)));
+      AHeaders.PValue.AddMember(head, TStringInstance.Create(val));
+		end;
+	end;
+	//len := AHeaders.PValue.AddMember(Ahead);
+  FMembers.Add('status_text', TStringInstance.Create(AClient.ResponseStatusText));
+  FMembers.Add('status', TIntegerInstance.Create(AClient.ResponseStatusCode));
+  FMembers.Add('headers', AHeaders);
+  FMembers.Add('response', TStringInstance.Create(AResponse));
+  FMembers.Add('url', TStringInstance.Create(AUrl));
 end;
 
 class function THttpClientInstance.RequestGet(AUrl: string; AHeaders: TDictionaryInstance=nil): THttpClientInstance;
@@ -59,7 +76,7 @@ begin
     except
       On E:Exception do
       begin
-        WriteLn(E.Message);
+        Return := E.Message;
       end;
     end;
   finally
@@ -98,12 +115,11 @@ begin
     except
       On E:Exception do
       begin
-        WriteLn(E.Message);
+        Return := E.Message;
       end;
     end;
   finally
     SS.Free;
-    Requirer.Free;
   end;
   Result := THttpClientInstance.Create(Requirer, AUrl, Return);
 end;

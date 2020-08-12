@@ -15,7 +15,7 @@ function VisitDict(ANode: TDictNode): TDictionaryInstance;
 // references
 procedure VisitVarAssign(ANode: TVarAssign);
 procedure VisitListAssign(ANode: TListAssign);
-function VisitVariableReference(ANode: TVariableReference):TInstanceOf;
+function VisitVariableReference(ANode: TVariableReference; ASrc: TInstanceOf{ = nil}):TInstanceOf;
 function VisitFunctionCall(ANode: TFunctionCall; ASrcInstance: TInstanceOf = nil):TInstanceOf;
 function VisitMethodCall(ANode: TMethodCall):TInstanceOf;
 function VisitListAccess(ANode: TListAccessAST): TInstanceOf;

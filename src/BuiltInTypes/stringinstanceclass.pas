@@ -31,9 +31,11 @@ uses
 
 constructor TStringInstance.Create(AValue: string);
 begin
+  inherited Create;
   FValue := AValue;
   FStrValue := AValue;
   FCoreType := True;
+  FMembers.Add('length', TIntegerInstance.Create(Length(AValue)));
 end;
 
 function TStringInstance.AsString:string;

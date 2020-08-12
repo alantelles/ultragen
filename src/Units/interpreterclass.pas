@@ -110,8 +110,6 @@ begin
 
   AActRec.AddMember(AHttpClientType.PType+ST_ACCESS+'get', AHttpClientType);
   AActRec.AddMember(AHttpClientType.PType+ST_ACCESS+'post', AHttpClientType);
-  AActRec.AddMember(AHttpClientType.PType+ST_ACCESS+'url', AHttpClientType);
-  AActRec.AddMember(AHttpClientType.PType+ST_ACCESS+'response', AHttpClientType);
   {$INCLUDE 'builtin_functions/register_builtins.pp' }
 end;
 
@@ -597,26 +595,37 @@ begin
 
 end;
 
-function TInterpreter.VisitVariableReference(ANode: TVariableReference): TInstanceOf;
+function TInterpreter.VisitVariableReference(ANode: TVariableReference; ASrc: TInstanceOf{ = nil}): TInstanceOf;
 var
   AName: string;
   AActRec, GlobalAR: TActivationRecord;
   Ret: TInstanceOf;
 begin
   AName := Anode.PToken.PValue;
-  AActRec := FCallStack.Peek();
-  Ret := AActRec.GetMember(AName);
-  if Ret = nil then
+  if ASrc = nil then
   begin
-    GlobalAR := FCallStack.GetFirst;
-    Ret := GlobalAR.GetMember(AName);
-  end;
-  if Ret = nil then
+
+		    AActRec := FCallStack.Peek();
+		    Ret := AActRec.GetMember(AName);
+		    if Ret = nil then
+		    begin
+		      GlobalAR := FCallStack.GetFirst;
+		      Ret := GlobalAR.GetMember(AName);
+		    end;
+		    if Ret = nil then
+		    begin
+		      ERunTimeError.Create('Referenced variable "' + Aname + '" does not exist',
+		        FTrace, ANode.PToken);
+		    end;
+	end
+  else
   begin
-    ERunTimeError.Create('Referenced variable "' + Aname + '" does not exist',
-      FTrace, ANode.PToken);
-  end;
-  LogText(INTER, 'Interpreter', 'Getting value of "' + ANode.PToken.PValue +
+    Ret := TInstanceOf(ASrc.PMembers.Find(Aname));
+    if Ret = nil then
+      ERunTimeError.Create('Referenced attribute "'+AName+'" does not exist', FTrace, ANode.PToken);
+
+	end;
+	LogText(INTER, 'Interpreter', 'Getting value of "' + ANode.PToken.PValue +
     '" from type ' + Ret.ClassName);
   Result := Ret;
 end;
@@ -672,8 +681,6 @@ begin
       AActRec.AddMember('__LIVE__', TStringInstance.Create(''));
       if ASrcInstance <> nil then
         AActRec.AddMember('self', ASrcInstance);
-      //ASrcInstance.CopyInstance(Zika);
-      //AActRec.AddMember('self', Zika);
       LenArgs := Length(Anode.PEvalParams);
       LenParams := Length(FuncDef.PParams);
       Len := Max(LenArgs, LenParams);
@@ -747,7 +754,7 @@ begin
       begin
         for i := 0 to len2 - 1 do
         begin
-          ADef := Visit(ANode.PEvalParams[i], ASrcInstance);
+          ADef := Visit(ANode.PEvalParams[i]);
           ADef.CopyInstance(ArgsList[i]);
         end;
       end;

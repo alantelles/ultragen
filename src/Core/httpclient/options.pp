@@ -25,9 +25,5 @@ begin
         )
     else
       FInter.RaiseException(E_INVALID_ARGS, 'Arguments');
-  end
-  else if FName = 'response' then
-    Ret := TStringInstance.Create(THttpClientInstance(FObj).PResponse)
-  else if FName = 'url' then
-    Ret := TStringInstance.Create(THttpClientInstance(FObj).PUrl);
+  end;
 end
