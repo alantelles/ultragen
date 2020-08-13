@@ -20,6 +20,15 @@ function insert(obj, pos) : TListInstance
     end
 end
 
+function pos(e) : TListInstance
+    for (self, i)
+        if (i == e)
+            return _i
+        end
+    end
+    return -1
+end
+
 function combine(other) : TListInstance
     for (other, i)
         self.append(i)
@@ -64,4 +73,26 @@ function slice (sp, ep=null) : TListInstance
         output.append(self[i])
     end
     return output
+end
+
+function toJson() : TListInstance    
+    include @Core.JsonHelpers
+    function dumpList(data)
+        ret = '['
+        x = []
+        for (data, d)
+            x.append(dumpObj(d))
+        end
+        ret += ','.join(x)
+        ret += ']'
+        return ret
+    end
+
+    input_type = typeof(self)
+    if (input_type == 'TListInstance')
+        out = dumpList(self)
+    else
+        return 'Invalid type for conversion'
+    end
+    return out
 end

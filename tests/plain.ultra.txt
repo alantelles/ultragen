@@ -1,6 +1,0 @@
-@a = [0, 1, 2, 'teste']
-@for (a, i)
-teste de texto plano {{ i }} 
-@end
-@m = input()
-{{ m }} 

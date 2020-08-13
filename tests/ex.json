@@ -7,5 +7,9 @@
                 {"bloat": "zisp"}
             ]
         }
-    }
+    },
+    {"item": null},
+    {"item": 95},
+    {"item": 85.25},
+    {"item": true},
 ]

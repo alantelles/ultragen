@@ -6,3 +6,14 @@ function asAttrs() : TDictionaryInstance
     end
     return ' '.join(l)
 end
+
+function toJson() : TDictionaryInstance
+    include @Core.JsonHelpers
+    input_type = typeof(self)
+    if (input_type == 'TDictionaryInstance')
+        out = dumpObj(self)
+    else
+        return 'Invalid type for conversion'
+    end
+    return out
+end

@@ -654,6 +654,8 @@ var
   AReturn, AIter, Zika: TInstanceOf;
   LenArgs, LenParams: integer;
   ArgsList: TInstanceList;
+
+  searchStart: integer;
 begin
   AFuncName := ANode.PFuncName;
   ASrcName := AFuncName;
@@ -665,13 +667,20 @@ begin
       ASrcName := ASrcInstance.ClassName + ST_ACCESS + AFuncName;
   end;
   LogText(INTER, 'Interpreter', 'Visiting function ' + ANode.PFuncName);
-  AActRec := FCallStack.Peek();
-  FuncDef := AActRec.GetFunction(ASrcName, ASrcInstance);
+  SearchStart := FCallStack.Peek().PNestingLevel;
+  for i:=SearchStart downto 1 do
+  begin
+    AActRec := FCallStack.GetByLevel(i);
+    FuncDef := AActRec.GetFunction(ASrcName, ASrcInstance);
+    if FuncDef <> nil then
+      break;
+	end;
+	{FuncDef := AActRec.GetFunction(ASrcName, ASrcInstance);
   if FuncDef = nil then
   begin
     AActRec := FCallStack.GetFirst();
     FuncDef := AActRec.GetFunction(ASrcName, ASrcInstance);
-  end;
+  end;}
   if FuncDef <> nil then
   begin
     if not FuncDef.PIsBuiltin then

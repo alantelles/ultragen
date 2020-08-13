@@ -1,0 +1,37 @@
+function dumpObj(data)
+    ret = '{'
+    x = []
+    for (data.keys(), d)
+        x.append('"' + d + '": ' + dumpVal(data[d]))
+    end
+    ret += ','.join(x)
+    ret += '}'
+    return ret
+end
+
+function dumpValList(data)
+    ret = '['
+    x = []
+    for (data, d)
+        x.append(dumpVal(d))
+    end
+    ret += ','.join(x)
+    ret += ']'
+    return ret
+end
+
+function dumpVal(data)
+    input_type = typeof(data)
+    tri = ['TIntegerInstance', 'TBooleanInstance', 'TFloatInstance']
+    if ((tri.pos(input_type)) > -1)
+        return str(data).lower()
+    elsif (input_type == 'TStringInstance')
+        return '"' + data + '"'
+    elsif (input_type == 'TDictionaryInstance')
+        return dumpObj(data)
+    elsif (input_type == 'TListInstance')
+        return dumpValList(data)
+    else
+        return 'null'
+    end
+end

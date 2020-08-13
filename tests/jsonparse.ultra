@@ -1,5 +1,5 @@
-data = Request.get('https://jsonplaceholder.typicode.com/comments?postId=1')
-j = parseJson(data.response)
-for (j, i)
-    print('name: ', i['name'])
-end
+include @Core
+# data = parseJson(''.join(FileSystem.loadText('ex.json')))
+ceu = {'singer': 'Céu', "faixa": 3, "premium": true, "parts": false, 'evals': null}
+data = [ceu, {'singer': 'Seu jorge', "faixa": 15, "premium": false, "parts": false, 'evals': null}]
+print(ceu.toJson())

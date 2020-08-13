@@ -1,0 +1,3 @@
+function getJson() : THttpClientInstance
+    return parseJson(self.response)
+end
