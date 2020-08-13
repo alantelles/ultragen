@@ -7,7 +7,7 @@ interface
 uses
       Classes, SysUtils, Strutils,
       InterpreterClass, InstanceOfClass, StringInstanceClass,
-      ListInstanceClass, ServerClass, ARClass, HttpClientInstanceClass;
+      ListInstanceClass, ServerClass, ARClass, HttpClientInstanceClass, JsonTools;
 
 type
   TParamList = array of string;
@@ -18,6 +18,11 @@ type
       FParams: TinstanceList;
       FObj: TInstanceOf;
       FInter: TInterpreter;
+      procedure TraverseJsonObj(ANode: TJsonNode; var AHostDict: TDictionaryInstance);
+      procedure TraverseJsonList(ANode: TJsonNode; var AHostList: TListInstance);
+      procedure JsonValAssign(ANode: TJsonNode; var AInst: TDictionaryInstance);
+      procedure JsonValAssign(ANode: TJsonNode; var AInst: TListInstance);
+
     public
       function Execute(AInter: TInterpreter; Fname:string; var AArgList:TInstanceList;var  AObj: TInstanceOf):TInstanceOf;
 
@@ -26,6 +31,7 @@ type
       // procs
       function Print:TInstanceOf;
       function InlinePrint:TInstanceOf;
+
       // functions
 
       function GetTypeOf:TStringInstance;
@@ -33,6 +39,7 @@ type
       function CastToInt:TIntegerInstance;
       function Range: TListInstance;
       procedure DumpLive;
+      function ParseJson: TInstanceOf;
 
        //functions
 
@@ -109,6 +116,8 @@ begin
       Ret := CastToStr
     else if FName = 'int' then
       Ret := CastToInt
+    else if FName = 'parseJson' then
+      Ret := ParseJson
     else
       raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.', '', 1, 1);
   // procs
@@ -209,6 +218,188 @@ begin
 end;
 
 
+{procedure TCoreFunction.Traverse(ANode: TJsonNode; var AHostDict: TDictionaryInstance);
+var
+  i: TJsonNode;
+  ANewDict: TDictionaryInstance;
+  AnewList: TListInstance;
+begin
+  for i in ANode do
+  begin
+	  if i.Kind = nkObject then
+	  begin
+		  ANewDict := TDictionaryInstance.Create(TActivationRecord.Create('json', AR_DICT, 1));
+      ANewList := TListInstance.Create();
+		  AHostDict.PValue.AddMember(i.Name, ANewDict);
+      Traverse(i, ANewDict, ANewList, i.Kind)
+		end
+		else if i.kind = nkArray then
+		begin
+		  ANewList := TListInstance.Create();
+		  AHostDict.PValue.AddMember(i.Name, ANewList);
+      Traverse(i, ANewList);
+		end
+		else
+    begin
+      {
+        else
+          AHostList.Add(TStringInstance.Create(i.AsString));                    }
+		      if RootType = nkObject then
+		      begin
+		          if i.Kind = nkString then
+		          begin
+		            AHostDict.PValue.AddMember(i.Name, TStringInstance.Create(i.AsString))
+			  		  end
+				  	  else if i.Kind = nkBool then
+		            AHostDict.PValue.AddMember(i.Name, TBooleanInstance.Create(i.AsBoolean))
+		          else if i.Kind = nkNumber then
+		          begin
+		            if Pos('.', i.Value) > 0 then
+		              AHostDict.PValue.AddMember(i.Name, TFloatInstance.Create(i.AsNumber))
+		            else
+		              AHostDict.PValue.AddMember(i.Name, TIntegerInstance.Create(Floor(i.AsNumber)));
+				  	  end
+		          else if i.Kind = nkNull then
+		            AHostDict.PValue.AddMember(i.Name, TNullInstance.Create());
+				  end
+		      else
+		      begin
+		          if i.Kind = nkString then
+		          begin
+		            AhostList.add( TStringInstance.Create(i.AsString))
+			  		  end
+				  	  else if i.Kind = nkBool then
+		            AhostList.add( TBooleanInstance.Create(i.AsBoolean))
+		          else if i.Kind = nkNumber then
+		          begin
+		            if Pos('.', i.Value) > 0 then
+		              AhostList.add( TFloatInstance.Create(i.AsNumber))
+		            else
+		              AhostList.add( TIntegerInstance.Create(Floor(i.AsNumber)));
+				  	  end
+		          else if i.Kind = nkNull then
+		            AhostList.add( TNullInstance.Create());
+					end;
+
+		end;
+	end;
+end;       }
+
+procedure TCorefunction.TraverseJsonList(ANode: TJsonNode; var AHostList: TListInstance);
+var
+  i: TJsonNode;
+  ANewDict: TDictionaryInstance;
+  Anewlist: TListInstance;
+begin
+  for i in ANode do
+  begin
+    if i.Kind = nkArray then
+    begin
+      Anewlist := TListInstance.Create;
+      AHostList.Add(AnewList);
+      TraverseJsonList(i, ANewList)
+		end
+		else if i.Kind = nkObject then
+    begin
+      ANewDict := TDictionaryInstance.Create(TActivationRecord.Create('json', AR_DICT, 1));
+      AHostList.Add(AnewDict);
+      TraverseJsonObj(i, ANewDict);
+    end
+    else
+      JsonValAssign(i, AHostList);
+	end;
+end;
+
+procedure TCorefunction.TraverseJsonObj(ANode: TJsonNode; var AHostDict: TDictionaryInstance);
+var
+  i: TJsonNode;
+  ANewDict: TDictionaryInstance;
+  ANewList: TListInstance;
+begin
+  for i in ANode do
+  begin
+    if i.Kind = nkArray then
+    begin
+      Anewlist := TListInstance.Create;
+      AHostDict.PValue.AddMember(i.Name, ANewList);
+      TraverseJsonList(i, ANewList)
+		end
+		else if i.Kind = nkObject then
+    begin
+      ANewDict := TDictionaryInstance.Create(TActivationRecord.Create('json', AR_DICT, 1));
+      AHostDict.PValue.AddMember(i.Name, AnewDict);
+      TraverseJsonObj(i, ANewDict);
+    end
+    else
+      JsonValAssign(i, AHostDict);
+	end;
+end;
+
+procedure TCoreFunction.JsonValAssign(ANode: TJsonNode; var AInst: TListInstance);
+begin
+  if ANode.Kind = nkString then
+    AInst.add(TStringInstance.Create(ANode.AsString))
+  else if ANode.Kind = nkBool then
+    AInst.add( TBooleanInstance.Create(ANode.AsBoolean))
+  else if ANode.Kind = nkNumber then
+  begin
+    if Pos('.', ANode.Value) > 0 then
+      AInst.add(TFloatInstance.Create(ANode.AsNumber))
+    else
+      AInst.add(TIntegerInstance.Create(Floor(ANode.AsNumber)));
+  end
+  else if ANode.Kind = nkNull then
+    AInst.add(TNullInstance.Create());
+end;
+
+procedure TCoreFunction.JsonValAssign(ANode: TJsonNode; var AInst: TDictionaryInstance);
+begin
+  if ANode.Kind = nkString then
+  begin
+    AInst.PValue.AddMember(ANode.Name, TStringInstance.Create(ANode.AsString))
+	end
+  else if ANode.Kind = nkBool then
+    AInst.PValue.AddMember(ANode.Name, TBooleanInstance.Create(ANode.AsBoolean))
+  else if ANode.Kind = nkNumber then
+  begin
+    if Pos('.', ANode.Value) > 0 then
+      AInst.PValue.AddMember(ANode.Name, TFloatInstance.Create(ANode.AsNumber))
+    else
+      AInst.PValue.AddMember(ANode.Name, TIntegerInstance.Create(Floor(ANode.AsNumber)));
+  end
+  else if ANode.Kind = nkNull then
+    AInst.PValue.AddMember(ANode.Name, TNullInstance.Create());
+end;
+
+function TCoreFunction.ParseJson: TInstanceOf;
+var
+  AJson: TJsonNode;
+  ADict: TDictionaryInstance;
+  AList: TListInstance;
+begin
+
+
+  AJson := TJsonNode.Create;
+  try
+    AJson.Parse(TStringInstance(FParams[0]).PValue);
+
+	except on E: Exception do
+    FInter.RaiseException(E.Message, Copy(e.ClassName, 2, Length(E.ClassName)));
+	end;
+	//Traverse(AJson, ADict, AList, AJson.Kind);
+  if AJson.Kind = nkArray then
+  begin
+    AList := TListInstance.Create();
+    TraverseJsonList(AJson, AList);
+    Result := AList;
+	end
+	else
+  begin
+    ADict := TDictionaryInstance.Create(TActivationRecord.Create('json', AR_DICT, 1));
+    TraverseJsonObj(AJson, ADict);
+    Result := ADict;
+	end;
+end;
 
 function TCoreFunction.Print:TInstanceOf;
 var

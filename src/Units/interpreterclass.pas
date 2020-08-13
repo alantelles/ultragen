@@ -100,6 +100,7 @@ begin
   AHttpClientType := TFunctionInstance.Create('BuiltIn', nil, nil, 'THttpClientInstance', True);
   AActRec := FCallStack.GetFirst();
 
+  AActRec.AddMember('parseJson', ACoreType);
   // BuiltInTypesRegister
   AActRec.AddMember('OS', TBuiltInType.Create('TOSInstance'));
   AActRec.AddMember('FileSystem', TBuiltInType.Create('TFileSystemInstance'));
@@ -107,7 +108,6 @@ begin
   AActRec.AddMember('Server', TBuiltInType.Create('TServerInstance'));
   AActRec.AddMember('String', TBuiltInType.Create('TStringInstance'));
   AActRec.AddMember('Request', TBuiltInType.Create('THttpClientInstance'));
-
   AActRec.AddMember(AHttpClientType.PType+ST_ACCESS+'get', AHttpClientType);
   AActRec.AddMember(AHttpClientType.PType+ST_ACCESS+'post', AHttpClientType);
   {$INCLUDE 'builtin_functions/register_builtins.pp' }

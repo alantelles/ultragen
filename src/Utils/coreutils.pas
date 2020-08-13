@@ -8,11 +8,12 @@ uses
       Classes, SysUtils;
 
 function BooleanToStr(AVal: boolean):string;
+function StrToBoolean(AVal: string):boolean;
 function DecodeUnicodeEscapes(EscapedString: String): String;
 
 
 implementation
-uses StrUtils;
+uses StrUtils, JsonTools;
 
 function BooleanToStr(AVal: boolean):string;
 begin
@@ -20,6 +21,15 @@ begin
     Result := 'true'
   else
     Result := 'false';
+end;
+
+function StrToBoolean(AVal: string):boolean;
+begin
+  writeln('a ... val', Aval);
+  if AVal = 'false' then
+    Result := False
+  else
+    Result := True;
 end;
 
 function DecodeUnicodeEscapes(EscapedString: String): String;
@@ -38,6 +48,23 @@ begin
                              UTF8Encode(DecodedChars));
     FoundPos := Pos('\u', Result);
   end;
+end;
+
+procedure Traverse(ANode: TJsonNode);
+var
+  i: TJsonNode;
+begin
+  writeln('kind: ',Anode.Kind);
+  for i in ANode do
+  begin
+    if I.Count > 0 then
+      Traverse(i)
+    else
+    begin
+      writeln('kind: ',i.Kind);
+      writeln('"',i.Name, '":' ,i.Value, ',');
+		end;
+	end;
 end;
 
 end.
