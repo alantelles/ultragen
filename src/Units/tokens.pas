@@ -114,7 +114,7 @@ begin
   KW.Add('return=' +  T_RETURN);
   KW.Add('include=' +  T_INCLUDE);
   KW.Add('new=' +  T_NEW_OBJECT);
-  KW.Add('class=' + T_CLASS_DEF);
+  // KW.Add('class=' + T_CLASS_DEF);
 
   Inners := TStringList.Create;
   Inners.Add('LIVE=' + T_LIVE_PRINT);

@@ -1,8 +1,0 @@
-class Zika
-function foo() : Zika
-    print('foo')
-end
-
-a = new Zika()
-print(a)
-print(typeof(a))
