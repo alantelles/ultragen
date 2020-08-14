@@ -62,7 +62,7 @@ type
     function DictKey: TAST;
     function ListAssign(ASrc, AKey: TAST; var CToken: TToken): TAST;
     function ImportModule: TAST;
-
+    function ClassDefinition: TAST;
   end;
 
 implementation
@@ -107,6 +107,22 @@ begin
     Eat(T_RPAREN);
   end;
   Result := TNewObject.Create(ConstArgs, AName, AToken);
+end;
+
+function TTParser.ClassDefinition: TAST;
+var
+  AToken: TToken;
+begin
+  Eat(T_CLASS_DEF);
+  AToken := TToken.Create(
+    FCurrentToken.PType,
+    FCurrentToken.PValue,
+    FCurrentToken.PLineNo,
+    FCurrentToken.PCharNo,
+    FCurrentToken.PScriptName
+  );
+  Eat(T_ID);
+  Result := TClassDefinition.Create(AToken);
 end;
 
 function TTParser.IncludeScript: TAST;
@@ -945,12 +961,16 @@ begin
     Logtext('PARSER', 'Parser', 'Creating include node');
     Ret := IncludeScript();
   end
-	else if (AToken.PType = T_DICT_ASSIGN) then
+	{else if (AToken.PType = T_DICT_ASSIGN) then
   begin
     Logtext('PARSER', 'Parser', 'Creating namespace');
     Ret := NamespaceState();
-  end
-  else if (AToken.PType = T_PLAIN_TEXT) then
+  end}
+  else if (AToken.PType = T_CLASS_DEF) then
+  begin
+    ret := ClassDefinition();
+	end
+	else if (AToken.PType = T_PLAIN_TEXT) then
   begin
     LogText('PARSER', 'Parser', 'Creating plaintext node');
     Ret := PlainTextEmbed();

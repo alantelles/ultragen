@@ -139,6 +139,7 @@ begin
   Result := '';
 end;
 
+
 function TInterpreter.GetLive: string;
 var
   AActRec: TActivationRecord;
@@ -304,8 +305,8 @@ begin
 	end;
 	AValue := TFunctionInstance.Create(t, ANode.PParamList,
     ANode.PBlock, t2, False);
-  AActrec.AddMember(T, AValue);
-  Result := TInstanceOf.Create;
+  AActRec.AddMember(t, AValue);
+	Result := TInstanceOf.Create;
 end;
 
 function TInterpreter.VisitNewObject(ANode: TNewObject): TInstanceOf;
@@ -313,7 +314,7 @@ var
   Ret: TInstanceOf;
   NowAct, NewAct: TActivationRecord;
   ActInst: TDictionaryInstance;
-  Gene: TInstanceOf;
+  Gene, ConstRet: TInstanceOf;
   ABuilt: TBuiltInType;
   ArgsList: TInstanceList;
   len, i: integer;
@@ -343,8 +344,12 @@ begin
       if ABuilt.PValue = 'TServerInstance' then
       begin
         Ret := TServerInstance.Create(TIntegerInstance(ArgsList[0]).PValue);
-      end;
-      Result := Ret;
+      end
+      else
+      begin
+        Ret := TClassInstance.Create(ABuilt.PValue);
+			end;
+			Result := Ret;
     end;
   end
   else
@@ -617,20 +622,21 @@ end;
 function TInterpreter.VisitVariableReference(ANode: TVariableReference; ASrc: TInstanceOf{ = nil}): TInstanceOf;
 var
   AName: string;
-  AActRec, GlobalAR: TActivationRecord;
+  AActRec: TActivationRecord;
+  Start, i: integer;
   Ret: TInstanceOf;
 begin
   AName := Anode.PToken.PValue;
   if ASrc = nil then
   begin
-
-		    AActRec := FCallStack.Peek();
-		    Ret := AActRec.GetMember(AName);
-		    if Ret = nil then
-		    begin
-		      GlobalAR := FCallStack.GetFirst;
-		      Ret := GlobalAR.GetMember(AName);
-		    end;
+        Start := FCallStack.Peek().PNestingLevel;
+        for i:=Start downto 1 do
+        begin
+          AActRec := FCallStack.getBylevel(i);
+          Ret := AActRec.GetMember(AName);
+          if ret <> nil then
+            break
+				end;
 		    if Ret = nil then
 		    begin
 		      ERunTimeError.Create('Referenced variable "' + Aname + '" does not exist',
@@ -639,14 +645,17 @@ begin
 	end
   else
   begin
-    try
+    //try
       Ret := TInstanceOf(ASrc.PMembers.Find(Aname));
       if Ret = nil then
-        ERunTimeError.Create('Referenced attribute "'+AName+'" does not exist', FTrace, ANode.PToken);
+      begin
 
-		except
-      ERunTimeError.Create('This type ('+ASrc.ClassName+') doesn''t have attributes', Ftrace, ANode.PToken);
-		end;
+        ERunTimeError.Create('Referenced attribute "'+AName+'" does not exist', FTrace, ANode.PToken);
+      end;
+
+		//except
+      //ERunTimeError.Create('This type ('+ASrc.ClassName+') doesn''t have attributes', Ftrace, ANode.PToken);
+		//end;
 
 	end;
 	LogText(INTER, 'Interpreter', 'Getting value of "' + ANode.PToken.PValue +
@@ -687,6 +696,8 @@ begin
   begin
     if ASrcInstance.ClassNameIs('TBuiltInType') then
       ASrcName := TBuiltinType(ASrcInstance).PValue + ST_ACCESS + AFuncName
+    else if ASrcInstance.ClassNameIs('TClassInstance') then
+      ASrcName := TClassInstance(ASrcInstance).PValue + ST_ACCESS + AFuncName
     else
       ASrcName := ASrcInstance.ClassName + ST_ACCESS + AFuncName;
   end;
@@ -699,12 +710,6 @@ begin
     if FuncDef <> nil then
       break;
 	end;
-	{FuncDef := AActRec.GetFunction(ASrcName, ASrcInstance);
-  if FuncDef = nil then
-  begin
-    AActRec := FCallStack.GetFirst();
-    FuncDef := AActRec.GetFunction(ASrcName, ASrcInstance);
-  end;}
   if FuncDef <> nil then
   begin
     if not FuncDef.PIsBuiltin then
@@ -1004,6 +1009,14 @@ begin
   end;
   {$INCLUDE 'interpreter/node_switcher.pp'}
   Result := Ret;
+end;
+
+procedure TInterpreter.VisitClassDefinition(ANode: TClassDefinition);
+var
+  AActRec: TActivationRecord;
+begin
+  AActRec := FCallStack.Peek;
+  AActRec.AddMember(ANode.PToken.PValue, TBuiltInType.Create(ANode.PToken.PValue, ANode.PToken.PValue, True));
 end;
 
 function TInterpreter.VisitUnaryOpFloat(ANode: TUnaryOp): TFloatInstance;

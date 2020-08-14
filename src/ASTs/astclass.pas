@@ -93,6 +93,13 @@ type
     destructor Destroy; override;
   end;
 
+  TClassDefinition = class (TAST)
+    protected
+      FName: string;
+    public
+      constructor Create(AToken: TToken);
+	end;
+
   TIncludeScript = class(TAST)
   protected
     FFileName: TAST;
@@ -293,6 +300,11 @@ begin
       ', in ' + FToken.PScriptName
   else
     Result := ClassName + ' (no token available)';
+end;
+
+constructor TClassDefinition.Create(AToken: TToken);
+begin
+  FToken := AToken;
 end;
 
 destructor TProgram.Destroy;

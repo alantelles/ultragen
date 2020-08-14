@@ -68,6 +68,7 @@ const
   T_INCLUDE = 'T_INCLUDE';
   T_DICT_ASSIGN = 'T_DICT_ASSIGN';
   T_NEW_OBJECT = 'T_NEW_OBJECT';
+  T_CLASS_DEF = 'T_CLASS_DEF';
   T_MODULE_PATH = 'T_MODULE_PATH';
 
   ESCAPE_SYMBOL = '\';
@@ -113,6 +114,7 @@ begin
   KW.Add('return=' +  T_RETURN);
   KW.Add('include=' +  T_INCLUDE);
   KW.Add('new=' +  T_NEW_OBJECT);
+  KW.Add('class=' + T_CLASS_DEF);
 
   Inners := TStringList.Create;
   Inners.Add('LIVE=' + T_LIVE_PRINT);

@@ -61,16 +61,7 @@ type
       procedure CopyInstance(var AReceiver: TInstanceOf); override;
   end;
 
-  TBuiltInType = class(TInstanceOf)
-    protected
-      FValue: string;
-      FFrontName: string;
-    public
-      property PFrontName: string read FFrontName;
-      property PValue: string read FValue write FValue;
-      function AsString: string; override;
-      constructor Create(AName, AFront: string);
-  end;
+
 
 
   TParamList = array of string;
@@ -96,7 +87,20 @@ type
       //procedure AddBlock(ABlock: TASTList);
 	end;
 
-
+  TBuiltInType = class(TInstanceOf)
+    protected
+      FValue: string;
+      FFrontName: string;
+      FConst: TFunctionInstance;
+      FuserDef: boolean;
+    public
+      property PUserDef: boolean read FUserDef;
+      property PConst: TFunctionInstance read FConst write FConst;
+      property PFrontName: string read FFrontName;
+      property PValue: string read FValue write FValue;
+      function AsString: string; override;
+      constructor Create(AName, AFront: string; UserDefined: boolean=False);
+  end;
 
 
   TFloatInstance = class (TInstanceOf)
@@ -121,6 +125,16 @@ type
       procedure CopyInstance(var AReceiver: TInstanceOf); override;
   end;
 
+  TClassInstance = class (TInstanceOf)
+    protected
+      FValue: string;
+      FConst: TFunctionInstance;
+    public
+      property PValue: string read FValue;
+      constructor Create(AName: string);
+      function AsString: string;  override;
+	end;
+
 implementation
 uses
   Tokens, StringInstanceClass;
@@ -131,22 +145,34 @@ begin
   FMembers := TFPHashObjectList.Create(True);
 end;
 
+constructor TClassInstance.Create(AName: string);
+begin
+  inherited Create;
+  FValue := AName;
+end;
+
+function TClassInstance.AsString: string;
+begin
+  Result := '<Instance of class '+FValue+'>';
+end;
+
 procedure TInstanceOf.CopyInstance(var AReceiver: TInstanceOf);
 begin
   AReceiver := Self;
 end;
 
-constructor TBuiltInType.Create(AName: string; AFront: string);
+constructor TBuiltInType.Create(AName: string; AFront: string; UserDefined: boolean=False);
 begin
   inherited Create;
-  FMembers.Add('class', TStringInstance.Create(Aname));
+  Fuserdef:=UserDefined;
+  FMembers.Add('type', TStringInstance.Create(Aname));
   FValue := AName;
   FFrontName := AFront;
 end;
 
 function TBuiltInType.AsString: string;
 begin
-  Result := '<BuiltInType: '+FFrontName+', internal name: '+FValue+'>';
+  Result := '<DataType: '+FFrontName+', internal name: '+FValue+'>';
 end;
 
 function TInstanceOf.AsString: string;

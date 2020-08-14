@@ -367,7 +367,9 @@ var
 begin
   AStr := FParams[0].ClassName;
   if FParams[0].ClassNameIs('TBuiltInType') then
-    AStr := TBuiltInType(FParams[0]).AsString;
+    AStr := TBuiltInType(FParams[0]).AsString
+  else if FParams[0].ClassNameIs('TClassInstance') then
+    AStr := TClassInstance(FParams[0]).PValue;
   Result := TStringInstance.Create(AStr);
 end;
 

@@ -17,6 +17,9 @@
   else if ANode.ClassNameIs('TNamespaceGet') then
     Ret := VisitNamespaceGet(TNamespaceGet(Anode))
 
+  else if ANode.ClassNameIs('TClassDefinition') then
+    VisitClassDefinition(TClassDefinition(ANode))
+
   else if ANode.ClassNameIs('TDictNode') then
     Ret := VisitDict(TDictNode(ANode))
 
