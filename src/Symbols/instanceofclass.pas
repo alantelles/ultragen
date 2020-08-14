@@ -165,7 +165,7 @@ constructor TBuiltInType.Create(AName: string; AFront: string; UserDefined: bool
 begin
   inherited Create;
   Fuserdef:=UserDefined;
-  FMembers.Add('type', TStringInstance.Create(Aname));
+  FMembers.Add('class', TStringInstance.Create(Aname));
   FValue := AName;
   FFrontName := AFront;
 end;

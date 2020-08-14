@@ -1,3 +1,11 @@
 include @Core
-x = ''.join(FileSystem.loadText('ex.json'))
-print(responseRoute.class)
+function jsonPost(url, body, headers = {}) : Request
+    headers['Content-Type'] = 'application/json'
+    r = Request.post(url, body.toJson(), headers)
+    return r
+end
+
+url = 'https://us-central1-claquete-gcp-globo.cloudfunctions.net/retrieve_claps_from_firestore'
+body = {'option': 'list'}
+claps = Request.post(url, body.toJson(), {'Content-Type': 'application/json'})
+print(claps.response)
