@@ -111,7 +111,7 @@ begin
     begin
        AResponse.Code := 500;
        AResponse.CodeText := 'Internal server error';
-       AResponse.Content := '<pre style="font-size: 12pt">'+ReplaceStr(E.Message, '<', '&lt') +'</pre>';
+       AResponse.Content := '<h1>UltraGen ERROR!</h1><pre style="white-space: pre-wrap; font-size: 12pt">'+ReplaceStr(E.Message, '<', '&lt') +'</pre>';
        WriteLn('['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
         ARequest.Method + ': '+
         ARequest.URI+' -- '+ IntToStr(AResponse.Code)+
@@ -124,10 +124,6 @@ end;
 
 
 procedure TServerInstance.RunServer;
-{}
-  {var
-  ListenerSocket, ConnectionSocket: TTCPBlockSocket;}
-
 begin
   begin
     if FStopRoute <> '' then
@@ -142,27 +138,6 @@ begin
     Application.Run;
 
   end;
-  {ListenerSocket := TTCPBlockSocket.Create;
-  ConnectionSocket := TTCPBlockSocket.Create;
-
-  ListenerSocket.CreateSocket;
-  ListenerSocket.setLinger(true,10);
-  ListenerSocket.bind('0.0.0.0',IntToStr(FPort));
-  WriteLn('Listening connections at port ', FPort);
-  ListenerSocket.listen;
-
-  repeat
-    if ListenerSocket.canread(1000) then
-    begin
-      ConnectionSocket.Socket := ListenerSocket.accept;
-      WriteLn('Attending Connection. Error code (0=Success): ', ConnectionSocket.lasterror);
-      AttendConnection(ConnectionSocket);
-      ConnectionSocket.CloseSocket;
-    end;
-  until false;
-
-  ListenerSocket.Free;
-  ConnectionSocket.Free;}
 end;
 
 end.

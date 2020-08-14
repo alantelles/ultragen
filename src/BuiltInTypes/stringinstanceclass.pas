@@ -35,7 +35,6 @@ begin
   FValue := AValue;
   FStrValue := AValue;
   FCoreType := True;
-  FMembers.Add('length', TIntegerInstance.Create(Length(AValue)));
 end;
 
 function TStringInstance.AsString:string;

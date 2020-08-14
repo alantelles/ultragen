@@ -33,7 +33,7 @@ type
 
 
   public
-
+    property PCallStack: TStack read FCallStack write FCallStack;
     property PTree: TAST read FTree;
     property PLive: string read FLiveOutput;
     procedure RaiseException(AMsg: string; AType: string);
@@ -93,21 +93,27 @@ begin
   AListType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TListInstance', True);
   AFuncType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFunctionInstance', True);
   ABoolType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBooleanInstance', True);
+  ADictType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TDictionaryInstance', True);
   AOSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TOSInstance', True);
   AFSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFileSystemInstance', True);
-  ADictType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TDictionaryInstance', True);
   AServerType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TServerInstance', True);
   AHttpClientType := TFunctionInstance.Create('BuiltIn', nil, nil, 'THttpClientInstance', True);
   AActRec := FCallStack.GetFirst();
 
   AActRec.AddMember('parseJson', ACoreType);
-  // BuiltInTypesRegister
-  AActRec.AddMember('OS', TBuiltInType.Create('TOSInstance'));
-  AActRec.AddMember('FileSystem', TBuiltInType.Create('TFileSystemInstance'));
-  AActrec.AddMember('Dict', TBuiltInType.Create('TDictionaryInstance'));
-  AActRec.AddMember('Server', TBuiltInType.Create('TServerInstance'));
-  AActRec.AddMember('String', TBuiltInType.Create('TStringInstance'));
-  AActRec.AddMember('Request', TBuiltInType.Create('THttpClientInstance'));
+  // BuiltInTypesRegister                                                       
+  AActRec.AddMember('String', TBuiltInType.Create('TStringInstance', 'String'));
+  AActRec.AddMember('Integer', TBuiltInType.Create('TIntegerInstance', 'Integer'));
+  AActRec.AddMember('Float', TBuiltInType.Create('TFloatInstance', 'Float'));
+  AActRec.AddMember('Boolean', TBuiltInType.Create('TBooleanInstance', 'Boolean'));
+  AActRec.AddMember('Null', TBuiltInType.Create('TNullInstance', 'Null'));
+  AActrec.AddMember('Dict', TBuiltInType.Create('TDictionaryInstance', 'Dict'));
+  AActrec.AddMember('List', TBuiltInType.Create('TListInstance', 'List'));
+
+  AActRec.AddMember('OS', TBuiltInType.Create('TOSInstance', 'OS'));
+  AActRec.AddMember('FileSystem', TBuiltInType.Create('TFileSystemInstance', 'FileSystem'));
+  AActRec.AddMember('Server', TBuiltInType.Create('TServerInstance', 'Server'));
+  AActRec.AddMember('Request', TBuiltInType.Create('THttpClientInstance', 'Request'));
   AActRec.AddMember(AHttpClientType.PType+ST_ACCESS+'get', AHttpClientType);
   AActRec.AddMember(AHttpClientType.PType+ST_ACCESS+'post', AHttpClientType);
   {$INCLUDE 'builtin_functions/register_builtins.pp' }
@@ -280,12 +286,25 @@ var
   AValue: TFunctionInstance;
   AActRec: TActivationRecord;
   ABlock: TAST;
+  RealType: TBuiltInType;
+  t, t2: string;
 begin
   logtext('INTER', 'Interpreter', 'Visiting function definition');
   AActRec := FCallStack.Peek;
-  AValue := TFunctionInstance.Create(ANode.PName, ANode.PParamList,
-    ANode.PBlock, ANode.ptype, False);
-  AActrec.AddMember(ANode.PName, AValue);
+  RealType := TBuiltInType(AActRec.GetMember(ANode.PType));
+  if RealType <> nil then
+  begin
+    t := ReplaceStr(ANode.PName, ANode.PType + ':', RealType.PValue + ':');
+    t2 := RealType.PValue;
+	end
+	else
+  begin
+    t := ANode.PName;
+    t2 := ANode.PType
+	end;
+	AValue := TFunctionInstance.Create(t, ANode.PParamList,
+    ANode.PBlock, t2, False);
+  AActrec.AddMember(T, AValue);
   Result := TInstanceOf.Create;
 end;
 
@@ -620,9 +639,14 @@ begin
 	end
   else
   begin
-    Ret := TInstanceOf(ASrc.PMembers.Find(Aname));
-    if Ret = nil then
-      ERunTimeError.Create('Referenced attribute "'+AName+'" does not exist', FTrace, ANode.PToken);
+    try
+      Ret := TInstanceOf(ASrc.PMembers.Find(Aname));
+      if Ret = nil then
+        ERunTimeError.Create('Referenced attribute "'+AName+'" does not exist', FTrace, ANode.PToken);
+
+		except
+      ERunTimeError.Create('This type ('+ASrc.ClassName+') doesn''t have attributes', Ftrace, ANode.PToken);
+		end;
 
 	end;
 	LogText(INTER, 'Interpreter', 'Getting value of "' + ANode.PToken.PValue +

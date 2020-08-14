@@ -64,10 +64,12 @@ type
   TBuiltInType = class(TInstanceOf)
     protected
       FValue: string;
+      FFrontName: string;
     public
+      property PFrontName: string read FFrontName;
       property PValue: string read FValue write FValue;
       function AsString: string; override;
-      constructor Create(ANAme: string);
+      constructor Create(AName, AFront: string);
   end;
 
 
@@ -121,12 +123,12 @@ type
 
 implementation
 uses
-  Tokens;
+  Tokens, StringInstanceClass;
 
 constructor TInstanceOf.Create;
 begin
   // FCoreType := True;
-  FMembers := TFPHashObjectList.Create(False);
+  FMembers := TFPHashObjectList.Create(True);
 end;
 
 procedure TInstanceOf.CopyInstance(var AReceiver: TInstanceOf);
@@ -134,14 +136,17 @@ begin
   AReceiver := Self;
 end;
 
-constructor TBuiltInType.Create(AName: string);
+constructor TBuiltInType.Create(AName: string; AFront: string);
 begin
+  inherited Create;
+  FMembers.Add('class', TStringInstance.Create(Aname));
   FValue := AName;
+  FFrontName := AFront;
 end;
 
 function TBuiltInType.AsString: string;
 begin
-  Result := FValue;
+  Result := '<BuiltInType: '+FFrontName+', internal name: '+FValue+'>';
 end;
 
 function TInstanceOf.AsString: string;
@@ -168,6 +173,7 @@ constructor TFunctionInstance.Create(AName:string; AParams, ABlock: TASTList; AT
 begin
   //Fname := AName;
   //SetLength(FParamsName, 0);
+  inherited Create;
   FFromNamespace := FromNamespace;
   FName := AName;
   FParams := AParams;

@@ -4,7 +4,3 @@ include @Core.List
 include @Core.Strings
 include @Core.Helpers
 include @Core.Web
-
-# helpers for dict to json conversion
-
-# end helpers for json

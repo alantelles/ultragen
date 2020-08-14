@@ -1,5 +1,3 @@
 include @Core
-# data = parseJson(''.join(FileSystem.loadText('ex.json')))
-ceu = {'singer': 'Céu', "faixa": 3, "premium": true, "parts": false, 'evals': null}
-data = [ceu, {'singer': 'Seu jorge', "faixa": 15, "premium": false, "parts": false, 'evals': null}]
-print(ceu.toJson())
+x = ''.join(FileSystem.loadText('ex.json'))
+print(responseRoute.class)

@@ -1,4 +1,4 @@
-function reverse() : TStringInstance
+function reverse() : String
     len = self.length
     res = ''
     for (len, i)
@@ -8,7 +8,7 @@ function reverse() : TStringInstance
     return res
 end
 
-function isInt() : TStringInstance
+function isInt() : String
     nums = '0123456789'
     ret = true
     for (self, ch)
@@ -22,6 +22,6 @@ function isInt() : TStringInstance
     return ret
 end
 
-function writeText(filename) : TStringInstance
+function writeText(filename) : String
     self.split('\n').writeText(filename)
 end

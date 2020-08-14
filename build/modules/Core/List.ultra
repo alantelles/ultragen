@@ -1,4 +1,4 @@
-function insert(obj, pos) : TListInstance
+function insert(obj, pos) : List
     empty = []
     len = self.length()
     if (pos > len)
@@ -20,7 +20,7 @@ function insert(obj, pos) : TListInstance
     end
 end
 
-function pos(e) : TListInstance
+function pos(e) : List
     for (self, i)
         if (i == e)
             return _i
@@ -29,14 +29,14 @@ function pos(e) : TListInstance
     return -1
 end
 
-function combine(other) : TListInstance
+function combine(other) : List
     for (other, i)
         self.append(i)
     end
     return self
 end
 
-function drop(index) : TListInstance
+function drop(index) : List
     a_new = []
     for (self, i)
         if (_i != index)
@@ -49,7 +49,7 @@ function drop(index) : TListInstance
     end
 end
 
-function remove(index) : TListInstance
+function remove(index) : List
     a_new = []
     for (self, i)
         if (i != index)
@@ -62,7 +62,7 @@ function remove(index) : TListInstance
     end
 end
 
-function slice (sp, ep=null) : TListInstance
+function slice (sp, ep=null) : List
     if (!ep)
         ep = self.length()
     else
@@ -75,7 +75,7 @@ function slice (sp, ep=null) : TListInstance
     return output
 end
 
-function toJson() : TListInstance    
+function toJson() : List    
     include @Core.JsonHelpers
     function dumpList(data)
         ret = '['
@@ -89,7 +89,7 @@ function toJson() : TListInstance
     end
 
     input_type = typeof(self)
-    if (input_type == 'TListInstance')
+    if (input_type == (List.class))
         out = dumpList(self)
     else
         return 'Invalid type for conversion'

@@ -49,6 +49,7 @@ uses
 
 constructor TListInstance.Create(AList: TInstanceList);
 begin
+
   FValue := AList;
   FAddLocked := False;
   FChangeLocked := False;

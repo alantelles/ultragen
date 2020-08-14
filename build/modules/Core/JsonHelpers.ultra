@@ -22,14 +22,15 @@ end
 
 function dumpVal(data)
     input_type = typeof(data)
-    tri = ['TIntegerInstance', 'TBooleanInstance', 'TFloatInstance']
+    # tri = ['TIntegerInstance', 'TBooleanInstance', 'TFloatInstance']
+    tri = [Integer.class, Boolean.class, Float.class]
     if ((tri.pos(input_type)) > -1)
         return str(data).lower()
-    elsif (input_type == 'TStringInstance')
+    elsif (input_type == (String.class))
         return '"' + data + '"'
-    elsif (input_type == 'TDictionaryInstance')
+    elsif (input_type == (Dict.class))
         return dumpObj(data)
-    elsif (input_type == 'TListInstance')
+    elsif (input_type == (List.class))
         return dumpValList(data)
     else
         return 'null'

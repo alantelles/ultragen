@@ -1,0 +1,7 @@
+POST https://reqres.in/api/users
+Content-Type: application/json
+
+{
+    "singer": "Céu",
+    "faixa": 90
+}

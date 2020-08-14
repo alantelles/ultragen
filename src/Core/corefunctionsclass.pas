@@ -217,74 +217,6 @@ begin
   Result := TListInstance.Create(AList);
 end;
 
-
-{procedure TCoreFunction.Traverse(ANode: TJsonNode; var AHostDict: TDictionaryInstance);
-var
-  i: TJsonNode;
-  ANewDict: TDictionaryInstance;
-  AnewList: TListInstance;
-begin
-  for i in ANode do
-  begin
-	  if i.Kind = nkObject then
-	  begin
-		  ANewDict := TDictionaryInstance.Create(TActivationRecord.Create('json', AR_DICT, 1));
-      ANewList := TListInstance.Create();
-		  AHostDict.PValue.AddMember(i.Name, ANewDict);
-      Traverse(i, ANewDict, ANewList, i.Kind)
-		end
-		else if i.kind = nkArray then
-		begin
-		  ANewList := TListInstance.Create();
-		  AHostDict.PValue.AddMember(i.Name, ANewList);
-      Traverse(i, ANewList);
-		end
-		else
-    begin
-      {
-        else
-          AHostList.Add(TStringInstance.Create(i.AsString));                    }
-		      if RootType = nkObject then
-		      begin
-		          if i.Kind = nkString then
-		          begin
-		            AHostDict.PValue.AddMember(i.Name, TStringInstance.Create(i.AsString))
-			  		  end
-				  	  else if i.Kind = nkBool then
-		            AHostDict.PValue.AddMember(i.Name, TBooleanInstance.Create(i.AsBoolean))
-		          else if i.Kind = nkNumber then
-		          begin
-		            if Pos('.', i.Value) > 0 then
-		              AHostDict.PValue.AddMember(i.Name, TFloatInstance.Create(i.AsNumber))
-		            else
-		              AHostDict.PValue.AddMember(i.Name, TIntegerInstance.Create(Floor(i.AsNumber)));
-				  	  end
-		          else if i.Kind = nkNull then
-		            AHostDict.PValue.AddMember(i.Name, TNullInstance.Create());
-				  end
-		      else
-		      begin
-		          if i.Kind = nkString then
-		          begin
-		            AhostList.add( TStringInstance.Create(i.AsString))
-			  		  end
-				  	  else if i.Kind = nkBool then
-		            AhostList.add( TBooleanInstance.Create(i.AsBoolean))
-		          else if i.Kind = nkNumber then
-		          begin
-		            if Pos('.', i.Value) > 0 then
-		              AhostList.add( TFloatInstance.Create(i.AsNumber))
-		            else
-		              AhostList.add( TIntegerInstance.Create(Floor(i.AsNumber)));
-				  	  end
-		          else if i.Kind = nkNull then
-		            AhostList.add( TNullInstance.Create());
-					end;
-
-		end;
-	end;
-end;       }
-
 procedure TCorefunction.TraverseJsonList(ANode: TJsonNode; var AHostList: TListInstance);
 var
   i: TJsonNode;
@@ -435,7 +367,7 @@ var
 begin
   AStr := FParams[0].ClassName;
   if FParams[0].ClassNameIs('TBuiltInType') then
-    AStr := 'BuiltInType: '+TBuiltInType(FParams[0]).AsString;
+    AStr := TBuiltInType(FParams[0]).AsString;
   Result := TStringInstance.Create(AStr);
 end;
 

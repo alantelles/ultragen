@@ -1,4 +1,4 @@
-function asAttrs() : TDictionaryInstance
+function asAttrs() : Dict
     keys = self.keys()
     l = []
     for (keys, k)
@@ -7,10 +7,10 @@ function asAttrs() : TDictionaryInstance
     return ' '.join(l)
 end
 
-function toJson() : TDictionaryInstance
+function toJson() : Dict
     include @Core.JsonHelpers
     input_type = typeof(self)
-    if (input_type == 'TDictionaryInstance')
+    if (input_type == (Dict.class))
         out = dumpObj(self)
     else
         return 'Invalid type for conversion'
