@@ -1,17 +1,15 @@
-AActRec.AddMember(AStrType.PType+ST_ACCESS+'split', AStrType);
-AActRec.AddMember(AStrType.PType+ST_ACCESS+'upper', AStrType);
-AActRec.AddMember(AStrType.PType+ST_ACCESS+'lower', AStrType);
-AActRec.AddMember(AStrType.PType+ST_ACCESS+'replace', AStrType);
-AActRec.AddMember(AStrType.PType+ST_ACCESS+'capital', AStrType);
-AActRec.AddMember(AStrType.PType+ST_ACCESS+'slice', AStrType);
-AActRec.AddMember(AStrType.PType+ST_ACCESS+'pos', AStrType);
-AActRec.AddMember(AStrType.PType+ST_ACCESS+'fileName', AStrType);
-AActRec.AddMember(AStrType.PType+ST_ACCESS+'join', AStrType);
-AActRec.AddMember(AStrType.PType+ST_ACCESS+'length', AStrType);
-AActRec.AddMember(AStrType.PType+ST_ACCESS+'length', AStrType);
-AActRec.AddMember(AStrType.PType+ST_ACCESS+'indexOf', AStrType);
-
-
-
-
-
+AStrType := TBuiltInType.Create('TStringInstance', 'String');
+AStrFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TStringInstance', True);
+AStrType.PMembers.Add('split', AStrFunc);
+AStrType.PMembers.Add('upper', AStrFunc);
+AStrType.PMembers.Add('lower', AStrFunc);
+AStrType.PMembers.Add('replace', AStrFunc);
+AStrType.PMembers.Add('capital', AStrFunc);
+AStrType.PMembers.Add('slice', AStrFunc);
+AStrType.PMembers.Add('pos', AStrFunc);
+AStrType.PMembers.Add('fileName', AStrFunc);
+AStrType.PMembers.Add('join', AStrFunc);
+AStrType.PMembers.Add('length', AStrFunc);
+AStrType.PMembers.Add('length', AStrFunc);
+AStrType.PMembers.Add('indexOf', AStrFunc);
+AActRec.AddMember('String', AStrType);

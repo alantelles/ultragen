@@ -1,3 +1,6 @@
-AActRec.AddMember(AIntType.PType+ST_ACCESS+'fixed', AIntType);
-AActRec.AddMember(AIntType.PType+ST_ACCESS+'cycle', AIntType);
-AActRec.AddMember(AIntType.PType + ST_ACCESS + 'leftZeros', AIntType);
+AIntType := TBuiltInType.Create('TIntegerInstance', 'Integer');
+AIntFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TIntegerInstance', True);
+AIntType.PMembers.Add('fixed', AIntFunc);
+AIntType.PMembers.Add('cycle', AIntFunc);
+AIntType.PMembers.Add('leftZeros', AIntFunc);
+AActRec.AddMember('Integer', AIntType);

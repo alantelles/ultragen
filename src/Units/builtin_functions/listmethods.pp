@@ -1,12 +1,13 @@
-AActRec.AddMember(AListType.PType+ST_ACCESS+'length', AListType);
-AActRec.AddMember(AListType.PType+ST_ACCESS+'set', AListType);
-AActRec.AddMember(AListType.PType+ST_ACCESS+'pop', AListType);
-AActRec.AddMember(AListType.PType+ST_ACCESS+'prepend', AListType);
-AActRec.AddMember(AListType.PType+ST_ACCESS+'clear', AListType);
-AActRec.AddMember(AListType.PType+ST_ACCESS+'writeText', AListType);
-AActRec.AddMember(AListType.PType+ST_ACCESS+'append', AListType);
-AActRec.AddMember(AListType.PType + ST_ACCESS + 'lock', AListType);
-AActRec.AddMember(AListType.PType + ST_ACCESS + 'addLock', AListType);
-AActRec.AddMember(AListType.PType + ST_ACCESS + 'changeLock', AListType);
-
-
+AListType := TBuiltInType.Create('TListInstance', 'List');
+AListFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TListInstance', True);
+AListType.PMembers.Add('length', AListType);
+AListType.PMembers.Add('set', AListType);
+AListType.PMembers.Add('pop', AListType);
+AListType.PMembers.Add('prepend', AListType);
+AListType.PMembers.Add('clear', AListType);
+AListType.PMembers.Add('writeText', AListType);
+AListType.PMembers.Add('append', AListType);
+AListType.PMembers.Add('lock', AListType);
+AListType.PMembers.Add('addLock', AListType);
+AListType.PMembers.Add('changeLock', AListType);
+AActRec.AddMember('List', AListType);

@@ -83,10 +83,12 @@ var
   AActRec: TActivationRecord;
   FileExplorer: TActivationRecord;
   ACoreType, AStrType, AIntType, AFloatType, AListType, ABoolType,
-  AFuncType, AOSType, AFSType, ADictType, AServerType, AHttpClientType: TFunctionInstance;
+  AFuncType, AOSType, AFSType, ADictType, AServerType, AHttpClientType: TBuiltInType;
+
+  AStrFunc, AIntFunc, AListFunc, AServerFunc: TFunctionInstance;
   ANameSpace: TDictionaryInstance;
 begin
-  ACoreType := TFunctionInstance.Create('BuiltIn', nil, nil, 'CoreFunction', True);
+  {ACoreType := TFunctionInstance.Create('BuiltIn', nil, nil, 'CoreFunction', True);
   AStrType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TStringInstance', True);
   AIntType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TIntegerInstance', True);
   AFloatType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFloatInstance', True);
@@ -97,12 +99,13 @@ begin
   AOSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TOSInstance', True);
   AFSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFileSystemInstance', True);
   AServerType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TServerInstance', True);
-  AHttpClientType := TFunctionInstance.Create('BuiltIn', nil, nil, 'THttpClientInstance', True);
+  AHttpClientType := TFunctionInstance.Create('BuiltIn', nil, nil, 'THttpClientInstance', True);}
   AActRec := FCallStack.GetFirst();
 
   AActRec.AddMember('parseJson', ACoreType);
   // BuiltInTypesRegister                                                       
-  AActRec.AddMember('String', TBuiltInType.Create('TStringInstance', 'String'));
+  {AActRec.AddMember('String', TBuiltInType.Create('TStringInstance', 'String'));
+  AActRec.GetMember('String').PMembers.Add('upper', AStrType);
   AActRec.AddMember('Integer', TBuiltInType.Create('TIntegerInstance', 'Integer'));
   AActRec.AddMember('Float', TBuiltInType.Create('TFloatInstance', 'Float'));
   AActRec.AddMember('Boolean', TBuiltInType.Create('TBooleanInstance', 'Boolean'));
@@ -115,7 +118,7 @@ begin
   AActRec.AddMember('Server', TBuiltInType.Create('TServerInstance', 'Server'));
   AActRec.AddMember('Request', TBuiltInType.Create('THttpClientInstance', 'Request'));
   AActRec.AddMember(AHttpClientType.PType+ST_ACCESS+'get', AHttpClientType);
-  AActRec.AddMember(AHttpClientType.PType+ST_ACCESS+'post', AHttpClientType);
+  AActRec.AddMember(AHttpClientType.PType+ST_ACCESS+'post', AHttpClientType);}
   {$INCLUDE 'builtin_functions/register_builtins.pp' }
 end;
 
