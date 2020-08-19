@@ -14,10 +14,11 @@ function VisitDict(ANode: TDictNode): TDictionaryInstance;
 procedure VisitClassDefinition(ANode: TClassDefinition);
 
 // references
-procedure VisitVarAssign(ANode: TVarAssign);
+procedure VisitVarAssign(ANode: TVarAssign; ASrc: TInstanceOf);
 procedure VisitListAssign(ANode: TListAssign);
 function VisitVariableReference(ANode: TVariableReference; ASrc: TInstanceOf{ = nil}):TInstanceOf;
 function VisitFunctionCall(ANode: TFunctionCall; ASrcInstance: TInstanceOf = nil):TInstanceOf;
+function VisitFunctionCallByInstance(ANode: TFunctionCallByinstance; ASrcInstance: TInstanceOf = nil):TInstanceOf;
 function VisitMethodCall(ANode: TMethodCall):TInstanceOf;
 function VisitListAccess(ANode: TListAccessAST): TInstanceOf;
 

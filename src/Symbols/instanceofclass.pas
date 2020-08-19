@@ -87,7 +87,7 @@ type
       //procedure AddBlock(ABlock: TASTList);
 	end;
 
-  TBuiltInType = class(TInstanceOf)
+  TDataType = class(TInstanceOf)
     protected
       FValue: string;
       FFrontName: string;
@@ -133,6 +133,7 @@ type
       property PValue: string read FValue;
       constructor Create(AName: string);
       function AsString: string;  override;
+
 	end;
 
 implementation
@@ -161,16 +162,16 @@ begin
   AReceiver := Self;
 end;
 
-constructor TBuiltInType.Create(AName: string; AFront: string; UserDefined: boolean=False);
+constructor TDataType.Create(AName: string; AFront: string; UserDefined: boolean=False);
 begin
   inherited Create;
   Fuserdef:=UserDefined;
-  FMembers.Add('class', TStringInstance.Create(Aname));
+  FMembers.Add('internal', TStringInstance.Create(Aname));
   FValue := AName;
   FFrontName := AFront;
 end;
 
-function TBuiltInType.AsString: string;
+function TDataType.AsString: string;
 begin
   Result := '<DataType: '+FFrontName+', internal name: '+FValue+'>';
 end;
@@ -218,6 +219,7 @@ end;
 
 constructor TIntegerInstance.Create(AValue: integer);
 begin
+  inherited Create;
   FValue := AValue;
   FIntValue := AValue;
   FCoreType := True;
@@ -243,6 +245,7 @@ end;
 
 constructor TFloatInstance.Create(AValue: extended);
 begin
+  inherited Create;
   try
     FValue := AValue;
     FFloatValue := FValue;
@@ -273,6 +276,7 @@ end;
 
 constructor TBooleanInstance.Create(AValue: boolean);
 begin
+  inherited Create;
   FValue := AValue;
   FBoolValue := AValue;
   FCoreType := True;

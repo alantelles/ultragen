@@ -48,10 +48,20 @@ uses
   StrUtils, CoreUtils, Tokens, ExceptionsClasses, StringInstanceCLass;
 
 constructor TListInstance.Create(AList: TInstanceList);
+var
+  len, i: integer;
 begin
-
-  FValue := AList;
-  FAddLocked := False;
+  inherited Create;
+  len := Length(AList);
+  if len > 0 then
+  begin
+    SetLength(FValue, len);
+    for i:=0 to len-1 do
+    begin
+      AList[i].CopyInstance(FValue[i]);
+		end;
+	end;
+	FAddLocked := False;
   FChangeLocked := False;
 end;
 

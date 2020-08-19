@@ -1,6 +1,6 @@
-function responseRoute(routes)
+function responseRoute(routes, route)
+    
     method = $request['method']
-    route = $request['route'].slice(1)
     route_exp = route.split('/')
     response = routes[null]
     params = {}

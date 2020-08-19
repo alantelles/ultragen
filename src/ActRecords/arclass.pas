@@ -33,11 +33,12 @@ type
       constructor Create(AName:string; AType: string; ALevel: integer);
       function AddMember(AKey:string; AObj:TInstanceOf): boolean;
       function GetMember(AKey:string):TInstanceOf;
-      function GetFunction(AKey: string; ASrc: TInstanceOf = nil): TFunctionInstance;
+      function GetFunction(AKey: string; ASrc: TInstanceOf): TFunctionInstance;
       function AsString:string;
       procedure GetKeys(var AList: TListInstance);                                
       function DropItem(AKey: string): TInstanceOf;
       destructor Destroy; override;
+      function GetTypeByInternalName(AName: string): TInstanceOf;
 
   end;
 
@@ -100,6 +101,32 @@ begin
   end;
 end;
 
+function TActivationRecord.GetTypeByInternalName(AName: string): TInstanceOf;
+var
+  AInst: TInstanceOf;
+  i: integer;
+begin
+  Result := nil;
+  if FMembers.Count > 0 then
+  begin
+    for i:=0 to FMembers.Count-1 do
+    begin
+      AInst := TInstanceOf(FMembers[i]);
+      if AInst <> nil then
+      begin
+		    if FMembers[i].ClassNameIs('TDataType') then
+		    begin
+		      if TDataType(FMembers[i]).PValue = AName then
+		      begin
+		        Result := TInstanceOf(FMembers[i]);
+		        exit;
+				  end;
+				end;
+			end;
+		end;
+	end;
+end;
+
 function TActivationRecord.DropItem(AKey: string): TInstanceOf;
 var
   AFind: TInstanceOf;
@@ -157,6 +184,7 @@ constructor TDictionaryInstance.Create(AnActRec: TActivationRecord; ADefault:TIn
 var
   ADef: TInstanceOf;
 begin
+  inherited Create;
   FValue := AnActRec;
   FAddLocked := False;
   FChangeLocked := False;
@@ -169,14 +197,46 @@ begin
   end;
 end;
 
-function TActivationRecord.GetFunction(AKey: string; ASrc: TInstanceOf = nil): TFunctionInstance;
+function TActivationRecord.GetFunction(AKey: string; ASrc: TInstanceOf): TFunctionInstance;
 var
   Ret: TFunctionInstance;
+  AType: TDataType;
+  AMember, ACandFunc: TInstanceOf;
 begin
-  Ret := TFunctionInstance(GetMember(AKey));
-  if Ret <> nil then
-    Ret.PName := AKey;
-  Result := Ret;
+  Ret := nil;
+  if ASrc <> nil then
+  begin
+    if ASrc.ClassNameIs('TDataType') then
+      AMember := GetMember(TDataType(ASrc).PFrontName)
+    else if ASrc.ClassNameIs('TClassInstance') then
+      AMember := GetMember(TClassInstance(ASrc).PValue)
+    else
+      AMember := GetTypeByInternalName(ASrc.ClassName);
+    if AMember <> nil then
+    begin
+      if AMember.ClassNameIs('TDataType') then
+      begin
+        AType := TDataType(AMember);
+	      ACandFunc := TInstanceOf(AType.PMembers.Find(Akey));
+        if ACandFunc <> nil then
+        begin
+
+          if ACandFunc.ClassNameIs('TFunctionInstance') then
+	          Ret := TFunctionInstance(ACandFunc);
+        end;
+		  end;
+		end;
+	end
+  else
+  begin
+    ACandFunc := TInstanceOf(GetMember(Akey));
+    if ACandfunc <> nil then
+    begin
+      if ACandFunc.ClassNameIs('TFunctionInstance') then
+        Ret := TFunctionInstance(ACandFunc);
+		end;
+	end;
+	Result := Ret;
 end;
 
 function TActivationRecord.AddMember(AKey:string; AObj:TInstanceOf):boolean;

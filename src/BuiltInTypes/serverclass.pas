@@ -44,7 +44,9 @@ uses
 
 constructor TServerInstance.Create(APort: integer);
 begin
+  inherited Create;
   MimeTypesFile := GetEnv('ULTRAGEN_HOME') + DirectorySeparator + 'assets' + DirectorySeparator + 'mime-types.txt';
+  FMembers.Add('title', TStringInstance.Create('Untitled application'));
   FPort := Aport;
   FRootFile := 'index.ultra';
   FStopRoute := '';

@@ -1,4 +1,4 @@
-AStrType := TBuiltInType.Create('TStringInstance', 'String');
+AStrType := TDataType.Create('TStringInstance', 'String');
 AStrFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TStringInstance', True);
 AStrType.PMembers.Add('split', AStrFunc);
 AStrType.PMembers.Add('upper', AStrFunc);

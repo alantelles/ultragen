@@ -3,7 +3,7 @@
     VisitProgram(TProgram(ANode));
   end
   else if ANode.ClassNameIs('TVarAssign') then   
-    VisitVarAssign(TVarAssign(ANode))
+    VisitVarAssign(TVarAssign(ANode), ASrcInstance)
 
   else if ANode.ClassNameIs('TListAssign') then
     VisitListAssign(TListAssign(ANode))
@@ -44,8 +44,13 @@
     Ret := VisitMethodCall(TMethodCall(Anode))
   else if ANode.ClassNameIs('TFunctionCall') then
     Ret := VisitFunctionCall(TFunctionCall(Anode), ASrcInstance)
+
+  else if ANode.ClassNameIs('TFunctionCallByInstance') then
+    Ret := VisitFunctionCallByInstance(TFunctionCallByInstance(Anode), ASrcInstance)
+
   else if ANode.ClassNameIs('TReturnFunction') then
     Ret := VisitReturn(TReturnFunction(ANode))
+
   else if ANode.ClassNameIs('TFunctionDefinition') then
     VisitFunctionDefinition(TFunctionDefinition(Anode))
   else if Anode.ClassNameIs('TNumInt') then

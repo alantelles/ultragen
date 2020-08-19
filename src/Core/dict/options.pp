@@ -2,23 +2,23 @@
 else if AType = 'TDictionaryInstance' then
 begin
   if FName = 'set' then
-    SetItem(TDictionaryInstance(AObj))
+    SetItem(TDictionaryInstance(FObj))
   else if FName = 'get' then
-    Ret := GetItem(TDictionaryInstance(AObj))
+    Ret := GetItem(TDictionaryInstance(FObj))
   else if FName = 'hasKey' then
-    Ret := DictHasKey(TDictionaryInstance(AObj))
+    Ret := DictHasKey(TDictionaryInstance(FObj))
   else if FName = 'keys' then
-    Ret := GetKeys(TDictionaryInstance(AObj))
+    Ret := GetKeys(TDictionaryInstance(FObj))
   else if FName = 'addLock' then
-    TDictionaryInstance(AObj).PAddLocked := True
+    TDictionaryInstance(FObj).PAddLocked := True
   else if FName = 'changeLock' then
-    TDictionaryInstance(AObj).PChangeLocked := True
+    TDictionaryInstance(FObj).PChangeLocked := True
   else if Fname = 'lock' then
   begin
-    TDictionaryInstance(AObj).PChangeLocked := True;
-    TDictionaryInstance(AObj).PAddLocked := True
+    TDictionaryInstance(FObj).PChangeLocked := True;
+    TDictionaryInstance(FObj).PAddLocked := True
 	end
 	else if FName = 'drop' then
-    Ret := TDictionaryInstance(AObj).Pvalue.DropItem(FParams[0].AsString);
+    Ret := TDictionaryInstance(FObj).Pvalue.DropItem(FParams[0].AsString);
 
 end

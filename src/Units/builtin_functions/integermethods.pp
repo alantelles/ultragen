@@ -1,4 +1,4 @@
-AIntType := TBuiltInType.Create('TIntegerInstance', 'Integer');
+AIntType := TDataType.Create('TIntegerInstance', 'Integer');
 AIntFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TIntegerInstance', True);
 AIntType.PMembers.Add('fixed', AIntFunc);
 AIntType.PMembers.Add('cycle', AIntFunc);

@@ -10,7 +10,7 @@ end
 function toJson() : Dict
     include @Core.JsonHelpers
     input_type = typeof(self)
-    if (input_type == (Dict.class))
+    if (input_type == (Dict.internal))
         out = dumpObj(self)
     else
         return 'Invalid type for conversion'

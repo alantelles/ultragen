@@ -7,21 +7,27 @@ interface
 uses
   Classes, SysUtils, fphttpclient, openssl, httpprotocol, InstanceOfClass, ARCLass, contnrs;
 
-type THttpClientInstance = class (TInstanceOf)
+
+
+type THttpResponseInstance = class (TInstanceOf)
   private
     FValue: TFPHttpClient;
   public
     property PValue: TFPHttpClient read FValue;
-
+    function AsString: string;  override;
     constructor Create(AClient: TFPHttpClient; AUrl, AResponse: string);
-    class function RequestGet(AUrl: string; AHeaders: TDictionaryInstance=nil): THttpClientInstance;
-    class function RequestPost(AUrl: string; APayload: TInstanceOf; AHeaders: TDictionaryInstance=nil): THttpClientInstance;
+end;
+
+type THttpClientInstance = class (TInstanceOf)
+  public
+    class function RequestGet(AUrl: string; AHeaders: TDictionaryInstance=nil): THttpResponseInstance;
+    class function RequestPost(AUrl: string; APayload: TInstanceOf; AHeaders: TDictionaryInstance=nil): THttpResponseInstance;
   end;
 
 implementation
 uses CoreUtils, StringInstanceCLass;
 
-constructor THttpClientInstance.Create(AClient: TFPHttpClient; AUrl, AResponse: string);
+constructor THttpResponseInstance.Create(AClient: TFPHttpClient; AUrl, AResponse: string);
 var
   AHeaders: TDictionaryInstance;
   i : integer;
@@ -45,11 +51,16 @@ begin
   FMembers.Add('status_text', TStringInstance.Create(AClient.ResponseStatusText));
   FMembers.Add('status', TIntegerInstance.Create(AClient.ResponseStatusCode));
   FMembers.Add('headers', AHeaders);
-  FMembers.Add('response', TStringInstance.Create(AResponse));
+  FMembers.Add('text', TStringInstance.Create(AResponse));
   FMembers.Add('url', TStringInstance.Create(AUrl));
 end;
 
-class function THttpClientInstance.RequestGet(AUrl: string; AHeaders: TDictionaryInstance=nil): THttpClientInstance;
+function THttpResponseInstance.AsString: string;
+begin
+  Result := '<Response from endpoint "'+TInstanceOf(FMembers.Find('url')).AsString+'">';
+end;
+
+class function THttpClientInstance.RequestGet(AUrl: string; AHeaders: TDictionaryInstance=nil): THttpResponseInstance;
 var
   Requirer: TFPHttpClient;
   Return: string = '';
@@ -81,10 +92,10 @@ begin
     end;
   finally
   end;
-  Result := THttpClientInstance.Create(Requirer, AUrl, Return);
+  Result := THttpResponseInstance.Create(Requirer, AUrl, Return);
 end;
 
-class function THttpClientInstance.RequestPost(AUrl: string; APayload: TInstanceOf; AHeaders: TDictionaryInstance=nil): THttpClientInstance;
+class function THttpClientInstance.RequestPost(AUrl: string; APayload: TInstanceOf; AHeaders: TDictionaryInstance=nil): THttpResponseInstance;
 var
   Requirer: TFPHttpClient;
   Return: string = '';
@@ -121,7 +132,7 @@ begin
   finally
     SS.Free;
   end;
-  Result := THttpClientInstance.Create(Requirer, AUrl, Return);
+  Result := THttpResponseInstance.Create(Requirer, AUrl, Return);
 end;
 
 end.

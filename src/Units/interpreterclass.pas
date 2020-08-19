@@ -42,6 +42,7 @@ type
     procedure PassCallStack(var ACallStack: TStack; ToParent: boolean);
     function Interpret(DontPush: boolean = False;
       ANameActRec: TActivationRecord = nil): string;
+    function ExecuteFunctionByInstance(AFunction: TFunctionInstance; Args: TInstanceList; ANode: TAST): TInstanceOf;
 
 
 
@@ -82,44 +83,68 @@ const
 var
   AActRec: TActivationRecord;
   FileExplorer: TActivationRecord;
-  ACoreType, AStrType, AIntType, AFloatType, AListType, ABoolType,
-  AFuncType, AOSType, AFSType, ADictType, AServerType, AHttpClientType: TBuiltInType;
+  ACoreType, AStrType, AIntType, AFloatType, AListType, ABoolType, AHttpResponseType,
+  AFuncType, AOSType, AFSType, ADictType, AServerType, AHttpClientType: TDataType;
 
-  AStrFunc, AIntFunc, AListFunc, AServerFunc: TFunctionInstance;
+  AStrFunc, AIntFunc, AListFunc, AServerFunc, AOSFunc, AFSFunc, ADictFunc, AHttpClientFunc,
+  ABoolFunc, AFloatFunc, ACoreFunc: TFunctionInstance;
   ANameSpace: TDictionaryInstance;
 begin
-  {ACoreType := TFunctionInstance.Create('BuiltIn', nil, nil, 'CoreFunction', True);
-  AStrType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TStringInstance', True);
-  AIntType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TIntegerInstance', True);
-  AFloatType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFloatInstance', True);
-  AListType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TListInstance', True);
-  AFuncType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFunctionInstance', True);
-  ABoolType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBooleanInstance', True);
-  ADictType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TDictionaryInstance', True);
+
+  {AStrType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TStringInstance', True);
+  AIntType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TIntegerInstance', True);}
+  AFloatFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFloatInstance', True);
+  {AListType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TListInstance', True);
+  AFuncType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFunctionInstance', True);}
+  ABoolFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBooleanInstance', True);
+  {ADictType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TDictionaryInstance', True);
   AOSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TOSInstance', True);
   AFSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFileSystemInstance', True);
-  AServerType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TServerInstance', True);
-  AHttpClientType := TFunctionInstance.Create('BuiltIn', nil, nil, 'THttpClientInstance', True);}
+  AServerType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TServerInstance', True);}
   AActRec := FCallStack.GetFirst();
 
-  AActRec.AddMember('parseJson', ACoreType);
-  // BuiltInTypesRegister                                                       
-  {AActRec.AddMember('String', TBuiltInType.Create('TStringInstance', 'String'));
-  AActRec.GetMember('String').PMembers.Add('upper', AStrType);
-  AActRec.AddMember('Integer', TBuiltInType.Create('TIntegerInstance', 'Integer'));
-  AActRec.AddMember('Float', TBuiltInType.Create('TFloatInstance', 'Float'));
-  AActRec.AddMember('Boolean', TBuiltInType.Create('TBooleanInstance', 'Boolean'));
-  AActRec.AddMember('Null', TBuiltInType.Create('TNullInstance', 'Null'));
-  AActrec.AddMember('Dict', TBuiltInType.Create('TDictionaryInstance', 'Dict'));
-  AActrec.AddMember('List', TBuiltInType.Create('TListInstance', 'List'));
 
-  AActRec.AddMember('OS', TBuiltInType.Create('TOSInstance', 'OS'));
-  AActRec.AddMember('FileSystem', TBuiltInType.Create('TFileSystemInstance', 'FileSystem'));
-  AActRec.AddMember('Server', TBuiltInType.Create('TServerInstance', 'Server'));
-  AActRec.AddMember('Request', TBuiltInType.Create('THttpClientInstance', 'Request'));
+  // BuiltInTypesRegister                                                       
+  {AActRec.AddMember('String', TDataType.Create('TStringInstance', 'String'));
+  AActRec.GetMember('String').PMembers.Add('upper', AStrType);
+  AActRec.AddMember('Integer', TDataType.Create('TIntegerInstance', 'Integer'));
+  AActRec.AddMember('Float', TDataType.Create('TFloatInstance', 'Float'));
+  AActRec.AddMember('Boolean', TDataType.Create('TBooleanInstance', 'Boolean'));
+  AActRec.AddMember('Null', TDataType.Create('TNullInstance', 'Null'));
+  AActrec.AddMember('Dict', TDataType.Create('TDictionaryInstance', 'Dict'));
+  AActrec.AddMember('List', TDataType.Create('TListInstance', 'List'));
+
+  AActRec.AddMember('OS', TDataType.Create('TOSInstance', 'OS'));
+  AActRec.AddMember('FileSystem', TDataType.Create('TFileSystemInstance', 'FileSystem'));
+  AActRec.AddMember('Server', TDataType.Create('TServerInstance', 'Server'));
+  AActRec.AddMember('Request', TDataType.Create('THttpClientInstance', 'Request'));
   AActRec.AddMember(AHttpClientType.PType+ST_ACCESS+'get', AHttpClientType);
   AActRec.AddMember(AHttpClientType.PType+ST_ACCESS+'post', AHttpClientType);}
+
+  AHttpClientFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'THttpClientInstance', True);
+
+  AHttpClientType := TDataType.Create('THttpClientInstance', 'Request');
+  AHttpClientType.PMembers.Add('get', AHttpClientFunc);
+  AHttpClientType.PMembers.Add('post', AHttpClientFunc);
+  AActrec.AddMember('Request', AHttpClientType);
+
+  AHttpResponseType := TDataType.Create('THttpResponseInstance', 'Response');
+  AActrec.AddMember('Response', AHttpResponseType);
+
+  ABoolType := TDataType.Create('TBooleanInstance', 'Boolean');
+  AFloatType := TDataType.Create('TFloatInstance', 'Float');
+  AFuncType := TDataType.Create('TFunctionInstance', 'Function');
+
+  // ACoreType := TDataType.Create('TCoreInstance', 'Core');
+  ACoreFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TCoreInstance', True);
+  AActRec.AddMember('parseJson', ACoreFunc);
+
   {$INCLUDE 'builtin_functions/register_builtins.pp' }
+
+  // AActrec.AddMember('Core', ACoreType);
+  AActrec.AddMember('Boolean', ABoolType);
+  AActrec.AddMember('Function', AFuncType);
+  AActrec.AddMember('Float', AFloatType);
 end;
 
 
@@ -290,26 +315,34 @@ var
   AValue: TFunctionInstance;
   AActRec: TActivationRecord;
   ABlock: TAST;
-  RealType: TBuiltInType;
+  RealType: TDataType;
   t, t2: string;
 begin
   logtext('INTER', 'Interpreter', 'Visiting function definition');
   AActRec := FCallStack.Peek;
-  RealType := TBuiltInType(AActRec.GetMember(ANode.PType));
-  if RealType <> nil then
+  if ANode.PType <> '' then
   begin
-    t := ReplaceStr(ANode.PName, ANode.PType + ':', RealType.PValue + ':');
-    t2 := RealType.PValue;
-	end
+    RealType := TDataType(AActRec.GetMember(ANode.PType));
+    if RealType <> nil then
+    begin
+      RealType.PMembers.Add(ANode.PName, TFunctionInstance.Create(ANode.PName, ANode.PParamList,
+        ANode.PBlock, RealType.PValue, False));
+
+		end
+  end
+	else
+    AActRec.AddMember(ANode.PName, TFunctionInstance.Create(ANode.PName, ANode.PParamList,
+        ANode.PBlock, 'TCoreFunction', False));
+       {
 	else
   begin
     t := ANode.PName;
     t2 := ANode.PType
 	end;
-	AValue := TFunctionInstance.Create(t, ANode.PParamList,
-    ANode.PBlock, t2, False);
+	AValue := TFunctionInstance.Create(ANode.PName, ANode.PParamList,
+    ANode.PBlock, RealType.PValue, False);
   AActRec.AddMember(t, AValue);
-	Result := TInstanceOf.Create;
+	Result := TInstanceOf.Create;}
 end;
 
 function TInterpreter.VisitNewObject(ANode: TNewObject): TInstanceOf;
@@ -318,7 +351,7 @@ var
   NowAct, NewAct: TActivationRecord;
   ActInst: TDictionaryInstance;
   Gene, ConstRet: TInstanceOf;
-  ABuilt: TBuiltInType;
+  ABuilt: TDataType;
   ArgsList: TInstanceList;
   len, i: integer;
 begin
@@ -334,9 +367,9 @@ begin
 
       Result := TDictionaryInstance.Create(NewAct);
     end
-    else if Gene.ClassNameIs('TBuiltInType') then
+    else if Gene.ClassNameIs('TDataType') then
     begin
-      ABuilt := TBuiltInType(Gene);
+      ABuilt := TDataType(Gene);
       len := Length(ANode.PArgs);
       SetLength(ArgsList, len);
       if len > 0 then
@@ -558,11 +591,12 @@ end;
 
 
 
-procedure TInterpreter.VisitVarAssign(ANode: TVarAssign);
+procedure TInterpreter.VisitVarAssign(ANode: TVarAssign; ASrc: TInstanceOf);
 var
   AValue: TInstanceOf;
   AName: string;
   AActRec: TActivationRecord;
+  TryAdd: boolean;
 begin
   LogText(INTER, 'Interpreter', 'VarAssign visitation');
   AName := ANode.PVarName.PValue;
@@ -577,8 +611,15 @@ begin
     end;
   end;
   AActrec := FCallStack.Peek;
-   if not AActRec.AddMember(AName, AValue) then
-     ERunTimeError.Create('Can''t redefine constant value "'+Aname+'"', FTrace, ANode.PVarName);
+  if ASrc = nil then
+  begin
+	  if not AActRec.AddMember(AName, AValue) then
+	    ERunTimeError.Create('Can''t redefine constant value "'+Aname+'"', FTrace, ANode.PVarName);
+	end
+  else
+  begin
+    ASrc.PMembers.Add(AName, AValue);
+	end;
 end;
 
 procedure TInterpreter.VisitListAssign(ANode: TListAssign);
@@ -672,6 +713,101 @@ begin
   Result := Visit(ANode.Poper, Visit(ANode.PSrc));
 end;
 
+function TInterpreter.VisitFunctionCallByInstance(ANode: TFunctionCallByInstance; ASrcInstance: TInstanceOf = nil):TInstanceOf;
+var
+  AFuncInst: TFunctionInstance;
+  ArgsList: TInstanceList;
+  len, i: integer;
+  Arec: TInstanceOf;
+begin
+  AFuncInst := TFunctionInstance(Visit(ANode.PFuncInst, ASrcInstance));
+  len := Length(Anode.PEvalParams);
+  if len > 0 then
+  begin
+    SetLength(ArgsList, len);
+    for i:=0 to len-1 do
+    begin
+      ARec := Visit(ANode.PEvalParams[i]);
+      Arec.CopyInstance(ArgsList[i]);
+		end;
+	end;
+  Result := ExecuteFunctionByinstance(AFuncInst, ArgsList, ANode);
+end;
+
+function TInterpreter.ExecuteFunctionByInstance(AFunction: TFunctionInstance; Args: TInstanceList; ANode: TAST): TInstanceOf;
+var
+  AActRec: TActivationRecord;
+  lenArgs, LenParams, len, i: integer;
+  Adef, ACopy, AReturn: TInstanceOf;
+  Aux: TFunctionInstance;
+  AParamName: string;
+begin
+  AActRec := TActivationRecord.Create(AFunction.PName, AR_FUNCTION,
+        FCallStack.PLevel + 1);
+  lenArgs := Length(Args);
+  lenParams := Length(AFunction.PParams);
+  Len := Max(LenArgs, LenParams);
+	if Len > 0 then
+	begin
+	  for i := 0 to Len - 1 do
+	  begin
+	    if i > (LenArgs - 1) then
+	    begin
+	      if TParam(AFunction.PParams[i]).PDefValue <> nil then
+	        ADef := Visit(TParam(AFunction.PParams[i]).PDefValue)
+	      else
+	        EArgumentsError.Create(
+	          'Wrong number of arguments to call this function',
+	          FTrace,  ANode.PToken);
+	    end
+	    else if i > (LenParams - 1) then
+	    begin
+	      EArgumentsError.Create(
+	        'Wrong number of arguments to call this function',
+	        FTrace,  ANode.PToken);
+	    end
+	    else
+	    begin
+	      ADef := Args[i];
+	    end;
+	    AParamName := TParam(AFunction.PParams[i]).PNode.PValue;
+	    if ADef.ClassNameIs('TFunctionInstance') then
+	    begin
+	      Aux := TFunctionInstance(ADef);
+	      if Aux.PIsBuiltin then
+	        ERunTimeError.Create('Can''t assign builtin function "' +
+	          Args[i].AsString + '" as argument',
+	          FTrace, ANode.PToken);
+		        //AParamName := ANode.PEvalParams[i].PToken.PValue;
+	    end;
+	    ADef.CopyInstance(ACopy);
+        AActRec.AddMember(AParamName, ACopy);
+	  end;
+	end;
+  FCallStack.Push(AActRec);
+	len := Length(AFunction.PBlock);
+	if len > 0 then
+	begin
+	  for i := 0 to len - 1 do
+	  begin
+	    if FReturnSignal then
+	    begin
+	      FReturnSignal := False;
+	      AActRec.PReturnValue.CopyInstance(AReturn);
+	      FCallStack.Pop();
+	      Result := AReturn;
+	      exit;
+	    end
+	    else
+	      Visit(AFunction.PBlock[i]);
+	  end;
+	end;
+	AReturn := AActRec.GetMember('__LIVE__');
+	FCallStack.Pop();
+	Result := AReturn;
+	exit;
+end;
+
 function TInterpreter.VisitFunctionCall(ANode: TFunctionCall;
   ASrcInstance: TInstanceOf = nil): TInstanceOf;
 const
@@ -694,22 +830,26 @@ var
   searchStart: integer;
 begin
   AFuncName := ANode.PFuncName;
-  ASrcName := AFuncName;
-  if ASrcInstance <> nil then
+  {if ASrcInstance = nil then
   begin
-    if ASrcInstance.ClassNameIs('TBuiltInType') then
-      ASrcName := TBuiltinType(ASrcInstance).PValue + ST_ACCESS + AFuncName
+    AActrec := FCallStack.GetFirst;
+    ASrcInstance := AActRec.GetMember('Core');
+	end;}
+	{if ASrcInstance <> nil then
+  begin
+    if ASrcInstance.ClassNameIs('TDataType') then
+      ASrcName := TDataType(ASrcInstance).PValue + ST_ACCESS + AFuncName
     else if ASrcInstance.ClassNameIs('TClassInstance') then
       ASrcName := TClassInstance(ASrcInstance).PValue + ST_ACCESS + AFuncName
     else
       ASrcName := ASrcInstance.ClassName + ST_ACCESS + AFuncName;
-  end;
+  end;}
   LogText(INTER, 'Interpreter', 'Visiting function ' + ANode.PFuncName);
   SearchStart := FCallStack.Peek().PNestingLevel;
   for i:=SearchStart downto 1 do
   begin
     AActRec := FCallStack.GetByLevel(i);
-    FuncDef := AActRec.GetFunction(ASrcName, ASrcInstance);
+    FuncDef := AActRec.GetFunction(AFuncName, ASrcInstance);
     if FuncDef <> nil then
       break;
 	end;
@@ -788,6 +928,7 @@ begin
     end
     else
     begin
+      Setlength(ArgsList, 0);
       ACoreExec := TCoreFunction.Create;
       len2 := Length(ANode.PEvalParams);
       SetLength(ArgsList, len2);
@@ -928,7 +1069,7 @@ begin
     AInter.Interpret(True);
   end;
   //ATree.Free;
-  AInter.Free;
+  //AInter.Free;
 end;
 
 function TInterpreter.VisitNameSpaceGet(Anode: TNamespaceGet): TInstanceOf;
@@ -1019,7 +1160,7 @@ var
   AActRec: TActivationRecord;
 begin
   AActRec := FCallStack.Peek;
-  AActRec.AddMember(ANode.PToken.PValue, TBuiltInType.Create(ANode.PToken.PValue, ANode.PToken.PValue, True));
+  AActRec.AddMember(ANode.PToken.PValue, TDataType.Create(ANode.PToken.PValue, ANode.PToken.PValue, True));
 end;
 
 function TInterpreter.VisitUnaryOpFloat(ANode: TUnaryOp): TFloatInstance;
@@ -1329,6 +1470,7 @@ begin
     begin
       len := len + 1;
       SetLength(AList, len);
+      Anitem := Anode.PArgs[i];
       AList[len - 1] := Visit(ANode.PArgs[i]);
     end;
   end;

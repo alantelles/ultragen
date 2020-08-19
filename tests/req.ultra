@@ -1,0 +1,27 @@
+include @Core
+
+function toData() : Response
+    return parseJson(self.text)
+end
+
+class Topic
+
+Topic.$URL = 'http://localhost:5000/api/topics/'
+
+function all() : Topic
+    x = Request.get(Topic.$URL).toData()
+    return x
+end
+
+function get(slug) : Topic
+    x = Request.get(Topic.$URL + slug).toData()
+    return x
+end
+
+function post(data) : Topic
+    x = Request.post(Topic.$URL, data.toJson(), {'Content-Type': 'application/json'}).toData()
+    return x
+end
+
+x = new Topic()
+print(x.$URL)

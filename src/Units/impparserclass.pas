@@ -40,6 +40,7 @@ type
     function DefParams: TASTList;
     function DefParam: TAST;
     function FunctionCall(var AToken: TToken): TAST;
+    function FunctionCallByInstance(AFuncNode: TAST; var AToken: TToken): TAST;
     function MethodCall: TAST;
     function MethodCallState: TAST;
     function Args: TASTList;
@@ -355,8 +356,8 @@ begin
   InBlock := Statements();
   Eat(T_END + T_FUNC_DEF);
   logtext('PARSER', 'Parser', 'Creating function block node');
-  if AType <> '' then
-    AStrId := AType + ':' + AStrId;
+  {if AType <> '' then
+    AStrId := AType + ':' + AStrId;}
   Result := TFunctionDefinition.Create(AToken, AStrId, InBlock, ParamList, AType);
 end;
 
@@ -740,7 +741,9 @@ begin
         if FCurrentToken.PType = T_ASSIGN then
         begin
           Ret := ListAssign(ASrc, IndexOrAcc, AVarToken);
-        end;
+        end
+        else if FCurrentToken.PType = T_LPAREN then
+          ret := FunctionCallByInstance(Ret, AVarToken);
       end
     end;
   end;
@@ -751,6 +754,7 @@ end;
 function TTParser.MethodCall: TAST;
 var
   Ret: TAST;
+  AToken: ttoken;
 begin
   // Eat(T_ATTR_ACCESSOR);
   Ret := LogicEval();
@@ -787,6 +791,17 @@ begin
       if FCurrentToken.ptype = T_NEWLINE then
         Eat(T_NEWLINE);
       Eat(T_LIST_END);
+      if FCurrentToken.PType = T_LPAREN then
+      begin
+          AToken := TToken.Create(
+              FCurrentToken.PType,
+              FCurrentToken.PValue,
+              FCurrentToken.PLineNo,
+              FCurrentToken.PCharNo,
+              FCurrentToken.PScriptName
+            );
+          ret := FunctionCallByInstance(Ret, AToken);
+      end;
     end
   end;
   Result := Ret;
@@ -814,6 +829,29 @@ begin
 
   logtext('PARSER', 'Parser', 'Creating function call node');
   Result := TFunctionCall.Create(AFuncName, AArgs, CToken);
+end;
+
+function TTParser.FunctionCallByInstance(AFuncNode: TAST; var AToken: TToken): TAST;
+var
+  AFuncName: string;
+  AArgs: TASTList;
+  Ret: TAST;
+  CToken: TTOken;
+begin
+  CToken := TToken.Create(
+        FCurrentToken.PType,
+        AToken.PValue,
+        FCurrentToken.PLineNo,
+        FCurrentToken.PCharNo,
+        FCurrentToken.PScriptName
+      );
+  Eat(T_LPAREN);
+  AArgs := Args();
+
+  Eat(T_RPAREN);
+
+  logtext('PARSER', 'Parser', 'Creating function call node');
+  Result := TFunctionCallByInstance.Create(AFuncNode, AArgs, CToken);
 end;
 
 
@@ -1234,7 +1272,11 @@ begin
     begin
       Ret := FunctionCall(AToken);
     end
-    else
+    else if (FCurrentToken.PType = T_ASSIGN) then
+    begin
+      Ret := VarAssign(AToken);
+		end
+		else
       Ret := Variable(AToken);
   end;
   Result := Ret;

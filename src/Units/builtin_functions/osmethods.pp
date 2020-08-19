@@ -1,1 +1,4 @@
-AActRec.AddMember(AOSType.PType + ST_ACCESS + 'getEnv', AOSType);
+AOSType := TDataType.Create('TOSInstance', 'OS');
+AOSFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TOSInstance', True);
+AOSType.PMembers.Add('getEnv', AOSFunc);
+AActRec.AddMember('OS', AOSType);

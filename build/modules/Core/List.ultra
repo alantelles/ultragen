@@ -29,6 +29,7 @@ function pos(e) : List
     return -1
 end
 
+
 function combine(other) : List
     for (other, i)
         self.append(i)
@@ -89,7 +90,7 @@ function toJson() : List
     end
 
     input_type = typeof(self)
-    if (input_type == (List.class))
+    if (input_type == (List.internal))
         out = dumpList(self)
     else
         return 'Invalid type for conversion'

@@ -71,6 +71,8 @@ type
     destructor Destroy; override;
   end;
 
+
+
   TNamespaceGet = class(TAST)
   protected
     FName: string;
@@ -168,6 +170,18 @@ type
     property PEvalParams: TASTList read FEvalParams;
 
     constructor Create(AFuncName: string; AEvalParams: TASTList; AToken: TToken);
+    destructor Destroy; override;
+  end;
+
+  TFunctionCallByInstance = class(TAST)
+  protected
+    FFuncInst: TAST;
+    FEvalParams: TASTList;
+  public
+    property PFuncInst: TAST read FFuncInst;
+    property PEvalParams: TASTList read FEvalParams;
+
+    constructor Create(AFuncInst: TAST; AEvalParams: TASTList; AToken: TToken);
     destructor Destroy; override;
   end;
 
@@ -616,6 +630,28 @@ begin
 end;
 
 destructor TFunctionCall.Destroy;
+var
+  len, i: integer;
+begin
+  len := Length(FEvalParams);
+  if len > 0 then
+  begin
+    for i := 0 to len - 1 do
+    begin
+      FEvalParams[i].Free;
+    end;
+  end;
+  inherited;
+end;
+
+constructor TFunctionCallByInstance.Create(AFuncInst: TAST; AEvalParams: TASTList; AToken: TToken);
+begin
+  FToken := AToken;
+  FFuncInst := AFuncInst;
+  FEvalParams := AEvalParams;
+end;
+
+destructor TFunctionCallByInstance.Destroy;
 var
   len, i: integer;
 begin

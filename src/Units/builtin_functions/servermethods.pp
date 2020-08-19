@@ -1,4 +1,4 @@
-AServerType := TBuiltInType.Create('Server', 'TServerInstance');
+AServerType := TDataType.Create('TServerInstance', 'Server');
 AServerFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TServerInstance', True);
 AServerType.PMembers.Add('setPort', AServerFunc);
 AServerType.PMembers.Add('setRootFile', AServerFunc);

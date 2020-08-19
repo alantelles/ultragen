@@ -65,24 +65,26 @@ var
   AType:string = '';
   AuxStr:string;
   DotPos, len, i: integer;
-  Ret: TInstanceOf;
+  Ret, Aux: TInstanceOf;
 
 begin
   FInter := AInter;
   Ret := TNullInstance.create;
   if AObj <> nil then
   begin
-    if AObj.ClassNameIs('TBuiltInType') then
-      AType := TBuiltInType(AObj).PValue
+    if AObj.ClassNameIs('TDataType') then
+      AType := TDataType(AObj).PValue
     else
     begin
       AType := AObj.ClassName;
       FObj := AObj;
     end;
-  end;
+  end
+  else
+    AType := 'TCoreInstance';
   FParams := AArgList;
 
-  if AType = '' then
+  if AType = 'TCoreInstance' then
   begin
     if FName = 'print' then
 	    Ret := Print
@@ -90,6 +92,33 @@ begin
 	    Ret := InlinePrint
     else if FName = 'saveLive' then
       DumpLive
+
+    else if FName = 'members' then
+    begin
+      if FParams[0].ClassNameIs('TDataType') then
+      begin
+        len := FParams[0].PMembers.Count;
+        if len > 0 then
+        begin
+		      for i:=0 to len-1 do
+		      begin
+		        writeln(FParams[0].PMembers.NameOfIndex(i),': ', TInstanceOf(FParams[0].PMembers[i]).AsString);
+				  end;
+        end;
+      end
+      else
+      begin
+        Aux := Finter.PCallStack.Peek.GetTypeByInternalName(FParams[0].ClassName);
+        len := Aux.PMembers.Count;
+        if len > 0 then
+        begin
+          for i:=0 to len-1 do
+          begin
+            writeln(Aux.PMembers.NameOfIndex(i),': ', TinstanceOf(Aux.PMembers[i]).AsString);
+					end;
+				end;
+      end;
+		end
 
     //system
     else if FName = 'clear' then
@@ -366,8 +395,8 @@ var
   Astr: string;
 begin
   AStr := FParams[0].ClassName;
-  if FParams[0].ClassNameIs('TBuiltInType') then
-    AStr := TBuiltInType(FParams[0]).AsString
+  if FParams[0].ClassNameIs('TDataType') then
+    AStr := TDataType(FParams[0]).AsString
   else if FParams[0].ClassNameIs('TClassInstance') then
     AStr := TClassInstance(FParams[0]).PValue;
   Result := TStringInstance.Create(AStr);
