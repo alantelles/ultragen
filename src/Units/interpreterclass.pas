@@ -948,9 +948,12 @@ begin
   end
   else
   begin
-
-    ERunTimeError.Create('Referenced function "' + AFuncName + '" does not exist.',
-      FTrace, ANode.PToken);
+    if ASrcInstance = nil then
+      ERunTimeError.Create('Referenced function "' + AFuncName + '" does not exist.',
+		        FTrace, ANode.PToken)
+    else
+      ERunTimeError.Create('Referenced function "' + AFuncName + '" does not exist for type "'+TDataType(ASrcInstance).PFrontName+'".',
+		        FTrace, ANode.PToken);
   end;
   // end of new
 end;

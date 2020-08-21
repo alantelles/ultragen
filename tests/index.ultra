@@ -1,8 +1,13 @@
 include @Core
-a = [0,1,2,3]
-b = a
-print(a,b)
-a[1] = 'go'
-print(a,b)
-a.drop(2)
-print(a,b)
+b = []
+i = 0
+while (i < 500)
+    x = Integer.zika()
+    test = b.pos(x)
+    if (test == -1)
+        b.append(x)
+    end
+    i += 1
+end
+print(b)
+print(b.length())

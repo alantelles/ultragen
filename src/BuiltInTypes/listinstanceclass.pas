@@ -200,7 +200,7 @@ var
   len: integer;
   ToAdd: TInstanceOf;
 begin
-  ToAdd := AItem;
+  AItem.CopyInstance(ToAdd);
   {if AItem <> nil then
   begin
     if AItem.ClassNameIs('TIntegerInstance') then

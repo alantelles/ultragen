@@ -123,5 +123,7 @@ begin
   Result := ATree;
 end;
 
+begin
+  randomize;
 end.
 

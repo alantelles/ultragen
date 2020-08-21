@@ -3,4 +3,5 @@ AIntFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TIntegerInstance', Tr
 AIntType.PMembers.Add('fixed', AIntFunc);
 AIntType.PMembers.Add('cycle', AIntFunc);
 AIntType.PMembers.Add('leftZeros', AIntFunc);
+AIntType.PMembers.Add('random', AIntFunc);
 AActRec.AddMember('Integer', AIntType);
