@@ -1,13 +1,9 @@
-include @Core
-b = []
-i = 0
-while (i < 500)
-    x = Integer.zika()
-    test = b.pos(x)
-    if (test == -1)
-        b.append(x)
-    end
-    i += 1
+class Zika
+
+function soma(arg) : Zika
+    return 5 + arg
 end
-print(b)
-print(b.length())
+
+
+a = new Zika()
+print(a.soma(90))

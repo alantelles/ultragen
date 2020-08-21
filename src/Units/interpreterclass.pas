@@ -42,7 +42,7 @@ type
     procedure PassCallStack(var ACallStack: TStack; ToParent: boolean);
     function Interpret(DontPush: boolean = False;
       ANameActRec: TActivationRecord = nil): string;
-    function ExecuteFunctionByInstance(AFunction: TFunctionInstance; Args: TInstanceList; ANode: TAST): TInstanceOf;
+    function ExecuteFunctionByInstance(AFunction: TFunctionInstance; Args: TInstanceList; ANode: TAST; ASrcinstance: TInstanceOf): TInstanceOf;
 
 
 
@@ -347,13 +347,14 @@ end;
 
 function TInterpreter.VisitNewObject(ANode: TNewObject): TInstanceOf;
 var
-  Ret: TInstanceOf;
+  Ret, ToCast: TInstanceOf;
   NowAct, NewAct: TActivationRecord;
   ActInst: TDictionaryInstance;
-  Gene, ConstRet: TInstanceOf;
+  Gene: TInstanceOf;
   ABuilt: TDataType;
   ArgsList: TInstanceList;
   len, i: integer;
+  ConstRet: TFunctionInstance;
 begin
   NowAct := FCallStack.Peek();
   Gene := NowAct.GetMember(ANode.PName);
@@ -384,6 +385,15 @@ begin
       else
       begin
         Ret := TClassInstance.Create(ABuilt.PValue);
+        ToCast := TInstanceOf(ABuilt.PMembers.Find('init'));
+        if ToCast <> nil then
+        begin
+          if ToCast.ClassNameIs('TFunctionInstance') then
+          begin
+            ConstRet := TFunctionInstance(ToCast);
+            ExecuteFunctionByInstance(Constret, ArgsList, Anode, ret);
+				  end;
+				end;
 			end;
 			Result := Ret;
     end;
@@ -731,10 +741,10 @@ begin
       Arec.CopyInstance(ArgsList[i]);
 		end;
 	end;
-  Result := ExecuteFunctionByinstance(AFuncInst, ArgsList, ANode);
+  Result := ExecuteFunctionByinstance(AFuncInst, ArgsList, ANode, ASrcInstance);
 end;
 
-function TInterpreter.ExecuteFunctionByInstance(AFunction: TFunctionInstance; Args: TInstanceList; ANode: TAST): TInstanceOf;
+function TInterpreter.ExecuteFunctionByInstance(AFunction: TFunctionInstance; Args: TInstanceList; ANode: TAST; AsrcInstance: TInstanceOf): TInstanceOf;
 var
   AActRec: TActivationRecord;
   lenArgs, LenParams, len, i: integer;
@@ -744,6 +754,9 @@ var
 begin
   AActRec := TActivationRecord.Create(AFunction.PName, AR_FUNCTION,
         FCallStack.PLevel + 1);
+  AActRec.AddMember('__LIVE__', TStringInstance.Create(''));
+  if ASrcInstance <> nil then
+    AActRec.AddMember('self', ASrcInstance);
   lenArgs := Length(Args);
   lenParams := Length(AFunction.PParams);
   Len := Max(LenArgs, LenParams);
