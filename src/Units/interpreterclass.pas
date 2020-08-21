@@ -363,9 +363,7 @@ begin
     if Gene.ClassNameIs('TDictionaryInstance') then
     begin
       ActInst := TDictionaryInstance(Gene);
-
       ActInst.PValue.CopyActRec(NewAct);
-
       Result := TDictionaryInstance.Create(NewAct);
     end
     else if Gene.ClassNameIs('TDataType') then
