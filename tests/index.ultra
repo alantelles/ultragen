@@ -1,16 +1,16 @@
 class Zika
 
-function soma(arg) : Zika
-    return 5 + arg
+function init(arg1, arg2) : Zika    
 end
 
-function getTopper() : Zika
-    return self.topper
+
+x  = input('Digite um número: ', 9)
+if (x == '1')
+    include 'req.ultra'
+else
+    include 'jsonparse.ultra'
 end
 
-function init(topper) : Zika
-    
-end
+a = new Zika('momo', 'zika')
 
-a = new Zika(48)
-print(a.topper)
+print(a.sum())

@@ -125,6 +125,10 @@ begin
       clrscr
     else if FName = 'input' then
     begin
+      if Length(FParams) > 1 then
+        AInter.RaiseException(E_INVALID_ARGS, 'Arguments');
+      if Length(FParams) = 1 then
+        Write(TStringInstance(FParams[0]).PValue);
       ReadLn(AuxStr);
       Ret := TStringInstance.Create(AuxStr)
 		end

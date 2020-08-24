@@ -389,7 +389,14 @@ begin
           if ToCast.ClassNameIs('TFunctionInstance') then
           begin
             ConstRet := TFunctionInstance(ToCast);
-            ExecuteFunctionByInstance(Constret, ArgsList, Anode, ret);
+            if len > 0 then
+            begin
+              for i:=0 to len-1 do
+              begin
+                Ret.PMembers.Add(ConstRet.PParams[i].PToken.PValue, ArgsList[i]);
+							end;
+						end;
+						ExecuteFunctionByInstance(Constret, ArgsList, Anode, ret);
 				  end;
 				end;
 			end;
