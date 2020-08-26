@@ -1,16 +1,7 @@
-class Zika
+include @Core
 
-function init(arg1, arg2) : Zika    
-end
+x = '[{"teste": "momento 1", "index": 99}, {"teste": "momento 14", "index": 2774}]'
+k = JSON.parseFile('ex.json')
+print(k)
 
-
-x  = input('Digite um número: ', 9)
-if (x == '1')
-    include 'req.ultra'
-else
-    include 'jsonparse.ultra'
-end
-
-a = new Zika('momo', 'zika')
-
-print(a.sum())
+m = JSON.createFile(k, 'reconv.json')

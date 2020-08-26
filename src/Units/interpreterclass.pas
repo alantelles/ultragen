@@ -84,10 +84,10 @@ var
   AActRec: TActivationRecord;
   FileExplorer: TActivationRecord;
   ACoreType, AStrType, AIntType, AFloatType, AListType, ABoolType, AHttpResponseType,
-  AFuncType, AOSType, AFSType, ADictType, AServerType, AHttpClientType: TDataType;
+  AFuncType, AOSType, AFSType, ADictType, AServerType, AHttpClientType, AJsonType: TDataType;
 
   AStrFunc, AIntFunc, AListFunc, AServerFunc, AOSFunc, AFSFunc, ADictFunc, AHttpClientFunc,
-  ABoolFunc, AFloatFunc, ACoreFunc: TFunctionInstance;
+  ABoolFunc, AFloatFunc, ACoreFunc, AJsonFunc: TFunctionInstance;
   ANameSpace: TDictionaryInstance;
 begin
 
@@ -97,31 +97,18 @@ begin
   {AListType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TListInstance', True);
   AFuncType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFunctionInstance', True);}
   ABoolFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBooleanInstance', True);
+  AJsonFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TJsonInstance', True);
+  AHttpClientFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'THttpClientInstance', True);
   {ADictType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TDictionaryInstance', True);
   AOSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TOSInstance', True);
   AFSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFileSystemInstance', True);
   AServerType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TServerInstance', True);}
   AActRec := FCallStack.GetFirst();
 
-
-  // BuiltInTypesRegister                                                       
-  {AActRec.AddMember('String', TDataType.Create('TStringInstance', 'String'));
-  AActRec.GetMember('String').PMembers.Add('upper', AStrType);
-  AActRec.AddMember('Integer', TDataType.Create('TIntegerInstance', 'Integer'));
-  AActRec.AddMember('Float', TDataType.Create('TFloatInstance', 'Float'));
-  AActRec.AddMember('Boolean', TDataType.Create('TBooleanInstance', 'Boolean'));
-  AActRec.AddMember('Null', TDataType.Create('TNullInstance', 'Null'));
-  AActrec.AddMember('Dict', TDataType.Create('TDictionaryInstance', 'Dict'));
-  AActrec.AddMember('List', TDataType.Create('TListInstance', 'List'));
-
-  AActRec.AddMember('OS', TDataType.Create('TOSInstance', 'OS'));
-  AActRec.AddMember('FileSystem', TDataType.Create('TFileSystemInstance', 'FileSystem'));
-  AActRec.AddMember('Server', TDataType.Create('TServerInstance', 'Server'));
-  AActRec.AddMember('Request', TDataType.Create('THttpClientInstance', 'Request'));
-  AActRec.AddMember(AHttpClientType.PType+ST_ACCESS+'get', AHttpClientType);
-  AActRec.AddMember(AHttpClientType.PType+ST_ACCESS+'post', AHttpClientType);}
-
-  AHttpClientFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'THttpClientInstance', True);
+  AJsonType := TDataType.Create('TJsonInstance', 'JSON');
+  AJsonType.PMembers.Add('parse', AJsonFunc);
+  AJsonType.PMembers.Add('parseFile', AJsonFunc);
+  AActRec.AddMember('JSON', AJsonType);
 
   AHttpClientType := TDataType.Create('THttpClientInstance', 'Request');
   AHttpClientType.PMembers.Add('get', AHttpClientFunc);

@@ -1,0 +1,70 @@
+function create(obj) : JSON
+    
+    function dumpObj(data)    
+        ret = '{'
+        x = []
+        for (data.keys(), d)
+            x.append('"' + d + '": ' + dumpVal(data[d]))
+        end
+        ret += ','.join(x)
+        ret += '}'    
+        return ret
+    end
+
+    function dumpValList(data)
+        ret = '['
+        x = []
+        for (data, d)
+            x.append(dumpVal(d))
+        end
+        ret += ','.join(x)
+        ret += ']'
+        return ret
+    end
+
+    function dumpVal(data)
+        input_type = typeof(data)
+        tri = [Integer.internal, Boolean.internal, Float.internal]
+        x = tri.pos(input_type)
+        if (x > -1)
+            return str(data).lower()
+        elsif (input_type == (String.internal))
+            return '"' + data + '"'
+        elsif (input_type == (Dict.internal))
+            kk = dumpObj(data)
+            return kk
+        elsif (input_type == (List.internal))
+            kk = dumpValList(data)
+            return kk
+        else
+            return 'null'
+        end
+    end
+
+    function dumpList(data)
+        ret = '['
+        x = []
+        for (data, d)
+            x.append(dumpObj(d))
+        end
+        ret += ','.join(x)
+        ret += ']'
+        return ret
+    end
+
+    input_type = typeof(obj)
+    if (input_type == (List.internal))
+        out = dumpList(obj)
+    elsif (input_type == (Dict.internal))
+        out = dumpObj(obj)
+    else
+        return 'Invalid type for conversion'
+    end
+    return out
+end
+
+function createFile(data, file_name) : JSON
+    include @Core.Strings
+    dump = JSON.create(data)
+    dump.writeText(file_name)
+end

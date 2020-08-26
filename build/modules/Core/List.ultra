@@ -76,7 +76,7 @@ function slice (sp, ep=null) : List
     return output
 end
 
-function toJson() : List    
+function toJson() : List
     include @Core.JsonHelpers
     function dumpList(data)
         ret = '['

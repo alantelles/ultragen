@@ -40,6 +40,7 @@ type
       function Range: TListInstance;
       procedure DumpLive;
       function ParseJson: TInstanceOf;
+      function ParseJsonFile: TInstanceOf;
 
        //functions
 
@@ -155,6 +156,13 @@ begin
       raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.', '', 1, 1);
   // procs
 	end
+  else if AType = 'TJsonInstance' then
+  begin
+    if FName = 'parse' then
+      Ret := ParseJson
+    else if FName = 'parseFile' then
+      Ret := ParseJsonFile
+  end
   {$INCLUDE 'string/options.pp'}
   {$INCLUDE 'list/options.pp'}
   {$INCLUDE 'integer/options.pp'}
@@ -347,6 +355,42 @@ begin
   AJson := TJsonNode.Create;
   try
     AJson.Parse(TStringInstance(FParams[0]).PValue);
+
+	except on E: Exception do
+    FInter.RaiseException(E.Message, Copy(e.ClassName, 2, Length(E.ClassName)));
+	end;
+	//Traverse(AJson, ADict, AList, AJson.Kind);
+  if AJson.Kind = nkArray then
+  begin
+    AList := TListInstance.Create();
+    TraverseJsonList(AJson, AList);
+    Result := AList;
+	end
+	else
+  begin
+    ADict := TDictionaryInstance.Create(TActivationRecord.Create('json', AR_DICT, 1));
+    TraverseJsonObj(AJson, ADict);
+    Result := ADict;
+	end;
+end;
+
+function TCoreFunction.ParseJsonFile: TInstanceOf;
+var
+  AJson: TJsonNode;
+  ADict: TDictionaryInstance;
+  AList: TListInstance;
+  AStrList: TStringList;
+  AStr: string;
+begin
+
+
+  AJson := TJsonNode.Create;
+  try
+    AStrList := TStringList.Create;
+    AStrList.LoadFromFile(TStringInstance(FParams[0]).PValue);
+    AStr := AStrList.Text;
+    AStrList.Free;
+    AJson.Parse(AStr);
 
 	except on E: Exception do
     FInter.RaiseException(E.Message, Copy(e.ClassName, 2, Length(E.ClassName)));

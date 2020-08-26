@@ -30,4 +30,4 @@ lib/
 *.app/
 
 
-build/ultragen
+build/bin/ultragen
