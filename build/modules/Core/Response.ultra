@@ -1,3 +1,4 @@
-function toData() : Response
-    return parseJson(self.text)
+function getJson() : Response
+    include @Core.Json
+    return JSON.parse(self.text)
 end

@@ -1,4 +1,3 @@
+include @Core
 
-function sum() : Zika
-    return (self.arg2) + ' ' + (self.arg1)
-end
+print(Request.get('https://google.com').text)

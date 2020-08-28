@@ -1,0 +1,27 @@
+function reverse() : String
+    len = self.length
+    res = ''
+    for (len, i)
+        x = len - i - 1
+        res = res + (self[x])
+    end
+    return res
+end
+
+function isInt() : String
+    nums = '0123456789'
+    ret = true
+    for (self, ch)
+        x = nums.pos(ch)
+        
+        if (x == -1)
+            ret = false
+            break
+        end
+    end
+    return ret
+end
+
+function writeText(filename) : String
+    self.split('\n').writeText(filename)
+end

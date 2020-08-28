@@ -1,3 +1,6 @@
-function getJson() : Request
-    return parseJson(self.response)
+function postJson(url, data, headers={}) : Request
+    include @Core.Json
+    headers['Content-Type'] = 'application/json'
+    req = Request.post(url, JSON.create(data), headers)
+    return req
 end

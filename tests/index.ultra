@@ -1,7 +1,21 @@
 include @Core
 
-x = '[{"teste": "momento 1", "index": 99}, {"teste": "momento 14", "index": 2774}]'
-k = JSON.parseFile('ex.json')
-print(k)
+class Top
+function init() : Top
+    self.rai = 'iniciei'
+end
 
-m = JSON.createFile(k, 'reconv.json')
+function out() : Top
+    return self.rai.upper()
+end
+
+x = new Top()
+print(x.out())
+
+class Top
+function init(arg) : Top
+    self.rai = 'iniciei ' + arg
+end
+
+x = new Top('zika')
+print(x.out())

@@ -1168,7 +1168,13 @@ var
   AActRec: TActivationRecord;
 begin
   AActRec := FCallStack.Peek;
-  AActRec.AddMember(ANode.PToken.PValue, TDataType.Create(ANode.PToken.PValue, ANode.PToken.PValue, True));
+  if (AActRec.GetMember(Anode.PToken.PValue) <> nil) then
+    AActRec.AddMember(ANode.PToken.PValue, TDataType.Create(ANode.PToken.PValue, ANode.PToken.PValue, True))
+  else
+  begin
+    ERunTimeError.Create('Can''t redefine class "' + ANode.PToken.PValue + '" already defined',
+      FTrace, ANode.PToken);
+  end;
 end;
 
 function TInterpreter.VisitUnaryOpFloat(ANode: TUnaryOp): TFloatInstance;

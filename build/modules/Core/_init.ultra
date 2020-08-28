@@ -1,7 +1,8 @@
 include @Core.Dict
 include @Core.List
-include @Core.Strings
+include @Core.String
 include @Core.Helpers
 include @Core.Web
 include @Core.Json
 include @Core.Response
+include @Core.Request

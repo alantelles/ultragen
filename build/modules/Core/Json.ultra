@@ -1,5 +1,6 @@
 function create(obj) : JSON
     
+
     function dumpObj(data)    
         ret = '{'
         x = []
@@ -23,6 +24,7 @@ function create(obj) : JSON
     end
 
     function dumpVal(data)
+
         input_type = typeof(data)
         tri = [Integer.internal, Boolean.internal, Float.internal]
         x = tri.pos(input_type)
