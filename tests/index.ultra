@@ -1,21 +1,10 @@
 include @Core
+x = {
+    '$bobo' : "Teste de insta literal",
+    :bebe : 'outro valor',
+    :$const : "Teste de constante"
+}
 
-class Top
-function init() : Top
-    self.rai = 'iniciei'
-end
-
-function out() : Top
-    return self.rai.upper()
-end
-
-x = new Top()
-print(x.out())
-
-class Top
-function init(arg) : Top
-    self.rai = 'iniciei ' + arg
-end
-
-x = new Top('zika')
-print(x.out())
+x['$bobo'] = 'baholeros'
+x[:bebe] = 'micro'
+print(x)

@@ -56,8 +56,9 @@ type
     function Interpolated: TAST;
     function PlainTextEmbed: TAST;
     function IncludeScript: TAST;
-    function NamespaceGet: TAST;
-    function NamespaceState: TAST;
+    //function NamespaceGet: TAST;
+    //function NamespaceState: TAST;
+    function InstaLiteral: TAST;
     function NewObject: TAST;
     function Dict: TAST;
     function DictKey: TAST;
@@ -252,7 +253,7 @@ begin
   );
   Result := TDictKeyNode.Create(AKey, AVal, AToken);
 end;
-
+{
 function TTParser.NamespaceGet: TAST;
 var
   Oper: TAST;
@@ -323,6 +324,26 @@ begin
     );
     Result := TnamespaceState.Create(AName, NamespaceState(), AToken);
   end;
+end;
+    }
+
+function TTParser.InstaLiteral: TAST;
+var
+  AStr: string;
+  Aoper: TAST;
+  AToken: TToken;
+begin
+  Eat(T_DICT_ASSIGN);
+  AStr := FCurrentToken.PValue;
+  AToken := TToken.Create(
+    FCurrentToken.PType,
+    FCurrentToken.PValue,
+    FCurrentToken.PLineNo,
+    FCurrentToken.PCharNo,
+    FCurrentToken.PScriptName
+  );
+  Eat(T_ID);
+  Result := TString.Create(AToken);
 end;
 
 function TTParser.FunctionBlock: TAST;
@@ -1189,7 +1210,7 @@ begin
   end
   else if (AToken.PType = T_DICT_ASSIGN) then
   begin
-    Ret := NamespaceGet();
+    Ret := InstaLiteral();
   end
   else if (AToken.PType = TYPE_NULL) then
   begin
