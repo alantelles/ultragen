@@ -12,6 +12,7 @@ function VisitNamespaceState(ANode: TNamespaceState): TInstanceOf;
 function VisitNewObject(ANode: TNewObject): TInstanceOf;
 function VisitDict(ANode: TDictNode): TDictionaryInstance;
 procedure VisitClassDefinition(ANode: TClassDefinition);
+procedure VisitLoadType(ANode: TLoadType);
 
 // references
 procedure VisitVarAssign(ANode: TVarAssign; ASrc: TInstanceOf);

@@ -1,7 +1,7 @@
-POST https://reqres.in/api/users
+DELETE https://reqres.in/api/users/3
 Content-Type: application/json
 
 {
-    "singer": "Céu",
-    "faixa": 90
+    "first_name":"Tedy",
+    "last_name":"Riley"
 }

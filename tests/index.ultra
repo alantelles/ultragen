@@ -1,10 +1,14 @@
-include @Core
-x = {
-    '$bobo' : "Teste de insta literal",
-    :bebe : 'outro valor',
-    :$const : "Teste de constante"
-}
+url = "https://reqres.in/api/users"
+body = '{"first_name":"Ed","last_name":"Bomber"}'
 
-x['$bobo'] = 'baholeros'
-x[:bebe] = 'micro'
-print(x)
+load FileSystem, Request
+
+m = Request.get(url)
+# print(m)
+print(m.status)
+# print(m.status_text)
+path = '/home/alantelles/Arquivos/develop/lazarus/ultragen/build/modules/Core'
+l = FileSystem.getAllFiles(path)
+for (l, i)
+    print(i)
+end

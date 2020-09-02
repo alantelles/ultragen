@@ -42,6 +42,7 @@ type
     function FunctionCall(var AToken: TToken): TAST;
     function FunctionCallByInstance(AFuncNode: TAST; var AToken: TToken): TAST;
     function MethodCall: TAST;
+    function LoadType: TAST;
     function MethodCallState: TAST;
     function Args: TASTList;
     function ListArgs: TASTList;
@@ -125,6 +126,52 @@ begin
   );
   Eat(T_ID);
   Result := TClassDefinition.Create(AToken);
+end;
+
+function TTParser.LoadType: TAST;
+var
+  AParams: TASTList;
+  len: integer;
+  AToken: TToken;
+begin
+  AToken := TToken.Create(
+        FCurrentToken.PType,
+        FCurrentToken.PValue,
+        FCurrentToken.PLineNo,
+        FCurrentToken.PCharNo,
+        FCurrentToken.PScriptName
+      );
+  Eat(T_LOAD_TYPE);
+  len := 1;
+  SetLength(AParams, len);
+  AParams[len-1] := TAST.Create(
+    TToken.Create(
+      FCurrentToken.PType,
+      FCurrentToken.PValue,
+      FCurrentToken.PLineNo,
+      FCurrentToken.PCharNo,
+      FCurrentToken.PScriptName
+    )
+  );
+  Eat(T_ID);
+  while (FCurrentToken.PType <> T_NEWLINE) and (FCurrentToken.PType <> EOF) do
+  begin
+    Eat(T_COMMA);
+    len := len + 1;
+    SetLength(AParams, len);
+    AParams[len-1] := TAST.Create(
+      TToken.Create(
+        FCurrentToken.PType,
+        FCurrentToken.PValue,
+        FCurrentToken.PLineNo,
+        FCurrentToken.PCharNo,
+        FCurrentToken.PScriptName
+      )
+    );
+    Eat(T_ID);
+  end;
+
+  Result :=  TLoadType.Create(AParams, AToken);
 end;
 
 function TTParser.IncludeScript: TAST;
@@ -1025,6 +1072,10 @@ begin
     Logtext('PARSER', 'Parser', 'Creating namespace');
     Ret := NamespaceState();
   end}
+  else if (AToken.PType = T_LOAD_TYPE) then
+  begin
+    Ret := LoadType();
+  end
   else if (AToken.PType = T_CLASS_DEF) then
   begin
     ret := ClassDefinition();

@@ -8,6 +8,9 @@
   else if ANode.ClassNameIs('TListAssign') then
     VisitListAssign(TListAssign(ANode))
 
+  else if Anode.ClassNameIs('TLoadType') then
+    VisitLoadType(TLoadType(ANode))
+
   else if ANode.ClassNameIs('TVariableReference') then
     Ret := VisitVariableReference(TVariableReference(ANode), ASrcInstance)
 

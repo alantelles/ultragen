@@ -86,6 +86,7 @@ const
   T_LIST_END = 'T_LIST_END';
   T_DICT_START = 'T_DICT_START';
   T_DICT_END = 'T_DICT_END';
+  T_LOAD_TYPE = 'T_LOAD_TYPE';
 
 
 
@@ -109,6 +110,7 @@ begin
   // KW.Add(T_LANG_FALSE + '=' + TYPE_BOOLEAN);
   KW.Add(T_LANG_NULL + '=' + TYPE_NULL);
   KW.Add('continue=' +  T_CONTINUE);
+  KW.Add('load=' + T_LOAD_TYPE);
   KW.Add('break=' +  T_BREAK);
   KW.Add('live=' +  T_LIVE_OUTPUT);
   KW.Add('return=' +  T_RETURN);

@@ -60,6 +60,15 @@ type
     constructor Create(AKeys: TASTList; AToken: TToken);
   end;
 
+  TLoadType = class (TAST)
+    protected
+      FTypeNames: TASTList;
+    public
+      property PTypeNames: TASTList read FTypeNames;
+      destructor Destroy; override;
+      constructor Create(ATypeNames: TASTList; AToken: TToken);
+  end;
+
   TNewObject = class(TAST)
   private
     FArgs: TASTList;
@@ -663,6 +672,21 @@ begin
       FEvalParams[i].Free;
     end;
   end;
+  inherited;
+end;
+
+constructor TLoadType.Create(ATypeNames: TASTList; AToken: TToken);
+begin
+  FTypeNames := ATypeNames;
+  FToken := AToken;
+end;
+
+destructor TLoadType.Destroy;
+var
+  AT: TAST;
+begin
+  for AT in FTypeNames do
+    AT.Free;
   inherited;
 end;
 

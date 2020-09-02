@@ -8,7 +8,8 @@ uses
   Classes, SysUtils, ASTClass,
   BinOpClass, NumClass, UnaryOpClass, BinLogicOpClass, UnaryLogicopClass,
   ImpParserClass, StrUtils, LoggingClass, FlowControlASTClass,
-  StackClass, ARClass, InstanceofClass,
+  StackClass,
+  ARClass, InstanceofClass,
   StringInstanceClass, ExceptionsClasses,
   ListInstanceClass;
 
@@ -57,7 +58,7 @@ implementation
 
 uses
   Math, TokenClass, Tokens, CoreFunctionsClass, LexerClass,
-  ServerClass, Dos;
+  ServerClass, Dos, TypeLoaderClass;
 
 constructor TInterpreter.Create(var ATree: TAST);
 begin
@@ -83,10 +84,10 @@ const
 var
   AActRec: TActivationRecord;
   FileExplorer: TActivationRecord;
-  ACoreType, AStrType, AIntType, AFloatType, AListType, ABoolType, AHttpResponseType,
-  AFuncType, AOSType, AFSType, ADictType, AServerType, AHttpClientType, AJsonType: TDataType;
+  ACoreType, AStrType, AIntType, AFloatType, AListType, ABoolType,
+  AFuncType, AOSType, ADictType, AServerType, AJsonType: TDataType;
 
-  AStrFunc, AIntFunc, AListFunc, AServerFunc, AOSFunc, AFSFunc, ADictFunc, AHttpClientFunc,
+  AStrFunc, AIntFunc, AListFunc, AServerFunc, AOSFunc, ADictFunc, AHttpClientFunc,
   ABoolFunc, AFloatFunc, ACoreFunc, AJsonFunc: TFunctionInstance;
   ANameSpace: TDictionaryInstance;
 begin
@@ -98,7 +99,6 @@ begin
   AFuncType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFunctionInstance', True);}
   ABoolFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBooleanInstance', True);
   AJsonFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TJsonInstance', True);
-  AHttpClientFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'THttpClientInstance', True);
   {ADictType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TDictionaryInstance', True);
   AOSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TOSInstance', True);
   AFSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFileSystemInstance', True);
@@ -110,14 +110,6 @@ begin
   AJsonType.PMembers.Add('parseFile', AJsonFunc);
   AActRec.AddMember('JSON', AJsonType);
 
-  AHttpClientType := TDataType.Create('THttpClientInstance', 'Request');
-  AHttpClientType.PMembers.Add('get', AHttpClientFunc);
-  AHttpClientType.PMembers.Add('post', AHttpClientFunc);
-  AActrec.AddMember('Request', AHttpClientType);
-
-  AHttpResponseType := TDataType.Create('THttpResponseInstance', 'Response');
-  AActrec.AddMember('Response', AHttpResponseType);
-
   ABoolType := TDataType.Create('TBooleanInstance', 'Boolean');
   AFloatType := TDataType.Create('TFloatInstance', 'Float');
   AFuncType := TDataType.Create('TFunctionInstance', 'Function');
@@ -125,6 +117,8 @@ begin
   // ACoreType := TDataType.Create('TCoreInstance', 'Core');
   ACoreFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TCoreInstance', True);
   AActRec.AddMember('parseJson', ACoreFunc);
+
+  //TTypeLoader.LoadType('Request', self, AActRec);
 
   {$INCLUDE 'builtin_functions/register_builtins.pp' }
 
@@ -492,6 +486,17 @@ begin
     end;
   end;
   FBreakSignal := False;
+end;
+
+procedure TInterpreter.VisitLoadType(ANode: TLoadType);
+var
+  len, i: integer;
+  AActRec: TActivationRecord;
+begin
+  AActRec := FCallStack.GetFirst;
+  len := Length(ANode.PTypeNames);
+  for i := 0 to len-1 do
+    TTypeLoader.LoadType(ANode.PTypeNames[i].PToken.PValue, Self, AActRec);
 end;
 
 procedure TInterpreter.VisitForLoop(ANode: TForLoop);

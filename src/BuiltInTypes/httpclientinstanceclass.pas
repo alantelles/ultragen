@@ -20,8 +20,8 @@ end;
 
 type THttpClientInstance = class (TInstanceOf)
   public
-    class function RequestGet(AUrl: string; AHeaders: TDictionaryInstance=nil): THttpResponseInstance;
-    class function RequestPost(AUrl: string; APayload: TInstanceOf; AHeaders: TDictionaryInstance=nil): THttpResponseInstance;
+    class function RequestGet(AMethod, AUrl: string; AHeaders: TDictionaryInstance=nil): THttpResponseInstance;
+    class function RequestPost(AMethod, AUrl: string; APayload: TInstanceOf; AHeaders: TDictionaryInstance=nil): THttpResponseInstance;
   end;
 
 implementation
@@ -60,7 +60,7 @@ begin
   Result := '<Response from endpoint "'+TInstanceOf(FMembers.Find('url')).AsString+'">';
 end;
 
-class function THttpClientInstance.RequestGet(AUrl: string; AHeaders: TDictionaryInstance=nil): THttpResponseInstance;
+class function THttpClientInstance.RequestGet(AMethod, AUrl: string; AHeaders: TDictionaryInstance=nil): THttpResponseInstance;
 var
   Requirer: TFPHttpClient;
   Return: string = '';
@@ -83,7 +83,10 @@ begin
   try
     Requirer.AllowRedirect := True;
     try
-      Return := Requirer.Get(AUrl);
+      if AMethod = 'delete' then
+        Return := Requirer.Delete(AUrl)
+      else
+        Return := Requirer.Get(AUrl);
     except
       On E:Exception do
       begin
@@ -95,7 +98,7 @@ begin
   Result := THttpResponseInstance.Create(Requirer, AUrl, Return);
 end;
 
-class function THttpClientInstance.RequestPost(AUrl: string; APayload: TInstanceOf; AHeaders: TDictionaryInstance=nil): THttpResponseInstance;
+class function THttpClientInstance.RequestPost(AMethod, AUrl: string; APayload: TInstanceOf; AHeaders: TDictionaryInstance=nil): THttpResponseInstance;
 var
   Requirer: TFPHttpClient;
   Return: string = '';
@@ -104,6 +107,7 @@ var
 begin
   InitSSLInterface;
   Requirer := TFPHttpClient.Create(nil);
+  Requirer.IOTimeout := 10000;
   Requirer.AddHeader('User-Agent','Mozilla/5.0 (compatible; fpweb)');
 
   if AHeaders <> nil then
@@ -122,7 +126,11 @@ begin
     SS.Position := 0;
     Requirer.RequestBody := SS;
     try
-      Return := Requirer.Post(AUrl);
+      if AMethod = 'put' then
+        Return := Requirer.Put(AUrl)
+
+      else
+        Return := Requirer.Post(AUrl);
     except
       On E:Exception do
       begin
