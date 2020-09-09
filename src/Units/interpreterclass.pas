@@ -684,18 +684,18 @@ begin
         for i:=Start downto 1 do
         begin
           AActRec := FCallStack.getBylevel(i);
-          BRet := AActRec.GetMember(AName);
-          if Bret <> nil then
+          Ret := AActRec.GetMember(AName);
+          if ret <> nil then
             break
 				end;
-		    if BRet = nil then
+		    if Ret = nil then
 		    begin
 		      ERunTimeError.Create('Referenced variable "' + Aname + '" does not exist',
 		        FTrace, ANode.PToken);
 		    end;
-        BRet.CopyInstance(Ret);
-        AActRec := FCallStack.Peek;
-        AActRec.AddMember(AName, Ret);
+        // BRet.CopyInstance(Ret);
+        // AActRec := FCallStack.Peek;
+        // AActRec.AddMember(AName, Ret);
 	end
   else
   begin
@@ -965,7 +965,7 @@ begin
       ERunTimeError.Create('Referenced function "' + AFuncName + '" does not exist.',
 		        FTrace, ANode.PToken)
     else
-      ERunTimeError.Create('Referenced function "' + AFuncName + '" does not exist for type "'+TDataType(ASrcInstance).PFrontName+'".',
+      ERunTimeError.Create('Referenced function "' + AFuncName + '" does not exist for type "'+TDataType(AActRec.GetTypeByInternalName(ASrcInstance.ClassName)).PFrontName+'".',
 		        FTrace, ANode.PToken);
   end;
   // end of new
