@@ -6,14 +6,3 @@ function asAttrs() : Dict
     end
     return ' '.join(l)
 end
-
-function toJson() : Dict
-    include @Core.JsonHelpers
-    input_type = typeof(self)
-    if (input_type == (Dict.internal))
-        out = dumpObj(self)
-    else
-        return 'Invalid type for conversion'
-    end
-    return out
-end

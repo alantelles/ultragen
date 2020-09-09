@@ -75,25 +75,3 @@ function slice (sp, ep=null) : List
     end
     return output
 end
-
-function toJson() : List
-    include @Core.JsonHelpers
-    function dumpList(data)
-        ret = '['
-        x = []
-        for (data, d)
-            x.append(dumpObj(d))
-        end
-        ret += ','.join(x)
-        ret += ']'
-        return ret
-    end
-
-    input_type = typeof(self)
-    if (input_type == (List.internal))
-        out = dumpList(self)
-    else
-        return 'Invalid type for conversion'
-    end
-    return out
-end

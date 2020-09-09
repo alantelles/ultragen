@@ -12,9 +12,21 @@ type TTypeLoader = class
     class procedure LoadType(AName: string; var AInter: Tinterpreter; var AActRec: TActivationRecord);
     class procedure LoadRequest(var AActRec: TActivationRecord);
     class procedure LoadFileSystem(var AActRec: TActivationRecord);
+    class procedure LoadOS(var AActRec: TActivationRecord);
 end;
 
 implementation
+
+class procedure TTypeLoader.LoadOS(var AActRec: TActivationRecord);
+var
+  AFunc: TFunctionInstance;
+  AType: TDataType;
+begin
+  AType := TDataType.Create('TOSInstance', 'OS');
+  AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TOSInstance', True);
+  AType.PMembers.Add('getEnv', AFunc);
+  AActRec.AddMember('OS', AType);
+end;
 
 class procedure TTypeLoader.LoadRequest(var AActRec: TActivationRecord);
 var
@@ -55,6 +67,8 @@ begin
     TTypeLoader.LoadRequest(AActRec)
   else if AName = 'FileSystem' then
     TTypeLoader.LoadFileSystem(AActRec)
+  else if AName = 'OS' then
+    TTypeLoader.LoadOS(AActRec)
   else
     AInter.RaiseException('Type "'+AName+'" does not exist and can''t be loaded', 'RunTime');
 end;

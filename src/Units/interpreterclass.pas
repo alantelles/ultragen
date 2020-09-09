@@ -116,7 +116,7 @@ begin
 
   // ACoreType := TDataType.Create('TCoreInstance', 'Core');
   ACoreFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TCoreInstance', True);
-  AActRec.AddMember('parseJson', ACoreFunc);
+  // AActRec.AddMember('parseJson', ACoreFunc);
 
   //TTypeLoader.LoadType('Request', self, AActRec);
 
@@ -675,7 +675,7 @@ var
   AName: string;
   AActRec: TActivationRecord;
   Start, i: integer;
-  Ret: TInstanceOf;
+  Ret, BRet: TInstanceOf;
 begin
   AName := Anode.PToken.PValue;
   if ASrc = nil then
@@ -684,15 +684,18 @@ begin
         for i:=Start downto 1 do
         begin
           AActRec := FCallStack.getBylevel(i);
-          Ret := AActRec.GetMember(AName);
-          if ret <> nil then
+          BRet := AActRec.GetMember(AName);
+          if Bret <> nil then
             break
 				end;
-		    if Ret = nil then
+		    if BRet = nil then
 		    begin
 		      ERunTimeError.Create('Referenced variable "' + Aname + '" does not exist',
 		        FTrace, ANode.PToken);
 		    end;
+        BRet.CopyInstance(Ret);
+        AActRec := FCallStack.Peek;
+        AActRec.AddMember(AName, Ret);
 	end
   else
   begin

@@ -1,14 +1,6 @@
-url = "https://reqres.in/api/users"
-body = '{"first_name":"Ed","last_name":"Bomber"}'
+load Request
 
-load FileSystem, Request
+url = 'https://reqres.in/api/users'
+r = Request.get(url)
 
-m = Request.get(url)
-# print(m)
-print(m.status)
-# print(m.status_text)
-path = '/home/alantelles/Arquivos/develop/lazarus/ultragen/build/modules/Core'
-l = FileSystem.getAllFiles(path)
-for (l, i)
-    print(i)
-end
+print(r.text)
