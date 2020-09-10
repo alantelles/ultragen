@@ -1,7 +1,12 @@
+###
 load Request
-# include @Core
 
 url = 'https://reqres.in/api/users'
 r = Request.get(url)
 
-print(r.text.writeText('zika.json'))
+r.text.writeText('zika.json')
+print(r.text)
+###!
+addModulePath('./ttt')
+include @singers
+print(singers[-4])

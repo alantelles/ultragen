@@ -4,5 +4,6 @@
 
 singers = [
     {'name': 'Céu', 'country': 'Brazil', 'age': 38},
-    {'name': 'Elhae', 'country': 'USA', 'age': 27}
+    {'name': 'Elhae', 'country': 'USA', 'age': 27},
+    {'name': 'Galimatias', 'country': 'Denmark', 'age': 25}
 ]

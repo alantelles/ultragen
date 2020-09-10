@@ -8,10 +8,10 @@ uses
   Classes, SysUtils,
   { you can add units after this }
   ASTClass, LexerClass, ImpParserClass, InterpreterClass,
-  StrUtils, LoggingClass, UltraGenInterfaceClass;
+  StrUtils, LoggingClass, UltraGenInterfaceClass, Dos;
 var
   BTree: TAST;
-  LiveOut: string;
+  LiveOut, UHome: string;
   i: integer;
   ParamsNodes: TStringList;
 begin
@@ -28,9 +28,19 @@ begin
       else if ParamStr(2) = '--parser' then
         LogLevel := 'PARSER';
     end;}
+    ParamsNodes := TStringList.Create;
+    UHome := GetEnv('ULTRAGEN_HOME');
+    if Trim(UHome) <> '' then
+    begin
+      ParamsNodes.Add('addModulePath("'+UHome + DirectorySeparator + 'modules' +'")');
+      ParamsNodes.Add('include @Core');
+		end;
+
+    if FileExists('./_INCLUDE.ultra') then
+      ParamsNodes.Add('include "./_INCLUDE.ultra"');
     if ParamCount > 1 then
     begin
-      ParamsNodes := TStringList.Create;
+
       ParamsNodes.Add('$params = []');
       i := 2;
       while ((Copy(ParamStr(i), 1, 2) <> '--')) and
@@ -40,9 +50,10 @@ begin
         i := i + 1;
       end;
       ParamsNodes.Add('$params.lock()');
-      BTree := TUltraInterface.ParseStringList(ParamsNodes);
-      ParamsNodes.Free;
+
 		end;
+    BTree := TUltraInterface.ParseStringList(ParamsNodes);
+    ParamsNodes.Free;
     LiveOut := TUltraInterface.InterpretScript(ParamStr(1), TProgram(BTree));
     if Trim(LiveOut) <> '' then
       Writeln(LiveOut);

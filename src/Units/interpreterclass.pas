@@ -29,7 +29,7 @@ type
     FTrace: TStringList;
     FNowNode: TAST;
     FUltraHome: string;
-    FModulesPath: string;
+    FModulesPath: TStringList;
     procedure BootStrapRegister;
 
 
@@ -37,10 +37,13 @@ type
     property PCallStack: TStack read FCallStack write FCallStack;
     property PTree: TAST read FTree;
     property PLive: string read FLiveOutput;
+    property PModulesPath: TStringList read FModulesPath write FModulesPath;
     procedure RaiseException(AMsg: string; AType: string);
     constructor Create(var ATree: TAST);
+    destructor Destroy;
     function GetLive: string;
     procedure PassCallStack(var ACallStack: TStack; ToParent: boolean);
+
     function Interpret(DontPush: boolean = False;
       ANameActRec: TActivationRecord = nil): string;
     function ExecuteFunctionByInstance(AFunction: TFunctionInstance; Args: TInstanceList; ANode: TAST; ASrcinstance: TInstanceOf): TInstanceOf;
@@ -68,10 +71,15 @@ begin
   FTrace := TStringList.Create;
   FTrace.SkipLastLineBreak := True;
   FTrace.LineBreak := sLineBreak + '+ ';
-  FUltraHome := GetEnv('ULTRAGEN_HOME');
-  FModulesPath := FUltraHome + DirectorySeparator + 'modules'
+  //FUltraHome := GetEnv('ULTRAGEN_HOME');
+  //FModulesPath := FUltraHome + DirectorySeparator + 'modules'
+  FModulesPath := TStringList.Create;
 end;
 
+destructor TInterpreter.Destroy;
+begin
+  FModulesPath.Free;
+end;
 
 procedure TInterpreter.RaiseException(AMsg: string; AType: string);
 begin
@@ -1042,21 +1050,24 @@ var
   ATree: TAST;
   AInter: TInterpreter;
   ANameSp: TActivationRecord;
-  AName: string;
+  AName, AModPath: string;
 begin
   if ANode.PIsModule then
   begin
-    AFileName := FModulesPath +
-              DirectorySeparator +
-              ReplaceStr(ANode.PModulePath, '.', DirectorySeparator);
-    if FileExists (AFileName + '.ultra') then
-      AFileName := AFileName + '.ultra'
-    else if DirectoryExists(AFileName) then
+    for AmodPath in FModulesPath do
     begin
-      if FileExists (AFileName + DirectorySeparator + '_init.ultra') then
-        AFileName := AFileName + DirectorySeparator + '_init.ultra'
-      else
-        ERunTimeError.Create('Specified module "'+ANode.PModulePath+'" does not exist', FTrace, ANode.PToken);
+      AFileName := AmodPath +
+                DirectorySeparator +
+                ReplaceStr(ANode.PModulePath, '.', DirectorySeparator);
+      if FileExists (AFileName + '.ultra') then
+        AFileName := AFileName + '.ultra'
+      else if DirectoryExists(AFileName) then
+      begin
+        if FileExists (AFileName + DirectorySeparator + '_init.ultra') then
+          AFileName := AFileName + DirectorySeparator + '_init.ultra'
+        else
+          ERunTimeError.Create('Specified module "'+ANode.PModulePath+'" does not exist', FTrace, ANode.PToken);
+      end
     end
 	end
 	else
@@ -1066,6 +1077,7 @@ begin
   ATree := AParser.ParseCode;
   AParser.Free;
   AInter := TInterpreter.Create(ATree);
+  Ainter.PModulesPath := FModulesPath;
 
   if (ANode.PNamespace <> '') then
   begin
@@ -1176,7 +1188,7 @@ var
   AActRec: TActivationRecord;
 begin
   AActRec := FCallStack.Peek;
-  if (AActRec.GetMember(Anode.PToken.PValue) <> nil) then
+  if (AActRec.GetMember(Anode.PToken.PValue) = nil) then
     AActRec.AddMember(ANode.PToken.PValue, TDataType.Create(ANode.PToken.PValue, ANode.PToken.PValue, True))
   else
   begin

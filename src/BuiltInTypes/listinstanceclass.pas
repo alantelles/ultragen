@@ -255,8 +255,13 @@ end;
 function TListInstance.GetItem(AIndex: TIntegerInstance):TInstanceOf;
 var
   Ret: TInstanceOf;
+  AIndVal: integer;
 begin
-  Ret := FValue[AIndex.PValue];
+  AindVal := AIndex.PValue;
+  if AindVal > -1 then
+    Ret := FValue[AIndVal]
+  else
+    Ret := FValue[Length(FValue) + AIndVal];
   if Ret <> nil then
     Result := Ret
   else
@@ -267,7 +272,10 @@ function TListInstance.GetItem(AIndex: integer):TInstanceOf;
 var
   Ret: TInstanceOf;
 begin
-  Ret := FValue[AIndex];
+  if AIndex > -1 then
+    Ret := FValue[AIndex]
+  else
+    Ret := FValue[Length(FValue) + AIndex];
   if Ret <> nil then
     Result := Ret
   else

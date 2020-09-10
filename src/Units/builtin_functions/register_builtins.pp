@@ -6,6 +6,7 @@
 {$INCLUDE 'dictmethods.pp'}
 
 // builtins
+AActRec.AddMember('addModulePath', ACoreFunc);
 AActRec.AddMember('members', ACoreFunc);
 AActRec.AddMember('print', ACoreFunc);
 AActRec.AddMember('inline', ACoreFunc);

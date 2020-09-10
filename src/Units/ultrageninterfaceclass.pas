@@ -19,6 +19,7 @@ type
 	end;
 
 implementation
+uses Dos;
 
 class function TUltraInterface.ParseString(AStringCode: string): TAST;
 var
@@ -75,11 +76,24 @@ var
   ALexer: TLexer;
   ATree: TAST;
   len, i: integer;
-  comma, K, V: string;
+  comma, K, V, UHome: string;
 begin
   WebVars := TStringList.Create;
+
+  UHome := GetEnv('ULTRAGEN_HOME');
+	if Trim(UHome) <> '' then
+	begin
+	  WebVars.Add('addModulePath("'+UHome + DirectorySeparator + 'modules' +'")');
+	  WebVars.Add('include @Core');
+	end;
+  if FileExists('./_INCLUDE.ultra') then
+	  WebVars.Add('include "./_INCLUDE.ultra"');
   WebVars.Add('$request = {');
-  Webvars.Add('"route": "'+ARequest.URI+'", ');
+  i := Pos('?', ARequest.URI);
+  if i > 0 then
+    Webvars.Add('"route": "'+Copy(ARequest.URI, 1, i-1)+'", ')
+  else
+    Webvars.Add('"route": "'+ARequest.URI+'", ');
   Webvars.Add('"method": "'+ARequest.Method+'", ');
   Webvars.Add('"querystring": "'+ARequest.QueryString+'", ');
   WebVars.Add('"query": {');

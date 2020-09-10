@@ -65,7 +65,7 @@ function TCoreFunction.Execute(AInter: TInterpreter; Fname:string; var AArgList:
 var
   AType:string = '';
   AuxStr:string;
-  DotPos, len, i: integer;
+  DotPos, len, i, j: integer;
   Ret, Aux: TInstanceOf;
 
 begin
@@ -150,8 +150,47 @@ begin
       Ret := CastToStr
     else if FName = 'int' then
       Ret := CastToInt
-    else if FName = 'parseJson' then
-      Ret := ParseJson
+    else if FName = 'addModulePath' then
+    begin
+      len := Length(FParams);
+      if len < 1 then
+        Finter.RaiseException(E_INVALID_ARGS, 'Arguments')
+      else
+      begin
+        for i:=0 to len - 1 do
+        begin
+          if (FParams[0].ClassNameIs('TStringInstance')) then
+          begin
+            if Finter.PModulesPath.IndexOf(FParams[0].AsString) < 0 then
+              FInter.PModulesPath.Add(FParams[0].AsString)
+					end
+					else
+            FInter.RaiseException(E_INVALID_ARGS_TYPE+ ', must be String', 'Arguments');
+        end
+      end
+		end
+    else if FName = 'dropModulePath' then
+    begin
+      len := Length(FParams);
+      if len < 1 then
+        Finter.RaiseException(E_INVALID_ARGS, 'Arguments')
+      else
+      begin
+        for i:=0 to len - 1 do
+        begin
+          if (FParams[0].ClassNameIs('TStringInstance')) then
+          begin
+            j := Finter.PModulesPath.IndexOf(FParams[0].AsString);
+            if j > -1 then
+              FInter.PModulesPath.Delete(j);
+					end
+					else
+            FInter.RaiseException(E_INVALID_ARGS_TYPE+ ', must be String', 'Arguments');
+        end
+      end
+		end
+		{else if FName = 'parseJson' then
+      Ret := ParseJson}
     else
       raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.', '', 1, 1);
   // procs

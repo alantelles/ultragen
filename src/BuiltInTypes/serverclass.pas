@@ -131,7 +131,7 @@ begin
     if FStopRoute <> '' then
       HTTPRouter.RegisterRoute(FStopRoute, @StopServer);
     HTTPRouter.RegisterRoute('*', @ExecuteAction);
-    WriteLn('Running '+FTitle+' in '+'UltraGen Builtin Development Server at port '+IntToStr(FPort), #13);
+    WriteLn('Running '+TInstanceOf(FMembers.Find('title')).AsString+' in '+'UltraGen Builtin Development Server at port '+IntToStr(FPort), #13);
     Application.Title := 'UltraGen Builtin Development Server';
     Application.Port := FPort;
     Application.Threaded := True;
