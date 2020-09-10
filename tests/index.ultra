@@ -1,12 +1,1 @@
-###
-load Request
-
-url = 'https://reqres.in/api/users'
-r = Request.get(url)
-
-r.text.writeText('zika.json')
-print(r.text)
-###!
-addModulePath('./ttt')
-include @singers
-print(singers[-4])
+live $request

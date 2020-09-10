@@ -96,7 +96,7 @@ begin
 
 end;
 
-procedure TServerInstance.ExecuteAction(ARequest: TRequest;AResponse: TResponse);
+procedure TServerInstance.ExecuteAction(ARequest: TRequest; AResponse: TResponse);
 var
   BTree: TAST;
 begin

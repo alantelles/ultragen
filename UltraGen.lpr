@@ -14,6 +14,9 @@ var
   LiveOut, UHome: string;
   i: integer;
   ParamsNodes: TStringList;
+
+{$R *.res}
+
 begin
   LogLevel := '';
   {$IFDEF Windows}DecimalSeparator := '.';{$ENDIF}

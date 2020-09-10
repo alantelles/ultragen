@@ -7,7 +7,7 @@ interface
 uses
       Classes, SysUtils,
       ASTClass, LexerClass, ImpParserClass, InterpreterClass,
-      StrUtils, LoggingClass, httpdefs;
+      StrUtils, LoggingClass, httpdefs, httpprotocol;
 
 type
   TUltraInterface = class
@@ -94,8 +94,11 @@ begin
     Webvars.Add('"route": "'+Copy(ARequest.URI, 1, i-1)+'", ')
   else
     Webvars.Add('"route": "'+ARequest.URI+'", ');
+
   Webvars.Add('"method": "'+ARequest.Method+'", ');
+
   Webvars.Add('"querystring": "'+ARequest.QueryString+'", ');
+
   WebVars.Add('"query": {');
   len := ARequest.QueryFields.Count;
   if len > 0 then
@@ -110,23 +113,49 @@ begin
     end;
   end;
   WebVars.Add('}, ');
+
   WebVars.Add('"content_type": "'+ARequest.ContentType+'", ');
+
   WebVars.Add('"body_content": "'+ReplaceStr(ARequest.Content, '"', '\"')+'", ');
-  WebVars.Add('"body": {');
-  len := ARequest.ContentFields.Count;
+
+  writeln(ARequest.ContentType);
+
+  if pos(ARequest.ContentType, 'application/x-www-form-urlencoded') > 0 then
+  begin
+    WebVars.Add('"body": {');
+    len := ARequest.ContentFields.Count;
+    if len > 0 then
+    begin
+      comma := ', ';
+      for i:=0 to len - 1 do
+      begin
+        ARequest.ContentFields.GetNameValue(i, K, V);
+        if i = len - 1 then
+          comma := '';
+        WebVars.Add('"'+K+'": "'+V+'"'+comma);
+      end;
+    end;
+	  WebVars.Add('}, ');
+	end;
+
+  WebVars.Add('"cookies": {');
+  len := ARequest.CookieFields.Count;
   if len > 0 then
   begin
     comma := ', ';
     for i:=0 to len - 1 do
     begin
-      ARequest.ContentFields.GetNameValue(i, K, V);
-      writeln(k, ': ', v);
+      ARequest.CookieFields.GetNameValue(i, K, V);
       if i = len - 1 then
         comma := '';
       WebVars.Add('"'+K+'": "'+V+'"'+comma);
     end;
   end;
-  WebVars.Add('}');
+  WebVars.Add('}, ');
+
+  WebVars.Add('"host": "'+ARequest.Host+'"');
+
+
   WebVars.Add('}');
   WebVars.Add('$request.lock()');
   ALexer := TLexer.Create(WebVars.Text, False);

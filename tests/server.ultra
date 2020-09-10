@@ -1,2 +1,3 @@
 a = new Server(4000)
+a.setStopRoute('/off')
 a.run()
