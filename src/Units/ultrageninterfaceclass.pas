@@ -153,7 +153,8 @@ begin
   end;
   WebVars.Add('}, ');
 
-  WebVars.Add('"host": "'+ARequest.Host+'"');
+  WebVars.Add('"host": "'+ARequest.Host+'", ');
+  WebVars.Add('');
 
 
   WebVars.Add('}');
