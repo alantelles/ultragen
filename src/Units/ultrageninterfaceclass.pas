@@ -114,11 +114,9 @@ begin
   end;
   WebVars.Add('}, ');
 
-  WebVars.Add('"content_type": "'+ARequest.ContentType+'", ');
+  // WebVars.Add('"content_type": "'+ARequest.ContentType+'", ');
 
-  WebVars.Add('"body_content": "'+ReplaceStr(ARequest.Content, '"', '\"')+'", ');
-
-  writeln(ARequest.ContentType);
+  WebVars.Add('"body_content": """'+ReplaceStr(ARequest.Content, '"', '\"')+'""", ');
 
   if pos(ARequest.ContentType, 'application/x-www-form-urlencoded') > 0 then
   begin
@@ -136,7 +134,13 @@ begin
       end;
     end;
 	  WebVars.Add('}, ');
-	end;
+	end
+  else if pos(ARequest.ContentType, 'application/json') > 0 then
+  begin
+    WebVars.Add('"body": JSON.parse(''' + ARequest.Content + '''), ');
+  end;
+
+
 
   WebVars.Add('"cookies": {');
   len := ARequest.CookieFields.Count;
@@ -153,9 +157,66 @@ begin
   end;
   WebVars.Add('}, ');
 
-  WebVars.Add('"host": "'+ARequest.Host+'", ');
-  WebVars.Add('');
+  // HTTP headers
+  WebVars.Add('"headers": {');
+    if ARequest.Accept <> '' then
+      WebVars.Add('"accept": "' + ARequest.Accept + '", ');
+    if ARequest.AcceptCharset <> '' then
+      WebVars.Add('"accept_charset": "' + ARequest.AcceptCharset + '", ');
+    if ARequest.AcceptEncoding <> '' then
+      WebVars.Add('"accept_encoding": "' + ARequest.AcceptEncoding + '", ');
+    if ARequest.AcceptLanguage <> '' then
+      WebVars.Add('"accept_language": "' + ARequest.AcceptLanguage + '", ');
+    if ARequest.Authorization <> '' then
+      WebVars.Add('"authorization": "' + ARequest.Authorization + '", ');
+    if ARequest.Connection <> '' then
+      WebVars.Add('"connection": "' + ARequest.Connection + '", ');
+    if ARequest.ContentEncoding <> '' then
+      WebVars.Add('"content_encoding": "' + ARequest.ContentEncoding + '", ');
+    if ARequest.ContentLanguage <> '' then
+      WebVars.Add('"content_language": "' + ARequest.ContentLanguage + '", ');
+    if ARequest.ContentLength <> 0 then
+      WebVars.Add('"content_length": "' + IntToStr(ARequest.ContentLength) + '", ');
+    if ARequest.ContentType <> '' then
+      WebVars.Add('"content_type": "' + ARequest.ContentType + '", ');
+    if ARequest.Cookie <> '' then
+      WebVars.Add('"cookie": "' + ARequest.Cookie + '", ');
+    if ARequest.Date <> '' then
+      WebVars.Add('"date": "' + ARequest.Date + '", ');
+    if ARequest.Expires <> '' then
+      WebVars.Add('"expires": "' + ARequest.Expires + '", ');
+    if ARequest.From <> '' then
+      WebVars.Add('"from": "' + ARequest.From + '", ');
+    if ARequest.IfModifiedSince <> '' then
+      WebVars.Add('"if_modified_since": "' + ARequest.IfModifiedSince + '", ');
+    if ARequest.LastModified <> '' then
+      WebVars.Add('"last_modified": "' + ARequest.LastModified + '", ');
+    if ARequest.Location <> '' then
+      WebVars.Add('"location": "' + ARequest.Location + '", ');
+    if ARequest.Pragma <> '' then
+      WebVars.Add('"pragma": "' + ARequest.Pragma + '", ');
+    if ARequest.Referer <> '' then
+      WebVars.Add('"referer": "' + ARequest.Referer + '", ');
+    if ARequest.RetryAfter <> '' then
+      WebVars.Add('"retry_after": "' + ARequest.RetryAfter + '", ');
+    if ARequest.Server <> '' then
+      WebVars.Add('"server": "' + ARequest.Server + '", ');
+    if ARequest.SetCookie <> '' then
+      WebVars.Add('"set_cookie": "' + ARequest.SetCookie + '", ');
+    if ARequest.UserAgent <> '' then
+      WebVars.Add('"user_agent": "' + ARequest.UserAgent + '", ');
+    if ARequest.WWWAuthenticate <> '' then
+      WebVars.Add('"www_authenticate": "' + ARequest.WWWAuthenticate + '", ');
 
+    writeln(ARequest.CustomHeaders.Text);
+    for V in ARequest.CustomHeaders do
+    begin
+      i := Pos('=', V);
+      K := Copy(V, 1, i-1);
+      WebVars.Add('"' + Replacestr(K, '-', '_') + '": """' + ARequest.CustomHeaders.Values[K] + '""", ');
+    end;
+    WebVars.Add('"host": "'+ARequest.Host+'"');
+  WebVars.Add('} ');
 
   WebVars.Add('}');
   WebVars.Add('$request.lock()');

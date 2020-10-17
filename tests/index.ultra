@@ -1,1 +1,4 @@
-live $request
+for ($request['headers'].keys(), key)
+    chg = key.replace('_', ' ').replace(' ', '-')
+    live chg + ': ' + ($request['headers'][key]) + '\n'
+end

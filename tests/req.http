@@ -16,5 +16,7 @@ Cookie: PHPSESSID=r2t5uvjq435r4q7ib3vtdjq120;other=novo+cookie
 Pragma: no-cache
 Cache-Control: no-cache
 Content-Type: application/json
+X-Http-Method-Override: true
+X-XSS-Protection: true
 
 {"b": "Zika", "c": "Catatau"}
