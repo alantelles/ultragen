@@ -636,11 +636,14 @@ begin
 
     if (FCurrentToken.PType <> T_RPAREN) then
     begin
-      Eat(T_COMMA);
+      if (FCurrentToken.PType = T_COMMA) then
+        Eat(T_COMMA);
       if (FCurrentToken.PType = T_NEWLINE) then
         Eat(T_NEWLINE);
     end;
+
   end;
+
   logtext('PARSER', 'Parser', 'Creating args node');
   Result := AArgs;
 end;
@@ -654,6 +657,7 @@ begin
   //  Eat(T_NEWLINE);
   SetLength(AArgs, 0);
   len := 0;
+
   while (FCurrentToken.PType <> T_LIST_END) do
   begin
     if (FCurrentToken.PType = T_NEWLINE) then
@@ -892,7 +896,8 @@ begin
   AFuncName := AToken.PValue;
   Eat(T_LPAREN);
   AArgs := Args();
-
+  if (FCurrentToken.PType = T_NEWLINE) then
+        Eat(T_NEWLINE);
   Eat(T_RPAREN);
 
   logtext('PARSER', 'Parser', 'Creating function call node');

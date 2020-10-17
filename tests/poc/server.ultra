@@ -1,0 +1,5 @@
+a = new Server(4000)
+a.setStopRoute('/off')
+st = '/home/alantelles/development/lazarus/ultragen/tests/poc/static'
+a.setStaticPath('static', st)
+a.run()

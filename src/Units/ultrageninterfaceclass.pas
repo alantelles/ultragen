@@ -208,7 +208,7 @@ begin
     if ARequest.WWWAuthenticate <> '' then
       WebVars.Add('"www_authenticate": "' + ARequest.WWWAuthenticate + '", ');
 
-    writeln(ARequest.CustomHeaders.Text);
+
     for V in ARequest.CustomHeaders do
     begin
       i := Pos('=', V);
