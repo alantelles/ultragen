@@ -1,8 +1,2 @@
-m = '{"msg": "Zika", "age": 33, "married": true}'
-	print(m, ', ', typeof(m))
-x = JSON.parse(m)
-print(x, ', ', typeof(x))
-
-include 'zika.ultra.html'
-
-print(Base())
+f = JSON.parseFile('reconv.json')
+print(f)
