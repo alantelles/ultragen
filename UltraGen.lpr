@@ -41,7 +41,7 @@ begin
 		end;
 
     if FileExists('./_INCLUDE.ultra') then
-      ParamsNodes.Add('include "./_INCLUDE.ultra"');
+      ParamsNodes.Add('include ".\/_INCLUDE.ultra"');
     if ParamCount > 1 then
     begin
 

@@ -81,6 +81,7 @@ begin
   WebVars := TStringList.Create;
 
   UHome := GetEnv('ULTRAGEN_HOME');
+  UHome := ReplaceStr(UHome, DirectorySeparator, '\' + DirectorySeparator);
 	if Trim(UHome) <> '' then
 	begin
 	  WebVars.Add('addModulePath("'+UHome + DirectorySeparator + 'modules' +'")');
