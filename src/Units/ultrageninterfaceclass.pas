@@ -84,7 +84,7 @@ begin
   UHome := ReplaceStr(UHome, DirectorySeparator, '\' + DirectorySeparator);
 	if Trim(UHome) <> '' then
 	begin
-	  WebVars.Add('addModulePath("'+UHome + DirectorySeparator + 'modules' +'")');
+	  WebVars.Add('addModulePath(["'+UHome + '", "modules"].path())');
 	  WebVars.Add('include @Core');
 	end;
   if FileExists('./_INCLUDE.ultra') then
