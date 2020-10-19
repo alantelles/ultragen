@@ -1,4 +1,4 @@
-         if (FCurrChar = ' ') or (FCurrChar = #13) then
+         if (FCurrChar = ' ') or (FCurrChar = #13) or (FCurrChar = #9) then
 		      begin
 		        SkipSpace;
 		        continue;
@@ -56,9 +56,15 @@
 		      if (FCurrChar + Peek(2)) = 'end' then
 		      begin
 		        Advance(3);
-		        AuxStr := FScopeType[FSCopeType.Count-1];
-		        FScopeType.Delete(FScopeType.Count-1);
-		        Result := TToken.Create(T_END+AuxStr,T_END+AuxStr, FScriptLine, FLineChar, FFileName);
+
+            try
+              AuxStr := FScopeType[FSCopeType.Count-1];
+		          FScopeType.Delete(FScopeType.Count-1);
+
+            except
+              EParseError('Using "end" in a non-block scope');
+            end;
+            Result := TToken.Create(T_END+AuxStr,T_END+AuxStr, FScriptLine, FLineChar, FFileName);
 		        exit
 		      end;
 

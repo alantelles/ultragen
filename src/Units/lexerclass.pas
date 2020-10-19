@@ -24,7 +24,7 @@ type
     property PScriptLine: integer read FScriptLine;
     property PScriptMode: boolean read FScriptMode write FScriptMode;
     constructor Create(AFileName: string; fromFile: boolean = True);
-    procedure EParseError;
+    procedure EParseError(msg:string='');
     procedure Advance(steps: integer = 1);
     procedure Rewind(steps: integer = 1);
     procedure SkipSpace;
@@ -114,7 +114,11 @@ begin
   begin
     if (FCurrChar = #10)  then
     begin
+      {$IFDEF Windows}
+      ret := ret + #13 + FCurrChar;
+      {$ELSE}
       ret := ret + FCurrChar;
+      {$ENDIF}
       break
     end
 		else
@@ -262,11 +266,12 @@ begin
   Result := TToken.Create(TYPE_STRING, Ret, FScriptLine, FLineChar, FFileName);
 end;
 
-procedure TLexer.EParseError;
-var
-  msg: string;
+procedure TLexer.EParseError(msg:string='');
+
 begin
-  msg := 'Unexpected character "' + FCurrChar + '" at < Line: ' +
+  if msg = '' then
+    msg := 'Unexpected character "' + FCurrChar + '"';
+  msg := msg + ' at < Line: ' +
     IntToStr(FScriptLine) + ', Char: ' + IntToStr(FLineChar) + ' >';
   ELexicalError.Create(msg, FFileName, FScriptLine, FLineChar);
 end;
@@ -294,7 +299,7 @@ end;
 
 procedure TLexer.SkipSpace;
 begin
-  while (FCurrChar = ' ') or (FCurrChar = #13) do
+  while (FCurrChar = ' ') or (FCurrChar = #13) or (FCurrChar = #9) do
     Advance;
 end;
 

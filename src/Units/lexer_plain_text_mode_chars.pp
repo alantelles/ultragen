@@ -14,7 +14,17 @@ begin
     exit
 end
 
-else if (FCurrChar = sLineBreak)  then
+{$IFDEF Windows}
+else if (FCurrChar = #10)  then
+begin
+  Advance;
+  FScriptLine := FScriptLine + 1;
+  FLineChar := 1;
+  Result := TToken.Create(T_NEWLINE, #10, FLineChar, FScriptLine, FFileName);
+  exit
+end
+{$ELSE}
+else if (FCurrChar = #10)  then
 begin
   Advance;
   FScriptLine := FScriptLine + 1;
@@ -22,6 +32,7 @@ begin
   Result := TToken.Create(T_NEWLINE, sLineBreak, FLineChar, FScriptLine, FFileName);
   exit
 end
+{$ENDIF}
 
 else if (FCurrchar = '@') then
 begin
