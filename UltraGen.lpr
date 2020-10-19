@@ -33,9 +33,10 @@ begin
     end;}
     ParamsNodes := TStringList.Create;
     UHome := GetEnv('ULTRAGEN_HOME');
+    UHome := ReplaceStr(UHome, DirectorySeparator, '\' + DirectorySeparator);
     if Trim(UHome) <> '' then
     begin
-      ParamsNodes.Add('addModulePath("'+UHome + DirectorySeparator + 'modules' +'")');
+      ParamsNodes.Add('addModulePath(["'+UHome + '", "modules"].path())');
       ParamsNodes.Add('include @Core');
 		end;
 

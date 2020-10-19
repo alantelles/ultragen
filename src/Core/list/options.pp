@@ -23,9 +23,11 @@ begin
 		 begin
 		   TListInstance(AObj).PChangeLocked := True;
 		   TListInstance(AObj).PAddLocked := True
-		end
+  	 end
      else if FName = 'pop' then
-        Ret := PopItem(TListInstance(FObj))
+       Ret := PopItem(TListInstance(FObj))
+     else if FName = 'path' then
+       Ret := PathJoin(TListInstance(FObj))
      else
       raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.');
 end

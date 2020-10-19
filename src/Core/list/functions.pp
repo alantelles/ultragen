@@ -76,3 +76,21 @@ begin
     raise ERunTimeError.Create(E_INVALID_ARGS);
   Result := AObj.PopItem;
 end;
+
+function TCoreFunction.PathJoin(var AObj: TListInstance): TStringInstance;
+var
+  OStr: string = '';
+  i, len: integer;
+begin
+  len := AObj.Count;
+  if len > 0 then
+  begin
+    for i := 0 to len-1 do
+    begin
+      if i > 0 then
+        OStr := OStr + ESCAPE_SYMBOL + DirectorySeparator;
+      OStr := OStr + AObj.PValue[i].AsString;
+    end;
+  end;
+  Result := TStringInstance.Create(OStr);
+end;

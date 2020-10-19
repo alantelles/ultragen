@@ -10,4 +10,5 @@ AListType.PMembers.Add('append', AListFunc);
 AListType.PMembers.Add('lock', AListFunc);
 AListType.PMembers.Add('addLock', AListFunc);
 AListType.PMembers.Add('changeLock', AListFunc);
+AListType.PMembers.Add('path', AListFunc);
 AActRec.AddMember('List', AListType);

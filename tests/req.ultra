@@ -1,2 +1,4 @@
-x = [, 4]
-print(x.length())
+m = '{"msg": "Zika", "age": 33, "married": true}'
+	print(m, ', ', typeof(m))
+x = JSON.parse(m)
+print(x, ', ', typeof(x))
