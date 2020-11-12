@@ -1,0 +1,3 @@
+function comp(name, subfolder='')
+    return './components/' + subfolder + name + '/_init.ultra'
+end

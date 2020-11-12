@@ -1,0 +1,8 @@
+links = [
+    {'href': :home, 'text': 'Home'},
+    {'href': :articles, 'text': 'Articles'},
+    {:href: :logout, :text: 'Logout'}
+]
+
+
+include './components/Nav/Nav.ultra.html'

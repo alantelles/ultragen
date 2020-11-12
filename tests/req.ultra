@@ -1,2 +1,0 @@
-f = JSON.parseFile('reconv.json')
-print(f)

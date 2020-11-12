@@ -1,0 +1,12 @@
+addModulePath('./components')
+function comp(name, subfolder='')
+    return './components/' + subfolder + name + '/_init.ultra'
+end
+
+include 'handleRoutes.ultra'
+
+nav = render(comp(:Nav))
+
+content = render(comp(:Content))
+
+include @Base

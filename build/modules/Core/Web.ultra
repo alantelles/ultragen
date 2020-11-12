@@ -1,5 +1,7 @@
 function responseRoute(routes, route)
-    
+    if ((route[0]) == '/')
+        route = route.slice(1)
+    end
     method = $request['method']
     route_exp = route.split('/')
     response = routes[null]

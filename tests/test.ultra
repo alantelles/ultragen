@@ -1,1 +1,2 @@
-print('Alan')
+x = 'Alan'
+print(x.slice(1))

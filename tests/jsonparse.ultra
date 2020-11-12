@@ -1,8 +1,8 @@
-load Request
-url = 'https://reqres.in/api/unknown'
-resp = JSON.parse(Request.get(url).text)
+addModulePath('./modules')
 
-print(resp)
+include @loadings
 
-conv = JSON.createFile(resp, 'output.json')
-print(conv)
+my_json = FileSystem.loadText('output.json')
+for (my_json, line)
+    print(line)
+end

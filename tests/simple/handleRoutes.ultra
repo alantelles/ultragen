@@ -1,0 +1,18 @@
+function NotFound() 
+    return 'Page not Found'
+end
+
+function ListArticles() 
+    return 'Listando artigos'
+end
+
+routes = {
+    'articles': {'GET': ListArticles},
+    null: NotFound
+}
+
+routeMatch = responseRoute(routes, $request['route'])
+
+handler = routeMatch['handler']
+print(handler)
+params = routeMatch['params']

@@ -1,0 +1,4 @@
+route = $request['route']
+show = handler()
+
+include './components/Content/Content.ultra.html'
