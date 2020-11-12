@@ -1,4 +1,4 @@
 load Request
-include @Core
+
 
 print(Request.get('https://google.com').text)

@@ -88,7 +88,9 @@ begin
     for i := 0 to len-1 do
     begin
       if i > 0 then
-        OStr := OStr + ESCAPE_SYMBOL + DirectorySeparator;
+        {$IFDEF Windows}OStr := OStr + ESCAPE_SYMBOL + DirectorySeparator;{$ELSE}
+        OStr := OStr + DirectorySeparator;{$ENDIF}
+
       OStr := OStr + AObj.PValue[i].AsString;
     end;
   end;
