@@ -1,2 +1,15 @@
-x = 'Alan'
-print(x.slice(1))
+class Baba
+
+
+
+function dodo()
+    class Baba
+    function init(task) : Baba
+        
+    end
+    a = new Baba('toto')
+    return a
+end
+
+print(dodo())
+print(dodo().task)

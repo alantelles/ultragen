@@ -1,4 +1,9 @@
 function responseRoute(routes, route)
+    class RouteHandler
+    function init(handler, params) : RouteHandler
+    end
+
+    
     if ((route[0]) == '/')
         route = route.slice(1)
     end
@@ -52,10 +57,8 @@ function responseRoute(routes, route)
             break
         end
     end
-    return {
-        'handler': response,
-        'params': params
-        }
+    routeHandler = new RouteHandler(response, params)
+    return routeHandler
 end
 
 function render(path, context = {})

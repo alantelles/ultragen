@@ -13,6 +13,5 @@ routes = {
 
 routeMatch = responseRoute(routes, $request['route'])
 
-handler = routeMatch['handler']
-print(handler)
-params = routeMatch['params']
+handler = routeMatch.handler
+params = routeMatch.params
