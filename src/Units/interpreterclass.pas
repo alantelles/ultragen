@@ -919,9 +919,9 @@ begin
                 FTrace, ANode.PToken);
             //AParamName := ANode.PEvalParams[i].PToken.PValue;
           end;
-          ADef.CopyInstance(ACopy);
+          //ADef.CopyInstance(ACopy);
 
-          AActRec.AddMember(AParamName, ACopy);
+          AActRec.AddMember(AParamName, ADef);
         end;
       end;
       FCallStack.Push(AActRec);

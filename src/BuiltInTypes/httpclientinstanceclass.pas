@@ -5,9 +5,7 @@ unit HttpClientInstanceClass;
 interface
 
 uses
-  Classes, SysUtils, fphttpclient, openssl, httpprotocol, InstanceOfClass, ARCLass, contnrs;
-
-
+  Classes, SysUtils, fphttpclient, openssl, opensslsockets, httpprotocol, InstanceOfClass, ARCLass, contnrs;
 
 type THttpResponseInstance = class (TInstanceOf)
   private

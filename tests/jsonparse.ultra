@@ -1,4 +1,8 @@
 load Request
+url = 'https://reqres.in/api/unknown'
+resp = JSON.parse(Request.get(url).text)
 
+print(resp)
 
-print(Request.get('https://google.com').text)
+conv = JSON.createFile(resp, 'output.json')
+print(conv)

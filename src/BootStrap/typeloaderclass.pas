@@ -38,7 +38,6 @@ begin
   AHttpClientType.PMembers.Add('get', AHttpClientFunc);
   AHttpClientType.PMembers.Add('post', AHttpClientFunc);
   AHttpClientType.PMembers.Add('put', AHttpClientFunc);
-  AHttpClientType.PMembers.Add('patch', AHttpClientFunc);
   AHttpClientType.PMembers.Add('delete', AHttpClientFunc);
   AActrec.AddMember('Request', AHttpClientType);
 

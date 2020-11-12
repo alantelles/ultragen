@@ -66,7 +66,6 @@ function create(obj) : JSON
 end
 
 function createFile(data, file_name) : JSON
-    include @Core.Strings
     dump = JSON.create(data)
     dump.writeText(file_name)
 end
