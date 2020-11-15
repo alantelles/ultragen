@@ -1,8 +1,4 @@
-addModulePath('./modules')
+load Request
 
-include @loadings
-
-my_json = FileSystem.loadText('output.json')
-for (my_json, line)
-    print(line)
-end
+r = Request.get('https://reqres.in/api/users')
+print(JSON.parse(r.text))
