@@ -1,4 +1,4 @@
 load Request
 
 r = Request.get('https://reqres.in/api/users')
-print(JSON.parse(r.text))
+print(r.text)
