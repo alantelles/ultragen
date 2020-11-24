@@ -116,8 +116,8 @@ begin
           for i:=0 to len-1 do
           begin
             writeln(Aux.PMembers.NameOfIndex(i),': ', TinstanceOf(Aux.PMembers[i]).AsString);
-					end;
-				end;
+					    end;
+				   end;
       end;
 		end
 
@@ -535,4 +535,3 @@ end;
 
 
 end.
-

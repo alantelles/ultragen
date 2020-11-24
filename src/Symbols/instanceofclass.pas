@@ -157,9 +157,27 @@ begin
   Result := '<Instance of class '+FValue+'>';
 end;
 
-procedure TInstanceOf.CopyInstance(var AReceiver: TInstanceOf);
+procedure TClassInstance.CopyInstance(var AReceiver: TInstanceOf);
 begin
-  AReceiver := Self;
+  AReceiver := TClassInstance.Create(FValue)
+  inherited CopyInstance(AReceiver);
+end;
+
+procedure TInstanceOf.CopyInstance(var AReceiver: TInstanceOf);
+var 
+  i: integer;
+  Aux: TInstanceOf;
+begin
+  if FMembers.Count > 0 then
+  begin
+    for i:=0 to FMembers.Count - 1 do
+    begin
+      Aux := TInstanceOf.Create;
+      FMembers[i].CopyInstance(Aux);
+      AReceiver.FMembers.Add(FMembers.NameOfIndex(i), Aux)
+    end;
+  end;  
+  
 end;
 
 constructor TDataType.Create(AName: string; AFront: string; UserDefined: boolean=False);
@@ -302,4 +320,3 @@ begin
 end;
 
 end.
-
