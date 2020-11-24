@@ -1,6 +1,7 @@
 program UltraGen;
 
 {$mode objfpc}{$H+}
+// git push test
 
 uses
   {$IFDEF UNIX}
@@ -81,4 +82,3 @@ begin
     WriteLn('Created by Alan Telles');
   end;
 end.
-
