@@ -1,5 +1,5 @@
-route = $request['route']
-show = handler()
+route = $request[:route]
+
 
 
 include './components/Content/Content.ultra.html'

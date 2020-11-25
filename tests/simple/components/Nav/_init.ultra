@@ -1,7 +1,7 @@
 links = [
-    {'href': :home, 'text': 'Home'},
-    {'href': :articles, 'text': 'Articles'},
-    {:href: :logout, :text: 'Logout'}
+    {'href': '/home', 'text': 'Home'},
+    {'href': '/articles', 'text': 'Articles'},
+    {'href': '/logout', :text: 'Logout'}
 ]
 
 

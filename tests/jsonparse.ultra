@@ -8,5 +8,5 @@ function getTeam()
     a = new Team()
     return a
 end
-a = getTeam().show()
+a = getTeam().show().capital()
 print(a)

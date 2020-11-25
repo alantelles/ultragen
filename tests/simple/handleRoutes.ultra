@@ -6,12 +6,30 @@ function ListArticles()
     return 'Listando artigos'
 end
 
+function Root()
+    return 'Bem-vindo a UltraGen'
+end
+
+function ListArticle(params)
+    return 'Exibindo artigo: ' + str(params[:id])
+end
+
+
+
 routes = {
     'articles': {'GET': ListArticles},
+    'articles/:id': {'GET': ListArticle},
+    '': {'GET': Root},
     null: NotFound
 }
 
+
+
 routeMatch = responseRoute(routes, $request['route'])
 
-handler = routeMatch.handler
-params = routeMatch.params
+if ((routeMatch.params.keys().length()) > 0)
+    show = routeMatch.handler(routeMatch.params)
+else
+    show = routeMatch.handler()
+end
+
