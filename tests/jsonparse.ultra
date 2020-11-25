@@ -1,4 +1,12 @@
-load Request
+function getTeam()
+    class Team
 
-r = Request.get('https://reqres.in/api/users')
-print(r.text)
+    function show() : Team
+        return 'deu show'
+    end
+
+    a = new Team()
+    return a
+end
+a = getTeam().show()
+print(a)

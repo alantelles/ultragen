@@ -342,7 +342,7 @@ var
   Gene: TInstanceOf;
   ABuilt: TDataType;
   ArgsList: TInstanceList;
-  len, i: integer;
+  len, i, len2, i2: integer;
   ConstRet: TFunctionInstance;
 begin
   NowAct := FCallStack.Peek();
@@ -372,6 +372,12 @@ begin
       else
       begin
         Ret := TClassInstance.Create(ABuilt.PValue);
+        if ABuilt.PMembers.Count > 0 then
+        begin
+          for i2:=0 to ABuilt.PMembers.Count-1 do
+            Ret.PMembers.Add(Abuilt.PMembers.NameOfIndex(i2), TObject(ABuilt.PMembers[i2]));
+        end;
+
         ToCast := TInstanceOf(ABuilt.PMembers.Find('init'));
         if ToCast <> nil then
         begin
@@ -710,10 +716,7 @@ begin
     //try
       Ret := TInstanceOf(ASrc.PMembers.Find(Aname));
       if Ret = nil then
-      begin
-
         ERunTimeError.Create('Referenced attribute "'+AName+'" does not exist', FTrace, ANode.PToken);
-      end;
 
 		//except
       //ERunTimeError.Create('This type ('+ASrc.ClassName+') doesn''t have attributes', Ftrace, ANode.PToken);
@@ -850,6 +853,7 @@ var
 
   searchStart: integer;
 begin
+
   AFuncName := ANode.PFuncName;
   {if ASrcInstance = nil then
   begin
@@ -866,14 +870,21 @@ begin
       ASrcName := ASrcInstance.ClassName + ST_ACCESS + AFuncName;
   end;}
   LogText(INTER, 'Interpreter', 'Visiting function ' + ANode.PFuncName);
-  SearchStart := FCallStack.Peek().PNestingLevel;
-  for i:=SearchStart downto 1 do
+  if (ASrcInstance <> nil) and ASrcInstance.ClassNameIs('TClassInstance') then
   begin
-    AActRec := FCallStack.GetByLevel(i);
-    FuncDef := AActRec.GetFunction(AFuncName, ASrcInstance);
-    if FuncDef <> nil then
-      break;
-	end;
+    FuncDef := TFunctionInstance(ASrcInstance.PMembers.Find(ANode.PFuncName));
+  end
+  else
+  begin
+    SearchStart := FCallStack.Peek().PNestingLevel;
+    for i:=SearchStart downto 1 do
+    begin
+      AActRec := FCallStack.GetByLevel(i);
+      FuncDef := AActRec.GetFunction(AFuncName, ASrcInstance);
+      if FuncDef <> nil then
+        break;
+	  end;
+  end;
   if FuncDef <> nil then
   begin
     if not FuncDef.PIsBuiltin then

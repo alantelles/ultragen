@@ -133,6 +133,7 @@ type
       property PValue: string read FValue;
       constructor Create(AName: string);
       function AsString: string;  override;
+ //     procedure CopyInstance(var AReceiver: TInstanceOf);
 
 	end;
 
@@ -157,26 +158,28 @@ begin
   Result := '<Instance of class '+FValue+'>';
 end;
 
+{
 procedure TClassInstance.CopyInstance(var AReceiver: TInstanceOf);
 begin
-  AReceiver := TClassInstance.Create(FValue)
+  AReceiver := TClassInstance.Create(FValue);
   inherited CopyInstance(AReceiver);
 end;
-
+}
 procedure TInstanceOf.CopyInstance(var AReceiver: TInstanceOf);
 var 
   i: integer;
   Aux: TInstanceOf;
 begin
-  if FMembers.Count > 0 then
+  {if FMembers.Count > 0 then
   begin
     for i:=0 to FMembers.Count - 1 do
     begin
       Aux := TInstanceOf.Create;
-      FMembers[i].CopyInstance(Aux);
+      TInstanceOf(FMembers[i]).CopyInstance(Aux);
       AReceiver.FMembers.Add(FMembers.NameOfIndex(i), Aux)
     end;
-  end;  
+  end;  }
+  AReceiver := self;
   
 end;
 
