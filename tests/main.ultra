@@ -1,0 +1,6 @@
+addModulePath('modules')
+
+include @Extensions
+
+j = """{"name": "Alan", "username": "alantelles","age": 34, "gender": true}"""
+print(j.allx())

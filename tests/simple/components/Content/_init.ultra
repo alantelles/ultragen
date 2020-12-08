@@ -1,5 +1,0 @@
-route = $request[:route]
-
-
-
-include './components/Content/Content.ultra.html'

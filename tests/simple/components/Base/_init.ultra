@@ -1,3 +1,0 @@
-title = 'My super page'
-
-include './components/Base/Base.ultra.html'
