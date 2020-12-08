@@ -984,11 +984,11 @@ var
   Aleft, ARight: TAST;
 begin
   Eat(T_ASSIGN);
-  if FCurrentToken.PType = T_NEW_OBJECT then
-  begin
-    ARight := NewObject();
-  end
-  else
+  //if FCurrentToken.PType = T_NEW_OBJECT then
+  //begin
+    //ARight := NewObject();
+  //end
+  //else
     ARight := MethodCall();
   Logdebug('Creating a VarAssign to ' + AToken.AsString, 'Parser');
   logtext('PARSER', 'Parser', 'Creating var assign node to ' + AToken.PValue);
@@ -1329,6 +1329,10 @@ begin
     Eat(TYPE_FLOAT);
     logtext('PARSER', 'Parser', 'Creating float node');
     Ret := TNumFloat.Create(AToken);
+  end
+  else if FCurrentToken.PType = T_NEW_OBJECT then
+  begin
+    Ret := NewObject();
   end
   else if (AToken.PType = TYPE_BOOLEAN) then
   begin

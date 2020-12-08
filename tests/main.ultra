@@ -1,6 +1,11 @@
-addModulePath('modules')
+class Zika
+function init(typez) : Zika
+end
 
-include @Extensions
+function getZika(t)
+    m = new Zika(t)
+    return m
+end
 
-j = """{"name": "Alan", "username": "alantelles","age": 34, "gender": true}"""
-print(j.allx())
+m = getZika("baholeros")
+print(new Zika("mika").typez)
