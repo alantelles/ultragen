@@ -1,4 +1,6 @@
 load DateTime
 
 x = DateTime.now()
-print(x)
+date = '/'.join([str(x.year()), str(x.month()), str(x.day().leftZeros(1))])
+time = ':'.join([str(x.hour()), str(x.minute()), str(x.second()), str(x.milli())])
+print(date, ' ', time )

@@ -37,6 +37,13 @@ begin
   ADateTimeFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TDateTimeInstance', True);
   ADateTimeType := TDataType.Create('TDateTimeInstance', 'DateTime');
   ADateTimeType.PMembers.Add('now', ADateTimeFunc);
+  ADateTimeType.PMembers.Add('year', ADateTimeFunc);
+  ADateTimeType.PMembers.Add('month', ADateTimeFunc);
+  ADateTimeType.PMembers.Add('day', ADateTimeFunc);
+  ADateTimeType.PMembers.Add('hour', ADateTimeFunc);
+  ADateTimeType.PMembers.Add('minute', ADateTimeFunc);
+  ADateTimeType.PMembers.Add('second', ADateTimeFunc);
+  ADateTimeType.PMembers.Add('milli', ADateTimeFunc);
   AActRec.AddMember('DateTime', ADateTimeType);
 end;
 
