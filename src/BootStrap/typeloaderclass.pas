@@ -13,6 +13,7 @@ type TTypeLoader = class
     class procedure LoadRequest(var AActRec: TActivationRecord);
     class procedure LoadFileSystem(var AActRec: TActivationRecord);
     class procedure LoadOS(var AActRec: TActivationRecord);
+    class procedure LoadDateTime(var AActRec: TActivationRecord);
 end;
 
 implementation
@@ -26,6 +27,17 @@ begin
   AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TOSInstance', True);
   AType.PMembers.Add('getEnv', AFunc);
   AActRec.AddMember('OS', AType);
+end;
+
+class procedure TTypeLoader.LoadDateTime(var AActRec: TActivationRecord);
+var
+  ADateTimeFunc: TFunctionInstance;
+  ADateTimeType: TDataType;
+begin
+  ADateTimeFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TDateTimeInstance', True);
+  ADateTimeType := TDataType.Create('TDateTimeInstance', 'DateTime');
+  ADateTimeType.PMembers.Add('now', ADateTimeFunc);
+  AActRec.AddMember('DateTime', ADateTimeType);
 end;
 
 class procedure TTypeLoader.LoadRequest(var AActRec: TActivationRecord);
@@ -68,6 +80,8 @@ begin
     TTypeLoader.LoadFileSystem(AActRec)
   else if AName = 'OS' then
     TTypeLoader.LoadOS(AActRec)
+  else if AName = 'DateTime' then
+    TTypeLoader.LoadDateTime(AActRec)
   else
     AInter.RaiseException('Type "'+AName+'" does not exist and can''t be loaded', 'RunTime');
 end;

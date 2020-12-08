@@ -32,7 +32,7 @@
         <PackageName Value="LazUtils"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="29">
+    <Units Count="30">
       <Unit0>
         <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -176,6 +176,10 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="TypeLoaderClass"/>
       </Unit28>
+      <Unit29>
+        <Filename Value="src\BuiltInTypes\datetimeinstance.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit29>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

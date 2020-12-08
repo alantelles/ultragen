@@ -6,7 +6,7 @@ interface
 
 uses
       Classes, SysUtils, Strutils,
-      InterpreterClass, InstanceOfClass, StringInstanceClass,
+      InterpreterClass, InstanceOfClass, StringInstanceClass, DateTimeInstanceClass,
       ListInstanceClass, ServerClass, ARClass, HttpClientInstanceClass, JsonTools;
 
 type
@@ -210,6 +210,7 @@ begin
   {$INCLUDE 'filesystem/options.pp'}
   {$INCLUDE 'server/options.pp'}
   {$INCLUDE 'httpclient/options.pp'}
+  {$INCLUDE 'datetime/options.pp'}
   else
     raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.', '', 1, 1);
   // functions

@@ -1,11 +1,4 @@
-class Zika
-function init(typez) : Zika
-end
+load DateTime
 
-function getZika(t)
-    m = new Zika(t)
-    return m
-end
-
-m = getZika("baholeros")
-print(new Zika("mika").typez)
+x = DateTime.now()
+print(x)
