@@ -343,10 +343,20 @@ var
   ABuilt: TDataType;
   ArgsList: TInstanceList;
   len, i, len2, i2: integer;
+  SearchStart: integer;
   ConstRet: TFunctionInstance;
 begin
   NowAct := FCallStack.Peek();
-  Gene := NowAct.GetMember(ANode.PName);
+  // surgery
+  SearchStart := FCallStack.Peek().PNestingLevel;
+  for i:=SearchStart downto 1 do
+  begin
+    NowAct := FCallStack.GetByLevel(i);
+    Gene := NowAct.GetMember(ANode.PName);
+    if Gene <> nil then
+      break;
+	end;
+  // end surgery
   if Gene <> nil then
   begin
     if Gene.ClassNameIs('TDictionaryInstance') then

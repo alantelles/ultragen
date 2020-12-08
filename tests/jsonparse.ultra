@@ -1,12 +1,18 @@
-function getTeam()
-    class Team
-
-    function show() : Team
-        return 'deu show'
-    end
-
-    a = new Team()
-    return a
+class Team
+function init(name) : Team
 end
-a = getTeam().show().capital()
-print(a)
+
+function up() : Team
+    self.name = self.name.upper()
+end
+
+function getTeam(name)
+    team = new Team(name)
+    return team
+end
+
+name = 'Vasco'
+team = getTeam('Vasco')
+print(team.name)
+team.up()
+print(team.name)
