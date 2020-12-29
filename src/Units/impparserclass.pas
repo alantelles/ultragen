@@ -36,7 +36,7 @@ type
     function VarAssign(AToken: TToken): TAST;
     function VarShortAssign(AToken: TToken; ShortCutType: string): TAST;
     function Variable(AToken: TToken): TAST;
-    function FunctionBlock: TAST;
+    function FunctionBlock(Anony:boolean = False): TAST;
     function DefParams: TASTList;
     function DefParam: TAST;
     function FunctionCall(var AToken: TToken): TAST;
@@ -393,20 +393,26 @@ begin
   Result := TString.Create(AToken);
 end;
 
-function TTParser.FunctionBlock: TAST;
+function TTParser.FunctionBlock(Anony:boolean = False): TAST;
 var
   AStrId: string;
   ParamList: TASTList;
   InBlock: TASTList;
   AToken: TToken;
   AType:string = '';
+  AName:string;
 begin
   SetLength(ParamList, 0);
   Eat(T_FUNC_DEF);
-  AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue,
+  if Anony then
+    AName := FormatDateTime('yyyymmddhhnnsszzz', Now)
+  else
+    AName := FCurrentToken.PValue;
+  AToken := TToken.Create(FCurrentToken.PType, AName,
          FLexer.PScriptLine, FLexer.PLineChar, FLexer.PFileName);
-  AStrId := FCurrentToken.PValue;
-  Eat(T_ID);
+  AStrId := AName;
+  if not Anony then
+    Eat(T_ID);
   Eat(T_LPAREN);
   FInArgsDef := True;
   ParamList := DefParams();
@@ -1267,6 +1273,10 @@ begin
   else if (AToken.PType = T_DICT_ASSIGN) then
   begin
     Ret := InstaLiteral();
+  end
+  else if (AToken.PType = T_FUNC_DEF) then
+  begin
+    Ret := FunctionBlock(True);
   end
   else if (AToken.PType = TYPE_NULL) then
   begin

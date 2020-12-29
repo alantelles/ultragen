@@ -1,6 +1,14 @@
-include @Core.Request
-headers = {'Content-Type': 'application/json'}
-url = 'https://reqres.in/api/users'
-body = {'name': 'Alan', 'age': 30}
-m = Request.postJson(url, body)
-print(m.getJson())
+funcs = [
+    function ()
+        print("item 1")
+    end,
+    function ()
+        print("item 2")
+    end,
+    function ()
+        print("item 3")
+    end
+]
+for (funcs, f)
+    f()
+end

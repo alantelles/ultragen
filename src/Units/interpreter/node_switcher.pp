@@ -55,7 +55,7 @@
     Ret := VisitReturn(TReturnFunction(ANode))
 
   else if ANode.ClassNameIs('TFunctionDefinition') then
-    VisitFunctionDefinition(TFunctionDefinition(Anode))
+    Ret := VisitFunctionDefinition(TFunctionDefinition(Anode))
   else if Anode.ClassNameIs('TNumInt') then
     Ret := VisitNumInt(TNumInt(ANode))
   else if Anode.ClassNameIs('TNull') then

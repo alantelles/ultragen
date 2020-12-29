@@ -34,7 +34,7 @@ function VisitNumInt(ANode:TNumInt):TIntegerInstance;
 function VisitNull(ANode:TNull):TNullInstance;
 function VisitNumFloat(ANode:TNumFloat):TFloatInstance;
 function VisitString(ANode:TString):TStringInstance;
-function VisitFunctionDefinition(ANode: TFunctionDefinition): TInstanceOf;
+function VisitFunctionDefinition(ANode: TFunctionDefinition): TFunctionInstance;
 
 function VisitList(ANode: TListAST): TListInstance;
 

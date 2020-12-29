@@ -298,7 +298,7 @@ begin
   AActRec.AddMember('__LIVE__', TStringInstance.Create(ALive));
 end;
 
-function TInterpreter.VisitFunctionDefinition(ANode: TFunctionDefinition): TInstanceOf;
+function TInterpreter.VisitFunctionDefinition(ANode: TFunctionDefinition): TFunctionInstance;
 var
   i, len: integer;
   AValue: TFunctionInstance;
@@ -316,16 +316,21 @@ begin
     begin
       RealType.PMembers.Add(ANode.PName, TFunctionInstance.Create(ANode.PName, ANode.PParamList,
         ANode.PBlock, RealType.PValue, False));
-
-		end
+    end
     else
       ERunTimeError.Create('Referenced type ' + ANode.PType +
       ' does not exist',
       FTrace, ANode.PToken);
   end
-	else
-    AActRec.AddMember(ANode.PName, TFunctionInstance.Create(ANode.PName, ANode.PParamList,
-        ANode.PBlock, 'TCoreFunction', False));
+  else
+  begin
+    AValue := TFunctionInstance.Create(ANode.PName, ANode.PParamList,
+        ANode.PBlock, 'TCoreFunction', False);
+    AActRec.AddMember(ANode.PName, AValue);
+    Result := AValue;
+  end;
+
+
        {
 	else
   begin
@@ -636,6 +641,9 @@ begin
   LogText(INTER, 'Interpreter', 'VarAssign visitation');
   AName := ANode.PVarName.PValue;
   AValue := Visit(ANode.PValue);
+  if AValue.ClassNameIs('TFunctionInstance') then
+    AValue := TFunctionInstance(AValue);
+
   if AValue.ClassNameIs('TFunctionInstance') then
   begin
     if TFunctionInstance(AValue).PIsBuiltin then
@@ -1523,6 +1531,7 @@ var
   AList: TInstanceList;
   len: integer = 0;
   len2, i: integer;
+  AValue: TInstanceOf;
 begin
   SetLength(AList, 0);
   len2 := Length(ANode.PArgs);
@@ -1533,7 +1542,10 @@ begin
       len := len + 1;
       SetLength(AList, len);
       Anitem := Anode.PArgs[i];
-      AList[len - 1] := Visit(ANode.PArgs[i]);
+      AValue := Visit(ANode.PArgs[i]);
+      if AValue.ClassNameIs('TFunctionInstance') then
+        AValue := TFunctionInstance(AValue);
+      AList[len - 1] := AValue;
     end;
   end;
   Result := TListInstance.Create(AList);
