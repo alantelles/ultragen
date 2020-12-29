@@ -5,7 +5,7 @@ unit StackClass;
 interface
 
 uses
-  Classes, SysUtils, ARClass;
+  Classes, SysUtils, ARClass, InstanceOfClass;
 
 type
 

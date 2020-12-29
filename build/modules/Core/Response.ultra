@@ -1,4 +1,4 @@
+
 function getJson() : Response
-    include @Core.Json
     return JSON.parse(self.text)
 end

@@ -318,6 +318,10 @@ begin
         ANode.PBlock, RealType.PValue, False));
 
 		end
+    else
+      ERunTimeError.Create('Referenced type ' + ANode.PType +
+      ' does not exist',
+      FTrace, ANode.PToken);
   end
 	else
     AActRec.AddMember(ANode.PName, TFunctionInstance.Create(ANode.PName, ANode.PParamList,
@@ -993,9 +997,12 @@ begin
     if ASrcInstance = nil then
       ERunTimeError.Create('Referenced function "' + AFuncName + '" does not exist.',
 		        FTrace, ANode.PToken)
+    else if ASrcInstance.ClassNameIs('TDataType') then
+      ERunTimeError.Create('Referenced function "' + AFuncName + '" does not exist for type "'+TDataType(ASrcInstance).PFrontName+'".',
+		          FTrace, ANode.PToken)
     else
       ERunTimeError.Create('Referenced function "' + AFuncName + '" does not exist for type "'+TDataType(AActRec.GetTypeByInternalName(ASrcInstance.ClassName)).PFrontName+'".',
-		        FTrace, ANode.PToken);
+		          FTrace, ANode.PToken);
   end;
   // end of new
 end;

@@ -32,7 +32,7 @@ type
       procedure CopyActRec(var AReceiver: TActivationRecord);
       constructor Create(AName:string; AType: string; ALevel: integer);
       function AddMember(AKey:string; AObj:TInstanceOf): boolean;
-      function GetMember(AKey:string):TInstanceOf;
+      function GetMember(AKey:string; ForceRef: boolean = False):TInstanceOf;
       function GetFunction(AKey: string; ASrc: TInstanceOf): TFunctionInstance;
       function AsString:string;
       procedure GetKeys(var AList: TListInstance);                                
@@ -264,12 +264,12 @@ begin
   Result := True;
 end;
 
-function TActivationRecord.GetMember(AKey:string):TInstanceOf;
+function TActivationRecord.GetMember(AKey:string; ForceRef: boolean = False):TInstanceOf;
 var
   Ret:TInstanceOf;
 begin
   Ret := TInstanceOf(FMembers.Find(AKey));
-  if Ret <> nil then
+  if (not ForceRef) and (Ret <> nil) then
   begin
     if Ret.ClassNameIs('TIntegerInstance') then
       Ret := TIntegerInstance.Create(Ret.PIntValue)

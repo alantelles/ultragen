@@ -1,6 +1,8 @@
-load DateTime
-
-x = DateTime.now()
-date = '/'.join([str(x.year().fixed(4)), str(x.month()), str(x.day().fixed(2))])
-time = ':'.join([str(x.hour().fixed(2)), str(x.minute().fixed(2)), str(x.second().fixed(2)), str(x.milli().fixed(3))])
-print(date, ' ', time )
+load Request
+include @Core.Request
+headers = {'Content-Type': 'application/json'}
+url = 'https://reqres.in/api/users'
+body = {'name': 'Alan', 'age': 30}
+m = Request.postJson(url, body)
+include @Core.Response
+print(m.getJson())

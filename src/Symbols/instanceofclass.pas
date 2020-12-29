@@ -94,9 +94,9 @@ type
       FConst: TFunctionInstance;
       FuserDef: boolean;
     public
-      property PUserDef: boolean read FUserDef;
+      property PUserDef: boolean read FUserDef write FUserDef;
       property PConst: TFunctionInstance read FConst write FConst;
-      property PFrontName: string read FFrontName;
+      property PFrontName: string read FFrontName write FFrontName;
       property PValue: string read FValue write FValue;
       function AsString: string; override;
       constructor Create(AName, AFront: string; UserDefined: boolean=False);
