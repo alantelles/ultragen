@@ -1,0 +1,11 @@
+funcs = {
+    'f1': function()
+        print('bora f1?')
+    end,
+    'f2': function()
+        print('ou bora f2')
+    end
+}
+
+funcs['f1']()
+funcs['f2']()

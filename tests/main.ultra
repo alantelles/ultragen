@@ -1,14 +1,47 @@
-funcs = [
-    function ()
-        print("item 1")
-    end,
-    function ()
-        print("item 2")
-    end,
-    function ()
-        print("item 3")
-    end
-]
-for (funcs, f)
-    f()
+function decorator(fn, args)
+    print('inside decorator')
+    fn(args)
+    print('going out decorator')
 end
+
+function redec(fn)
+    print('inside redec')
+    fn()
+    print('going out redec')
+end
+
+function tridec(fn)
+    print('inside tridec')
+    fn()
+    print('going out tridec')
+end
+
+function greet(a)
+    for (a, i)
+        print('ola: ', i)
+    end
+end
+
+function superdec(f, args)
+    tridec(
+        function ()
+            redec(
+                function ()
+                    decorator(f, args)
+                end
+            )
+        end
+    )
+end
+
+x = ['Person 1', 'Person 2', 'Person 3']
+superdec(greet, x)
+
+
+
+
+
+
+
+
+
