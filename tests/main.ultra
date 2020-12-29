@@ -1,8 +1,6 @@
-load Request
 include @Core.Request
 headers = {'Content-Type': 'application/json'}
 url = 'https://reqres.in/api/users'
 body = {'name': 'Alan', 'age': 30}
 m = Request.postJson(url, body)
-include @Core.Response
 print(m.getJson())

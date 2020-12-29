@@ -1,4 +1,0 @@
-
-function getJson() : Response
-    return JSON.parse(self.text)
-end
