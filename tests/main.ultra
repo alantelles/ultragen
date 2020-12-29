@@ -16,13 +16,7 @@ function tridec(fn)
     print('going out tridec')
 end
 
-function greet(a)
-    for (a, i)
-        print('ola: ', i)
-    end
-end
-
-function superdec(f, args)
+function superdec(args, f)
     tridec(
         function ()
             redec(
@@ -35,13 +29,11 @@ function superdec(f, args)
 end
 
 x = ['Person 1', 'Person 2', 'Person 3']
-superdec(greet, x)
 
 
-
-
-
-
-
-
-
+function greet(a)
+    for (a, i)
+        print('ola: ', i)
+    end
+end
+superdec(x, greet)
