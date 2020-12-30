@@ -1,3 +1,39 @@
+function each(fn, args=null) : List
+    for (self, x)
+        fn(x, _x, args)
+    end
+    return null
+end
+
+function every(fn, args=null) : List
+    for (self, x)
+        t = fn(x, _x, args)
+        if (!t)
+            return false
+        end
+    end
+    return true
+end
+
+function map(fn, args=null) : List
+    ret = []
+    for (self, x)
+        m = fn(x, _x, args)
+        ret.append(m)
+    end
+    return ret
+end
+
+function filter(fn, args=null) : List
+    ret = []
+    for (self, x)
+        if (fn(x, _x, args))
+            ret.append(x)
+        end
+    end
+    return ret
+end
+
 function insert(obj, pos) : List
     empty = []
     len = self.length()

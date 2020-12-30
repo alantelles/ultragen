@@ -1,11 +1,29 @@
-funcs = {
-    'f1': function()
-        print('bora f1?')
-    end,
-    'f2': function()
-        print('ou bora f2')
-    end
-}
+function greet(arg, arg2, arg3)
+    print('step ', arg2,': hello, ', arg)
+end
 
-funcs['f1']()
-funcs['f2']()
+function sel(i, _i, name)
+    if (i == name)
+        return true
+    end
+    return false
+end
+
+function lindo(i, _i, args)
+    return i + ' lindo'
+end
+
+s = ['alan', 'helaine', 'marina']
+l = range(10)
+
+function mt5(i, _i, args)
+    return i > args
+end
+
+res = l.every(mt5, -1)
+print(res)
+s.each(greet)
+o = s.map(lindo)
+print(o)
+m = s.filter(sel, 'helaine')
+print(m)
