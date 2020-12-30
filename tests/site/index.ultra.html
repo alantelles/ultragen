@@ -1,0 +1,28 @@
+@function Base(content)
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+    </head>
+    <body>
+        <h1>Teste</h1>
+        <div>
+            {{ content }}
+        </div>
+    </body>
+    </html>
+@end
+
+@function Color(c, _c, arg)
+    <div style="border: solid 1px black; padding: 15px; margin-bottom: 10px">
+        <h3>{{ c[:name].upper() }}</h3>
+        <div style="float: left; width: 70%">
+            <p>Ano: {{ c[:year] }}</p>
+            <p>Cor pantone: {{ c[:pantone_value] }}</p>
+        </div>
+        <div style=" float: right; width: 100px; height: 100px; background-color: {{ c[:color] }};"></div>
+        <br style="clear: both"/>
+    </div>
+@end

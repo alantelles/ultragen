@@ -1,0 +1,20 @@
+load FileSystem
+include @Core.Request
+include 'site/index.ultra.html'
+
+
+name = 'zika.json'
+if (!(FileSystem.isFile(name)))
+    print('reload')
+    url = 'https://reqres.in/api/colors'
+    colors = Request.get(url)
+    colors.text.writeText(name)
+    data = colors.getJson()[:data]
+else
+    print('from cache')
+    dump = FileSystem.loadText(name)
+    data = JSON.parse(''.join(dump))
+    data = data[:data]
+end
+content = ''.join(data.map(Color))
+live Base(content)
