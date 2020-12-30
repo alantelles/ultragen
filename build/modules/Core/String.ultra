@@ -22,6 +22,10 @@ function isInt() : String
     return ret
 end
 
+function escape() : String
+    return self.replace('<', '&lt;').replace('>', '&gt;')
+end
+
 function writeText(filename) : String
     self.split('\n').writeText(filename)
 end
