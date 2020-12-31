@@ -1,4 +1,4 @@
-@function Base(content, sub)
+@function Base(content)
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -9,20 +9,10 @@
     <body>
         <h1>Teste</h1>
         <div>
-            {{ sub.escape() }}
-        </div>
-        <div>
             {{ content }}
         </div>
     </body>
     </html>
-@end
-
-@function Alea(text)
-<div>
-    <h4>This is an aleatory block of text</h4>
-    <p>{{ text }}</p>
-</div>
 @end
 
 @function Color(c, _c, arg)

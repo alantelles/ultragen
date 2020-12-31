@@ -54,6 +54,7 @@ const
   T_LONG_STR = 'T_LONG_STRING';
   T_FUNC_PARAM = 'T_FUNC_PARAM';
   T_FUNC_DEF = 'block:T_FUNCTION_DEFINITION';
+  T_DECOR_DEF = 'block:T_DECORATOR_DEFINITION';
   T_COMMA = 'T_COMMA';
   T_END = 'T_BLOCK_END';
   T_ID = 'T_ID';
@@ -101,6 +102,7 @@ begin
   //ReservedWords := TFPHashObjectList.Create();
   KW := TStringList.Create;
   KW.Add('function=' +  T_FUNC_DEF);
+  KW.Add('decorator=' + T_DECOR_DEF);
   KW.Add('if=' +  T_IF_START);
   KW.Add('elsif=' +  T_ELSE_IF);
   KW.Add('else=' +  T_ELSE);

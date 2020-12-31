@@ -24,7 +24,7 @@ var
   AType: TDataType;
 begin
   AType := TDataType.Create('TOSInstance', 'OS');
-  AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TOSInstance', True);
+  AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TOSInstance', True,False, False);
   AType.PMembers.Add('getEnv', AFunc);
   AActRec.AddMember('OS', AType);
 end;

@@ -23,6 +23,8 @@
   else if ANode.ClassNameIs('TClassDefinition') then
     VisitClassDefinition(TClassDefinition(ANode))
 
+
+
   else if ANode.ClassNameIs('TDictNode') then
     Ret := VisitDict(TDictNode(ANode))
 
@@ -56,6 +58,10 @@
 
   else if ANode.ClassNameIs('TFunctionDefinition') then
     Ret := VisitFunctionDefinition(TFunctionDefinition(Anode))
+
+  else if ANode.ClassNameIs('TDecoratorDefinition') then
+    Ret := VisitDecoratorDefinition(TDecoratorDefinition(Anode))
+
   else if Anode.ClassNameIs('TNumInt') then
     Ret := VisitNumInt(TNumInt(ANode))
   else if Anode.ClassNameIs('TNull') then

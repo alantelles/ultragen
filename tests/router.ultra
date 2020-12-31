@@ -1,0 +1,20 @@
+class Router
+
+function init() : Router
+    self.routes = []
+end
+
+function addRule(route, handler, method) : Router
+    self.routes.append({'route': route, 'handler': handler, 'method': method})
+end
+
+function match(route, method) : Router
+    for (self.routes, rule)
+        if (route == (rule[:route]))
+            if (method == (rule[:method]))
+                return (rule[:handler])
+            end
+        end
+    end
+    return false
+end

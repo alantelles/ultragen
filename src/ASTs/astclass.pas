@@ -160,14 +160,20 @@ type
     FBlock: TASTList;
     FParamList: TASTList;
     FType: string;
+    FIsDecorator: boolean;
   public
     property PType: string read FType;
     property PParamList: TASTList read FParamList;
     property PBlock: TASTList read FBlock;
     property PName: string read FName;
+    property PIsDecorator: boolean read FIsDecorator;
     constructor Create(AToken: TToken; AName: string; ABlock, AParamList: TASTList;
-      AType: string);
+      AType: string; IsDecorator: boolean);
     destructor Destroy; override;
+  end;
+
+  TDecoratorDefinition = class(TFunctionDefinition)
+
   end;
 
   TFunctionCall = class(TAST)
@@ -229,8 +235,8 @@ type
     FNode: TToken;
     FDefValue: TAST;
   public
-    property PNode: TToken read FNode;
-    property PDefValue: TAST read FDefValue;
+    property PNode: TToken read FNode write FNode;
+    property PDefValue: TAST read FDefValue write FDefValue;
     constructor Create(ANode: TToken; ADefValue: TAST = nil);
     destructor Destroy; override;
 
@@ -354,6 +360,8 @@ begin
   end;
   inherited;
 end;
+
+
 
 constructor TDictKeyNode.Create(AKey: TAST; AValue: TAST; AToken: TToken);
 begin
@@ -691,12 +699,13 @@ begin
 end;
 
 constructor TFunctionDefinition.Create(AToken: TToken; AName: string;
-  ABlock, AParamList: TASTList; AType: string);
+  ABlock, AParamList: TASTList; AType: string; IsDecorator: boolean);
 begin
   FName := AName;
   FBlock := ABlock;
   FToken := AToken;
   FType := AType;
+  FIsDecorator := IsDecorator;
   logDebug('Creating a function definition named ' + AName, 'AST');
   FParamList := AParamList;
 end;

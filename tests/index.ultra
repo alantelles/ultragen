@@ -1,32 +1,20 @@
 include @Core.FileSystem
 include @Core.Request
 include 'site/index.ultra.html'
+include 'router.ultra'
 
-if (($request[:route]) == '/box')
-    live Alea($request[:query][:zika])
-else
-    name = 'zika.json'
-    box = []
-    box.append(Request.get('http://localhost:3400/box?zika=sim').text)
-    box.append(Request.get('http://localhost:3400/box?zika=tertuliano').text)
-    box.append(Request.get('http://localhost:3400/box?zika=baholeros').text)
-    box.append(Request.get('http://localhost:3400/box?zika=totis').text)
-    if (!(FileSystem.isFile(name)))
-        print('reload')
-        url = 'https://reqres.in/api/colors'
-        colors = Request.get(url)
-        colors.text.writeText(name)
-        data = colors.getJson()[:data]
-    else
-        print('from cache')
-        dump = FileSystem.loadText(name)
-        data = JSON.parse(''.join(dump))
-        data = data[:data]
-    end
-    
-    content = ''.join(data.map(Color))
-    sub = ''.join(box)
-
-    live Base(content, sub)
+function Baholeros()
+    return 'Baholeros'
 end
 
+function Zika()
+    return 'Zika'
+end
+
+router = new Router()
+router.addRule('/', Baholeros, :GET)
+router.addRule('/zika/:id', Zika, :GET)
+
+handler = router.match($request[:route], $request[:method])
+
+live handler()

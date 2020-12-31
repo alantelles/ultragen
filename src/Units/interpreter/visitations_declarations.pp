@@ -19,6 +19,7 @@ procedure VisitVarAssign(ANode: TVarAssign; ASrc: TInstanceOf);
 procedure VisitListAssign(ANode: TListAssign);
 function VisitVariableReference(ANode: TVariableReference; ASrc: TInstanceOf{ = nil}):TInstanceOf;
 function VisitFunctionCall(ANode: TFunctionCall; ASrcInstance: TInstanceOf = nil):TInstanceOf;
+function VisitDecoratorCall(AFunctionInstance: TFunctionInstance; ADecorated: TFunctionDefinition):TInstanceOf;
 function VisitFunctionCallByInstance(ANode: TFunctionCallByinstance; ASrcInstance: TInstanceOf = nil):TInstanceOf;
 function VisitMethodCall(ANode: TMethodCall):TInstanceOf;
 function VisitListAccess(ANode: TListAccessAST): TInstanceOf;
@@ -35,6 +36,7 @@ function VisitNull(ANode:TNull):TNullInstance;
 function VisitNumFloat(ANode:TNumFloat):TFloatInstance;
 function VisitString(ANode:TString):TStringInstance;
 function VisitFunctionDefinition(ANode: TFunctionDefinition): TFunctionInstance;
+function VisitDecoratorDefinition(ANode: TDecoratorDefinition): TDecoratorInstance;
 
 function VisitList(ANode: TListAST): TListInstance;
 

@@ -222,21 +222,25 @@ begin
         begin
 
           if ACandFunc.ClassNameIs('TFunctionInstance') then
-	          Ret := TFunctionInstance(ACandFunc);
+	    Ret := TFunctionInstance(ACandFunc)
+          else if ACandFunc.ClassNameIs('TDecoratorInstance') then
+            Ret := TDecoratorInstance(ACandFunc);
         end;
-		  end;
-		end;
-	end
+      end;
+    end;
+  end
   else
   begin
     ACandFunc := TInstanceOf(GetMember(Akey));
     if ACandfunc <> nil then
     begin
       if ACandFunc.ClassNameIs('TFunctionInstance') then
-        Ret := TFunctionInstance(ACandFunc);
-		end;
-	end;
-	Result := Ret;
+        Ret := TFunctionInstance(ACandFunc)
+      else if ACandFunc.ClassNameIs('TDecoratorInstance') then
+        Ret := TDecoratorInstance(ACandFunc);
+    end;
+  end;
+  Result := Ret;
 end;
 
 function TActivationRecord.AddMember(AKey:string; AObj:TInstanceOf):boolean;

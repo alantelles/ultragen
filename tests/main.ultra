@@ -1,40 +1,18 @@
-function decorator(fn, args)
-    print('inside decorator')
-    fn(args)
-    print('going out decorator')
-end
-
-function redec(fn)
-    print('inside redec')
+decorator wrapper(fn)
+    print('in dec')
     fn()
-    print('going out redec')
+    print('out dec')
 end
 
-function tridec(fn)
-    print('inside tridec')
+decorator rewrap(fn)
+    print('in rewrap')
     fn()
-    print('going out tridec')
+    print('out rewrap')
 end
 
-function superdec(f, args)
-    tridec(
-        function ()
-            redec(
-                function ()
-                    decorator(f, args)
-                end
-            )
-        end
-    )
-end
+bahol = rewrap(wrapper(
+    function ()
+        print('kk')
+    end))
 
-x = ['Person 1', 'Person 2', 'Person 3']
-
-# @superdec
-function greet(a)
-    for (a, i)
-        print('ola: ', i)
-    end
-end
-
-superdec(greet, x)
+bahol()

@@ -36,7 +36,8 @@ type
     function VarAssign(AToken: TToken): TAST;
     function VarShortAssign(AToken: TToken; ShortCutType: string): TAST;
     function Variable(AToken: TToken): TAST;
-    function FunctionBlock(Anony:boolean = False): TAST;
+    function FunctionBlock(Anony, IsDecorator:boolean): TAST;
+
     function DefParams: TASTList;
     function DefParam: TAST;
     function FunctionCall(var AToken: TToken): TAST;
@@ -393,7 +394,8 @@ begin
   Result := TString.Create(AToken);
 end;
 
-function TTParser.FunctionBlock(Anony:boolean = False): TAST;
+
+function TTParser.FunctionBlock(Anony, IsDecorator:boolean): TAST;
 var
   AStrId: string;
   ParamList: TASTList;
@@ -401,9 +403,19 @@ var
   AToken: TToken;
   AType:string = '';
   AName:string;
+  OpenType: string;
 begin
   SetLength(ParamList, 0);
-  Eat(T_FUNC_DEF);
+  if FCurrentToken.PType = T_DECOR_DEF then
+  begin
+    OpenType := T_DECOR_DEF;
+    Eat(T_DECOR_DEF)
+  end
+  else
+  begin
+    OpenType := T_FUNC_DEF;
+    Eat(T_FUNC_DEF);
+  end;
   if Anony then
     AName := FormatDateTime('yyyymmddhhnnsszzz', Now)
   else
@@ -428,11 +440,14 @@ begin
     FLexer.PScriptMode := False;
   Eat(T_NEWLINE);
   InBlock := Statements();
-  Eat(T_END + T_FUNC_DEF);
+  Eat(T_END + OpenType);
   logtext('PARSER', 'Parser', 'Creating function block node');
   {if AType <> '' then
     AStrId := AType + ':' + AStrId;}
-  Result := TFunctionDefinition.Create(AToken, AStrId, InBlock, ParamList, AType);
+  if not IsDecorator then
+    Result := TFunctionDefinition.Create(AToken, AStrId, InBlock, ParamList, AType, IsDecorator)
+  else
+    Result := TDecoratorDefinition.Create(AToken, AStrId, InBlock, ParamList, AType, IsDecorator);
 end;
 
 function TTParser.PlainTextEmbed: TAST;
@@ -1073,6 +1088,7 @@ begin
     Ret := MethodCallState();
   end
 
+
   else if (ATOken.PType = T_INCLUDE) then
   begin
     Logtext('PARSER', 'Parser', 'Creating include node');
@@ -1136,9 +1152,18 @@ begin
   begin
     Ret := TNoOp.Create(AToken);
   end
+  else if (AToken.PType = T_END + T_DECOR_DEF) then
+  begin
+    Ret := TNoOp.Create(AToken);
+  end
+
   else if (AToken.PType = T_FUNC_DEF) then
   begin
-    Ret := FunctionBlock();
+    Ret := FunctionBlock(False, False);
+  end
+  else if (AToken.PType = T_DECOR_DEF) then
+  begin
+    Ret := FunctionBlock(False, True);
   end
   else if (AToken.PType = T_IF_START) then
   begin
@@ -1182,6 +1207,10 @@ begin
     SetLength(Results, Len);
     Results[len - 1] := Statement();
     if FCurrentToken.PType = T_END + T_FUNC_DEF then
+    begin
+      break;
+    end
+    else if FCurrentToken.PType = T_END + T_DECOR_DEF then
     begin
       break;
     end
@@ -1276,7 +1305,7 @@ begin
   end
   else if (AToken.PType = T_FUNC_DEF) then
   begin
-    Ret := FunctionBlock(True);
+    Ret := FunctionBlock(True, False);
   end
   else if (AToken.PType = TYPE_NULL) then
   begin

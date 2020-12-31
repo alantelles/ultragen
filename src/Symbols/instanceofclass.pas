@@ -74,18 +74,24 @@ type
       FType: string;
       FIsBuiltin: boolean;
       FFromNamespace: boolean;
+      FIsDecorator: boolean;
     public
       property PFromNamespace:boolean read FFromNamespace write FFromNamespace;
+      property PIsDecorator: boolean read FIsDecorator;
       property PName:string read FName write FName;
       property PType:string read FType;
       property PIsBuiltin: boolean read FIsBuiltin;
       property PParams: TASTList read FParams;
       property PBlock: TASTList read FBlock write FBlock;
       function AsString: string;  override;
-      constructor Create(AName: string; AParams, ABlock: TASTList; AType:string; IsBuiltin:boolean; FromNamespace: boolean=False);
+      constructor Create(AName: string; AParams, ABlock: TASTList; AType:string; IsBuiltin:boolean; IsDecorator: boolean = False; FromNamespace: boolean = False);
       //procedure AddParam(AName:string);
       //procedure AddBlock(ABlock: TASTList);
 	end;
+
+  TDecoratorInstance = class(TFunctionInstance)
+
+  end;
 
   TDataType = class(TInstanceOf)
     protected
@@ -217,7 +223,7 @@ begin
   Result := T_LANG_NULL;
 end;
 
-constructor TFunctionInstance.Create(AName:string; AParams, ABlock: TASTList; AType: string; IsBuiltin:boolean; FromNamespace: boolean = False);
+constructor TFunctionInstance.Create(AName: string; AParams, ABlock: TASTList; AType:string; IsBuiltin:boolean; IsDecorator: boolean = False; FromNamespace: boolean = False);
 begin
   //Fname := AName;
   //SetLength(FParamsName, 0);
@@ -228,14 +234,19 @@ begin
   FBlock := ABlock;
   FType := AType;
   FIsBuiltin := IsBuiltin;
+  FIsDecorator := IsDecorator;
 end;
 
 function TFunctionInstance.AsString: string;
+var
+  AMode: string = 'function';
 begin
+  if FIsDecorator then
+    AMode := 'decorator ' + AMode;
   if FType <> '' then
-    Result := '<function ' + FName + ' from type ' + FType + '>'
+    Result := '<' + AMode + ' ' + FName + ' from type ' + FType + '>'
   else
-    Result := '<function ' + FName + '>';
+    Result := '<' + AMode + ' ' + FName + '>';
 end;
 
 constructor TIntegerInstance.Create(AValue: integer);
