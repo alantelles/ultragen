@@ -818,74 +818,93 @@ var
   Adef, ACopy, AReturn: TInstanceOf;
   Aux: TFunctionInstance;
   AParamName: string;
+  ArgsList, VarArgsList: TInstanceList;
+  ArgsListInstanced, VarArgsListInstanced: TListInstance;
 begin
   AActRec := TActivationRecord.Create(AFunction.PName, AR_FUNCTION,
-        FCallStack.PLevel + 1);
+          FCallStack.PLevel + 1);
   AActRec.AddMember('__LIVE__', TStringInstance.Create(''));
   if ASrcInstance <> nil then
     AActRec.AddMember('self', ASrcInstance);
-  lenArgs := Length(Args);
-  lenParams := Length(AFunction.PParams);
-  Len := Max(LenArgs, LenParams);
-	if Len > 0 then
-	begin
-	  for i := 0 to Len - 1 do
-	  begin
-	    if i > (LenArgs - 1) then
-	    begin
-	      if TParam(AFunction.PParams[i]).PDefValue <> nil then
-	        ADef := Visit(TParam(AFunction.PParams[i]).PDefValue)
-	      else
-	        EArgumentsError.Create(
-	          'Wrong number of arguments to call this function',
-	          FTrace,  ANode.PToken);
-	    end
-	    else if i > (LenParams - 1) then
-	    begin
-	      EArgumentsError.Create(
-	        'Wrong number of arguments to call this function',
-	        FTrace,  ANode.PToken);
-	    end
-	    else
-	    begin
-	      ADef := Args[i];
-	    end;
-	    AParamName := TParam(AFunction.PParams[i]).PNode.PValue;
-	    if ADef.ClassNameIs('TFunctionInstance') then
-	    begin
-	      Aux := TFunctionInstance(ADef);
-	      if Aux.PIsBuiltin then
-	        ERunTimeError.Create('Can''t assign builtin function "' +
-	          Args[i].AsString + '" as argument',
-	          FTrace, ANode.PToken);
-		        //AParamName := ANode.PEvalParams[i].PToken.PValue;
-	    end;
-	    ADef.CopyInstance(ACopy);
-        AActRec.AddMember(AParamName, ACopy);
-	  end;
-	end;
+  SetLength(ArgsList, 0);
+  if not AFunction.PAccVarargs then
+  begin
+
+    lenArgs := Length(Args);
+    lenParams := Length(AFunction.PParams);
+    Len := Max(LenArgs, LenParams);
+    SetLength(ArgsList, Len);
+    if Len > 0 then
+    begin
+      for i := 0 to Len - 1 do
+      begin
+        if i > (LenArgs - 1) then
+        begin
+	  if TParam(AFunction.PParams[i]).PDefValue <> nil then
+	    ADef := Visit(TParam(AFunction.PParams[i]).PDefValue)
+	  else
+	    EArgumentsError.Create(
+	      'Wrong number of arguments to call this function',
+	      FTrace,  ANode.PToken);
+        end
+        else if i > (LenParams - 1) then
+        begin
+	  EArgumentsError.Create(
+	    'Wrong number of arguments to call this function',
+	    FTrace,  ANode.PToken);
+        end
+        else
+        begin
+	  ADef := Args[i];
+        end;
+        AParamName := TParam(AFunction.PParams[i]).PNode.PValue;
+        if ADef.ClassNameIs('TFunctionInstance') then
+        begin
+	  Aux := TFunctionInstance(ADef);
+	  if Aux.PIsBuiltin then
+	    ERunTimeError.Create('Can''t assign builtin function "' +
+	      Args[i].AsString + '" as argument',
+	      FTrace, ANode.PToken);
+		    //AParamName := ANode.PEvalParams[i].PToken.PValue;
+          //ADef.CopyInstance(ACopy);
+
+        end;
+        ArgsList[i] := ADef;
+        AActRec.AddMember(AParamName, ADef);
+      end;
+    end;
+  end
+  else
+  begin
+    writeln('varargs');
+  end;
+  ArgsListInstanced := TListInstance.Create(ArgsList);
+  ArgsListInstanced.PAddLocked := True;
+  ArgsListInstanced.PChangeLocked := True;
+  AActRec.AddMember('$funcArgs', ArgsListInstanced);
+
   FCallStack.Push(AActRec);
-	len := Length(AFunction.PBlock);
-	if len > 0 then
-	begin
-	  for i := 0 to len - 1 do
-	  begin
-	    if FReturnSignal then
-	    begin
-	      FReturnSignal := False;
-	      AActRec.PReturnValue.CopyInstance(AReturn);
-	      FCallStack.Pop();
-	      Result := AReturn;
-	      exit;
-	    end
-	    else
-	      Visit(AFunction.PBlock[i]);
-	  end;
-	end;
-	AReturn := AActRec.GetMember('__LIVE__');
+  len := Length(AFunction.PBlock);
+  if len > 0 then
+  begin
+    for i := 0 to len - 1 do
+    begin
+      if FReturnSignal then
+      begin
+	FReturnSignal := False;
+	AActRec.PReturnValue.CopyInstance(AReturn);
 	FCallStack.Pop();
 	Result := AReturn;
 	exit;
+      end
+      else
+	Visit(AFunction.PBlock[i]);
+    end;
+  end;
+  AReturn := AActRec.GetMember('__LIVE__');
+  FCallStack.Pop();
+  Result := AReturn;
+  exit;
 end;
 
 function TInterpreter.VisitDecoratorCall(AFunctionInstance: TFunctionInstance; ADecorated: TASTList): TInstanceOf;
