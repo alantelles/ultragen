@@ -1,7 +1,7 @@
-function top()
-    return 'top'
+function test(a, b, c)
+    for ($funcArgs, arg)
+        print(arg)
+    end
 end
-function main(a=top())
-    print(a)
-end
-main()
+
+test(0, 2, 4)

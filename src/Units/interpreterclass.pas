@@ -891,12 +891,13 @@ function TInterpreter.VisitDecoratorCall(AFunctionInstance: TFunctionInstance; A
 var
   NewParams: TASTList;
   Instanced: TInstanceOf;
-  len, len2, i: integer;
+  last, len, len2, i: integer;
 begin
   // Instanced := TFunctionInstance.Create(ADecorated.PName, ADecorated.PParamList, ADecorated.PBlock, '', False);
-  Instanced := Visit(ADecorated[0]);
+  last := Length(ADecorated) - 1;
+  Instanced := Visit(ADecorated[last]);
   if not Instanced.ClassNameIs('TFunctionInstance') then
-    ERunTimeError.Create('First argument of a decorator call must be a function', FTrace, nil);
+    ERunTimeError.Create('Last argument of a decorator call must be a function', FTrace, nil);
   len := Length(TFunctionInstance(Instanced).PParams);// + 1;
   SetLength(NewParams, len);
   if len > 0 then
@@ -930,7 +931,6 @@ var
   AReturn, AIter, Zika: TInstanceOf;
   LenArgs, LenParams: integer;
   ArgsList: TInstanceList;
-
   searchStart: integer;
 begin
 
@@ -970,6 +970,7 @@ begin
         LenArgs := Length(Anode.PEvalParams);
         LenParams := Length(FuncDef.PParams);
         Len := Max(LenArgs, LenParams);
+        SetLength(ArgsList, Len);
         if Len > 0 then
         begin
           for i := 0 to Len - 1 do
@@ -1004,10 +1005,11 @@ begin
               //AParamName := ANode.PEvalParams[i].PToken.PValue;
             end;
             //ADef.CopyInstance(ACopy);
-
+            ArgsList[i] := ADef;
             AActRec.AddMember(AParamName, ADef);
           end;
         end;
+        AActRec.AddMember('$funcArgs', TListInstance.Create(ArgsList));
         FCallStack.Push(AActRec);
         len := Length(Funcdef.PBlock);
         if len > 0 then

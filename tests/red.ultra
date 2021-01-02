@@ -1,25 +1,13 @@
-decorator wrap(fn, other)
+decorator wrap(fn)
     print('in wrap')
-    print(other)
+    a = $funcArgs[0]
+    b = $funcArgs[1]
     fn(a, b)
     print('out wrap')
 end
 
-decorator rewrap(fn, fn2)
-    print('in rewrap')
-    fn()
-    fn2()
-    print('out rewrap')
-end
+teste = wrap(function(m, n)
+    print(m, ' e ', n)
+end)
 
-function a()
-    print('a')
-end
-function b()
-    print('b')
-end
-
-k = rewrap(function()
-    print('passando anony')
-end,b)
-k()
+teste('alan', 'helaine')
