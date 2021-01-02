@@ -1,18 +1,7 @@
-decorator wrapper(fn)
-    print('in dec')
-    fn()
-    print('out dec')
+function top()
+    return 'top'
 end
-
-decorator rewrap(fn)
-    print('in rewrap')
-    fn()
-    print('out rewrap')
+function main(a=top())
+    print(a)
 end
-
-bahol = rewrap(wrapper(
-    function ()
-        print('kk')
-    end))
-
-bahol()
+main()

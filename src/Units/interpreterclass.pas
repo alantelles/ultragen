@@ -887,21 +887,29 @@ begin
 	exit;
 end;
 
-function TInterpreter.VisitDecoratorCall(AFunctionInstance: TFunctionInstance; ADecorated: TFunctionDefinition): TInstanceOf;
+function TInterpreter.VisitDecoratorCall(AFunctionInstance: TFunctionInstance; ADecorated: TASTList): TInstanceOf;
 var
   NewParams: TASTList;
-  Instanced: TFunctionInstance;
-  len, i: integer;
+  Instanced: TInstanceOf;
+  len, len2, i: integer;
 begin
-  Instanced := TFunctionInstance.Create(ADecorated.PName, ADecorated.PParamList, ADecorated.PBlock, '', False);
-  len := Length(Instanced.PParams) + 1;
+  // Instanced := TFunctionInstance.Create(ADecorated.PName, ADecorated.PParamList, ADecorated.PBlock, '', False);
+  Instanced := Visit(ADecorated[0]);
+  if not Instanced.ClassNameIs('TFunctionInstance') then
+    ERunTimeError.Create('First argument of a decorator call must be a function', FTrace, nil);
+  len := Length(TFunctionInstance(Instanced).PParams);// + 1;
   SetLength(NewParams, len);
-  if len > 2 then
-    for i:=0 to len-2 do
-      NewParams[i] := Instanced.PParams[i];
-  NewParams[len-1] := AFunctionInstance.PParams[0];
-  TParam(NewParams[len-1]).PDefValue := ADecorated;
-  Result := TFunctionInstance.Create(ADecorated.PName, NewParams, AFunctionInstance.PBlock, ADecorated.PType, False);
+  if len > 0 then
+    for i:=0 to len-1 do
+      NewParams[i] := TFunctionInstance(Instanced).PParams[i];
+  len2 := Length(AFunctionInstance.PParams);
+  SetLength(NewParams, len+len2);
+  for i:=0 to len2 - 1 do
+  begin
+    NewParams[len+i] := AFunctionInstance.PParams[i];
+    TParam(NewParams[len+i]).PDefValue := ADecorated[i];
+  end;
+  Result := TFunctionInstance.Create(FormatDateTime('yyyymmddhhnnsszzz', Now), NewParams, AFunctionInstance.PBlock, 'TCoreFunction', False);
 end;
 
 function TInterpreter.VisitFunctionCall(ANode: TFunctionCall;
@@ -948,7 +956,7 @@ begin
     if FuncDef.ClassNameIs('TDecoratorInstance') then
     begin
       // Decorate execute
-      Result := VisitDecoratorCall(FuncDef, TFunctionDefinition(ANode.PEvalParams[0]));
+      Result := VisitDecoratorCall(FuncDef, ANode.PEvalParams);
     end
     else
     begin

@@ -1,29 +1,25 @@
-function greet(arg, arg2, arg3)
-    print('step ', arg2,': hello, ', arg)
+decorator wrap(fn, other)
+    print('in wrap')
+    print(other)
+    fn(a, b)
+    print('out wrap')
 end
 
-function sel(i, _i, name)
-    if (i == name)
-        return true
-    end
-    return false
+decorator rewrap(fn, fn2)
+    print('in rewrap')
+    fn()
+    fn2()
+    print('out rewrap')
 end
 
-function lindo(i, _i, args)
-    return i + ' lindo'
+function a()
+    print('a')
+end
+function b()
+    print('b')
 end
 
-s = ['alan', 'helaine', 'marina']
-l = range(10)
-
-function mt5(i, _i, args)
-    return i > args
-end
-
-res = l.every(mt5, -1)
-print(res)
-s.each(greet)
-o = s.map(lindo)
-print(o)
-m = s.filter(sel, 'helaine')
-print(m)
+k = rewrap(function()
+    print('passando anony')
+end,b)
+k()
