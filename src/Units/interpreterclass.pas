@@ -353,7 +353,7 @@ var
   RealType: TDataType;
   t, t2: string;
 begin
-  logtext('INTER', 'Interpreter', 'Visiting function definition');
+  logtext('INTER', 'Interpreter', 'Visiting decorator definition');
   AActRec := FCallStack.Peek;
   if ANode.PType <> '' then
   begin
@@ -932,6 +932,7 @@ var
   AReturn, AIter, Zika: TInstanceOf;
   LenArgs, LenParams: integer;
   ArgsList: TInstanceList;
+  ArgsListInstanced: TListInstance;
   searchStart: integer;
 begin
 
@@ -939,7 +940,14 @@ begin
   LogText(INTER, 'Interpreter', 'Visiting function ' + ANode.PFuncName);
   if (ASrcInstance <> nil) and ASrcInstance.ClassNameIs('TClassInstance') then
   begin
-    FuncDef := TFunctionInstance(ASrcInstance.PMembers.Find(ANode.PFuncName));
+    ACopy := TInstanceOf(ASrcInstance.PMembers.Find(ANode.PFuncName));
+    if ACopy.ClassNameIs('TFunctionInstance') then
+      FuncDef := TFunctionInstance(ACopy)
+    else if ACopy.ClassNameIs('TDecoratorInstance') then
+    begin
+      Result := VisitDecoratorCall(FuncDef, ANode.PEvalParams);
+      exit;
+    end;
   end
   else
   begin
@@ -1010,7 +1018,10 @@ begin
             AActRec.AddMember(AParamName, ADef);
           end;
         end;
-        AActRec.AddMember('$funcArgs', TListInstance.Create(ArgsList));
+        ArgsListInstanced := TListInstance.Create(ArgsList);
+        ArgsListInstanced.PAddLocked := True;
+        ArgsListInstanced.PChangeLocked := True;
+        AActRec.AddMember('$funcArgs', ArgsListInstanced);
         FCallStack.Push(AActRec);
         len := Length(Funcdef.PBlock);
         if len > 0 then

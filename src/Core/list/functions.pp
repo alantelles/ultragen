@@ -1,32 +1,23 @@
-function TCoreFunction.MapList:TListInstance;
+procedure TCoreFunction.DistributeList(var AObj: TListInstance);
 var
-  AList, AArgsList: TListInstance;
-  AFunc: TFunctionInstance;
-  AArgs, Ret: TInstanceList;
-  AArg: TInstanceOf;
-  len:integer = 0;
+  lenArgs, lenList, i: integer;
+  AActRec: TActivationRecord;
 begin
-  AList := TListInstance(FParams[0]);
-  AArgsList := TListInstance(FParams[2]);
-  AFunc := TFunctionInstance(FParams[1]);
-  SetLength(AArgs, 0);
-  for AArg in AArgsList.PValue do
+  AActRec := FInter.PCallStack.Peek;
+  lenArgs := Length(FParams);
+  if lenArgs > 1 then
   begin
-    len := len + 1;
-    SetLength(AArgs, len);
-    AArgs[len - 1] := AArg;
-  end;
-  len := 0;
-  SetLength(Ret, 0);
-  for AArg in AList.PValue do
-  begin
-    len := len + 1;
-    AArgs[0] := AArg;
-    SetLength(Ret, len);
-    Ret[len - 1] := Execute(FInter, AFunc.PName, AArgs, FObj);
-  end;
-  Result := TListInstance.Create(Ret);
+    if (lenArgs) > AObj.Count then
+      ERunTimeError.Create('More names than objects in the list');
+    for i:=0 to lenArgs - 1 do
+      AActRec.AddMember(FParams[i].PStrValue, AObj.GetItem(i));
+  end
+  else
+    EArgumentsError.Create(E_INVALID_ARGS);
+  {FInter.RaiseException(E_INVALID_ARGS_TYPE+ ', must be String', 'Arguments');}
 end;
+
+
 
 function TCoreFunction.AppendToList(var AObj: TListInstance): TListInstance;
 var

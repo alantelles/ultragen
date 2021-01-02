@@ -2,6 +2,7 @@ AListFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TListInstance', True
 AListType := TDataType.Create('TListInstance', 'List');
 AListType.PMembers.Add('length', AListFunc);
 AListType.PMembers.Add('set', AListFunc);
+AListType.PMembers.Add('unpack', AListFunc);
 AListType.PMembers.Add('pop', AListFunc);
 AListType.PMembers.Add('prepend', AListFunc);
 AListType.PMembers.Add('clear', AListFunc);

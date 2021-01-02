@@ -1,5 +1,3 @@
-x = [0,2,4,8]
-unpack(:a, :b, :c, x)
-print(a)
-print(b)
-print(c)
+a = range(5)
+a.unpack(:a, :b)
+print(a, b)

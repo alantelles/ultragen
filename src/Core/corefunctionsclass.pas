@@ -41,7 +41,7 @@ type
       procedure DumpLive;
       function ParseJson: TInstanceOf;
       function ParseJsonFile: TInstanceOf;
-      procedure DistributeList;
+
 
        //functions
 
@@ -95,10 +95,9 @@ begin
     else if FName = 'saveLive' then
       DumpLive
 
-    else if FName = 'unpack' then
-    begin
-      DistributeList;
-    end
+
+
+
 
     else if FName = 'members' then
     begin
@@ -246,30 +245,7 @@ begin
   end;
 end;
 
-procedure TCoreFunction.DistributeList;
-var
-  lenArgs, lenList, i: integer;
-  AActRec: TActivationRecord;
-  ArgsList: TListInstance;
-  NowVar: TStringInstance;
-begin
-  AActRec := FInter.PCallStack.Peek;
-  lenArgs := Length(FParams);
-  if lenArgs > 1 then
-  begin
 
-    if not FParams[lenArgs-1].ClassNameIs('TListInstance') then
-      EArgumentsError.Create(E_INVALID_ARGS_TYPE);
-    ArgsList := TListInstance(FParams[lenArgs-1]);
-    if (lenArgs - 1) > ArgsList.Count then
-      ERunTimeError.Create('More names than objects in the list');
-    for i:=0 to lenArgs - 2 do
-      AActRec.AddMember(FParams[i].PStrValue, ArgsList.GetItem(i));
-  end
-  else
-    EArgumentsError.Create(E_INVALID_ARGS);
-  {FInter.RaiseException(E_INVALID_ARGS_TYPE+ ', must be String', 'Arguments');}
-end;
 
 function TCoreFunction.Range: TListInstance;
 var

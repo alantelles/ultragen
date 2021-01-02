@@ -8,7 +8,6 @@
 // builtins
 AActRec.AddMember('addModulePath', ACoreFunc);
 AActRec.AddMember('members', ACoreFunc);
-AActRec.AddMember('unpack', ACoreFunc);
 AActRec.AddMember('print', ACoreFunc);
 AActRec.AddMember('inline', ACoreFunc);
 AActRec.AddMember('str', ACoreFunc);

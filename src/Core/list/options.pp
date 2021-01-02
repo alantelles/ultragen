@@ -5,6 +5,8 @@ else if AType = 'TListInstance' then
 begin
      if Fname = 'length' then
         Ret := TIntegerInstance.Create(TListInstance(AObj).Count)
+     else if FName = 'unpack' then
+       DistributeList(TListInstance(AObj))
      else if FName = 'append' then
         Ret := AppendToList(TListInstance(AObj))
      else if FName = 'prepend' then

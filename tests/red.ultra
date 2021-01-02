@@ -1,12 +1,13 @@
+class Zoa
+
 decorator wrap(fn)
     print('in wrap')
-    unpack(:a, :b, $funcArgs)
-    fn(a, b)
+    fn()
     print('out wrap')
 end
 
-teste = wrap(function(m, n="helaine")
-    print(m, ' e ', n)
+Zoa.t = wrap(function()
+    print('abracei')
 end)
 
-teste('alan')
+Zoa.t()
