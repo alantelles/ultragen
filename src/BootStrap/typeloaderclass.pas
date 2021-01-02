@@ -34,7 +34,7 @@ var
   ADateTimeFunc: TFunctionInstance;
   ADateTimeType: TDataType;
 begin
-  ADateTimeFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TDateTimeInstance', True);
+  ADateTimeFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TDateTimeInstance', True, False, False);
   ADateTimeType := TDataType.Create('TDateTimeInstance', 'DateTime');
   ADateTimeType.PMembers.Add('now', ADateTimeFunc);
   ADateTimeType.PMembers.Add('year', ADateTimeFunc);
@@ -52,7 +52,7 @@ var
   AHttpClientFunc: TFunctionInstance;
   AHttpClientType, AHttpResponseType: TDataType;
 begin
-  AHttpClientFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'THttpClientInstance', True);
+  AHttpClientFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'THttpClientInstance', True, False, False);
   AHttpClientType := TDataType.Create('THttpClientInstance', 'Request');
   AHttpClientType.PMembers.Add('get', AHttpClientFunc);
   AHttpClientType.PMembers.Add('post', AHttpClientFunc);
@@ -70,7 +70,7 @@ var
   AFSFunc: TFunctionInstance;
 begin
   AFSType := TDataType.Create('TFileSystemInstance', 'FileSystem');
-  AFSFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFileSystemInstance', True);
+  AFSFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFileSystemInstance', True, False, False);
   AFSType.PMembers.Add('loadText', AFSFunc);
   AFSType.PMembers.Add('mkdir', AFSFunc);
   AFSType.PMembers.Add('isFile', AFSFunc);

@@ -102,11 +102,11 @@ begin
 
   {AStrType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TStringInstance', True);
   AIntType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TIntegerInstance', True);}
-  AFloatFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFloatInstance', True);
+  AFloatFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFloatInstance', True, False, False);
   {AListType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TListInstance', True);
   AFuncType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFunctionInstance', True);}
-  ABoolFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBooleanInstance', True);
-  AJsonFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TJsonInstance', True);
+  ABoolFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBooleanInstance', True, False, False);
+  AJsonFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TJsonInstance', True, False, False);
   {ADictType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TDictionaryInstance', True);
   AOSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TOSInstance', True);
   AFSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFileSystemInstance', True);
@@ -123,7 +123,7 @@ begin
   AFuncType := TDataType.Create('TFunctionInstance', 'Function');
 
   // ACoreType := TDataType.Create('TCoreInstance', 'Core');
-  ACoreFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TCoreInstance', True);
+  ACoreFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TCoreInstance', True, False, False);
 
   // AActRec.AddMember('parseJson', ACoreFunc);
 
@@ -316,7 +316,7 @@ begin
     if RealType <> nil then
     begin
       RealType.PMembers.Add(ANode.PName, TFunctionInstance.Create(ANode.PName, ANode.PParamList,
-        ANode.PBlock, RealType.PValue, False, ANode.PIsDecorator));
+        ANode.PBlock, RealType.PValue, False, ANode.PIsDecorator, ANode.PAcceptVarargs));
     end
     else
       ERunTimeError.Create('Referenced type ' + ANode.PType +
@@ -326,7 +326,7 @@ begin
   else
   begin
     AValue := TFunctionInstance.Create(ANode.PName, ANode.PParamList,
-        ANode.PBlock, 'TCoreFunction', False, ANode.PIsDecorator);
+        ANode.PBlock, 'TCoreFunction', False, ANode.PIsDecorator, ANode.PAcceptVarargs);
     AActRec.AddMember(ANode.PName, AValue);
     Result := AValue;
   end;
@@ -361,7 +361,7 @@ begin
     if RealType <> nil then
     begin
       RealType.PMembers.Add(ANode.PName, TFunctionInstance.Create(ANode.PName, ANode.PParamList,
-        ANode.PBlock, RealType.PValue, False, ANode.PIsDecorator));
+        ANode.PBlock, RealType.PValue, False, ANode.PIsDecorator, ANode.PAcceptVarargs));
     end
     else
       ERunTimeError.Create('Referenced type ' + ANode.PType +
@@ -371,7 +371,7 @@ begin
   else
   begin
     AValue := TDecoratorInstance.Create(ANode.PName, ANode.PParamList,
-        ANode.PBlock, 'TCoreFunction', False, ANode.PIsDecorator);
+        ANode.PBlock, 'TCoreFunction', False, ANode.PIsDecorator, ANode.PAcceptVarargs);
     AActRec.AddMember(ANode.PName, AValue);
     Result := AValue;
   end;
@@ -911,7 +911,7 @@ begin
     NewParams[len+i] := AFunctionInstance.PParams[i];
     TParam(NewParams[len+i]).PDefValue := ADecorated[i];
   end;
-  Result := TFunctionInstance.Create(FormatDateTime('yyyymmddhhnnsszzz', Now), NewParams, AFunctionInstance.PBlock, 'TCoreFunction', False);
+  Result := TFunctionInstance.Create(FormatDateTime('yyyymmddhhnnsszzz', Now), NewParams, AFunctionInstance.PBlock, 'TCoreFunction', False, AFunctionInstance.PIsDecorator, AFunctionInstance.PAccVarargs);
 end;
 
 function TInterpreter.VisitFunctionCall(ANode: TFunctionCall;
@@ -931,8 +931,8 @@ var
   ACopy: TInstanceOf;
   AReturn, AIter, Zika: TInstanceOf;
   LenArgs, LenParams: integer;
-  ArgsList: TInstanceList;
-  ArgsListInstanced: TListInstance;
+  ArgsList, VarList: TInstanceList;
+  ArgsListInstanced, VarListInstanced: TListInstance;
   searchStart: integer;
 begin
 
@@ -976,46 +976,90 @@ begin
         AActRec.AddMember('__LIVE__', TStringInstance.Create(''));
         if ASrcInstance <> nil then
           AActRec.AddMember('self', ASrcInstance);
-        LenArgs := Length(Anode.PEvalParams);
-        LenParams := Length(FuncDef.PParams);
-        Len := Max(LenArgs, LenParams);
-        SetLength(ArgsList, Len);
-        if Len > 0 then
+
+        if FuncDef.PAccVarargs then
         begin
-          for i := 0 to Len - 1 do
+
+          LenParams := Length(FuncDef.PParams);
+          SetLength(ArgsList, LenParams + 1);
+          LenArgs := Length(ANode.PEvalParams);
+          for i := 0 to LenParams-1 do
           begin
-            if i > (LenArgs - 1) then
+            if (i < LenArgs) then
+              AIter := Visit(ANode.PEvalParams[i])
+            else
             begin
               if TParam(FuncDef.PParams[i]).PDefValue <> nil then
-                ADef := Visit(TParam(FuncDef.PParams[i]).PDefValue)
-              else
+                AIter := Visit(TParam(FuncDef.PParams[i]).PDefValue);
+            end;
+            ArgsList[i] := AIter;
+            AActRec.AddMember(TParam(FuncDef.PParams[i]).PNode.PValue, AIter);
+          end;
+          {TODO: varargs}
+          SetLength(VarList, 0);
+
+          if LenArgs > LenParams then
+          begin
+            SetLength(VarList, LenArgs-LenParams);
+            for i:=LenParams to LenArgs-1 do
+            begin
+              AIter := Visit(ANode.PEvalParams[i]);
+              VarList[i - LenParams] := AIter;
+            end;
+          end;
+          VarListInstanced := TListInstance.Create(VarList);
+          VarListInstanced.PAddLocked := True;
+          VarListInstanced.PChangeLocked := True;
+          AActRec.AddMember('$varArgs', VarListInstanced);
+          ArgsList[LenParams] := VarListInstanced;
+          ArgsListInstanced := TListInstance.Create(ArgsList);
+          ArgsListInstanced.PAddLocked := True;
+          ArgsListInstanced.PChangeLocked := True;
+          AActRec.AddMember('$funcArgs', ArgsListInstanced);
+        end
+        else
+        begin
+          LenArgs := Length(Anode.PEvalParams);
+          LenParams := Length(FuncDef.PParams);
+          Len := Max(LenArgs, LenParams);
+          SetLength(ArgsList, Len);
+          if Len > 0 then
+          begin
+            for i := 0 to Len - 1 do
+            begin
+              if i > (LenArgs - 1) then
+              begin
+                if TParam(FuncDef.PParams[i]).PDefValue <> nil then
+                  ADef := Visit(TParam(FuncDef.PParams[i]).PDefValue)
+                else
+                  EArgumentsError.Create(
+                    'Wrong number of arguments to call this function',
+                    FTrace, ANode.PToken);
+              end
+              else if i > (LenParams - 1) then
+              begin
                 EArgumentsError.Create(
                   'Wrong number of arguments to call this function',
                   FTrace, ANode.PToken);
-            end
-            else if i > (LenParams - 1) then
-            begin
-              EArgumentsError.Create(
-                'Wrong number of arguments to call this function',
-                FTrace, ANode.PToken);
-            end
-            else
-            begin
-              ADef := Visit(ANode.PEvalParams[i]);
+              end
+              else
+              begin
+                ADef := Visit(ANode.PEvalParams[i]);
+              end;
+              AParamName := TParam(FuncDef.PParams[i]).PNode.PValue;
+              if ADef.ClassNameIs('TFunctionInstance') then
+              begin
+                Aux := TFunctionInstance(ADef);
+                if Aux.PIsBuiltin then
+                  ERunTimeError.Create('Can''t assign builtin function "' +
+                    ANode.PEvalParams[i].PToken.PValue + '" as argument',
+                    FTrace, ANode.PToken);
+                //AParamName := ANode.PEvalParams[i].PToken.PValue;
+              end;
+              //ADef.CopyInstance(ACopy);
+              ArgsList[i] := ADef;
+              AActRec.AddMember(AParamName, ADef);
             end;
-            AParamName := TParam(FuncDef.PParams[i]).PNode.PValue;
-            if ADef.ClassNameIs('TFunctionInstance') then
-            begin
-              Aux := TFunctionInstance(ADef);
-              if Aux.PIsBuiltin then
-                ERunTimeError.Create('Can''t assign builtin function "' +
-                  ANode.PEvalParams[i].PToken.PValue + '" as argument',
-                  FTrace, ANode.PToken);
-              //AParamName := ANode.PEvalParams[i].PToken.PValue;
-            end;
-            //ADef.CopyInstance(ACopy);
-            ArgsList[i] := ADef;
-            AActRec.AddMember(AParamName, ADef);
           end;
         end;
         ArgsListInstanced := TListInstance.Create(ArgsList);

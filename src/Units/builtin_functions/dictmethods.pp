@@ -1,4 +1,4 @@
-ADictFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TDictionaryInstance', True);
+ADictFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TDictionaryInstance', True, False, False);
 ADictType := TDataType.Create('TDictionaryInstance', 'Dict');
 ADictType.PMembers.Add( 'set', ADictFunc);
 ADictType.PMembers.Add( 'get', ADictFunc);

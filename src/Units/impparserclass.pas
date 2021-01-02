@@ -404,6 +404,7 @@ var
   AType:string = '';
   AName:string;
   OpenType: string;
+  AccVar: boolean=False;
 begin
   SetLength(ParamList, 0);
   if FCurrentToken.PType = T_DECOR_DEF then
@@ -429,6 +430,11 @@ begin
   FInArgsDef := True;
   ParamList := DefParams();
   Eat(T_RPAREN);
+  if FCurrentToken.PType = T_MULT then
+  begin
+    AccVar := True;
+    Eat(T_MULT);
+  end;
   if FCurrentToken.PType = T_DICT_ASSIGN then
   begin
     Eat(T_DICT_ASSIGN);
@@ -445,9 +451,9 @@ begin
   {if AType <> '' then
     AStrId := AType + ':' + AStrId;}
   if not IsDecorator then
-    Result := TFunctionDefinition.Create(AToken, AStrId, InBlock, ParamList, AType, IsDecorator)
+    Result := TFunctionDefinition.Create(AToken, AStrId, InBlock, ParamList, AType, IsDecorator, AccVar)
   else
-    Result := TDecoratorDefinition.Create(AToken, AStrId, InBlock, ParamList, AType, IsDecorator);
+    Result := TDecoratorDefinition.Create(AToken, AStrId, InBlock, ParamList, AType, IsDecorator, AccVar);
 end;
 
 function TTParser.PlainTextEmbed: TAST;
