@@ -1,8 +1,6 @@
 decorator wrap(fn)
     print('in wrap')
-    a = $funcArgs[0]
-    b = $funcArgs[1]
-    
+    unpack(:a, :b, $funcArgs)
     fn(a, b)
     print('out wrap')
 end
