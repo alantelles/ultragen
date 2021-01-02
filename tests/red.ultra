@@ -2,12 +2,13 @@ decorator wrap(fn)
     print('in wrap')
     a = $funcArgs[0]
     b = $funcArgs[1]
+    
     fn(a, b)
     print('out wrap')
 end
 
-teste = wrap(function(m, n)
+teste = wrap(function(m, n="helaine")
     print(m, ' e ', n)
 end)
 
-teste('alan', 'helaine')
+teste('alan')

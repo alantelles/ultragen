@@ -1,7 +1,5 @@
-function test(a, b, c)
-    for ($funcArgs, arg)
-        print(arg)
-    end
-end
-
-test(0, 2, 4)
+x = [0,2,4,8]
+unpack(:a, :b, :c, x)
+print(a)
+print(b)
+print(c)

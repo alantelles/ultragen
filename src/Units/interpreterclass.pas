@@ -124,6 +124,7 @@ begin
 
   // ACoreType := TDataType.Create('TCoreInstance', 'Core');
   ACoreFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TCoreInstance', True);
+
   // AActRec.AddMember('parseJson', ACoreFunc);
 
   //TTypeLoader.LoadType('Request', self, AActRec);
