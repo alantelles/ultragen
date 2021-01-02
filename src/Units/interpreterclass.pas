@@ -815,7 +815,7 @@ function TInterpreter.ExecuteFunctionByInstance(AFunction: TFunctionInstance; Ar
 var
   AActRec: TActivationRecord;
   lenArgs, LenParams, len, i: integer;
-  Adef, ACopy, AReturn: TInstanceOf;
+  Adef, AIter, ACopy, AReturn: TInstanceOf;
   Aux: TFunctionInstance;
   AParamName: string;
   ArgsList, VarArgsList: TInstanceList;
@@ -876,7 +876,38 @@ begin
   end
   else
   begin
-    writeln('varargs');
+    LenParams := Length(AFunction.PParams);
+    SetLength(ArgsList, LenParams + 1);
+    LenArgs := Length(Args);
+    for i := 0 to LenParams-1 do
+    begin
+      if (i < LenArgs) then
+        AIter := Args[i]
+      else
+      begin
+        if TParam(AFunction.PParams[i]).PDefValue <> nil then
+          AIter := Visit(TParam(AFunction.PParams[i]).PDefValue);
+      end;
+      ArgsList[i] := AIter;
+      AActRec.AddMember(TParam(AFunction.PParams[i]).PNode.PValue, AIter);
+    end;
+    {TODO: varargs}
+    SetLength(VarArgsList, 0);
+
+    if LenArgs > LenParams then
+    begin
+      SetLength(VarArgsList, LenArgs-LenParams);
+      for i:=LenParams to LenArgs-1 do
+      begin
+        AIter := Args[i];
+        VarArgsList[i - LenParams] := AIter;
+      end;
+    end;
+    VarArgsListInstanced := TListInstance.Create(VarArgsList);
+    VarArgsListInstanced.PAddLocked := True;
+    VarArgsListInstanced.PChangeLocked := True;
+    AActRec.AddMember('$varArgs', VarArgsListInstanced);
+    ArgsList[LenParams] := VarArgsListInstanced;
   end;
   ArgsListInstanced := TListInstance.Create(ArgsList);
   ArgsListInstanced.PAddLocked := True;

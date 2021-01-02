@@ -1,8 +1,10 @@
-d = {'explode': function (a, b, c)
+d = {'explode': function (a, b, c)*
     print(a)
     print(b)
     print(c)
     print($funcArgs)
+    print($varArgs)
+    print($varArgs[0])
 end}
 
-d[:explode](2,3,4)
+d[:explode](2,3,4, 'surrender', 'zika')
