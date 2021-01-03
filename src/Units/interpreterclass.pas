@@ -942,14 +942,18 @@ function TInterpreter.VisitDecoratorCall(AFunctionInstance: TFunctionInstance; A
 var
   NewParams: TASTList;
   Instanced: TInstanceOf;
+  Decorated: TFunctionInstance;
   last, len, len2, i: integer;
+  DecCopy: TDecoratorInstance;
+  AToken: TToken;
 begin
   // Instanced := TFunctionInstance.Create(ADecorated.PName, ADecorated.PParamList, ADecorated.PBlock, '', False);
+
   last := Length(ADecorated) - 1;
   Instanced := Visit(ADecorated[last]);
   if not Instanced.ClassNameIs('TFunctionInstance') then
     ERunTimeError.Create('Last argument of a decorator call must be a function', FTrace, nil);
-  len := Length(TFunctionInstance(Instanced).PParams);// + 1;
+  {len := Length(TFunctionInstance(Instanced).PParams);// + 1;
   SetLength(NewParams, len);
   if len > 0 then
     for i:=0 to len-1 do
@@ -960,8 +964,21 @@ begin
   begin
     NewParams[len+i] := AFunctionInstance.PParams[i];
     TParam(NewParams[len+i]).PDefValue := ADecorated[i];
+  end;}
+  len := Length(AFunctionInstance.PParams);
+  SetLength(NewParams, len);
+  for i:=0 to len-1 do
+  begin
+    AToken := TToken.Create;
+    AToken.PValue := AFunctionInstance.PParams[i].PToken.PValue;
+    AToken.PType := AFunctionInstance.PParams[i].PToken.PType;
+    NewParams[i] := TParam.Create(Atoken, AFunctionInstance.PParams[i]);
+    TParam(NewParams[i]).PDefValue := ADecorated[i];
   end;
-  Result := TFunctionInstance.Create(FormatDateTime('yyyymmddhhnnsszzz', Now), NewParams, AFunctionInstance.PBlock, 'TCoreFunction', False, AFunctionInstance.PIsDecorator, AFunctionInstance.PAccVarargs);
+  //Result := TFunctionInstance.Create(FormatDateTime('yyyymmddhhnnsszzz', Now), NewParams, AFunctionInstance.PBlock, 'TCoreFunction', False, AFunctionInstance.PIsDecorator, AFunctionInstance.PAccVarargs);
+  Decorated := TFunctionInstance.Create(FormatDateTime('yyyymmddhhnnsszzz', Now), TFunctionInstance(Instanced).PParams, AFunctionInstance.PBlock, 'TCoreFunction', False, AFunctionInstance.PIsDecorator, AFunctionInstance.PAccVarargs);
+  Decorated.PDecorParams := NewParams;
+  Result := Decorated;
 end;
 
 function TInterpreter.VisitFunctionCall(ANode: TFunctionCall;
@@ -1027,6 +1044,16 @@ begin
         if ASrcInstance <> nil then
           AActRec.AddMember('self', ASrcInstance);
 
+        if FuncDef.PDecorParams <> nil then
+        begin
+          LenArgs := Length(FuncDef.PDecorParams);
+          for i:=0 to LenArgs-1 do
+          begin
+            AIter := Visit(TParam(Funcdef.PDecorParams[i]).PDefValue);
+            AParamName := TParam(Funcdef.PDecorParams[i]).PNode.PValue;
+            AActRec.AddMember(AParamName, AIter);
+          end;
+        end;
         if FuncDef.PAccVarargs then
         begin
 

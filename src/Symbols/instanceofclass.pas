@@ -75,6 +75,7 @@ type
       FIsBuiltin: boolean;
       FAccVarargs: boolean;
       FIsDecorator: boolean;
+      FDecorParams: TASTList;
     public
       property PAccVarargs:boolean read FAccVarargs write FAccVarargs;
       property PIsDecorator: boolean read FIsDecorator;
@@ -82,6 +83,7 @@ type
       property PType:string read FType;
       property PIsBuiltin: boolean read FIsBuiltin;
       property PParams: TASTList read FParams;
+      property PDecorParams: TASTList read FDecorParams write FDecorParams;
       property PBlock: TASTList read FBlock write FBlock;
       function AsString: string;  override;
       constructor Create(AName: string; AParams, ABlock: TASTList; AType:string; IsBuiltin:boolean; IsDecorator: boolean; AcceptVarargs: boolean);
@@ -235,7 +237,10 @@ begin
   FType := AType;
   FIsBuiltin := IsBuiltin;
   FIsDecorator := IsDecorator;
+  FDecorParams := nil;
 end;
+
+
 
 function TFunctionInstance.AsString: string;
 var

@@ -1,10 +1,15 @@
-d = {'explode': function (a, b, c)*
-    print(a)
-    print(b)
-    print(c)
-    print($funcArgs)
-    print($varArgs)
-    print($varArgs[0])
-end}
+decorator wrap(x, fn)
+    print(x)
+    fn($funcArgs[0])
+end
 
-d[:explode](2,3,4, 'surrender', 'zika')
+k = wrap('um valor', function (m)
+    print('k: ', m)
+end)
+
+l = wrap('outro valor', function (n)
+    print('l: ', n)
+end)
+
+k('baholeros')
+l('zika zika')
