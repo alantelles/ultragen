@@ -1,15 +1,19 @@
-decorator wrap(x, fn)
-    print(x)
+decorator wrap(u, fn)
+    print(u)
+    print($funcArgs)
     fn($funcArgs[0])
 end
 
-k = wrap('um valor', function (m)
-    print('k: ', m)
-end)
+decorator rewrap(u, v, fn)
+    print(u, v)
+    
+    fn($funcArgs[0])
+end
 
-l = wrap('outro valor', function (n)
-    print('l: ', n)
-end)
+testador = rewrap('inside rewrap', 'second inside rewrap',
+wrap('inside wrap', 
+    function (tops)
+        print("it's tops? ", tops)
+    end))
 
-k('baholeros')
-l('zika zika')
+testador('super teste')
