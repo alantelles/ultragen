@@ -1,19 +1,4 @@
-decorator wrap(u, fn)
-    print(u)
-    print($funcArgs)
-    fn($funcArgs[0])
+decorator wrap()
+    print($varArgs[0])
+    fn($varArgs[0])
 end
-
-decorator rewrap(u, v, fn)
-    print(u, v)
-    
-    fn($funcArgs[0])
-end
-
-testador = rewrap('inside rewrap', 'second inside rewrap',
-wrap('inside wrap', 
-    function (tops)
-        print("it's tops? ", tops)
-    end))
-
-testador('super teste')

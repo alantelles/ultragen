@@ -20,7 +20,7 @@ type
   public
     constructor Create(var ALexer: TLexer);
     destructor Destroy; override;
-    procedure EParseError;
+    procedure EParseError(addMsg: string = '');
     procedure Eat(AType: string);
     function ParseCode: TAST;
 
@@ -430,9 +430,13 @@ begin
   FInArgsDef := True;
   ParamList := DefParams();
   Eat(T_RPAREN);
+  if (OpenType = T_DECOR_DEF) and (Length(ParamList) = 0) then
+    EParseError('Decorators must have at least one parameter');
   if FCurrentToken.PType = T_MULT then
   begin
     AccVar := True;
+    if OpenType = T_DECOR_DEF then
+      EParseError('Decorator cannot accept variable arguments');
     Eat(T_MULT);
   end;
   if FCurrentToken.PType = T_DICT_ASSIGN then
@@ -1490,12 +1494,14 @@ begin
   Result := Ret;
 end;
 
-procedure TTParser.EParseError;
+procedure TTParser.EParseError(addMsg: string='');
 var
   msg: string;
 begin
 
   msg := 'Unexpected token "' + FCurrentToken.PValue + '" from type "'+FCurrentToken.PType+'"';
+  if addMsg <> '' then
+    msg := msg + sLineBreak + AddMsg;
   EParserError.Create(msg, FLexer.PFileName, FLexer.PScriptLine, FLexer.PLineChar);
 end;
 

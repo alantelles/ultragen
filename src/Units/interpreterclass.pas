@@ -834,6 +834,16 @@ begin
     lenParams := Length(AFunction.PParams);
     Len := Max(LenArgs, LenParams);
     SetLength(ArgsList, Len);
+    if AFunction.PDecorParams <> nil then
+    begin
+      LenArgs := Length(AFunction.PDecorParams);
+      for i:=0 to LenArgs-1 do
+      begin
+        AIter := Visit(TParam(AFunction.PDecorParams[i]).PDefValue);
+        AParamName := TParam(AFunction.PDecorParams[i]).PNode.PValue;
+        AActRec.AddMember(AParamName, AIter);
+      end;
+    end;
     if Len > 0 then
     begin
       for i := 0 to Len - 1 do
@@ -976,7 +986,7 @@ begin
     TParam(NewParams[i]).PDefValue := ADecorated[i];
   end;
   //Result := TFunctionInstance.Create(FormatDateTime('yyyymmddhhnnsszzz', Now), NewParams, AFunctionInstance.PBlock, 'TCoreFunction', False, AFunctionInstance.PIsDecorator, AFunctionInstance.PAccVarargs);
-  Decorated := TFunctionInstance.Create(FormatDateTime('yyyymmddhhnnsszzz', Now), TFunctionInstance(Instanced).PParams, AFunctionInstance.PBlock, 'TCoreFunction', False, AFunctionInstance.PIsDecorator, AFunctionInstance.PAccVarargs);
+  Decorated := TFunctionInstance.Create(FormatDateTime('yyyymmddhhnnsszzz', Now), TFunctionInstance(Instanced).PParams, AFunctionInstance.PBlock, 'TCoreFunction', False, AFunctionInstance.PIsDecorator, TFunctionInstance(Instanced).PAccVarargs);
   Decorated.PDecorParams := NewParams;
   Result := Decorated;
 end;
