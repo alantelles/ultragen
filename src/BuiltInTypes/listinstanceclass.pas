@@ -13,9 +13,11 @@ type
       FValue: TInstanceList;
       FMetName:string;
       FAddLocked, FChangeLocked: boolean;
+      FExpand: boolean;
       function LenList:integer;
 
     public
+      property PExpand: boolean read FExpand write FExpand;
       property Count: integer read lenList;
       property PValue: TInstanceList read FValue write FValue;
       property PAddLocked: boolean read FAddLocked write FAddLocked;

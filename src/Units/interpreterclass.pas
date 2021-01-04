@@ -137,6 +137,17 @@ begin
   AActrec.AddMember('Float', AFloatType);
 end;
 
+function TInterpreter.VisitExpandArgs(ANode: TExpandArgs): TListInstance;
+var
+  GenInst: TInstanceOf;
+  ListInst: TListInstance;
+begin
+  GenInst := Visit(ANode.PSrcList);
+  if GenInst.ClassNameIs('TListInstance') then
+    ListInst := TListInstance(GenInst);
+  ListInst.PExpand := True;
+  Result := ListInst;
+end;
 
 procedure TInterpreter.PassCallStack(var ACallStack: TStack; ToParent: boolean);
 begin
@@ -1001,7 +1012,7 @@ var
   AFuncName, ASrcName, compl: string;
   AActRec: TActivationRecord;
   AParamName: string;
-  len, len2, i: integer;
+  len, len2, i, j, ri: integer;
   AParamState: TParam;
   FuncDef, Aux: TFunctioninstance;
   ADef: TInstanceOf = nil;
@@ -1011,6 +1022,8 @@ var
   ArgsList, VarList: TInstanceList;
   ArgsListInstanced, VarListInstanced: TListInstance;
   searchStart: integer;
+  ExpandedVisited: TInstanceList;
+  NewEvalParams, Expanded: TASTList;
 begin
 
   AFuncName := ANode.PFuncName;
@@ -1035,14 +1048,15 @@ begin
       FuncDef := AActRec.GetFunction(AFuncName, ASrcInstance);
       if FuncDef <> nil then
         break;
-	  end;
+      end;
   end;
   if FuncDef <> nil then
   begin
+    NewEvalParams := ANode.PEvalParams;
     if FuncDef.ClassNameIs('TDecoratorInstance') then
     begin
       // Decorate execute
-      Result := VisitDecoratorCall(FuncDef, ANode.PEvalParams);
+      Result := VisitDecoratorCall(FuncDef, NewEvalParams);
     end
     else
     begin
@@ -1066,32 +1080,72 @@ begin
         end;
         if FuncDef.PAccVarargs then
         begin
-
+          ri := 0;
           LenParams := Length(FuncDef.PParams);
           SetLength(ArgsList, LenParams + 1);
-          LenArgs := Length(ANode.PEvalParams);
+          LenArgs := Length(NewEvalParams);
           for i := 0 to LenParams-1 do
           begin
+
+            if (i + ri) > LenParams-1 then
+              break;
             if (i < LenArgs) then
-              AIter := Visit(ANode.PEvalParams[i])
+            begin
+              if not NewEvalParams[i].ClassNameIs('TExpandArgs') then
+                AIter := Visit(NewEvalParams[i])
+              else
+              begin
+                AIter := Visit(TExpandArgs(NewEvalPArams[i]).PSrcList);
+                TListInstance(AIter).PExpand := True;
+              end
+            end
             else
             begin
-              if TParam(FuncDef.PParams[i]).PDefValue <> nil then
-                AIter := Visit(TParam(FuncDef.PParams[i]).PDefValue);
+              if TParam(FuncDef.PParams[i + ri]).PDefValue <> nil then
+                AIter := Visit(TParam(FuncDef.PParams[i + ri]).PDefValue);
             end;
-            ArgsList[i] := AIter;
-            AActRec.AddMember(TParam(FuncDef.PParams[i]).PNode.PValue, AIter);
+            if AIter.ClassNameIs('TListInstance') then
+            begin
+              if TListInstance(AIter).PExpand then
+              begin
+                for j:=0 to TListInstance(AIter).Count-1 do
+                begin
+                  ArgsList[i + ri] := TListInstance(AIter).Pvalue[j];
+                  AActRec.AddMember(TParam(FuncDef.PParams[i + ri]).PNode.PValue, TListInstance(AIter).Pvalue[j]);
+                  ri := ri + 1;
+                end;
+                ri := ri - 1;
+              end
+              else
+              begin
+                ArgsList[i + ri] := AIter;
+                AActRec.AddMember(TParam(FuncDef.PParams[i + ri]).PNode.PValue, AIter);
+              end
+            end
+            else
+            begin
+              ArgsList[i + ri] := AIter;
+              AActRec.AddMember(TParam(FuncDef.PParams[i + ri]).PNode.PValue, AIter);
+            end;
           end;
           {TODO: varargs}
           SetLength(VarList, 0);
 
-          if LenArgs > LenParams then
+          if (LenArgs + ri) > LenParams then
           begin
-            SetLength(VarList, LenArgs-LenParams);
-            for i:=LenParams to LenArgs-1 do
+            SetLength(VarList, ri+LenArgs-LenParams);
+            for i:=LenParams to ri+LenArgs-1 do
             begin
-              AIter := Visit(ANode.PEvalParams[i]);
-              VarList[i - LenParams] := AIter;
+              if not NewEvalParams[i].ClassNameIs('TExpandArgs') then
+              begin
+                AIter := Visit(NewEvalParams[i]);
+                VarList[i - LenParams] := AIter;
+              end
+              else
+              begin
+                AIter := Visit(TExpandArgs(NewEvalPArams[i]).PSrcList);
+                TListInstance(AIter).PExpand := True;
+              end;
             end;
           end;
           VarListInstanced := TListInstance.Create(VarList);
@@ -1106,7 +1160,7 @@ begin
         end
         else
         begin
-          LenArgs := Length(Anode.PEvalParams);
+          LenArgs := Length(NewEvalParams);
           LenParams := Length(FuncDef.PParams);
           Len := Max(LenArgs, LenParams);
           SetLength(ArgsList, Len);
@@ -1131,7 +1185,7 @@ begin
               end
               else
               begin
-                ADef := Visit(ANode.PEvalParams[i]);
+                ADef := Visit(NewEvalParams[i]);
               end;
               AParamName := TParam(FuncDef.PParams[i]).PNode.PValue;
               if ADef.ClassNameIs('TFunctionInstance') then
@@ -1139,9 +1193,9 @@ begin
                 Aux := TFunctionInstance(ADef);
                 if Aux.PIsBuiltin then
                   ERunTimeError.Create('Can''t assign builtin function "' +
-                    ANode.PEvalParams[i].PToken.PValue + '" as argument',
+                    NewEvalParams[i].PToken.PValue + '" as argument',
                     FTrace, ANode.PToken);
-                //AParamName := ANode.PEvalParams[i].PToken.PValue;
+                //AParamName := NewEvalParams[i].PToken.PValue;
               end;
               //ADef.CopyInstance(ACopy);
               ArgsList[i] := ADef;
@@ -1180,13 +1234,13 @@ begin
       begin
         Setlength(ArgsList, 0);
         ACoreExec := TCoreFunction.Create;
-        len2 := Length(ANode.PEvalParams);
+        len2 := Length(NewEvalParams);
         SetLength(ArgsList, len2);
         if len2 > 0 then
         begin
           for i := 0 to len2 - 1 do
           begin
-            ADef := Visit(ANode.PEvalParams[i]);
+            ADef := Visit(NewEvalParams[i]);
             ADef.CopyInstance(ArgsList[i]);
           end;
         end;

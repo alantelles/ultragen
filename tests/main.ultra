@@ -1,4 +1,9 @@
-decorator wrap()
-    print($varArgs[0])
-    fn($varArgs[0])
+function teste(a, b, c, d)*
+    print($funcArgs)
+    print($varArgs)
 end
+
+k = ['trinta', 5]
+l = ['vinte', 20]
+
+teste(*l, *k)

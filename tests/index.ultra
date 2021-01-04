@@ -1,20 +1,42 @@
 include @Core.FileSystem
 include @Core.Request
 include 'site/index.ultra.html'
-include 'router.ultra'
 
-function Baholeros()
-    return 'Baholeros'
+
+
+function tika(data)
+    url = 'https://reqres.in/api/colors'
+    data = Request.get(url)
+    data = JSON.parse(data.text)[:data]
+    for (data, elem)
+        live Color(elem, _elem, null)
+    end
 end
 
-function Zika()
-    return 'Zika'
+base3 = Base2(tika)
+
+base2 = Base2(function(args)
+    live 'oeee'
+end)
+
+function getPage()
+    option = null
+    if (($request[:query].hasKey(:index)))
+        option = $request[:query][:index]
+    end
+    return option
 end
 
-router = new Router()
-router.addRule('/', Baholeros, :GET)
-router.addRule('/zika/:id', Zika, :GET)
+handlers = {
+    :baholeros: base3(null),
+    :tika: base2('tomba'),
+    null: 'nao tem pagina'
+}
 
-handler = router.match($request[:route], $request[:method])
+function getHandler()
+    p = getPage()
+    handle = handlers[p]
+    live handle
+end
 
-live handler()
+live getHandler()

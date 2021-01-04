@@ -232,6 +232,14 @@ type
     destructor Destroy; override;
   end;
 
+  TExpandArgs = class(TAST)
+    protected
+      FSrcList: TAST;
+    public
+      property PSrcList: TAST read FSrcList write FSrcList;
+      constructor Create(ASrcList: TAST; AToken: TToken);
+  end;
+
   TParam = class(TAST)
   protected
     FNode: TToken;
@@ -322,6 +330,12 @@ type
   end;
 
 implementation
+
+constructor TExpandArgs.Create(ASrcList: TAST; AToken: TToken);
+begin
+  FToken := AToken;
+  FSrcList := ASrcList;
+end;
 
 function TAST.ToString: string;
 begin

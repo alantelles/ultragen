@@ -38,6 +38,7 @@ type
     function Variable(AToken: TToken): TAST;
     function FunctionBlock(Anony, IsDecorator:boolean): TAST;
 
+    function ExpandArgs: TAST;
     function DefParams: TASTList;
     function DefParam: TAST;
     function FunctionCall(var AToken: TToken): TAST;
@@ -111,6 +112,20 @@ begin
     Eat(T_RPAREN);
   end;
   Result := TNewObject.Create(ConstArgs, AName, AToken);
+end;
+
+function TTParser.ExpandArgs: TAST;
+var
+  AToken: TToken;
+begin
+  AToken := TToken.Create(
+    FCurrentToken.PType,
+    FCurrentToken.PValue,
+    FCurrentToken.PLineNo,
+    FCurrentToken.PCharNo,
+    FCurrentToken.PScriptName
+  );
+  Result := TExpandArgs.Create(MethodCall(), AToken);
 end;
 
 function TTParser.ClassDefinition: TAST;
@@ -663,8 +678,13 @@ begin
       Eat(T_NEWLINE);
     len := len + 1;
     SetLength(AArgs, len);
-    AArgs[len - 1] := MethodCall();
-
+    if FCurrentToken.PType = T_MULT then
+    begin
+      Eat(T_MULT);
+      AArgs[len-1] := ExpandArgs();
+    end
+    else
+      AArgs[len - 1] := MethodCall();
     if (FCurrentToken.PType <> T_RPAREN) then
     begin
       if (FCurrentToken.PType = T_COMMA) then

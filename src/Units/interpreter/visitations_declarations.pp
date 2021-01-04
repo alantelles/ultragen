@@ -13,6 +13,7 @@ function VisitNewObject(ANode: TNewObject): TInstanceOf;
 function VisitDict(ANode: TDictNode): TDictionaryInstance;
 procedure VisitClassDefinition(ANode: TClassDefinition);
 procedure VisitLoadType(ANode: TLoadType);
+function VisitExpandArgs(ANode: TExpandArgs): TListInstance;
 
 // references
 procedure VisitVarAssign(ANode: TVarAssign; ASrc: TInstanceOf);

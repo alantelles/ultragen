@@ -5,6 +5,9 @@
   else if ANode.ClassNameIs('TVarAssign') then   
     VisitVarAssign(TVarAssign(ANode), ASrcInstance)
 
+  else if ANode.ClassNameIs('TExpandArgs') then
+    Ret := VisitExpandArgs(TExpandArgs(ANode))
+
   else if ANode.ClassNameIs('TListAssign') then
     VisitListAssign(TListAssign(ANode))
 
