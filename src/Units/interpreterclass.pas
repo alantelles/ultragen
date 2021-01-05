@@ -47,7 +47,7 @@ type
     function Interpret(DontPush: boolean = False;
       ANameActRec: TActivationRecord = nil): string;
     function ExecuteFunctionByInstance(AFunction: TFunctionInstance; Args: TInstanceList; ANode: TAST; ASrcinstance: TInstanceOf): TInstanceOf;
-
+    procedure ProcessFuncArgs(var AFunction: TFunctionInstance; var AActRec: TActivationRecord; AEvalParams: TASTList);
 
 
     function Visit(ANode: TAST; ASrcInstance: TInstanceOf = nil): TInstanceOf;
@@ -239,6 +239,48 @@ begin
     end;
   end;
   Result := TDictionaryInstance.Create(AActRec, ADef);
+end;
+
+procedure TInterpreter.ProcessFuncArgs(var AFunction: TFunctionInstance; var AActRec: TActivationRecord; AEvalParams: TASTList);
+var
+  len, detour, ups, i, j: integer;
+  AVal: TInstanceOf;
+  ArgsList, VarArgsList: TInstanceList;
+  ArgsListInstance: TListInstance;
+begin
+  SetLength(ArgsList, 0);
+  detour := 0;
+  ups := 0;
+  len := Length(AEvalParams);
+  for i:=0 to len-1 do
+  begin
+    if AEvalParams[i].ClassNameIs('TExpandArgs') then
+    begin
+      AVal := VisitExpandArgs(TExpandArgs(AEvalParams[i]));
+      if AVal.ClassNameIs('TListInstance') then
+      begin
+        for j := 0 to TListInstance(AVal).Count-1 do
+        begin
+          ups := ups + 1;
+          SetLength(ArgsList, ups);
+          ArgsList[i + detour] := TListInstance(AVal).PValue[j];
+          detour := detour + 1;
+        end;
+        detour := detour - 1;
+      end
+      else
+        ERunTimeError.Create('Only lists can be expanded', FTrace, nil);
+    end
+    else
+    begin
+      ups := ups + 1;
+      SetLength(ArgsList, ups);
+      ArgsList[i + detour] := Visit(AEvalParams[i]);
+    end;
+  end;
+  ArgslistInstance := TListInstance.Create(ArgsList);
+  ArgsListInstance.LockAll;
+  AActRec.AddMember('$funcArgs', ArgsListInstance);
 end;
 
 procedure TInterpreter.VisitLiveOutput(ANode: TLiveOutput);
@@ -1002,6 +1044,8 @@ begin
   Result := Decorated;
 end;
 
+
+
 function TInterpreter.VisitFunctionCall(ANode: TFunctionCall;
   ASrcInstance: TInstanceOf = nil): TInstanceOf;
 const
@@ -1078,7 +1122,8 @@ begin
             AActRec.AddMember(AParamName, AIter);
           end;
         end;
-        if FuncDef.PAccVarargs then
+        ProcessFuncArgs(FuncDef, AActRec, ANode.PEvalParams);
+        {if FuncDef.PAccVarargs then
         begin
           ri := 0;
           LenParams := Length(FuncDef.PParams);
@@ -1130,16 +1175,17 @@ begin
           end;
           {TODO: varargs}
           SetLength(VarList, 0);
-
+          writeln('lenargs: ', lenargs, ', lenparams:', lenparams, ', ri:', ri);
+          //readln;
           if (LenArgs + ri) > LenParams then
           begin
             SetLength(VarList, ri+LenArgs-LenParams);
-            for i:=LenParams to ri+LenArgs-1 do
+            for i:=LenParams-ri to LenArgs-1 do
             begin
               if not NewEvalParams[i].ClassNameIs('TExpandArgs') then
               begin
                 AIter := Visit(NewEvalParams[i]);
-                VarList[i - LenParams] := AIter;
+                VarList[-(LenParams - ri - i)] := AIter;
               end
               else
               begin
@@ -1202,11 +1248,11 @@ begin
               AActRec.AddMember(AParamName, ADef);
             end;
           end;
-        end;
-        ArgsListInstanced := TListInstance.Create(ArgsList);
-        ArgsListInstanced.PAddLocked := True;
-        ArgsListInstanced.PChangeLocked := True;
-        AActRec.AddMember('$funcArgs', ArgsListInstanced);
+        end;}
+        //ArgsListInstanced := TListInstance.Create(ArgsList);
+        //ArgsListInstanced.PAddLocked := True;
+        //ArgsListInstanced.PChangeLocked := True;
+        //AActRec.AddMember('$funcArgs', ArgsListInstanced);
         FCallStack.Push(AActRec);
         len := Length(Funcdef.PBlock);
         if len > 0 then

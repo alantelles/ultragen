@@ -25,6 +25,7 @@ type
       constructor Create(AList: TInstanceList);
       constructor Create;
       procedure Clear;
+      procedure LockAll;
       function AsString:string; override;
       function GetItem(AIndex: TIntegerInstance):TInstanceOf;
       function GetItem(AIndex: integer):TInstanceOf;
@@ -128,6 +129,12 @@ begin
       ANewList.Add(FValue[i]);
     end;
   end;
+end;
+
+procedure TListInstance.LockAll;
+begin
+  FAddLocked := True;
+  FChangeLocked := True;
 end;
 
 procedure TListInstance.CopyInstance(var AReceiver: TInstanceOf);
