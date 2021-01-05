@@ -46,7 +46,7 @@ type
 
     function Interpret(DontPush: boolean = False;
       ANameActRec: TActivationRecord = nil): string;
-    function ExecuteFunctionByInstance(AFunction: TFunctionInstance; Args: TInstanceList; ANode: TAST; ASrcinstance: TInstanceOf): TInstanceOf;
+    function ExecuteFunctionByInstance(AFunction: TFunctionInstance; Args: TASTList; ANode: TAST; ASrcinstance: TInstanceOf): TInstanceOf;
     function ProcessFuncArgs(var AFunction: TFunctionInstance; var AActRec: TActivationRecord; AEvalParams: TASTList): TInstanceList;
 
 
@@ -532,13 +532,13 @@ begin
               for i:=0 to len-1 do
               begin
                 Ret.PMembers.Add(ConstRet.PParams[i].PToken.PValue, ArgsList[i]);
-							end;
-						end;
-						ExecuteFunctionByInstance(Constret, ArgsList, Anode, ret);
-				  end;
-				end;
-			end;
-			Result := Ret;
+	      end;
+	    end;
+	    ExecuteFunctionByInstance(Constret, ANode.PArgs, Anode, ret);
+          end;
+        end;
+      end;
+      Result := Ret;
     end;
   end
   else
@@ -888,7 +888,7 @@ var
   Arec: TInstanceOf;
 begin
   AFuncInst := TFunctionInstance(Visit(ANode.PFuncInst, ASrcInstance));
-  len := Length(Anode.PEvalParams);
+  {len := Length(Anode.PEvalParams);
   if len > 0 then
   begin
     SetLength(ArgsList, len);
@@ -897,11 +897,11 @@ begin
       ARec := Visit(ANode.PEvalParams[i]);
       Arec.CopyInstance(ArgsList[i]);
 		end;
-	end;
-  Result := ExecuteFunctionByinstance(AFuncInst, ArgsList, ANode, ASrcInstance);
+	end;}
+  Result := ExecuteFunctionByinstance(AFuncInst, ANode.PEvalParams, ANode, ASrcInstance);
 end;
 
-function TInterpreter.ExecuteFunctionByInstance(AFunction: TFunctionInstance; Args: TInstanceList; ANode: TAST; AsrcInstance: TInstanceOf): TInstanceOf;
+function TInterpreter.ExecuteFunctionByInstance(AFunction: TFunctionInstance; Args: TASTList; ANode: TAST; AsrcInstance: TInstanceOf): TInstanceOf;
 var
   AActRec: TActivationRecord;
   lenArgs, LenParams, len, i: integer;
@@ -916,7 +916,7 @@ begin
   AActRec.AddMember('__LIVE__', TStringInstance.Create(''));
   if ASrcInstance <> nil then
     AActRec.AddMember('self', ASrcInstance);
-  SetLength(ArgsList, 0);
+  {SetLength(ArgsList, 0);
   if not AFunction.PAccVarargs then
   begin
 
@@ -1013,7 +1013,8 @@ begin
   ArgsListInstanced.PAddLocked := True;
   ArgsListInstanced.PChangeLocked := True;
   AActRec.AddMember('$funcArgs', ArgsListInstanced);
-
+  }
+  ProcessFuncArgs(AFunction, AActrec, Args);
   FCallStack.Push(AActRec);
   len := Length(AFunction.PBlock);
   if len > 0 then
@@ -1053,18 +1054,6 @@ begin
   Instanced := Visit(ADecorated[last]);
   if not Instanced.ClassNameIs('TFunctionInstance') then
     ERunTimeError.Create('Last argument of a decorator call must be a function', FTrace, nil);
-  {len := Length(TFunctionInstance(Instanced).PParams);// + 1;
-  SetLength(NewParams, len);
-  if len > 0 then
-    for i:=0 to len-1 do
-      NewParams[i] := TFunctionInstance(Instanced).PParams[i];
-  len2 := Length(AFunctionInstance.PParams);
-  SetLength(NewParams, len+len2);
-  for i:=0 to len2 - 1 do
-  begin
-    NewParams[len+i] := AFunctionInstance.PParams[i];
-    TParam(NewParams[len+i]).PDefValue := ADecorated[i];
-  end;}
   len := Length(AFunctionInstance.PParams);
   SetLength(NewParams, len);
   for i:=0 to len-1 do
@@ -1188,16 +1177,6 @@ begin
       begin
         ArgsList := ProcessFuncArgs(FuncDef, AActRec, ANode.PEvalParams);
         ACoreExec := TCoreFunction.Create;
-        {len2 := Length(NewEvalParams);
-        SetLength(ArgsList, len2);
-        if len2 > 0 then
-        begin
-          for i := 0 to len2 - 1 do
-          begin
-            ADef := Visit(NewEvalParams[i]);
-            ADef.CopyInstance(ArgsList[i]);
-          end;
-        end;}
         AReturn := ACoreExec.Execute(Self, AFuncName, ArgsList, ASrcInstance);
         ACoreExec.Free;
         Result := AReturn;

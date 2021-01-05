@@ -1,3 +1,13 @@
-m = ['tops', 'mahailo', 'takipareo']
+decorator Decor(a, b, fn)
+    print(a, b)
+    fn(*$funcArgs)
+end
 
-print(*m)
+m = Decor('a', 'b', function ()*
+    $funcArgs.each(function(i, _i, x)
+        print(i)
+    end)
+end)
+
+m(*['tika', 'doi'])
+m(*range(5))
