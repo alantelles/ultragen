@@ -243,12 +243,13 @@ end;
 
 procedure TInterpreter.ProcessFuncArgs(var AFunction: TFunctionInstance; var AActRec: TActivationRecord; AEvalParams: TASTList);
 var
-  len, detour, ups, i, j: integer;
+  len, detour, ups, i, j, lenArgs, lenParams: integer;
   AVal: TInstanceOf;
   ArgsList, VarArgsList: TInstanceList;
-  ArgsListInstance: TListInstance;
+  ArgsListInstance, VarArgsListInstance: TListInstance;
 begin
   SetLength(ArgsList, 0);
+
   detour := 0;
   ups := 0;
   len := Length(AEvalParams);
@@ -277,6 +278,24 @@ begin
       SetLength(ArgsList, ups);
       ArgsList[i + detour] := Visit(AEvalParams[i]);
     end;
+  end;
+
+  LenParams := length(Afunction.PParams);
+  for i:=0 to LenParams - 1 do
+  begin
+    AActRec.AddMember(TParam(AFunction.PParams[i]).PNode.PValue, ArgsList[i]);
+  end;
+  if AFunction.PAccVarargs then
+  begin
+    LenArgs := length(ArgsList);
+    Setlength(VarArgsList, LenArgs - lenParams);
+    for i:=LenParams to LenArgs-1 do
+    begin
+      VarArgsList[i - LenParams] := ArgsList[i];
+    end;
+    VarArgslistInstance := TListInstance.Create(VarArgsList);
+    VarArgsListInstance.LockAll;
+    AActRec.AddMember('$varArgs', VarArgsListInstance);
   end;
   ArgslistInstance := TListInstance.Create(ArgsList);
   ArgsListInstance.LockAll;
