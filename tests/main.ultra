@@ -1,13 +1,3 @@
-function teste(a, b)*
-    print($funcArgs)
-    print(a)
-    print(b)
-    print($varArgs)
-end
+m = ['tops', 'mahailo', 'takipareo']
 
-k = ['trinta', 5]
-l = ['vinte', 20, 'outro', 'param']
-
-
-
-teste('vinte', *k, 'zika', 'teste', 'tika_monsta')
+print(*m)
