@@ -40,7 +40,7 @@ type
     property PModulesPath: TStringList read FModulesPath write FModulesPath;
     procedure RaiseException(AMsg: string; AType: string);
     constructor Create(var ATree: TAST);
-    destructor Destroy;
+    destructor Destroy; override;
     function GetLive: string;
     procedure PassCallStack(var ACallStack: TStack; ToParent: boolean);
 

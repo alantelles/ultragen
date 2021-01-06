@@ -1,11 +1,27 @@
+decorator wrap(arg, fn)
+    print('in wrap')
+    fn(arg)
+    print('out wrap')
+end
+
+decorator rewrap(fn)
+    print('in rewrap')
+    fn()
+    print('out rewrap')
+end
+
 class MyClass
 
 function init(a1, a2) : MyClass
 end
 
+MyClass.tops = rewrap(wrap('dicas', function (a='nada')
+    print(self.a1)
+    print(self.a2)
+end))
+
 mc = new MyClass('olha', 'isso')
 print(mc.a1)
 print(mc.a2)
 
-# olha
-# isso
+mc.tops('zika')
