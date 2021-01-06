@@ -1064,7 +1064,6 @@ begin
     NewParams[i] := TParam.Create(Atoken, AFunctionInstance.PParams[i]);
     TParam(NewParams[i]).PDefValue := ADecorated[i];
   end;
-  //Result := TFunctionInstance.Create(FormatDateTime('yyyymmddhhnnsszzz', Now), NewParams, AFunctionInstance.PBlock, 'TCoreFunction', False, AFunctionInstance.PIsDecorator, AFunctionInstance.PAccVarargs);
   Decorated := TFunctionInstance.Create(FormatDateTime('yyyymmddhhnnsszzz', Now), TFunctionInstance(Instanced).PParams, AFunctionInstance.PBlock, 'TCoreFunction', False, AFunctionInstance.PIsDecorator, TFunctionInstance(Instanced).PAccVarargs);
   Decorated.PDecorParams := NewParams;
   Result := Decorated;

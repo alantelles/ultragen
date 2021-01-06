@@ -1,13 +1,11 @@
-decorator Decor(a, b, fn)
-    print(a, b)
-    fn(*$funcArgs)
+class MyClass
+
+function init(a1, a2) : MyClass
 end
 
-m = Decor('a', 'b', function ()*
-    $funcArgs.each(function(i, _i, x)
-        print(i)
-    end)
-end)
+mc = new MyClass('olha', 'isso')
+print(mc.a1)
+print(mc.a2)
 
-m(*['tika', 'doi'])
-m(*range(5))
+# olha
+# isso
