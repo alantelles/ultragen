@@ -1,27 +1,14 @@
-decorator wrap(arg, fn)
-    print('in wrap')
-    fn(arg)
-    print('out wrap')
+function kwargs(dict)
+    dict.localize()
+    print(zika)
+    print(tops)
+    zika = 'marrom'
+    print(dict)
 end
 
-decorator rewrap(fn)
-    print('in rewrap')
-    fn()
-    print('out rewrap')
-end
-
-class MyClass
-
-function init(a1, a2) : MyClass
-end
-
-MyClass.tops = rewrap(wrap('dicas', function (a='nada')
-    print(self.a1)
-    print(self.a2)
-end))
-
-mc = new MyClass('olha', 'isso')
-print(mc.a1)
-print(mc.a2)
-
-mc.tops('zika')
+m = {
+    :zika : 'eh zika',
+    :tops : 'eh tops'
+}
+kwargs(m)
+print(m)

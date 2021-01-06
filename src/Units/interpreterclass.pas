@@ -137,17 +137,6 @@ begin
   AActrec.AddMember('Float', AFloatType);
 end;
 
-function TInterpreter.VisitExpandArgs(ANode: TExpandArgs): TListInstance;
-var
-  GenInst: TInstanceOf;
-  ListInst: TListInstance;
-begin
-  GenInst := Visit(ANode.PSrcList);
-  if GenInst.ClassNameIs('TListInstance') then
-    ListInst := TListInstance(GenInst);
-  ListInst.PExpand := True;
-  Result := ListInst;
-end;
 
 procedure TInterpreter.PassCallStack(var ACallStack: TStack; ToParent: boolean);
 begin
@@ -179,6 +168,18 @@ begin
   i := AActRec.GetMember('__LIVE__');
   Aval := TStringInstance(i);
   Result := AVal.PValue;
+end;
+
+function TInterpreter.VisitExpandArgs(ANode: TExpandArgs): TListInstance;
+var
+  GenInst: TInstanceOf;
+  ListInst: TListInstance;
+begin
+  GenInst := Visit(ANode.PSrcList);
+  if GenInst.ClassNameIs('TListInstance') then
+    ListInst := TListInstance(GenInst);
+  ListInst.PExpand := True;
+  Result := ListInst;
 end;
 
 procedure TInterpreter.VisitPlainTextEmbed(ANode: TPlainTextEmbed);

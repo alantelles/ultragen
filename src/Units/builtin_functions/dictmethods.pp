@@ -8,4 +8,5 @@ ADictType.PMembers.Add( 'hasKey', ADictFunc);
 ADictType.PMembers.Add( 'addLock', ADictFunc);
 ADictType.PMembers.Add( 'changeLock', ADictFunc);
 ADictType.PMembers.Add( 'lock', ADictFunc);
+ADictType.PMembers.Add('localize', ADictFunc);
 AActRec.AddMember('Dict', ADictType);

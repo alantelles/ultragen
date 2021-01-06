@@ -18,6 +18,8 @@ begin
     TDictionaryInstance(FObj).PChangeLocked := True;
     TDictionaryInstance(FObj).PAddLocked := True
 	end
+  else if FName = 'localize' then
+    LocalizeDict(TDictionaryInstance(FObj))
 	else if FName = 'drop' then
     Ret := TDictionaryInstance(FObj).Pvalue.DropItem(FParams[0].AsString);
 

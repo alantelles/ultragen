@@ -25,6 +25,21 @@ begin
     Result := TBooleanInstance.Create(False);
 end;
 
+procedure TCoreFunction.LocalizeDict(AObj: TDictionaryInstance);
+var
+  AActRec: TActivationRecord;
+  len, i: integer;
+  CopyInst, GetInst: TInstanceOf;
+begin
+  AActRec := FInter.PCallStack.Peek;
+  len := AObj.PValue.PMembers.Count;
+  for i:=0 to len-1 do
+  begin
+    GetInst := TInstanceOf(AObj.PValue.PMembers[i]);
+    GetInst.CopyInstance(CopyInst);
+    AActRec.AddMember(AObj.PValue.PMembers.NameOfIndex(i), CopyInst);
+  end;
+end;
 
 
 function TCoreFunction.RouteMatch(AObj: TDictionaryInstance): TInstanceOf;
