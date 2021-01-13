@@ -46,10 +46,11 @@ begin
 
     if FileExists('./_INCLUDE.ultra') then
       ParamsNodes.Add('include ".\/_INCLUDE.ultra"');
+    ParamsNodes.Add('$params = []');
     if ParamCount > 1 then
     begin
 
-      ParamsNodes.Add('$params = []');
+
       i := 2;
       while ((Copy(ParamStr(i), 1, 2) <> '--')) and
             (i <= ParamCount) do
@@ -77,7 +78,7 @@ begin
   else
   begin
     WriteLn('UltraGen - Desktop/Web Template engine/Scripting language');
-    WriteLn('Version: 0.7');
+    WriteLn('Version: 0.4');
     WriteLn('Usage: ultragen [script path] [...params] [(--...OPTIONS)]');
     WriteLn('Created by Alan Telles');
   end;

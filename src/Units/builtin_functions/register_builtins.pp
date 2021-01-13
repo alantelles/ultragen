@@ -14,6 +14,7 @@ AActRec.AddMember('str', ACoreFunc);
 AActRec.AddMember('int', ACoreFunc);
 AActRec.AddMember('typeof', ACoreFunc);
 AActRec.AddMember('range', ACoreFunc);
+AActRec.AddMember('concat', ACoreFunc);
 AActRec.AddMember('clear', ACoreFunc);
 AActRec.AddMember('pause', ACoreFunc);
 AActRec.AddMember('input', ACoreFunc);

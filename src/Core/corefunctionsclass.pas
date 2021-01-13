@@ -31,6 +31,7 @@ type
       // procs
       function Print:TInstanceOf;
       function InlinePrint:TInstanceOf;
+      function ConcatValues: TStringInstance;
 
       // functions
 
@@ -92,6 +93,8 @@ begin
 	    Ret := Print
 	  else if FName = 'inline' then
 	    Ret := InlinePrint
+    else if FName = 'concat' then
+	    Ret := ConcatValues
     else if FName = 'saveLive' then
       DumpLive
 
@@ -461,12 +464,7 @@ function TCoreFunction.Print:TInstanceOf;
 var
   AInst: TInstanceOf;
   AFloat: Extended;
-  AFStr:string;
 begin
-  {for AInst in FParams do
-  begin
-    Write(AInst.AsString);
-	end;}
   InlinePrint;
   WriteLn;
   Result := TNullInstance.create;
@@ -483,6 +481,17 @@ begin
     Write(AInst.AsString);
 	end;
   Result := TNullInstance.create;
+end;
+
+function TCoreFunction.ConcatValues:TStringInstance;
+var
+  AInst: TInstanceOf;
+  AFloat: Extended;
+  AFStr:string = '';
+begin
+  for AInst in FParams do
+    AFStr := AFstr + AInst.AsString;
+  Result := TStringInstance.Create(AFStr);
 end;
 
 function TCoreFunction.GetTypeOf:TStringInstance;
