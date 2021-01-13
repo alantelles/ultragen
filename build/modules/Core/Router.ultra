@@ -1,0 +1,48 @@
+class Router
+function init() : Router
+    self.routes = []
+    routeModel = """{
+        "path": '/some',
+        "handler": SomeFunction,
+        "name": RouteIdentifier(optional),
+        "method": [some http verb]
+    }"""
+end
+
+function getMatch(route) : Router    
+    for (self.routes, match)
+        if (route == (match[:path]))
+            return {:handler: match[:handler], :params: {}}
+        end
+    end
+    return null
+end
+
+function addRoute(path, name, handler, method) : Router
+    self.routes.append({
+        :path: path,
+        :name: name,
+        :handler: handler,
+        :method: method
+    })
+end
+
+function get(path, name, handler) : Router
+    self.addRoute(path, name, handler, 'GET')
+end
+
+function post(path, name, handler) : Router
+    self.addRoute(path, name, handler, 'POST')
+end
+
+function delete(path, name, handler) : Router
+    self.addRoute(path, name, handler, 'DELETE')
+end
+
+function patch(path, name, handler) : Router
+    self.addRoute(path, name, handler, 'PATCH')
+end
+
+function put(path, name, handler) : Router
+    self.addRoute(path, name, handler, 'PUT')
+end

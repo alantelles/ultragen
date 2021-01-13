@@ -29,3 +29,8 @@ end
 function writeText(filename) : String
     self.split('\n').writeText(filename)
 end
+
+function tailWith(part) : String
+    cut = self.slice((-1)*(part.length()),0)
+    return cut == part
+end
