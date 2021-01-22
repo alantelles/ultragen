@@ -42,6 +42,9 @@ function urlFor(name, params) : Router
                 end
                 queryStr += ('&'.join(queryList))
             end
+            if (strOut == '')
+                strOut = '/'
+            end
             return strOut + queryStr
         end
     end

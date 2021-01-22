@@ -1,0 +1,41 @@
+include @Core.Web.Router
+
+# a navbar component
+function links()
+    live '<a href="' + (router.urlFor('index')) + '">INDEX</a>'
+    live ' | '
+    live '<a href="' + (router.urlFor('hello')) + '">HELLO</a>'
+    live '<br>'
+end
+
+router = new Router()
+
+router.HandlerFor404 = function()
+    # overriding default 404 response
+    live "This page could not be found"
+end
+
+# get is a method that receives three arguments
+# a path for match the route
+# a method to be allowed from request
+# a handler that will be returned from the match
+
+router.get('/', 'index', function(params)
+    live links()
+    live 'This is the index route response'
+end)
+
+router.get('/hello', 'hello', function(params)
+    live links()
+    live 'Hello, UltraGen!<br>'
+    live 'This is the hello response'
+end)
+
+# getMatch returns a dictionary with the route handler and route args
+# it receives a route and the method used.
+# if could access $request global directly
+# instead it requires argument passing to avoid coupling
+# handler is a function that should accept a dictionary as arguments
+# localize method extract dictionary pairs and declare them as variables
+router.getMatch($request[:route], $request[:method]).localize()
+live handler(params)
