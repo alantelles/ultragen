@@ -1,0 +1,13 @@
+include @Core.Request
+
+url = 'https://reqres.in/api/users'
+fileName = 'language.json'
+body = JSON.parseFile(fileName)
+print('Posting...')
+response = Request.postJson(url, body)
+
+print("Response:")
+dicted = JSON.parse(response.text)
+for (dicted.keys(), key)
+    print(key, ': ', dicted[key])
+end

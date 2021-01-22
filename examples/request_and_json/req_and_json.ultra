@@ -1,0 +1,18 @@
+include @Core.Request
+
+url = 'https://reqres.in/api/users'
+response = Request.get(url)
+
+print('As text:')
+print(response.text)
+
+jsonified = JSON.parse(response.text)
+
+print('As dict:')
+print('page: ', jsonified[:page])
+print('total: ', jsonified[:total])
+data = jsonified[:data]
+print('\ndata[0]: ')
+for (data[0].keys(), key)
+    print('\t', key, ': ', data[0][key])
+end

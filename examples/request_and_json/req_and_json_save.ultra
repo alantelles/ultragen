@@ -1,0 +1,11 @@
+include @Core.Request
+
+url = 'https://reqres.in/api/users'
+response = Request.get(url)
+
+print('Saving...')
+
+# use $ to declare constants
+$name = 'users.json'
+print(response.text.writeText($name))
+print('Saved in: ', $name)

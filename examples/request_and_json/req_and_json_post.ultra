@@ -1,0 +1,9 @@
+include @Core.Request
+
+url = 'https://reqres.in/api/users'
+print('Posting...')
+response = Request.postJson(url, {:name: "Alan Telles", :language: "UltraGen"})
+
+# use $ to declare constants
+print("Response:")
+print(response.text)
