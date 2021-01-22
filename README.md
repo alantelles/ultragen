@@ -103,5 +103,41 @@ Imprimirá
 <p>this is my website</p>
 ```
 
+Passando uma closure como valor
+```ruby
+myFunc = function()
+    print('Hello')
+end
+
+function machine(fn)
+    fn()
+end
+
+myFunc()
+machine(function()
+    print("it's a closure")
+end)
+# Hello
+# it's a closure
+```
+
+Decorators
+```ruby
+decorator wrapper(fn)
+    print("inside decorator")
+    fn()
+end
+
+wrapped = wrapper(function()
+    print('a decorated function')
+end)
+
+wrapped()
+# inside decorator
+# a decorated function
+
+```
+
+
 ## Releases
 Atualmente ainda não há releases da linguagem. Siga o projeto para ser notificado e experimente UltraGen!
