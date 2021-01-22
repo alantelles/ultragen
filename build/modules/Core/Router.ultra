@@ -20,17 +20,29 @@ function urlFor(name, params) : Router
             matchedSplit = matched.split('/')
             len = matchedSplit.length()
             output = ['']
+            queryStr = ''
             for (matchedSplit, part)
                 partIsParam = (part[0]) == ':'
                 if (partIsParam)
                     paramName = part.slice(1, part.length())
-                    output.append(str(params[paramName]))
+                    ins = params[paramName]
+                    params.drop(paramName)
+                    output.append(str(ins))
                 else
                     output.append(part)
                 end
             end
-            
-            return '/'.join(output)
+            strOut = '/'.join(output)
+            extraParams = params.keys()
+            if ((extraParams.length()) > 0)
+                queryStr = '?'
+                queryList = []
+                for (extraParams, extra)
+                    queryList.append(extra + '=' + str(params[extra]))
+                end
+                queryStr += ('&'.join(queryList))
+            end
+            return strOut + queryStr
         end
     end
     return null
