@@ -34,3 +34,11 @@ function tailWith(part) : String
     cut = self.slice((-1)*(part.length()),0)
     return cut == part
 end
+
+function last() : String
+    if ((self.length()) > 0)
+        return self[(self.length())-1]
+    else
+        return ''
+    end
+end

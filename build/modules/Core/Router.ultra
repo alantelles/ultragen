@@ -9,13 +9,65 @@ function init() : Router
     }"""
 end
 
-function getMatch(route) : Router    
-    for (self.routes, match)
-        if (route == (match[:path]))
-            return {:handler: match[:handler], :params: {}}
+function HandlerFor404(params) : Router
+    live 'Page not found'
+end
+
+function dropFirstAndLastSlash(route) : Router
+    if ((route.length()) > 0)
+        f = route[0]
+    else
+        f = ''
+    end
+    
+    len = route.length()
+    if (f == '/')
+        route = route.slice(1, len)
+    end
+    l = route.last()
+    len = route.length()
+    if ((l == '/') && (len > 0))
+        route = route.slice(0, len - 1)
+    end
+    return route
+end
+
+function getMatch(route, method) : Router 
+    route = Router.dropFirstAndLastSlash(route)
+    routeSplit = route.split('/')
+    lenRoute = routeSplit.length()
+    for (self.routes, match)        
+        routeMatch = true
+        if(method == (match[:method]))
+            cand = Router.dropFirstAndLastSlash(match[:path])
+            candSplit = cand.split('/')
+            lenCand = candSplit.length()
+            
+            if (lenCand == lenRoute)
+                params = {}
+                for (candSplit, part)
+                    partIsParam = (part[0]) == ':'
+                    if (part == (routeSplit[_part]))
+                    
+                    elsif (partIsParam)
+                        paramName = part.slice(1, part.length())
+                        params[paramName] = routeSplit[_part]
+                    else
+                        routeMatch = false
+                        break
+                    end
+                end
+            else
+                routeMatch = false
+                continue
+            end
+            if (routeMatch)
+                return {:handler: match[:handler], :params: params}
+            end
+            
         end
     end
-    return null
+    return {:handler: self.HandlerFor404, :params: {}}
 end
 
 function addRoute(path, name, handler, method) : Router
