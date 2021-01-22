@@ -1,0 +1,15 @@
+include @Core.Web.Router
+
+router = new Router()
+
+router.get('/', 'index', function(params)
+    include 'form.ultra.html'
+end)
+
+router.post('/form_post', 'form_post', function(params)
+    include 'show.ultra.html'
+end)
+
+router.getMatch($request[:route], $request[:method]).localize()
+
+live handler(params)
