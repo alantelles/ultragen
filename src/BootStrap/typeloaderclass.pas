@@ -14,9 +14,12 @@ type TTypeLoader = class
     class procedure LoadFileSystem(var AActRec: TActivationRecord);
     class procedure LoadOS(var AActRec: TActivationRecord);
     class procedure LoadDateTime(var AActRec: TActivationRecord);
+    class procedure LoadResponseHandler(var AActRec: TActivationRecord);
 end;
 
 implementation
+uses
+  ResponseHandlerClass;
 
 class procedure TTypeLoader.LoadOS(var AActRec: TActivationRecord);
 var
@@ -27,6 +30,19 @@ begin
   AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TOSInstance', True,False, False);
   AType.PMembers.Add('getEnv', AFunc);
   AActRec.AddMember('OS', AType);
+end;
+
+class procedure TTypeLoader.LoadResponseHandler(var AActRec: TActivationRecord);
+var
+  ADataType: TDataType;
+  AFunc: TFunctionInstance;
+begin
+  ADataType := TDataType.Create('THTTPResponseHandler', 'HTTPResponse');
+  AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'THTTPResponseHandler', True, False, False);
+  ADataType.PMembers.Add('redirect', AFunc);
+  ADataType.PMembers.Add('setStatusCode', AFunc);
+  ADataType.PMembers.Add('setStatusText', AFunc);
+  AActRec.AddMember('HTTPResponse', ADataType);
 end;
 
 class procedure TTypeLoader.LoadDateTime(var AActRec: TActivationRecord);

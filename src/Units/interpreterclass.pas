@@ -24,7 +24,8 @@ type
     FContinueSignal: boolean;
     FLiveOutput: string;
     FDontPush: boolean;
-    FNameSpace: TActivationRecord;
+    FNameSpace, FInsertActRec: TActivationRecord;
+    FInsertName: string;
     FParentStack: TStack;
     FTrace: TStringList;
     FNowNode: TAST;
@@ -37,6 +38,7 @@ type
     property PCallStack: TStack read FCallStack write FCallStack;
     property PTree: TAST read FTree;
     property PLive: string read FLiveOutput;
+    property PInsertActRec: TActivationRecord read FInsertActRec write FInsertActRec;
     property PModulesPath: TStringList read FModulesPath write FModulesPath;
     procedure RaiseException(AMsg: string; AType: string);
     constructor Create(var ATree: TAST);
@@ -44,8 +46,8 @@ type
     function GetLive: string;
     procedure PassCallStack(var ACallStack: TStack; ToParent: boolean);
 
-    function Interpret(DontPush: boolean = False;
-      ANameActRec: TActivationRecord = nil): string;
+    function Interpret(DontPush: boolean = False; ANameActRec: TActivationRecord = nil): string;
+    function Interpret(InsertActRec: TActivationRecord; Insertname: string): string;
     function ExecuteFunctionByInstance(AFunction: TFunctionInstance; Args: TASTList; ANode: TAST; ASrcinstance: TInstanceOf): TInstanceOf;
     function ProcessFuncArgs(var AFunction: TFunctionInstance; var AActRec: TActivationRecord; AEvalParams: TASTList): TInstanceList;
 
@@ -153,6 +155,17 @@ var
 begin
   FDontPush := DontPush;
   FNameSpace := ANameActRec;
+  Ret := Visit(FTree);
+  Result := '';
+end;
+
+function TInterpreter.Interpret(InsertActRec: TActivationRecord; InsertName: string): string;
+var
+  Ret: TInstanceOf;
+begin
+
+  FInsertActRec := InsertActRec;
+  FInsertName := InsertName;
   Ret := Visit(FTree);
   Result := '';
 end;
@@ -1205,6 +1218,7 @@ var
   //AChild: TAST;
   len, i: integer;
   AActRec, AParRec: TActivationRecord;
+  InsertedDicted: TDictionaryInstance;
 begin
   LogText(INTER, 'Interpreter', 'Visiting a program');
   if FNameSpace = nil then
@@ -1215,6 +1229,11 @@ begin
   if not FDontPush then
     // root execution
   begin
+    if FinsertActRec <> nil then
+    begin
+      InsertedDicted := TDictionaryInstance.Create(FInsertActRec);
+      AActRec.AddMember(FInsertName, InsertedDicted);
+    end;
     FCallStack.Push(AActRec);
     BootStrapRegister;
   end
@@ -1251,6 +1270,7 @@ begin
     AParRec.AddMember(FNameSpace.PName, TDictionaryInstance.Create(AActRec));
     FCallStack := FParentStack;
   end;
+
   FTrace.Free;
   FLiveOutput := GetLive();
   if not FDontPush then

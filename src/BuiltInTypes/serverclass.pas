@@ -100,9 +100,9 @@ procedure TServerInstance.ExecuteAction(ARequest: TRequest; AResponse: TResponse
 var
   BTree: TAST;
 begin
-  BTree := TUltraInterface.ParseWebRequest(ARequest);
+  BTree := TUltraInterface.ParseWebRequest(ARequest, AResponse);
   try
-    AResponse.Content := TUltraInterface.InterpretScript(FRootFile, TProgram(BTree));
+    AResponse.Content := TUltraInterface.InterpretScript(FRootFile, TProgram(BTree), nil, '');
     WriteLn(#13+'['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
       ARequest.Method + ': '+
       ARequest.URI+' -- '+ IntToStr(AResponse.Code)+
@@ -111,6 +111,7 @@ begin
   except
     on E: Exception do
     begin
+
        AResponse.Code := 500;
        AResponse.CodeText := 'Internal server error';
        AResponse.Content := '<h1>UltraGen ERROR!</h1><pre style="white-space: pre-wrap; font-size: 12pt">'+ReplaceStr(E.Message, '<', '&lt') +'</pre>';

@@ -7,19 +7,19 @@ interface
 uses
       Classes, SysUtils,
       ASTClass, LexerClass, ImpParserClass, InterpreterClass,
-      StrUtils, LoggingClass, httpdefs, httpprotocol;
+      StrUtils, LoggingClass, httpdefs, httpprotocol, ARCLass;
 
 type
   TUltraInterface = class
     public
       class function ParseString(AStringCode:string): TAST;
       class function ParseStringList(var AList: TStringList): TAST;
-      class function ParseWebRequest(var ARequest: TRequest): TAST;
-      class function InterpretScript(AFilePath: string; APreludes: TProgram = nil): string;
-	end;
+      class function ParseWebRequest(var ARequest: TRequest; var AResponse: TResponse): TAST;
+      class function InterpretScript(AFilePath: string; APreludes: TProgram; InsertActRec: TActivationRecord; InsertName: string): string;
+    end;
 
 implementation
-uses Dos;
+uses Dos, ResponseHandlerClass, StringInstanceClass;
 
 class function TUltraInterface.ParseString(AStringCode: string): TAST;
 var
@@ -34,7 +34,7 @@ begin
   Result := ATree;
 end;
 
-class function TUltraInterface.InterpretScript(AFilePath: string; APreludes: TProgram = nil): string;
+class function TUltraInterface.InterpretScript(AFilePath: string; APreludes: TProgram; InsertActRec: TActivationRecord; InsertName:string): string;
 var
   len, i: integer;
   AParser: TTParser;
@@ -49,17 +49,20 @@ begin
   if APreludes <> nil then
   begin
     len := Length(APreludes.PChildren);
-	  if len > 0 then
-	  begin
-	    for i:=0 to len-1 do
-	      TProgram(ATree).AddPrelude(APreludes.PChildren[i]);
-	  end;
-	end;
+    if len > 0 then
+    begin
+      for i:=0 to len-1 do
+	TProgram(ATree).AddPrelude(APreludes.PChildren[i]);
+    end;
+  end;
   AParser.Free;
-	AInter := TInterpreter.Create(ATree);
-	AInter.Interpret;
-	LiveOut := AInter.PLive;
-	AInter.Free;
+  AInter := TInterpreter.Create(ATree);
+  if InsertActRec <> nil then
+    AInter.Interpret(InsertActRec, InsertName)
+  else
+    AInter.Interpret();
+  LiveOut := AInter.PLive;
+  AInter.Free;
   Result := LiveOut;
 end;
 
@@ -69,7 +72,7 @@ begin
   Result := ParseString(AList.Text);
 end;
 
-class function TUltraInterface.ParseWebRequest(var ARequest: TRequest): TAST;
+class function TUltraInterface.ParseWebRequest(var ARequest: TRequest; var AResponse: TResponse): TAST;
 var
   WebVars: TStringList;
   AParser: TTParser;
@@ -78,6 +81,7 @@ var
   len, i: integer;
   comma, K, V, UHome: string;
 begin
+
   WebVars := TStringList.Create;
 
   UHome := GetEnv('ULTRAGEN_HOME');
@@ -89,6 +93,8 @@ begin
 	end;
   if FileExists('./_INCLUDE.ultra') then
 	  WebVars.Add('include "./_INCLUDE.ultra"');
+
+
   WebVars.Add('$request = {');
   i := Pos('?', ARequest.URI);
   if i > 0 then
@@ -116,6 +122,7 @@ begin
   WebVars.Add('}, ');
 
   // WebVars.Add('"content_type": "'+ARequest.ContentType+'", ');
+
 
   WebVars.Add('"body_content": """'+ReplaceStr(ARequest.Content, '"', '\"')+'""", ');
 
