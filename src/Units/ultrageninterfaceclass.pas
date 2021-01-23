@@ -228,6 +228,7 @@ begin
 
   WebVars.Add('}');
   WebVars.Add('$request.lock()');
+  WebVars.Add('$response = $httpResponse[:response]');
   ALexer := TLexer.Create(WebVars.Text, False);
   AParser := TTParser.Create(ALexer);
   ATree := AParser.ParseCode();

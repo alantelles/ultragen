@@ -40,7 +40,7 @@ implementation
 
 uses
   ASTClass, TokenClass, Tokens, LexerClass, ImpParserClass, InterpreterClass, StrUtils,
-  StringInstanceClass, Dos, UltraGenInterfaceClass;
+  StringInstanceClass, Dos, UltraGenInterfaceClass, ResponseHandlerClass;
 
 constructor TServerInstance.Create(APort: integer);
 begin
@@ -99,10 +99,13 @@ end;
 procedure TServerInstance.ExecuteAction(ARequest: TRequest; AResponse: TResponse);
 var
   BTree: TAST;
+  InsertActRec: TActivationRecord;
 begin
   BTree := TUltraInterface.ParseWebRequest(ARequest, AResponse);
   try
-    AResponse.Content := TUltraInterface.InterpretScript(FRootFile, TProgram(BTree), nil, '');
+    InsertActRec := TActivationrecord.Create('HTTPRESPONSE', 'ANY', 1);
+    InsertActRec.AddMember('response', TResponseHandlerInstance.Create(AResponse));
+    AResponse.Content := TUltraInterface.InterpretScript(FRootFile, TProgram(BTree), InsertActRec, '$httpResponse');
     WriteLn(#13+'['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
       ARequest.Method + ': '+
       ARequest.URI+' -- '+ IntToStr(AResponse.Code)+

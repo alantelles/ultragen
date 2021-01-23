@@ -9,13 +9,12 @@ uses
   Classes, SysUtils,
   { you can add units after this }
   ASTClass, LexerClass, ImpParserClass, InterpreterClass,
-  StrUtils, LoggingClass, UltraGenInterfaceClass, Dos, ARClass, StringInstanceClass;
+  StrUtils, LoggingClass, UltraGenInterfaceClass, Dos;
 var
   BTree: TAST;
   LiveOut, UHome: string;
   i: integer;
   ParamsNodes: TStringList;
-  InsertActRec: TActivationRecord;
 
 {$R *.res}
 
@@ -64,8 +63,6 @@ begin
 		end;
     BTree := TUltraInterface.ParseStringList(ParamsNodes);
     ParamsNodes.Free;
-    InsertActRec := TActivationRecord.Create('INSERTED', 'INSERTED', 1);
-    InsertActRec.AddMember('$zika', TStringInstance.Create('Isso eh zika'));
     LiveOut := TUltraInterface.InterpretScript(ParamStr(1), TProgram(BTree), nil, '');
     if Trim(LiveOut) <> '' then
       Writeln(LiveOut);

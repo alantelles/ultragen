@@ -1,11 +1,2 @@
-include @Core.Router
-
-router = new Router()
-router.get('/', 'index', function(params)
-    live router.urlFor('index')
-    live '<br>'
-    live 'Hello'
-end)
-
-router.getMatch($request[:route], $request[:method]).localize()
-live handler(params)
+print($response)
+live $response
