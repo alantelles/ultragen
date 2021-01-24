@@ -11,7 +11,7 @@ uses
   StackClass,
   ARClass, InstanceofClass,
   StringInstanceClass, ExceptionsClasses,
-  ListInstanceClass;
+  ListInstanceClass, httpdefs;
 
 type
   TInterpreter = class
@@ -31,6 +31,7 @@ type
     FNowNode: TAST;
     FUltraHome: string;
     FModulesPath: TStringList;
+    FResponse: TResponse;
     procedure BootStrapRegister;
 
 
@@ -40,6 +41,7 @@ type
     property PLive: string read FLiveOutput;
     property PInsertActRec: TActivationRecord read FInsertActRec write FInsertActRec;
     property PModulesPath: TStringList read FModulesPath write FModulesPath;
+    property PResponse: TResponse read FResponse write FResponse;
     procedure RaiseException(AMsg: string; AType: string);
     constructor Create(var ATree: TAST);
     destructor Destroy; override;
@@ -132,6 +134,11 @@ begin
   //TTypeLoader.LoadType('Request', self, AActRec);
 
   {$INCLUDE 'builtin_functions/register_builtins.pp' }
+  // response handler
+AServerType.PMembers.Add('redirect', AServerFunc);
+AServerType.PMembers.Add('setStatusCode', AServerFunc);
+AServerType.PMembers.Add('setStatusText', AServerFunc);
+AActRec.AddMember('Server', AServerType);
 
   // AActrec.AddMember('Core', ACoreType);
   AActrec.AddMember('Boolean', ABoolType);

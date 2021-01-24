@@ -1,1 +1,3 @@
-print(pika[:$zika])
+load ServerResponse
+Web = ServerResponse
+print(Web)

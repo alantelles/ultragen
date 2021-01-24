@@ -37,12 +37,12 @@ var
   ADataType: TDataType;
   AFunc: TFunctionInstance;
 begin
-  ADataType := TDataType.Create('THTTPResponseHandler', 'HTTPResponse');
+  ADataType := TDataType.Create('THTTPResponseHandler', 'ServerResponse');
   AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'THTTPResponseHandler', True, False, False);
   ADataType.PMembers.Add('redirect', AFunc);
   ADataType.PMembers.Add('setStatusCode', AFunc);
   ADataType.PMembers.Add('setStatusText', AFunc);
-  AActRec.AddMember('HTTPResponse', ADataType);
+  AActRec.AddMember('ServerResponse', ADataType);
 end;
 
 class procedure TTypeLoader.LoadDateTime(var AActRec: TActivationRecord);
@@ -105,6 +105,8 @@ begin
     TTypeLoader.LoadOS(AActRec)
   else if AName = 'DateTime' then
     TTypeLoader.LoadDateTime(AActRec)
+  else if AName = 'ServerResponse' then
+    TTypeLoader.LoadResponseHandler(AActRec)
   else
     AInter.RaiseException('Type "'+AName+'" does not exist and can''t be loaded', 'RunTime');
 end;

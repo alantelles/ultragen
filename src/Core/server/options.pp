@@ -20,6 +20,15 @@ begin
     TServerInstance(FObj).SetStaticPaths(TDictionaryInstance(FParams[0]).PValue)
   else if FName = 'setMimeTypesFile' then
     TServerInstance(FObj).SetMimeTypesFile(TStringInstance(FParams[0]).PValue)
+  else if FName = 'redirect' then
+  begin
+    FInter.PResponse.Location := TStringInstance(FParams[0]).PValue;
+    FInter.PResponse.Code := 303;
+    if Length(FParams) > 1 then
+      FInter.PResponse.Code := TIntegerInstance(FParams[1]).PValue;
+  end
+  else if FName = 'setStatusText' then
+    Finter.PResponse.CodeText := TStringInstance(FParams[0]).PValue
   else if FName = 'run' then
     RunServer(TServerInstance(FObj));
 end

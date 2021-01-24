@@ -15,7 +15,7 @@ type
       class function ParseString(AStringCode:string): TAST;
       class function ParseStringList(var AList: TStringList): TAST;
       class function ParseWebRequest(var ARequest: TRequest; var AResponse: TResponse): TAST;
-      class function InterpretScript(AFilePath: string; APreludes: TProgram; InsertActRec: TActivationRecord; InsertName: string): string;
+      class function InterpretScript(AFilePath: string; APreludes: TProgram; InsertActRec: TActivationRecord; InsertName: string; AResponse: TResponse): string;
     end;
 
 implementation
@@ -34,7 +34,7 @@ begin
   Result := ATree;
 end;
 
-class function TUltraInterface.InterpretScript(AFilePath: string; APreludes: TProgram; InsertActRec: TActivationRecord; InsertName:string): string;
+class function TUltraInterface.InterpretScript(AFilePath: string; APreludes: TProgram; InsertActRec: TActivationRecord; InsertName:string; AResponse: TResponse): string;
 var
   len, i: integer;
   AParser: TTParser;
@@ -57,6 +57,7 @@ begin
   end;
   AParser.Free;
   AInter := TInterpreter.Create(ATree);
+  AInter.PResponse := AResponse;
   if InsertActRec <> nil then
     AInter.Interpret(InsertActRec, InsertName)
   else

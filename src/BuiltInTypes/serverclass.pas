@@ -105,7 +105,7 @@ begin
   try
     InsertActRec := TActivationrecord.Create('HTTPRESPONSE', 'ANY', 1);
     InsertActRec.AddMember('response', TResponseHandlerInstance.Create(AResponse));
-    AResponse.Content := TUltraInterface.InterpretScript(FRootFile, TProgram(BTree), InsertActRec, '$httpResponse');
+    AResponse.Content := TUltraInterface.InterpretScript(FRootFile, TProgram(BTree), InsertActRec, '$httpResponse', AResponse);
     WriteLn(#13+'['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
       ARequest.Method + ': '+
       ARequest.URI+' -- '+ IntToStr(AResponse.Code)+

@@ -1,2 +1,17 @@
-print($response)
-live $response
+include @Core.Web.Router
+
+
+$router = new Router()
+$router.get('/', 'index', function (params)
+    live 'Index'
+    live '<a href="' + ($router.urlFor("other")) + '">Other</a>'
+end)
+
+$router.get('/other', 'other', function (params)
+    print($request[:headers][:referer])
+    Server.setStatusText("Foi redirecionado daqui")
+    Server.redirect($router.urlFor('index'))
+end)
+
+$router.getMatch($request[:route], $request[:method]).localize()
+live handler(params)
