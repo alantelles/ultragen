@@ -3,11 +3,16 @@ include @Core.Web.Router
 router = new Router()
 
 router.get('/', 'index', function(params)
-    include 'form.ultra.html'
+    include 'form.ultra.html'    
+end)
+router.get('/show', :show, function(params)
+    include 'show.ultra.html'
 end)
 
 router.post('/form_post', 'form_post', function(params)
-    include 'show.ultra.html'
+    title = $request[:body][:title]
+    body = $request[:body][:body]
+    Server.redirect(router.urlFor(:show, {:title: title, :body: body}))
 end)
 
 router.getMatch($request[:route], $request[:method]).localize()

@@ -9,8 +9,8 @@
     <div>
         <h1>Your post</h1>
         <div>
-            <h2>{{ $request[:body][:title] }}</h2>
-            <p>{{ $request[:body][:body] }}</p>
+            <h2>{{ $request[:query][:title] }}</h2>
+            <p>{{ $request[:query][:body] }}</p>
         </div>
         <a href="{{ router.urlFor('index') }}">Go to home</a>
     </div>
