@@ -35,7 +35,9 @@ router.get('/hello', 'hello', function(params)
 end)
 
 router.get('/redir', :redir, function(params)
-    AppResponse.redirect(router.urlFor(:index))
+    # AppResponse.redirect(router.urlFor(:index))
+    delayTime = 3
+    AppResponse.clientRedirect(router.urlFor(:index), delayTime, 'Redirecting', 'Você está indo pra index em ' + str(delayTime) + 'segundos')
 end)
 
 # getMatch returns a dictionary with the route handler and route args

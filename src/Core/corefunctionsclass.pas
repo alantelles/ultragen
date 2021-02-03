@@ -53,6 +53,7 @@ type
       {$INCLUDE 'filesystem/declarations.pp'}
       {$INCLUDE 'dict/declarations.pp'}
       {$INCLUDE 'server/declarations.pp'}
+      {$INCLUDE 'appresponse/declarations.pp'}
       {$INCLUDE 'httpclient/declarations.pp'}
 	end;
 
@@ -546,6 +547,7 @@ end;
 {$INCLUDE 'filesystem/functions.pp'}
 {$INCLUDE 'dict/functions.pp'}
 {$INCLUDE 'server/functions.pp'}
+{$INCLUDE 'appresponse/functions.pp'}
 
 {$INCLUDE 'integer/functions.pp'}
 {$INCLUDE 'httpclient/functions.pp'}

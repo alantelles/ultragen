@@ -10,6 +10,10 @@ begin
     if Length(FParams) > 2 then
       FInter.PResponse.Code := TIntegerInstance(FParams[2]).PValue;
   end
+  else if FName = 'clientRedirect' then
+  begin
+    ClientRedirect;
+  end
   else if FName = 'setStatusText' then
     Finter.PResponse.CodeText := TStringInstance(FParams[0]).PValue;
 end

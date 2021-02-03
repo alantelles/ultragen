@@ -40,6 +40,7 @@ begin
   ADataType := TDataType.Create('TAppResponseInstance', 'AppResponse');
   AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TAppResponseInstance', True, False, False);
   ADataType.PMembers.Add('redirect', AFunc);
+  ADataType.PMembers.Add('clientRedirect', AFunc);
   ADataType.PMembers.Add('setStatusCode', AFunc);
   ADataType.PMembers.Add('setStatusText', AFunc);
   AActRec.AddMember('AppResponse', ADataType);
