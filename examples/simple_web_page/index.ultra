@@ -1,11 +1,13 @@
-
+include @Core.Web.AppResponse
 include @Core.Web.Router
 
 # a navbar component
 function links()
-    live '<a href="' + (router.urlFor('index')) + '">INDEX</a>'
+    live '<a href="' + (router.urlFor(:index)) + '">INDEX</a>'
     live ' | '
-    live '<a href="' + (router.urlFor('hello')) + '">HELLO</a>'
+    live '<a href="' + (router.urlFor(:hello)) + '">HELLO</a>'
+    live ' | '
+    live '<a href="' + (router.urlFor(:redir)) + '">REDIR</a>'
     live '<br>'
 end
 
@@ -30,6 +32,10 @@ router.get('/hello', 'hello', function(params)
     live links()
     live 'Hello, UltraGen!<br>'
     live 'This is the hello response'
+end)
+
+router.get('/redir', :redir, function(params)
+    AppResponse.redirect(router.urlFor(:index))
 end)
 
 # getMatch returns a dictionary with the route handler and route args

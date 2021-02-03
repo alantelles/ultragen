@@ -1,4 +1,5 @@
-load Server
+include @Core.Web.Server
+
 server = new Server(3500)
 server.setStopRoute('/off')
 server.run()

@@ -4,10 +4,10 @@
 			"path": "tests"
 		},
 		{
-			"path": "build\\modules\\Core"
+			"path": "examples"
 		},
 		{
-			"path": "examples"
+			"path": "build/modules"
 		}
 	],
 	"settings": {}
