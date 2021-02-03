@@ -135,10 +135,10 @@ begin
 
   {$INCLUDE 'builtin_functions/register_builtins.pp' }
   // response handler
-AServerType.PMembers.Add('redirect', AServerFunc);
-AServerType.PMembers.Add('setStatusCode', AServerFunc);
-AServerType.PMembers.Add('setStatusText', AServerFunc);
-AActRec.AddMember('Server', AServerType);
+//AServerType.PMembers.Add('redirect', AServerFunc);
+//AServerType.PMembers.Add('setStatusCode', AServerFunc);
+//AServerType.PMembers.Add('setStatusText', AServerFunc);
+//AActRec.AddMember('Server', AServerType);
 
   // AActrec.AddMember('Core', ACoreType);
   AActrec.AddMember('Boolean', ABoolType);

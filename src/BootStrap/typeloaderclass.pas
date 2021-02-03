@@ -15,11 +15,11 @@ type TTypeLoader = class
     class procedure LoadOS(var AActRec: TActivationRecord);
     class procedure LoadDateTime(var AActRec: TActivationRecord);
     class procedure LoadResponseHandler(var AActRec: TActivationRecord);
+    class procedure LoadServerInstance(var AActRec: TActivationRecord);
 end;
 
 implementation
-uses
-  ResponseHandlerClass;
+
 
 class procedure TTypeLoader.LoadOS(var AActRec: TActivationRecord);
 var
@@ -37,12 +37,31 @@ var
   ADataType: TDataType;
   AFunc: TFunctionInstance;
 begin
-  ADataType := TDataType.Create('THTTPResponseHandler', 'ServerResponse');
-  AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'THTTPResponseHandler', True, False, False);
+  ADataType := TDataType.Create('TAppResponseInstance', 'AppResponse');
+  AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TAppResponseInstance', True, False, False);
   ADataType.PMembers.Add('redirect', AFunc);
   ADataType.PMembers.Add('setStatusCode', AFunc);
   ADataType.PMembers.Add('setStatusText', AFunc);
-  AActRec.AddMember('ServerResponse', ADataType);
+  AActRec.AddMember('AppResponse', ADataType);
+end;
+
+class procedure TTypeLoader.LoadServerInstance(var AActRec: TActivationRecord);
+var
+  AServerType: TDataType;
+  AServerFunc: TFunctionInstance;
+begin
+  AServerType := TDataType.Create('TServerInstance', 'Server');
+  AServerFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TServerInstance', True,False, False);
+  AServerType.PMembers.Add('setPort', AServerFunc);
+  AServerType.PMembers.Add('setRootFile', AServerFunc);
+  AServerType.PMembers.Add('run', AServerFunc);
+  AServerType.PMembers.Add('init', AServerFunc);
+  AServerType.PMembers.Add('setTitle', AServerFunc);
+  AServerType.PMembers.Add('setStaticPath', AServerFunc);
+  AServerType.PMembers.Add('setStaticPaths', AServerFunc);
+  AServerType.PMembers.Add('setMimeTypesFile', AServerFunc);
+  AServerType.PMembers.Add('setStopRoute', AServerFunc);
+  AActRec.AddMember('Server', AServerType);
 end;
 
 class procedure TTypeLoader.LoadDateTime(var AActRec: TActivationRecord);
@@ -105,7 +124,9 @@ begin
     TTypeLoader.LoadOS(AActRec)
   else if AName = 'DateTime' then
     TTypeLoader.LoadDateTime(AActRec)
-  else if AName = 'ServerResponse' then
+  else if AName = 'Server' then
+    TTypeLoader.LoadServerInstance(AActRec)
+  else if AName = 'AppResponse' then
     TTypeLoader.LoadResponseHandler(AActRec)
   else
     AInter.RaiseException('Type "'+AName+'" does not exist and can''t be loaded', 'RunTime');

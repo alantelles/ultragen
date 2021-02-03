@@ -217,6 +217,7 @@ begin
   {$INCLUDE 'os/options.pp'}
   {$INCLUDE 'filesystem/options.pp'}
   {$INCLUDE 'server/options.pp'}
+  {$INCLUDE 'appresponse/options.pp'}
   {$INCLUDE 'httpclient/options.pp'}
   {$INCLUDE 'datetime/options.pp'}
   else
