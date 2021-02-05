@@ -1,0 +1,398 @@
+{
+    "meta": {
+        "status": 200
+    },
+    "response": {
+        "hits": [
+            {
+                "highlights": [],
+                "index": "song",
+                "type": "song",
+                "result": {
+                    "annotation_count": 20,
+                    "api_path": "/songs/3039923",
+                    "full_title": "HUMBLE. by Kendrick Lamar",
+                    "header_image_thumbnail_url": "https://images.genius.com/0780c76f8d3ab762a0ad67ac26fa9709.300x169x1.jpg",
+                    "header_image_url": "https://images.genius.com/0780c76f8d3ab762a0ad67ac26fa9709.1000x563x1.jpg",
+                    "id": 3039923,
+                    "lyrics_owner_id": 104344,
+                    "lyrics_state": "complete",
+                    "path": "/Kendrick-lamar-humble-lyrics",
+                    "pyongs_count": 1113,
+                    "song_art_image_thumbnail_url": "https://images.genius.com/483306c535608c27f9e3781b854dc91d.300x300x1.png",
+                    "song_art_image_url": "https://images.genius.com/483306c535608c27f9e3781b854dc91d.1000x1000x1.png",
+                    "stats": {
+                        "unreviewed_annotations": 0,
+                        "hot": false,
+                        "pageviews": 10812105
+                    },
+                    "title": "HUMBLE.",
+                    "title_with_featured": "HUMBLE.",
+                    "url": "https://genius.com/Kendrick-lamar-humble-lyrics",
+                    "primary_artist": {
+                        "api_path": "/artists/1421",
+                        "header_image_url": "https://images.genius.com/f3a1149475f2406582e3531041680a3c.1000x800x1.jpg",
+                        "id": 1421,
+                        "image_url": "https://images.genius.com/25d8a9c93ab97e9e6d5d1d9d36e64a53.1000x1000x1.jpg",
+                        "is_meme_verified": true,
+                        "is_verified": true,
+                        "name": "Kendrick Lamar",
+                        "url": "https://genius.com/artists/Kendrick-lamar",
+                        "iq": 45020
+                    }
+                }
+            },
+            {
+                "highlights": [],
+                "index": "song",
+                "type": "song",
+                "result": {
+                    "annotation_count": 86,
+                    "api_path": "/songs/90478",
+                    "full_title": "​m.A.A.d city by Kendrick Lamar (Ft. MC Eiht)",
+                    "header_image_thumbnail_url": "https://images.genius.com/7ce90585a9da57d4ee67a09f27d8d6bc.300x300x1.jpg",
+                    "header_image_url": "https://images.genius.com/7ce90585a9da57d4ee67a09f27d8d6bc.1000x1000x1.jpg",
+                    "id": 90478,
+                    "lyrics_owner_id": 103971,
+                    "lyrics_state": "complete",
+                    "path": "/Kendrick-lamar-maad-city-lyrics",
+                    "pyongs_count": 2178,
+                    "song_art_image_thumbnail_url": "https://images.genius.com/7ce90585a9da57d4ee67a09f27d8d6bc.300x300x1.jpg",
+                    "song_art_image_url": "https://images.genius.com/7ce90585a9da57d4ee67a09f27d8d6bc.1000x1000x1.jpg",
+                    "stats": {
+                        "unreviewed_annotations": 1,
+                        "concurrents": 4,
+                        "hot": false,
+                        "pageviews": 6606155
+                    },
+                    "title": "​m.A.A.d city",
+                    "title_with_featured": "​m.A.A.d city (Ft. MC Eiht)",
+                    "url": "https://genius.com/Kendrick-lamar-maad-city-lyrics",
+                    "primary_artist": {
+                        "api_path": "/artists/1421",
+                        "header_image_url": "https://images.genius.com/f3a1149475f2406582e3531041680a3c.1000x800x1.jpg",
+                        "id": 1421,
+                        "image_url": "https://images.genius.com/25d8a9c93ab97e9e6d5d1d9d36e64a53.1000x1000x1.jpg",
+                        "is_meme_verified": true,
+                        "is_verified": true,
+                        "name": "Kendrick Lamar",
+                        "url": "https://genius.com/artists/Kendrick-lamar",
+                        "iq": 45020
+                    }
+                }
+            },
+            {
+                "highlights": [],
+                "index": "song",
+                "type": "song",
+                "result": {
+                    "annotation_count": 47,
+                    "api_path": "/songs/81159",
+                    "full_title": "Swimming Pools (Drank) by Kendrick Lamar",
+                    "header_image_thumbnail_url": "https://images.genius.com/08bd7e3fd36bc6cf8fca520c5e475903.300x299x1.jpg",
+                    "header_image_url": "https://images.genius.com/08bd7e3fd36bc6cf8fca520c5e475903.923x919x1.jpg",
+                    "id": 81159,
+                    "lyrics_owner_id": 11524,
+                    "lyrics_state": "complete",
+                    "path": "/Kendrick-lamar-swimming-pools-drank-lyrics",
+                    "pyongs_count": 930,
+                    "song_art_image_thumbnail_url": "https://images.genius.com/31be6d410838e0668609868bf0a78e5e.300x300x1.png",
+                    "song_art_image_url": "https://images.genius.com/31be6d410838e0668609868bf0a78e5e.1000x1000x1.png",
+                    "stats": {
+                        "unreviewed_annotations": 0,
+                        "concurrents": 3,
+                        "hot": false,
+                        "pageviews": 5943389
+                    },
+                    "title": "Swimming Pools (Drank)",
+                    "title_with_featured": "Swimming Pools (Drank)",
+                    "url": "https://genius.com/Kendrick-lamar-swimming-pools-drank-lyrics",
+                    "primary_artist": {
+                        "api_path": "/artists/1421",
+                        "header_image_url": "https://images.genius.com/f3a1149475f2406582e3531041680a3c.1000x800x1.jpg",
+                        "id": 1421,
+                        "image_url": "https://images.genius.com/25d8a9c93ab97e9e6d5d1d9d36e64a53.1000x1000x1.jpg",
+                        "is_meme_verified": true,
+                        "is_verified": true,
+                        "name": "Kendrick Lamar",
+                        "url": "https://genius.com/artists/Kendrick-lamar",
+                        "iq": 45020
+                    }
+                }
+            },
+            {
+                "highlights": [],
+                "index": "song",
+                "type": "song",
+                "result": {
+                    "annotation_count": 37,
+                    "api_path": "/songs/3035222",
+                    "full_title": "DNA. by Kendrick Lamar",
+                    "header_image_thumbnail_url": "https://images.genius.com/f3f77222e1b615e0a10354ea6282ff22.300x300x1.png",
+                    "header_image_url": "https://images.genius.com/f3f77222e1b615e0a10354ea6282ff22.1000x1000x1.png",
+                    "id": 3035222,
+                    "lyrics_owner_id": 104344,
+                    "lyrics_state": "complete",
+                    "path": "/Kendrick-lamar-dna-lyrics",
+                    "pyongs_count": 623,
+                    "song_art_image_thumbnail_url": "https://images.genius.com/f3f77222e1b615e0a10354ea6282ff22.300x300x1.png",
+                    "song_art_image_url": "https://images.genius.com/f3f77222e1b615e0a10354ea6282ff22.1000x1000x1.png",
+                    "stats": {
+                        "unreviewed_annotations": 0,
+                        "concurrents": 4,
+                        "hot": false,
+                        "pageviews": 5611318
+                    },
+                    "title": "DNA.",
+                    "title_with_featured": "DNA.",
+                    "url": "https://genius.com/Kendrick-lamar-dna-lyrics",
+                    "primary_artist": {
+                        "api_path": "/artists/1421",
+                        "header_image_url": "https://images.genius.com/f3a1149475f2406582e3531041680a3c.1000x800x1.jpg",
+                        "id": 1421,
+                        "image_url": "https://images.genius.com/25d8a9c93ab97e9e6d5d1d9d36e64a53.1000x1000x1.jpg",
+                        "is_meme_verified": true,
+                        "is_verified": true,
+                        "name": "Kendrick Lamar",
+                        "url": "https://genius.com/artists/Kendrick-lamar",
+                        "iq": 45020
+                    }
+                }
+            },
+            {
+                "highlights": [],
+                "index": "song",
+                "type": "song",
+                "result": {
+                    "annotation_count": 49,
+                    "api_path": "/songs/90475",
+                    "full_title": "Money Trees by Kendrick Lamar (Ft. Jay Rock)",
+                    "header_image_thumbnail_url": "https://images.genius.com/c567238c3d5781eed61a93baff46f678.300x300x1.jpg",
+                    "header_image_url": "https://images.genius.com/c567238c3d5781eed61a93baff46f678.1000x1000x1.jpg",
+                    "id": 90475,
+                    "lyrics_owner_id": 1328,
+                    "lyrics_state": "complete",
+                    "path": "/Kendrick-lamar-money-trees-lyrics",
+                    "pyongs_count": 933,
+                    "song_art_image_thumbnail_url": "https://images.genius.com/c567238c3d5781eed61a93baff46f678.300x300x1.jpg",
+                    "song_art_image_url": "https://images.genius.com/c567238c3d5781eed61a93baff46f678.1000x1000x1.jpg",
+                    "stats": {
+                        "unreviewed_annotations": 0,
+                        "concurrents": 2,
+                        "hot": false,
+                        "pageviews": 5241098
+                    },
+                    "title": "Money Trees",
+                    "title_with_featured": "Money Trees (Ft. Jay Rock)",
+                    "url": "https://genius.com/Kendrick-lamar-money-trees-lyrics",
+                    "primary_artist": {
+                        "api_path": "/artists/1421",
+                        "header_image_url": "https://images.genius.com/f3a1149475f2406582e3531041680a3c.1000x800x1.jpg",
+                        "id": 1421,
+                        "image_url": "https://images.genius.com/25d8a9c93ab97e9e6d5d1d9d36e64a53.1000x1000x1.jpg",
+                        "is_meme_verified": true,
+                        "is_verified": true,
+                        "name": "Kendrick Lamar",
+                        "url": "https://genius.com/artists/Kendrick-lamar",
+                        "iq": 45020
+                    }
+                }
+            },
+            {
+                "highlights": [],
+                "index": "song",
+                "type": "song",
+                "result": {
+                    "annotation_count": 25,
+                    "api_path": "/songs/3047142",
+                    "full_title": "XXX. by Kendrick Lamar (Ft. U2)",
+                    "header_image_thumbnail_url": "https://images.genius.com/f3f77222e1b615e0a10354ea6282ff22.300x300x1.png",
+                    "header_image_url": "https://images.genius.com/f3f77222e1b615e0a10354ea6282ff22.1000x1000x1.png",
+                    "id": 3047142,
+                    "lyrics_owner_id": 599242,
+                    "lyrics_state": "complete",
+                    "path": "/Kendrick-lamar-xxx-lyrics",
+                    "pyongs_count": 216,
+                    "song_art_image_thumbnail_url": "https://images.genius.com/f3f77222e1b615e0a10354ea6282ff22.300x300x1.png",
+                    "song_art_image_url": "https://images.genius.com/f3f77222e1b615e0a10354ea6282ff22.1000x1000x1.png",
+                    "stats": {
+                        "unreviewed_annotations": 0,
+                        "concurrents": 2,
+                        "hot": false,
+                        "pageviews": 4920045
+                    },
+                    "title": "XXX.",
+                    "title_with_featured": "XXX. (Ft. U2)",
+                    "url": "https://genius.com/Kendrick-lamar-xxx-lyrics",
+                    "primary_artist": {
+                        "api_path": "/artists/1421",
+                        "header_image_url": "https://images.genius.com/f3a1149475f2406582e3531041680a3c.1000x800x1.jpg",
+                        "id": 1421,
+                        "image_url": "https://images.genius.com/25d8a9c93ab97e9e6d5d1d9d36e64a53.1000x1000x1.jpg",
+                        "is_meme_verified": true,
+                        "is_verified": true,
+                        "name": "Kendrick Lamar",
+                        "url": "https://genius.com/artists/Kendrick-lamar",
+                        "iq": 45020
+                    }
+                }
+            },
+            {
+                "highlights": [],
+                "index": "song",
+                "type": "song",
+                "result": {
+                    "annotation_count": 37,
+                    "api_path": "/songs/90473",
+                    "full_title": "Bitch, Don't Kill My Vibe by Kendrick Lamar",
+                    "header_image_thumbnail_url": "https://images.genius.com/71de91b0a7f63cb65044ab728c0b6cef.300x300x1.jpg",
+                    "header_image_url": "https://images.genius.com/71de91b0a7f63cb65044ab728c0b6cef.1000x1000x1.jpg",
+                    "id": 90473,
+                    "lyrics_owner_id": 83406,
+                    "lyrics_state": "complete",
+                    "path": "/Kendrick-lamar-bitch-dont-kill-my-vibe-lyrics",
+                    "pyongs_count": 667,
+                    "song_art_image_thumbnail_url": "https://images.genius.com/eebb4f6f0e6b540aa56f7b5b43391d18.300x300x1.jpg",
+                    "song_art_image_url": "https://images.genius.com/eebb4f6f0e6b540aa56f7b5b43391d18.600x600x1.jpg",
+                    "stats": {
+                        "unreviewed_annotations": 0,
+                        "concurrents": 2,
+                        "hot": false,
+                        "pageviews": 4738895
+                    },
+                    "title": "Bitch, Don’t Kill My Vibe",
+                    "title_with_featured": "Bitch, Don't Kill My Vibe",
+                    "url": "https://genius.com/Kendrick-lamar-bitch-dont-kill-my-vibe-lyrics",
+                    "primary_artist": {
+                        "api_path": "/artists/1421",
+                        "header_image_url": "https://images.genius.com/f3a1149475f2406582e3531041680a3c.1000x800x1.jpg",
+                        "id": 1421,
+                        "image_url": "https://images.genius.com/25d8a9c93ab97e9e6d5d1d9d36e64a53.1000x1000x1.jpg",
+                        "is_meme_verified": true,
+                        "is_verified": true,
+                        "name": "Kendrick Lamar",
+                        "url": "https://genius.com/artists/Kendrick-lamar",
+                        "iq": 45020
+                    }
+                }
+            },
+            {
+                "highlights": [],
+                "index": "song",
+                "type": "song",
+                "result": {
+                    "annotation_count": 34,
+                    "api_path": "/songs/92856",
+                    "full_title": "Poetic Justice by Kendrick Lamar (Ft. Drake)",
+                    "header_image_thumbnail_url": "https://images.genius.com/f3db37bb8953d6e671d8bb532da2e855.220x220x1.jpg",
+                    "header_image_url": "https://images.genius.com/f3db37bb8953d6e671d8bb532da2e855.220x220x1.jpg",
+                    "id": 92856,
+                    "lyrics_owner_id": 110771,
+                    "lyrics_state": "complete",
+                    "path": "/Kendrick-lamar-poetic-justice-lyrics",
+                    "pyongs_count": 398,
+                    "song_art_image_thumbnail_url": "https://images.genius.com/f3db37bb8953d6e671d8bb532da2e855.220x220x1.jpg",
+                    "song_art_image_url": "https://images.genius.com/f3db37bb8953d6e671d8bb532da2e855.220x220x1.jpg",
+                    "stats": {
+                        "unreviewed_annotations": 0,
+                        "concurrents": 2,
+                        "hot": false,
+                        "pageviews": 4366162
+                    },
+                    "title": "Poetic Justice",
+                    "title_with_featured": "Poetic Justice (Ft. Drake)",
+                    "url": "https://genius.com/Kendrick-lamar-poetic-justice-lyrics",
+                    "primary_artist": {
+                        "api_path": "/artists/1421",
+                        "header_image_url": "https://images.genius.com/f3a1149475f2406582e3531041680a3c.1000x800x1.jpg",
+                        "id": 1421,
+                        "image_url": "https://images.genius.com/25d8a9c93ab97e9e6d5d1d9d36e64a53.1000x1000x1.jpg",
+                        "is_meme_verified": true,
+                        "is_verified": true,
+                        "name": "Kendrick Lamar",
+                        "url": "https://genius.com/artists/Kendrick-lamar",
+                        "iq": 45020
+                    }
+                }
+            },
+            {
+                "highlights": [],
+                "index": "song",
+                "type": "song",
+                "result": {
+                    "annotation_count": 24,
+                    "api_path": "/songs/721659",
+                    "full_title": "King Kunta by Kendrick Lamar",
+                    "header_image_thumbnail_url": "https://images.genius.com/6c4cde12a02ad49bebff62799680b04e.300x300x1.png",
+                    "header_image_url": "https://images.genius.com/6c4cde12a02ad49bebff62799680b04e.1000x1000x1.png",
+                    "id": 721659,
+                    "lyrics_owner_id": 599242,
+                    "lyrics_state": "complete",
+                    "path": "/Kendrick-lamar-king-kunta-lyrics",
+                    "pyongs_count": 1929,
+                    "song_art_image_thumbnail_url": "https://images.genius.com/6c4cde12a02ad49bebff62799680b04e.300x300x1.png",
+                    "song_art_image_url": "https://images.genius.com/6c4cde12a02ad49bebff62799680b04e.1000x1000x1.png",
+                    "stats": {
+                        "unreviewed_annotations": 1,
+                        "concurrents": 3,
+                        "hot": false,
+                        "pageviews": 4306900
+                    },
+                    "title": "King Kunta",
+                    "title_with_featured": "King Kunta",
+                    "url": "https://genius.com/Kendrick-lamar-king-kunta-lyrics",
+                    "primary_artist": {
+                        "api_path": "/artists/1421",
+                        "header_image_url": "https://images.genius.com/f3a1149475f2406582e3531041680a3c.1000x800x1.jpg",
+                        "id": 1421,
+                        "image_url": "https://images.genius.com/25d8a9c93ab97e9e6d5d1d9d36e64a53.1000x1000x1.jpg",
+                        "is_meme_verified": true,
+                        "is_verified": true,
+                        "name": "Kendrick Lamar",
+                        "url": "https://genius.com/artists/Kendrick-lamar",
+                        "iq": 45020
+                    }
+                }
+            },
+            {
+                "highlights": [],
+                "index": "song",
+                "type": "song",
+                "result": {
+                    "annotation_count": 18,
+                    "api_path": "/songs/3047141",
+                    "full_title": "LOVE. by Kendrick Lamar (Ft. Zacari)",
+                    "header_image_thumbnail_url": "https://images.genius.com/f3f77222e1b615e0a10354ea6282ff22.300x300x1.png",
+                    "header_image_url": "https://images.genius.com/f3f77222e1b615e0a10354ea6282ff22.1000x1000x1.png",
+                    "id": 3047141,
+                    "lyrics_owner_id": 389740,
+                    "lyrics_state": "complete",
+                    "path": "/Kendrick-lamar-love-lyrics",
+                    "pyongs_count": 238,
+                    "song_art_image_thumbnail_url": "https://images.genius.com/f3f77222e1b615e0a10354ea6282ff22.300x300x1.png",
+                    "song_art_image_url": "https://images.genius.com/f3f77222e1b615e0a10354ea6282ff22.1000x1000x1.png",
+                    "stats": {
+                        "unreviewed_annotations": 0,
+                        "concurrents": 2,
+                        "hot": false,
+                        "pageviews": 3776903
+                    },
+                    "title": "LOVE.",
+                    "title_with_featured": "LOVE. (Ft. Zacari)",
+                    "url": "https://genius.com/Kendrick-lamar-love-lyrics",
+                    "primary_artist": {
+                        "api_path": "/artists/1421",
+                        "header_image_url": "https://images.genius.com/f3a1149475f2406582e3531041680a3c.1000x800x1.jpg",
+                        "id": 1421,
+                        "image_url": "https://images.genius.com/25d8a9c93ab97e9e6d5d1d9d36e64a53.1000x1000x1.jpg",
+                        "is_meme_verified": true,
+                        "is_verified": true,
+                        "name": "Kendrick Lamar",
+                        "url": "https://genius.com/artists/Kendrick-lamar",
+                        "iq": 45020
+                    }
+                }
+            }
+        ]
+    }
+}

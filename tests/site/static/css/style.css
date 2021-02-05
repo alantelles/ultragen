@@ -1,0 +1,68 @@
+body {
+    line-height: 1.5;
+}
+h1 {
+    font-size: 4em;
+}
+h2 {
+    font-size: 3em;
+}
+h3 {
+    font-size: 1.5em;
+}
+a, a:active, a:visited {
+    color: rgb(43, 42, 42);
+    text-decoration: none;
+}
+a:hover {
+    color:rgb(0, 33, 104);
+}
+
+.container {
+    padding: 15px;
+}
+.header {
+    padding: 15px;
+    background-color: rgb(128, 168, 253);
+}
+.navbar {
+    display: flex;
+    
+    margin-top: 15px; margin-bottom: 15px;
+    background-color: blueviolet;
+}
+.navbar {
+    padding: 10px;
+}
+input[type=text] {
+    margin-right: 5px
+}
+button, input[type=submit] {
+    cursor: pointer;
+}
+.content_container {
+    padding: 10px;
+    
+    min-height: 67vh;
+    background-color: rgb(228, 226, 226);
+    display: flex;
+}
+img {
+    display: block;
+    max-width:600px;
+    max-height:500px;
+    width: auto;
+    height: auto;
+    }
+.poster {
+    margin-right: 10px;
+}
+.lyrics {
+    padding: 10px;
+    width: 100%;
+    background-color: wheat;
+}
+.lyrics_list {
+    background-color: rgb(143, 143, 143, 0.4);
+    padding: 20px;
+}

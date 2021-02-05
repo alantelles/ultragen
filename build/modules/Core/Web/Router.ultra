@@ -48,7 +48,7 @@ function urlFor(name, params) : Router
             return strOut + queryStr
         end
     end
-    return null
+    return ''
 end
 
 function dropFirstAndLastSlash(route) : Router

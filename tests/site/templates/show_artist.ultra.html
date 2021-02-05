@@ -1,0 +1,25 @@
+@function showArtist(data)
+@data.localize()
+<div class="content_container">
+    <div class="poster">
+        <h2>{{ name }}</h2>
+        <img src="{{ photo }}" alt="">
+    </div>
+    <div class="lyrics">
+        <h3>Lyrics available</h3>
+        {{ listSongs(hits) }}
+    </div>
+</div>
+@end
+
+@function listSongs(hits)
+<div class="lyrics_list">
+    <ul>
+@   for (hits, hit)
+@   song_name = hit[:result][:title]
+@   song_link = hit[:result][:url]
+        <li><a href="{{ song_link }}" target="_blank">{{ song_name }}</a></li>
+@   end
+    </ul>
+</div>
+@end

@@ -1,0 +1,2 @@
+include @Core.OS
+print(OS.getEnv('PWD'))

@@ -1,0 +1,7 @@
+include @Core.Web.Server
+include @Core.OS
+$server = new Server(3500)
+$server.setStopRoute('/off')
+$pwd = OS.getEnv('PWD')
+$server.setStaticPath('static', $pwd + '/static')
+$server.run()

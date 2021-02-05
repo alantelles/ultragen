@@ -1,0 +1,371 @@
+{
+    "meta": {
+        "status": 200
+    },
+    "response": {
+        "hits": [
+            {
+                "highlights": [],
+                "index": "song",
+                "type": "song",
+                "result": {
+                    "annotation_count": 0,
+                    "api_path": "/songs/3703405",
+                    "full_title": "Don't forget it by Dabeull & Jordan Lee",
+                    "header_image_thumbnail_url": "https://images.genius.com/0bfb9a5ee12ee870e95739516a7d4cfa.300x300x1.jpg",
+                    "header_image_url": "https://images.genius.com/0bfb9a5ee12ee870e95739516a7d4cfa.500x500x1.jpg",
+                    "id": 3703405,
+                    "lyrics_owner_id": 5993374,
+                    "lyrics_state": "complete",
+                    "path": "/Dabeull-and-jordan-lee-dont-forget-it-annotated",
+                    "pyongs_count": 2,
+                    "song_art_image_thumbnail_url": "https://images.genius.com/0bfb9a5ee12ee870e95739516a7d4cfa.300x300x1.jpg",
+                    "song_art_image_url": "https://images.genius.com/0bfb9a5ee12ee870e95739516a7d4cfa.500x500x1.jpg",
+                    "stats": {
+                        "unreviewed_annotations": 0,
+                        "hot": false,
+                        "pageviews": 5012
+                    },
+                    "title": "Don’t forget it",
+                    "title_with_featured": "Don't forget it",
+                    "url": "https://genius.com/Dabeull-and-jordan-lee-dont-forget-it-annotated",
+                    "primary_artist": {
+                        "api_path": "/artists/1468233",
+                        "header_image_url": "https://assets.genius.com/images/default_avatar_300.png?1612216024",
+                        "id": 1468233,
+                        "image_url": "https://assets.genius.com/images/default_avatar_300.png?1612216024",
+                        "is_meme_verified": false,
+                        "is_verified": false,
+                        "name": "Dabeull & Jordan Lee",
+                        "url": "https://genius.com/artists/Dabeull-and-jordan-lee"
+                    }
+                }
+            },
+            {
+                "highlights": [],
+                "index": "song",
+                "type": "song",
+                "result": {
+                    "annotation_count": 0,
+                    "api_path": "/songs/5000096",
+                    "full_title": "Love You So Much by Dabeull (Ft. Darius & Kunta)",
+                    "header_image_thumbnail_url": "https://images.genius.com/e6d2d1f13b16cc877a484c8a67d572b0.300x300x1.jpg",
+                    "header_image_url": "https://images.genius.com/e6d2d1f13b16cc877a484c8a67d572b0.499x499x1.jpg",
+                    "id": 5000096,
+                    "lyrics_owner_id": 400170,
+                    "lyrics_state": "complete",
+                    "path": "/Dabeull-love-you-so-much-lyrics",
+                    "pyongs_count": null,
+                    "song_art_image_thumbnail_url": "https://images.genius.com/e6d2d1f13b16cc877a484c8a67d572b0.300x300x1.jpg",
+                    "song_art_image_url": "https://images.genius.com/e6d2d1f13b16cc877a484c8a67d572b0.499x499x1.jpg",
+                    "stats": {
+                        "unreviewed_annotations": 0,
+                        "hot": false
+                    },
+                    "title": "Love You So Much",
+                    "title_with_featured": "Love You So Much (Ft. Darius & Kunta)",
+                    "url": "https://genius.com/Dabeull-love-you-so-much-lyrics",
+                    "primary_artist": {
+                        "api_path": "/artists/1046300",
+                        "header_image_url": "https://images.genius.com/3431445ac742d05a433443e3017a9930.1000x353x1.jpg",
+                        "id": 1046300,
+                        "image_url": "https://images.genius.com/1be59a6b9e1deb0fb24621e026e1b804.959x959x1.jpg",
+                        "is_meme_verified": false,
+                        "is_verified": false,
+                        "name": "Dabeull",
+                        "url": "https://genius.com/artists/Dabeull"
+                    }
+                }
+            },
+            {
+                "highlights": [],
+                "index": "song",
+                "type": "song",
+                "result": {
+                    "annotation_count": 0,
+                    "api_path": "/songs/5000095",
+                    "full_title": "Day & Night by Dabeull",
+                    "header_image_thumbnail_url": "https://images.genius.com/e6d2d1f13b16cc877a484c8a67d572b0.300x300x1.jpg",
+                    "header_image_url": "https://images.genius.com/e6d2d1f13b16cc877a484c8a67d572b0.499x499x1.jpg",
+                    "id": 5000095,
+                    "lyrics_owner_id": 400170,
+                    "lyrics_state": "complete",
+                    "path": "/Dabeull-day-and-night-lyrics",
+                    "pyongs_count": null,
+                    "song_art_image_thumbnail_url": "https://images.genius.com/e6d2d1f13b16cc877a484c8a67d572b0.300x300x1.jpg",
+                    "song_art_image_url": "https://images.genius.com/e6d2d1f13b16cc877a484c8a67d572b0.499x499x1.jpg",
+                    "stats": {
+                        "unreviewed_annotations": 0,
+                        "hot": false
+                    },
+                    "title": "Day & Night",
+                    "title_with_featured": "Day & Night",
+                    "url": "https://genius.com/Dabeull-day-and-night-lyrics",
+                    "primary_artist": {
+                        "api_path": "/artists/1046300",
+                        "header_image_url": "https://images.genius.com/3431445ac742d05a433443e3017a9930.1000x353x1.jpg",
+                        "id": 1046300,
+                        "image_url": "https://images.genius.com/1be59a6b9e1deb0fb24621e026e1b804.959x959x1.jpg",
+                        "is_meme_verified": false,
+                        "is_verified": false,
+                        "name": "Dabeull",
+                        "url": "https://genius.com/artists/Dabeull"
+                    }
+                }
+            },
+            {
+                "highlights": [],
+                "index": "song",
+                "type": "song",
+                "result": {
+                    "annotation_count": 0,
+                    "api_path": "/songs/5000097",
+                    "full_title": "Last Night by Dabeull (Ft. Jordan Lee)",
+                    "header_image_thumbnail_url": "https://images.genius.com/e6d2d1f13b16cc877a484c8a67d572b0.300x300x1.jpg",
+                    "header_image_url": "https://images.genius.com/e6d2d1f13b16cc877a484c8a67d572b0.499x499x1.jpg",
+                    "id": 5000097,
+                    "lyrics_owner_id": 400170,
+                    "lyrics_state": "complete",
+                    "path": "/Dabeull-last-night-lyrics",
+                    "pyongs_count": null,
+                    "song_art_image_thumbnail_url": "https://images.genius.com/e6d2d1f13b16cc877a484c8a67d572b0.300x300x1.jpg",
+                    "song_art_image_url": "https://images.genius.com/e6d2d1f13b16cc877a484c8a67d572b0.499x499x1.jpg",
+                    "stats": {
+                        "unreviewed_annotations": 0,
+                        "hot": false
+                    },
+                    "title": "Last Night",
+                    "title_with_featured": "Last Night (Ft. Jordan Lee)",
+                    "url": "https://genius.com/Dabeull-last-night-lyrics",
+                    "primary_artist": {
+                        "api_path": "/artists/1046300",
+                        "header_image_url": "https://images.genius.com/3431445ac742d05a433443e3017a9930.1000x353x1.jpg",
+                        "id": 1046300,
+                        "image_url": "https://images.genius.com/1be59a6b9e1deb0fb24621e026e1b804.959x959x1.jpg",
+                        "is_meme_verified": false,
+                        "is_verified": false,
+                        "name": "Dabeull",
+                        "url": "https://genius.com/artists/Dabeull"
+                    }
+                }
+            },
+            {
+                "highlights": [],
+                "index": "song",
+                "type": "song",
+                "result": {
+                    "annotation_count": 0,
+                    "api_path": "/songs/3471074",
+                    "full_title": "DX7 by Dabeull (Ft. Holybrune)",
+                    "header_image_thumbnail_url": "https://images.genius.com/5fcd428c0a68fa8392a36a7e83c3dbf7.300x300x1.jpg",
+                    "header_image_url": "https://images.genius.com/5fcd428c0a68fa8392a36a7e83c3dbf7.600x600x1.jpg",
+                    "id": 3471074,
+                    "lyrics_owner_id": 3158087,
+                    "lyrics_state": "complete",
+                    "path": "/Dabeull-dx7-lyrics",
+                    "pyongs_count": null,
+                    "song_art_image_thumbnail_url": "https://images.genius.com/5fcd428c0a68fa8392a36a7e83c3dbf7.300x300x1.jpg",
+                    "song_art_image_url": "https://images.genius.com/5fcd428c0a68fa8392a36a7e83c3dbf7.600x600x1.jpg",
+                    "stats": {
+                        "unreviewed_annotations": 0,
+                        "hot": false,
+                        "pageviews": 10903
+                    },
+                    "title": "DX7",
+                    "title_with_featured": "DX7 (Ft. Holybrune)",
+                    "url": "https://genius.com/Dabeull-dx7-lyrics",
+                    "primary_artist": {
+                        "api_path": "/artists/1046300",
+                        "header_image_url": "https://images.genius.com/3431445ac742d05a433443e3017a9930.1000x353x1.jpg",
+                        "id": 1046300,
+                        "image_url": "https://images.genius.com/1be59a6b9e1deb0fb24621e026e1b804.959x959x1.jpg",
+                        "is_meme_verified": false,
+                        "is_verified": false,
+                        "name": "Dabeull",
+                        "url": "https://genius.com/artists/Dabeull"
+                    }
+                }
+            },
+            {
+                "highlights": [],
+                "index": "song",
+                "type": "song",
+                "result": {
+                    "annotation_count": 0,
+                    "api_path": "/songs/3471063",
+                    "full_title": "Interlude by Dabeull (Ft. FKJ)",
+                    "header_image_thumbnail_url": "https://images.genius.com/5fcd428c0a68fa8392a36a7e83c3dbf7.300x300x1.jpg",
+                    "header_image_url": "https://images.genius.com/5fcd428c0a68fa8392a36a7e83c3dbf7.600x600x1.jpg",
+                    "id": 3471063,
+                    "lyrics_owner_id": 3158087,
+                    "lyrics_state": "complete",
+                    "path": "/Dabeull-interlude-lyrics",
+                    "pyongs_count": null,
+                    "song_art_image_thumbnail_url": "https://images.genius.com/5fcd428c0a68fa8392a36a7e83c3dbf7.300x300x1.jpg",
+                    "song_art_image_url": "https://images.genius.com/5fcd428c0a68fa8392a36a7e83c3dbf7.600x600x1.jpg",
+                    "stats": {
+                        "unreviewed_annotations": 0,
+                        "hot": false
+                    },
+                    "title": "Interlude",
+                    "title_with_featured": "Interlude (Ft. FKJ)",
+                    "url": "https://genius.com/Dabeull-interlude-lyrics",
+                    "primary_artist": {
+                        "api_path": "/artists/1046300",
+                        "header_image_url": "https://images.genius.com/3431445ac742d05a433443e3017a9930.1000x353x1.jpg",
+                        "id": 1046300,
+                        "image_url": "https://images.genius.com/1be59a6b9e1deb0fb24621e026e1b804.959x959x1.jpg",
+                        "is_meme_verified": false,
+                        "is_verified": false,
+                        "name": "Dabeull",
+                        "url": "https://genius.com/artists/Dabeull"
+                    }
+                }
+            },
+            {
+                "highlights": [],
+                "index": "song",
+                "type": "song",
+                "result": {
+                    "annotation_count": 0,
+                    "api_path": "/songs/3471082",
+                    "full_title": "Des bisous by Dabeull",
+                    "header_image_thumbnail_url": "https://images.genius.com/5fcd428c0a68fa8392a36a7e83c3dbf7.300x300x1.jpg",
+                    "header_image_url": "https://images.genius.com/5fcd428c0a68fa8392a36a7e83c3dbf7.600x600x1.jpg",
+                    "id": 3471082,
+                    "lyrics_owner_id": 3158087,
+                    "lyrics_state": "complete",
+                    "path": "/Dabeull-des-bisous-lyrics",
+                    "pyongs_count": null,
+                    "song_art_image_thumbnail_url": "https://images.genius.com/5fcd428c0a68fa8392a36a7e83c3dbf7.300x300x1.jpg",
+                    "song_art_image_url": "https://images.genius.com/5fcd428c0a68fa8392a36a7e83c3dbf7.600x600x1.jpg",
+                    "stats": {
+                        "unreviewed_annotations": 0,
+                        "hot": false
+                    },
+                    "title": "Des bisous",
+                    "title_with_featured": "Des bisous",
+                    "url": "https://genius.com/Dabeull-des-bisous-lyrics",
+                    "primary_artist": {
+                        "api_path": "/artists/1046300",
+                        "header_image_url": "https://images.genius.com/3431445ac742d05a433443e3017a9930.1000x353x1.jpg",
+                        "id": 1046300,
+                        "image_url": "https://images.genius.com/1be59a6b9e1deb0fb24621e026e1b804.959x959x1.jpg",
+                        "is_meme_verified": false,
+                        "is_verified": false,
+                        "name": "Dabeull",
+                        "url": "https://genius.com/artists/Dabeull"
+                    }
+                }
+            },
+            {
+                "highlights": [],
+                "index": "song",
+                "type": "song",
+                "result": {
+                    "annotation_count": 0,
+                    "api_path": "/songs/3471057",
+                    "full_title": "Break Your Heart by Dabeull (Ft. Holybrune)",
+                    "header_image_thumbnail_url": "https://images.genius.com/5fcd428c0a68fa8392a36a7e83c3dbf7.300x300x1.jpg",
+                    "header_image_url": "https://images.genius.com/5fcd428c0a68fa8392a36a7e83c3dbf7.600x600x1.jpg",
+                    "id": 3471057,
+                    "lyrics_owner_id": 3158087,
+                    "lyrics_state": "complete",
+                    "path": "/Dabeull-break-your-heart-lyrics",
+                    "pyongs_count": null,
+                    "song_art_image_thumbnail_url": "https://images.genius.com/5fcd428c0a68fa8392a36a7e83c3dbf7.300x300x1.jpg",
+                    "song_art_image_url": "https://images.genius.com/5fcd428c0a68fa8392a36a7e83c3dbf7.600x600x1.jpg",
+                    "stats": {
+                        "unreviewed_annotations": 0,
+                        "hot": false
+                    },
+                    "title": "Break Your Heart",
+                    "title_with_featured": "Break Your Heart (Ft. Holybrune)",
+                    "url": "https://genius.com/Dabeull-break-your-heart-lyrics",
+                    "primary_artist": {
+                        "api_path": "/artists/1046300",
+                        "header_image_url": "https://images.genius.com/3431445ac742d05a433443e3017a9930.1000x353x1.jpg",
+                        "id": 1046300,
+                        "image_url": "https://images.genius.com/1be59a6b9e1deb0fb24621e026e1b804.959x959x1.jpg",
+                        "is_meme_verified": false,
+                        "is_verified": false,
+                        "name": "Dabeull",
+                        "url": "https://genius.com/artists/Dabeull"
+                    }
+                }
+            },
+            {
+                "highlights": [],
+                "index": "song",
+                "type": "song",
+                "result": {
+                    "annotation_count": 0,
+                    "api_path": "/songs/3471050",
+                    "full_title": "Time for Love by Dabeull",
+                    "header_image_thumbnail_url": "https://images.genius.com/5fcd428c0a68fa8392a36a7e83c3dbf7.300x300x1.jpg",
+                    "header_image_url": "https://images.genius.com/5fcd428c0a68fa8392a36a7e83c3dbf7.600x600x1.jpg",
+                    "id": 3471050,
+                    "lyrics_owner_id": 3158087,
+                    "lyrics_state": "complete",
+                    "path": "/Dabeull-time-for-love-lyrics",
+                    "pyongs_count": null,
+                    "song_art_image_thumbnail_url": "https://images.genius.com/5fcd428c0a68fa8392a36a7e83c3dbf7.300x300x1.jpg",
+                    "song_art_image_url": "https://images.genius.com/5fcd428c0a68fa8392a36a7e83c3dbf7.600x600x1.jpg",
+                    "stats": {
+                        "unreviewed_annotations": 0,
+                        "hot": false
+                    },
+                    "title": "Time for Love",
+                    "title_with_featured": "Time for Love",
+                    "url": "https://genius.com/Dabeull-time-for-love-lyrics",
+                    "primary_artist": {
+                        "api_path": "/artists/1046300",
+                        "header_image_url": "https://images.genius.com/3431445ac742d05a433443e3017a9930.1000x353x1.jpg",
+                        "id": 1046300,
+                        "image_url": "https://images.genius.com/1be59a6b9e1deb0fb24621e026e1b804.959x959x1.jpg",
+                        "is_meme_verified": false,
+                        "is_verified": false,
+                        "name": "Dabeull",
+                        "url": "https://genius.com/artists/Dabeull"
+                    }
+                }
+            },
+            {
+                "highlights": [],
+                "index": "song",
+                "type": "song",
+                "result": {
+                    "annotation_count": 0,
+                    "api_path": "/songs/3470951",
+                    "full_title": "Intro by Dabeull",
+                    "header_image_thumbnail_url": "https://images.genius.com/1918d6a6513ef27872ca0b0e40799f2c.300x300x1.jpg",
+                    "header_image_url": "https://images.genius.com/1918d6a6513ef27872ca0b0e40799f2c.600x600x1.jpg",
+                    "id": 3470951,
+                    "lyrics_owner_id": 3158087,
+                    "lyrics_state": "complete",
+                    "path": "/Dabeull-intro-lyrics",
+                    "pyongs_count": null,
+                    "song_art_image_thumbnail_url": "https://images.genius.com/1918d6a6513ef27872ca0b0e40799f2c.300x300x1.jpg",
+                    "song_art_image_url": "https://images.genius.com/1918d6a6513ef27872ca0b0e40799f2c.600x600x1.jpg",
+                    "stats": {
+                        "unreviewed_annotations": 0,
+                        "hot": false
+                    },
+                    "title": "Intro",
+                    "title_with_featured": "Intro",
+                    "url": "https://genius.com/Dabeull-intro-lyrics",
+                    "primary_artist": {
+                        "api_path": "/artists/1046300",
+                        "header_image_url": "https://images.genius.com/3431445ac742d05a433443e3017a9930.1000x353x1.jpg",
+                        "id": 1046300,
+                        "image_url": "https://images.genius.com/1be59a6b9e1deb0fb24621e026e1b804.959x959x1.jpg",
+                        "is_meme_verified": false,
+                        "is_verified": false,
+                        "name": "Dabeull",
+                        "url": "https://genius.com/artists/Dabeull"
+                    }
+                }
+            }
+        ]
+    }
+}

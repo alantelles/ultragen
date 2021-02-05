@@ -1,7 +1,0 @@
-function allx() :String
-    out = ''
-    for (self.length(), c)
-        out += 'X'
-    end
-    return out
-end

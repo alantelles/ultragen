@@ -1,3 +1,0 @@
-function magal()
-    print('executou magal')
-end
