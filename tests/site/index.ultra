@@ -4,18 +4,15 @@ include @Core.Request
 include 'templates/base.ultra.html'
 include 'env.ultra' : $ENV
 
-$appTitle = 'Parallel Genius'
+$appTitle = 'PokeDex'
 $rapid_api_host = "genius.p.rapidapi.com"
 
-function setHeaders(key)
-    return {
-        'x-rapidapi-key': key,
-        'x-rapidapi-host': $rapid_api_host
-    }
-end
 $router = new Router()
 $router.get('/', :index, function (params)    
     
+end)
+
+$router.get('/types', :types, function(params)
 end)
 
 $router.get('/search', :search, function(params)

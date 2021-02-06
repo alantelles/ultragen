@@ -3,5 +3,5 @@ include @Core.OS
 $server = new Server(3500)
 $server.setStopRoute('/off')
 $pwd = OS.getEnv('PWD')
-$server.setStaticPath('static', $pwd + '/static')
+# $server.setStaticPath('static', '/C:\Users\alango\Documents\develop\lazarus\ultragen\tests\site\static')
 $server.run()

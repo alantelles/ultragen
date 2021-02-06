@@ -1,2 +1,2 @@
 include @Core.OS
-print(OS.getEnv('PWD'))
+print(OS.getEnv('%CD%'))

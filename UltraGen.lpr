@@ -80,6 +80,7 @@ begin
     WriteLn('UltraGen - Desktop/Web Template engine/Scripting language');
     WriteLn('Version: 0.4');
     WriteLn('Usage: ultragen [script path] [...params] [(--...OPTIONS)]');
+    WriteLn('Core modules path: ' + );
     WriteLn('Created by Alan Telles');
   end;
 end.

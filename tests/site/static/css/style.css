@@ -1,5 +1,6 @@
 body {
     line-height: 1.5;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 h1 {
     font-size: 4em;
@@ -31,8 +32,18 @@ a:hover {
     margin-top: 15px; margin-bottom: 15px;
     background-color: blueviolet;
 }
-.navbar {
+.navbar ul {display: flex;}
+.navbar li {
+    display: block;
     padding: 10px;
+    
+}
+.navbar a {
+    color: white;
+    display: block;
+    width: 100%; height: 100%;
+    
+    
 }
 input[type=text] {
     margin-right: 5px

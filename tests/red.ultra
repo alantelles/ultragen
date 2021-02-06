@@ -1,0 +1,8 @@
+a = 55
+func = function ()
+    print("zika")
+end
+
+function other()
+    print("other")
+end

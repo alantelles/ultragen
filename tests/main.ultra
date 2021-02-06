@@ -1,3 +1,2 @@
-load ServerResponse
-Web = ServerResponse
-print(Web)
+include 'red.ultra' : tops
+print(tops[:a])
