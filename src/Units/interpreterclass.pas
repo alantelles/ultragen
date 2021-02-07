@@ -1223,9 +1223,11 @@ end;
 procedure TInterpreter.VisitProgram(ANode: TProgram);
 var
   //AChild: TAST;
-  len, i: integer;
+  len, i, NowLevel: integer;
   AActRec, AParRec: TActivationRecord;
   InsertedDicted: TDictionaryInstance;
+  IncObject: TDataType;
+  refreshType: boolean;
 begin
   LogText(INTER, 'Interpreter', 'Visiting a program');
   if FNameSpace = nil then
@@ -1263,6 +1265,7 @@ begin
   len := Length(ANode.PChildren);
   if len > 0 then
   begin
+
     for i := 0 to len - 1 do
     begin
       //LogText(INTER, 'Interpreter', 'Visiting a child ' + AChild.ToString);
@@ -1273,8 +1276,35 @@ begin
   if FNameSpace <> nil then
   begin
     AActRec := FCallStack.Peek();
-    AParRec := FParentStack.Peek();
-    AParRec.AddMember(FNameSpace.PName, TDictionaryInstance.Create(AActRec));
+    len := AActRec.PMembers.Count;
+    if len > 0 then
+    begin
+      AParRec := FParentStack.Peek();
+      RefreshType := False;
+      for i := AParRec.PNestingLevel downto 1 do
+      begin
+        IncObject := TDataType(AParRec.GetMember(FNameSpace.PName));
+        if (IncObject <> nil) and (IncObject.ClassNameIs('TDataType')) then
+          break;
+        if i > 0 then
+          AParRec := FParentStack.GetByLevel(i - 1);
+      end;
+
+      if IncObject = nil then
+      begin
+        RefreshType := True;
+        IncObject := TDataType.Create(FNameSpace.PName, FNameSpace.PName, True)
+      end;
+      for i:=0 to len - 1 do
+      begin
+        IncObject.PMembers.Add(
+          AActRec.PMembers.NameOfIndex(i),
+          TInstanceOf(AActRec.PMembers[i])
+        );
+      end;
+    end;
+    if RefreshType then
+      AParRec.AddMember(FNameSpace.PName, IncObject);
     FCallStack := FParentStack;
   end;
 

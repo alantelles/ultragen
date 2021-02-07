@@ -4,7 +4,7 @@ include @Core.Request
 include 'templates/base.ultra.html'
 include 'env.ultra' : $ENV
 
-$appTitle = 'PokeDex'
+$appTitle = 'Parallel Genius'
 $rapid_api_host = "genius.p.rapidapi.com"
 
 $router = new Router()

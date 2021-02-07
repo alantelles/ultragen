@@ -1,2 +1,25 @@
-include 'red.ultra' : tops
-print(tops[:a])
+class Parent
+function init(a) : Parent
+end
+
+function glow() : Parent
+    print("I Glow")
+end
+
+function Child(a)
+    Child = new Parent(a)
+    function noGlow () : Child
+        print("I don't glow")
+    end
+    function glow() : Child
+        Parent.glow()
+        print('I glow more')
+    end
+    return Child
+end
+
+p = new Parent(100)
+p.glow()
+c = Child(100)
+c.glow()
+c.noGlow()

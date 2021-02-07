@@ -1,8 +1,5 @@
-a = 55
-func = function ()
-    print("zika")
-end
 
-function other()
-    print("other")
+
+function triple()
+    return (self.a)*3
 end
