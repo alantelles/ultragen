@@ -1,0 +1,3 @@
+function run()
+    print("I run")
+end

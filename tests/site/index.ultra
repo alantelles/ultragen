@@ -1,47 +1,24 @@
 include @Core.Web.Router
-include @Core.Web.AppResponse
+
 include @Core.Request
-include 'templates/base.ultra.html'
-include 'env.ultra' : $ENV
-
-$appTitle = 'Parallel Genius'
-$rapid_api_host = "genius.p.rapidapi.com"
-
-$router = new Router()
-$router.get('/', :index, function (params)    
-    
-end)
-
-$router.get('/types', :types, function(params)
-end)
-
-$router.get('/search', :search, function(params)
-    include 'services/artists.ultra'
-    include 'templates/show_artist.ultra.html'
-    result = searchArtist()
-    if (result)
-        query = $request[:query][:q]
-        artist = result[:response][:hits][0][:result][:primary_artist]
-        for (result[:response][:hits], hit)
-            if ((hit[:result][:primary_artist][:name].lower()) == (query.lower().replace('+', ' ')))
-                artist = hit[:result][:primary_artist]
-                break
-            end
-        end
-        name = artist[:name]
-        photo = artist[:image_url]
-        live showArtist({:name: name, :photo: photo, :hits: result[:response][:hits]})
-    else
-        live 'Artista nao encontrado'
-    end
-end)
+include 'templates/layouts/Base.ultra.html'
 
 decorator liveBase(fn)
-    content = fn()
-    live Base(content)
+    context = fn(params)
+    live Base(context)
 end
 
-$router.getMatch($request[:route], $request[:method]).localize()
-output = liveBase(handler)
+$router = new Router()
+$router.get('/', :index, function(params)
+end)
+$router.get('/types', :types, function(params)
+    include 'services/TypesService.ultra'
+    ret = TypesService.index()
+    return {:body : ret}
+end)
 
-live output(params)
+$router.getMatch($request[:route], $request[:method]).localize()
+
+showPage = liveBase(handler)
+
+live showPage(params)

@@ -27,7 +27,7 @@ function escape() : String
 end
 
 function writeText(filename) : String
-    self.split('\n').writeText(filename)
+    self.split('\r\n').writeText(filename)
 end
 
 function tailWith(part) : String
@@ -41,4 +41,11 @@ function last() : String
     else
         return ''
     end
+end
+
+function printFile(filename) : String
+    include @Core.FileSystem
+    out = FileSystem.loadText(filename)
+    out = '\r\n'.join(out)
+    return out
 end

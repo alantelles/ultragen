@@ -1,0 +1,35 @@
+body {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+div.container {
+    display: flex;
+}
+div.main {
+    background-color: rgb(255, 43, 43);
+    min-height: 100vh;
+    width: 100%;
+}
+div.side {
+    min-height: 100vh;
+    width: 300px;
+    background-color: rgb(251, 255, 36);
+}
+.navbar {
+    width: 100%
+}
+.navbar ul li {
+    display: block;
+    
+}
+.navbar ul a, .navbar ul a:visited, .navbar ul a:active {
+    text-transform: uppercase;
+    display: block;
+    padding: 10px;
+    color: white;
+    background-color: rgb(100, 73, 37);
+    text-decoration: none;
+}
+.navbar ul a:hover {
+    background-color: chocolate;
+    text-decoration: none;
+}

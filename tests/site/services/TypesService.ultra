@@ -1,0 +1,8 @@
+include 'env.ultra'
+class TypesService
+TypesService.url = $apiBase + "/type/"
+function index() : TypesService
+    r = Request.get(TypesService.url)
+    ret = JSON.parse(r.text)
+    return ret
+end
