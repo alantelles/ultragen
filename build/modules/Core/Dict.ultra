@@ -6,3 +6,9 @@ function asAttrs() : Dict
     end
     return ' '.join(l)
 end
+
+function each(fn) : Dict
+    for (self.keys(), key)
+        fn(key, self[key], _key)
+    end
+end

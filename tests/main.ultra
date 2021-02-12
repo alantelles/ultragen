@@ -1,4 +1,9 @@
-include @Core.FileSystem
+d = {
+    'a': 5,
+    'b': 'baholeros',
+    'c': 'tikamiru'
+}
 
-x = FileSystem.loadText('cc.py')
-print('\r\n'.join(x))
+d.each(function (k, v, i)
+    print('Item ',i,': ', k, ' | ', v)
+end)
