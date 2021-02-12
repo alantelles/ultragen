@@ -1,13 +1,30 @@
 function each(fn, args=null) : List
-    for (self, x)
-        fn(x, _x, args)
+    
+    for (self, x)        
+        if ((fn.$paramCount) == 1)
+            fn(x)
+        elsif ((fn.$paramCount) == 2)
+            fn(x, _x)
+        elsif ((fn.$paramCount) == 3)
+            fn(x, _x, args)
+        else
+            raise('Wrong number of arguments for calling argument function', 'Arguments')
+        end
     end
     return null
 end
 
 function every(fn, args=null) : List
-    for (self, x)
-        t = fn(x, _x, args)
+    for (self, x)        
+        if ((fn.$paramCount) == 1)
+            t = fn(x)
+        elsif ((fn.$paramCount) == 2)
+            t = fn(x, _x)
+        elsif ((fn.$paramCount) == 3)
+            t = fn(x, _x, args)
+        else
+            raise('Wrong number of arguments for call argument function', 'Arguments')
+        end
         if (!t)
             return false
         end
@@ -18,8 +35,17 @@ end
 function map(fn, args=null) : List
     ret = []
     for (self, x)
-        m = fn(x, _x, args)
-        ret.append(m)
+        
+        if ((fn.$paramCount) == 1)
+            t = fn(x)
+        elsif ((fn.$paramCount) == 2)
+            t = fn(x, _x)
+        elsif ((fn.$paramCount) == 3)
+            t = fn(x, _x, args)
+        else
+            raise('Wrong number of arguments for call argument function', 'Arguments')
+        end
+        ret.append(t)
     end
     return ret
 end
@@ -27,7 +53,16 @@ end
 function filter(fn, args=null) : List
     ret = []
     for (self, x)
-        if (fn(x, _x, args))
+        if ((fn.$paramCount) == 1)
+            t = fn(x)
+        elsif ((fn.$paramCount) == 2)
+            t = fn(x, _x)
+        elsif ((fn.$paramCount) == 3)
+            t = fn(x, _x, args)
+        else
+            raise('Wrong number of arguments for call argument function', 'Arguments')
+        end
+        if (t)
             ret.append(x)
         end
     end

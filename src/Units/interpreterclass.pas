@@ -426,8 +426,10 @@ begin
     RealType := TDataType(AActRec.GetMember(ANode.PType));
     if RealType <> nil then
     begin
-      RealType.PMembers.Add(ANode.PName, TFunctionInstance.Create(ANode.PName, ANode.PParamList,
-        ANode.PBlock, RealType.PValue, False, ANode.PIsDecorator, ANode.PAcceptVarargs));
+      AValue := TFunctionInstance.Create(ANode.PName, ANode.PParamList,
+        ANode.PBlock, RealType.PValue, False, ANode.PIsDecorator, ANode.PAcceptVarargs);
+      AValue.PMembers.Add('$paramCount', TIntegerInstance.Create(Length(ANode.PParamList)));
+      RealType.PMembers.Add(ANode.PName, AValue);
     end
     else
       ERunTimeError.Create('Referenced type ' + ANode.PType +
@@ -438,6 +440,7 @@ begin
   begin
     AValue := TFunctionInstance.Create(ANode.PName, ANode.PParamList,
         ANode.PBlock, 'TCoreFunction', False, ANode.PIsDecorator, ANode.PAcceptVarargs);
+    AValue.PMembers.Add('$paramCount', TIntegerInstance.Create(Length(ANode.PParamList)));
     AActRec.AddMember(ANode.PName, AValue);
     Result := AValue;
   end;

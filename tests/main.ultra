@@ -1,9 +1,6 @@
-d = {
-    'a': 5,
-    'b': 'baholeros',
-    'c': 'tikamiru'
-}
+l = ['baholeros', 'mijhail', 'bh', 'mamaco']
 
-d.each(function (k, v, i)
-    print('Item ',i,': ', k, ' | ', v)
+outro = l.filter(function(a)
+    return (a.length()) > 6
 end)
+print(outro)

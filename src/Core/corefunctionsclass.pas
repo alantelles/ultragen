@@ -92,7 +92,7 @@ begin
   begin
     if FName = 'print' then
 	    Ret := Print
-	  else if FName = 'inline' then
+    else if FName = 'inline' then
 	    Ret := InlinePrint
     else if FName = 'concat' then
 	    Ret := ConcatValues
@@ -133,6 +133,15 @@ begin
     //system
     else if FName = 'clear' then
       clrscr
+    else if FName = 'raise' then
+    begin
+      if Length(FParams) = 1 then
+        FInter.RaiseException(FParams[0].AsString, 'Client')
+      else if Length(FParams) = 2 then
+        FInter.RaiseException(FParams[0].AsString, FParams[1].PStrValue)
+      else
+        FInter.RaiseException(E_INVALID_ARGS, 'Arguments');
+    end
     else if FName = 'input' then
     begin
       if Length(FParams) > 1 then

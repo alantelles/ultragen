@@ -18,6 +18,11 @@ print('page: ', jsonified[:page])
 print('total: ', jsonified[:total])
 data = jsonified[:data]
 print('\ndata[0]: ')
-for (data[0].keys(), key)
-    print('\t', key, ': ', data[0][key])
+function printDict(k, v, i) 
+    print('Item ',i, ': ', k, ' | ', v)
 end
+data[0].each(printDict)
+#print('\ndata[0]: ')
+#for (data[0].keys(), key)
+#    print('\t', key, ': ', data[0][key])
+#end
