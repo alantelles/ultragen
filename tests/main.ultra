@@ -1,6 +1,4 @@
-l = ['baholeros', 'mijhail', 'bh', 'mamaco']
 
-outro = l.filter(function(a)
-    return (a.length()) > 6
-end)
-print(outro)
+include 'fly.ultra' : Tops
+
+Tops.fly()

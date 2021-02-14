@@ -1289,8 +1289,8 @@ begin
         IncObject := TDataType(AParRec.GetMember(FNameSpace.PName));
         if (IncObject <> nil) and (IncObject.ClassNameIs('TDataType')) then
           break;
-        if i > 0 then
-          AParRec := FParentStack.GetByLevel(i - 1);
+        if i > 1 then
+          AParRec := FParentStack.GetByLevel(i);
       end;
 
       if IncObject = nil then
