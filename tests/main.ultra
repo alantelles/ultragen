@@ -1,4 +1,20 @@
-
+class Tops
 include 'fly.ultra' : Tops
+function init() : Tops
+    print("fui criado")
+end
 
-Tops.fly()
+class Dops
+function init() : Dops
+    print('dops criado')
+end
+
+include 'fly.ultra' : Dops
+
+m = new Tops()
+m.fly()
+print(m.b)
+
+m = new Dops()
+m.fly()
+print(m.b)
