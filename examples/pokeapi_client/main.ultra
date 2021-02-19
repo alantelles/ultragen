@@ -1,0 +1,18 @@
+include 'PokeClient.ultra'
+
+# pokemons = PokeClient.getPokemons()
+# print(pokemons)
+
+params = {
+    'offset': 20,
+    'limit': 40
+}
+
+out = []
+params.each(function (key, value, index)
+    out.append(key + '=' + urlEncode(value))
+end)
+
+out = '&'.join(out)
+
+print(out)

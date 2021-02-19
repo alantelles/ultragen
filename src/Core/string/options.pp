@@ -19,6 +19,7 @@ begin
             TStringInstance(FParams[0]).PValue,
             TStringInstance(FObj).PValue
         ) - 1)
+
 		  else if FName = 'replace' then
 		    Ret := TStringInstance.Create(
 		      ReplaceStr(

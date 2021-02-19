@@ -62,7 +62,7 @@ type
 implementation
 
 uses
-  CoreUtils, ExceptionsClasses, Math, ASTClass, crt, LazUTF8, FileUtil, Dos, Tokens;
+  CoreUtils, ExceptionsClasses, Math, ASTClass, crt, LazUTF8, FileUtil, Dos, Tokens, httpdefs;
 
 function TCoreFunction.Execute(AInter: TInterpreter; Fname:string; var AArgList:TInstanceList; var AObj: TInstanceOf):TInstanceOf;
 var
@@ -187,6 +187,9 @@ begin
         end
       end
 		end
+    else if FName = 'urlEncode' then
+        Ret := TStringInstance.Create(httpEncode(FParams[0].AsString))
+
     else if FName = 'dropModulePath' then
     begin
       len := Length(FParams);
@@ -213,6 +216,7 @@ begin
       raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.', '', 1, 1);
   // procs
 	end
+
   else if AType = 'TJsonInstance' then
   begin
     if FName = 'parse' then

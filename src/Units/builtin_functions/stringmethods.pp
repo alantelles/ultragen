@@ -12,4 +12,5 @@ AStrType.PMembers.Add('join', AStrFunc);
 AStrType.PMembers.Add('length', AStrFunc);
 AStrType.PMembers.Add('length', AStrFunc);
 AStrType.PMembers.Add('indexOf', AStrFunc);
+
 AActRec.AddMember('String', AStrType);

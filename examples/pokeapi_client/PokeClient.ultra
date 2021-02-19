@@ -1,0 +1,19 @@
+include @Core.Request
+
+class PokeResponse
+function init(raw) : PokeResponse
+    self.raw = raw
+end
+
+class PokeClient
+PokeClient.$url = 'https://pokeapi.co/api/v2/'
+
+function $getEndpoint(resource) : PokeClient
+    return (PokeClient.$url) + resource
+end
+
+function getPokemons(start=null, limit=null) : PokeClient
+    raw = Request.get(PokeClient.$getEndpoint('pokemon'))
+    r = new PokeResponse(raw.text)
+    return r.raw
+end
