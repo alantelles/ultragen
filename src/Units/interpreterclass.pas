@@ -1653,8 +1653,7 @@ begin
         exit;
       end
       else
-        ERunTimeError.Create('Can''t compare instances of type ' + LeftClass,
-          FTrace, ANode.PToken);
+        RaiseException('Can''t compare instances of type ' + LeftClass, 'Type');
     end
     else
       ERunTimeError.Create('Can''t compare different types ' +
