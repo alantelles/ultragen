@@ -1,0 +1,14 @@
+include @Core.Web.Router
+include 'users.ultra'
+include 'posts.ultra'
+
+$main_router = new Router()
+$main_router.get('/', :index, function(params)
+    live 'Index'
+end)
+
+
+$main_router.addRouter($users_router)
+$main_router.addRouter($posts_router)
+
+$main_router.getMatch().localize()

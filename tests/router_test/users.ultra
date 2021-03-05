@@ -1,0 +1,13 @@
+$users_router = new Router(:users, 'users')
+$users_router.get('/', :index, function(params)
+    include 'index.ultra.html'
+end)
+
+$users_router.get('/:int.id', :show, function(params)
+    live 'showing a user'
+end)
+
+$users_router.get('/:int.id/posts', :userPosts, function(params)
+    live(params)
+    live 'posts from user:' 
+end)

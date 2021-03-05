@@ -108,9 +108,12 @@ function getMatch(route=null, method=null) : Router
                     if (part == (routeSplit[_part]))
                         
                     elsif (partIsParam)
-
-                        
                         paramName = part.slice(1, part.length())
+                        dotPos = paramName.pos('.')
+                        if (dotPos > 0)
+                            paramType = paramName.slice(0, dotPos)
+                            paramName = paramName.slice(dotPos + 1)
+                        end
                         params[paramName] = routeSplit[_part]
                     else
                         
@@ -133,9 +136,8 @@ function getMatch(route=null, method=null) : Router
 end
 
 function addRouter(router) : Router
-    
-    
     for(router.routes, route)
+        print(router.url_prefix)
         newRoute = {
             :path: '/' + (dropFirstAndLastSlash(router.url_prefix)) + '/' + (dropFirstAndLastSlash(route[:path])),
             :name: (router.name_prefix) + '_' + (route[:name]),
