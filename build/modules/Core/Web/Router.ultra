@@ -1,12 +1,14 @@
+include @Core.DateTime
+
 class Router
 function init(name_prefix='', url_prefix='') : Router
     self.name_prefix = name_prefix
     self.url_prefix = url_prefix
     self.routes = []
     routeModel = """{
-        "path": '/some',
-        "handler": SomeFunction,
-        "name": RouteIdentifier(optional),
+        "path": '/some_path',
+        "handler": SomeFunctionReference,
+        "name": :identifier,
         "method": [some http verb]
     }"""
 end
@@ -15,16 +17,19 @@ function HandlerFor404(params) : Router
     live 'Page not found'
 end
 
-function urlFor(name, params) : Router
+function urlFor(name, params={}) : Router
     for (self.routes, match)
         if (name == (match[:name]))
-            matched = Router.dropFirstAndLastSlash(match[:path])
+            matched = dropFirstAndLastSlash(match[:path])
+            
             matchedSplit = matched.split('/')
             len = matchedSplit.length()
             output = ['']
             queryStr = ''
+            
             for (matchedSplit, part)
                 partIsParam = (part[0]) == ':'
+                
                 if (partIsParam)
                     paramName = part.slice(1, part.length())
                     ins = params[paramName]
@@ -47,13 +52,15 @@ function urlFor(name, params) : Router
             if (strOut == '')
                 strOut = '/'
             end
-            return strOut + queryStr
+            k = dropFirstAndLastSlash(self.url_prefix)
+            return k + strOut + queryStr
         end
     end
-    return ''
+    raise("The given name '" + name + "' doesn't match any url in this router", 'Router')
 end
 
-function dropFirstAndLastSlash(route) : Router
+function dropFirstAndLastSlash(aRoute)
+    route = aRoute
     if ((route.length()) > 0)
         f = route[0]
     else
@@ -69,6 +76,7 @@ function dropFirstAndLastSlash(route) : Router
     if ((l == '/') && (len > 0))
         route = route.slice(0, len - 1)
     end
+    
     return route
 end
 
@@ -79,13 +87,16 @@ function getMatch(route=null, method=null) : Router
     if (!route)
         route = $request[:route]
     end
-    route = Router.dropFirstAndLastSlash(route)
+    route = dropFirstAndLastSlash(route)
+    
     routeSplit = route.split('/')
     lenRoute = routeSplit.length()
     for (self.routes, match)        
         routeMatch = true
         if(method == (match[:method]))
-            cand = Router.dropFirstAndLastSlash(match[:path])
+            
+            cand = dropFirstAndLastSlash(match[:path])
+            
             candSplit = cand.split('/')
             lenCand = candSplit.length()
             
@@ -93,12 +104,16 @@ function getMatch(route=null, method=null) : Router
                 params = {}
                 for (candSplit, part)
                     partIsParam = (part[0]) == ':'
-                    if (part == (routeSplit[_part]))
                     
+                    if (part == (routeSplit[_part]))
+                        
                     elsif (partIsParam)
+
+                        
                         paramName = part.slice(1, part.length())
                         params[paramName] = routeSplit[_part]
                     else
+                        
                         routeMatch = false
                         break
                     end
@@ -108,6 +123,7 @@ function getMatch(route=null, method=null) : Router
                 continue
             end
             if (routeMatch)
+                
                 return {:handler: match[:handler], :params: params}
             end
             
@@ -117,15 +133,18 @@ function getMatch(route=null, method=null) : Router
 end
 
 function addRouter(router) : Router
-    url_prefix = Router.dropFirstAndLastSlash(router.url_prefix)
-    name_prefix = Router.dropFirstAndLastSlash(router.name_prefix)
+    
+    
     for(router.routes, route)
-        thisPath = Router.dropFirstAndLastSlash(route[:path])
-        route[:path] = '/' + url_prefix + '/' + thisPath
-        route[:name] = name_prefix + '_' + (route[:name])
-        print('adding route: ', route)
-        self.routes.append(route)
+        newRoute = {
+            :path: '/' + (dropFirstAndLastSlash(router.url_prefix)) + '/' + (dropFirstAndLastSlash(route[:path])),
+            :name: (router.name_prefix) + '_' + (route[:name]),
+            :handler: route[:handler],
+            :method: route[:method]
+        }
+        self.routes.append(newRoute)
     end
+    
 end
 
 function addRoute(path, name, handler, method) : Router
