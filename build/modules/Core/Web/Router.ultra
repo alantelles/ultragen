@@ -1,5 +1,7 @@
 class Router
-function init() : Router
+function init(name_prefix='', url_prefix='') : Router
+    self.name_prefix = name_prefix
+    self.url_prefix = url_prefix
     self.routes = []
     routeModel = """{
         "path": '/some',
@@ -70,7 +72,13 @@ function dropFirstAndLastSlash(route) : Router
     return route
 end
 
-function getMatch(route, method) : Router 
+function getMatch(route=null, method=null) : Router
+    if (!method)
+        method = $request[:method]
+    end
+    if (!route)
+        route = $request[:route]
+    end
     route = Router.dropFirstAndLastSlash(route)
     routeSplit = route.split('/')
     lenRoute = routeSplit.length()
@@ -106,6 +114,18 @@ function getMatch(route, method) : Router
         end
     end
     return {:handler: self.HandlerFor404, :params: {}}
+end
+
+function addRouter(router) : Router
+    url_prefix = Router.dropFirstAndLastSlash(router.url_prefix)
+    name_prefix = Router.dropFirstAndLastSlash(router.name_prefix)
+    for(router.routes, route)
+        thisPath = Router.dropFirstAndLastSlash(route[:path])
+        route[:path] = '/' + url_prefix + '/' + thisPath
+        route[:name] = name_prefix + '_' + (route[:name])
+        print('adding route: ', route)
+        self.routes.append(route)
+    end
 end
 
 function addRoute(path, name, handler, method) : Router
