@@ -4,6 +4,7 @@ class Router
 function init(name_prefix='', url_prefix='') : Router
     self.name_prefix = name_prefix
     self.url_prefix = url_prefix
+    self.dropped = dropFirstAndLastSlash(self.url_prefix)
     self.routes = []
     routeModel = """{
         "path": '/some_path',
@@ -34,15 +35,14 @@ function urlFor(name, params={}) : Router
                 if (partIsParam)
                     
                     paramName = part.slice(1, part.length())
-                    #dotPos = paramName.pos('.')
-                    #if (dotPos > 0)
-                        
-                    #    paramName = paramName.slice(dotPos + 1)
-                    #end
+                    dotPos = paramName.pos('.')
+                    if (dotPos > 0)
+                        paramName = paramName.slice(dotPos + 1)
+                    end
                     
                     ins = params[paramName]
                     
-                    # params.drop(paramName)
+                    params.drop(paramName)
                     output.append(str(ins))
                 else
                     output.append(part)
@@ -61,7 +61,6 @@ function urlFor(name, params={}) : Router
             if (strOut == '')
                 strOut = '/'
             end
-            
             k = dropFirstAndLastSlash(self.url_prefix)
             return k + strOut + queryStr
         end

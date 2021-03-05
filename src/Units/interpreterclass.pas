@@ -885,6 +885,19 @@ begin
   begin
     //try
       Ret := TInstanceOf(ASrc.PMembers.Find(Aname));
+      if (Ret <> nil) then
+      begin
+        if Ret.ClassNameIs('TIntegerInstance') then
+          Ret := TIntegerInstance.Create(Ret.PIntValue)
+        else if Ret.ClassNameIs('TBooleanInstance') then
+          Ret := TBooleanInstance.Create(Ret.PBoolValue)
+        else if Ret.ClassNameIs('TStringInstance') then
+          Ret := TStringInstance.Create(Ret.PStrValue)
+        else if Ret.ClassNameIs('TFloatInstance') then
+          Ret := TFloatInstance.Create(Ret.PFloatValue)
+        else if Ret.ClassNameIs('TNullInstance') then
+          Ret := TNullInstance.Create;
+      end;
       if Ret = nil then
         ERunTimeError.Create('Referenced attribute "'+AName+'" does not exist', FTrace, ANode.PToken);
 
