@@ -7,7 +7,7 @@ $users_router.get('/:int.id', :show, function(params)
     live 'showing a user'
 end)
 
-$users_router.get('/:int.id/posts', :userPosts, function(params)
-    live(params)
-    live 'posts from user:' 
+$users_router.get('/:int.id/posts/:int.post_id', :userPosts, function(params)
+    live $users_router.urlFor(:userPosts, {:id: 8, :post_id: 900})
+    live 'posts from user: ' + str(params[:id]) + ', status: ' + str(params[:post_id])
 end)
