@@ -534,7 +534,7 @@ begin
       ResInt := StrToInt(TStringInstance(FParams[0]).PValue);
       Result := TIntegerInstance.Create(ResInt);
     except
-      raise ETypeError.Create('Can''t convert value "'+TStringInstance(FParams[0]).PValue+'" to integer', '', 1, 1);
+      FInter.RaiseException('Can''t convert value "'+TStringInstance(FParams[0]).PValue+'" to integer', 'Type');
     end;
   end
   else if FParams[0].ClassNameIs('TFloatInstance') then

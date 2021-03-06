@@ -12,7 +12,9 @@ function init(name_prefix='', url_prefix='') : Router
 end
 
 function HandlerFor404(params) : Router
-    live 'Page not found'
+    live 'Page not found<br>'
+    live 'Request data:<br>'
+    live $request
 end
 
 function urlFor(name, params={}) : Router
@@ -119,7 +121,12 @@ function getMatch(route=null, method=null) : Router
                             paramType = paramName.slice(0, dotPos)
                             paramName = paramName.slice(dotPos + 1)
                             if (paramType == 'int')
-                                paramValue = int(routeSplit[_part])
+                                if ((paramValue.isInt()))
+                                    paramValue = int(routeSplit[_part])
+                                else
+                                    routeMatch = false
+                                    break
+                                end
                             else
                                 paramValue = routeSplit[_part]
                             end
