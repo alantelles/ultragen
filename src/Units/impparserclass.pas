@@ -506,7 +506,10 @@ function TTParser.ElseBlock: TAST;
 var
   AToken: TToken;
 begin
+  if FLexer.PExtension <> '.ultra' then
+      FLexer.PScriptMode := False;
   Eat(T_NEWLINE);
+
   logtext('PARSER', 'Parser', 'Creating else block node');
   AToken := TToken.Create(
     FCurrentToken.PType,
@@ -644,8 +647,7 @@ begin
   end;
   if FCurrentToken.PType = T_ELSE then
   begin
-    if FLexer.PExtension <> '.ultra' then
-      FLexer.PScriptMode := False;
+
     Eat(T_ELSE);
     len := len + 1;
     SetLength(Conditions, len);
