@@ -1,10 +1,7 @@
-include @Core.DateTime
-
 class Router
 function init(name_prefix='', url_prefix='') : Router
     self.name_prefix = name_prefix
-    self.url_prefix = url_prefix
-    self.dropped = dropFirstAndLastSlash(self.url_prefix)
+    self.url_prefix = dropFirstAndLastSlash(url_prefix)
     self.routes = []
     routeModel = """{
         "path": '/some_path',
@@ -23,7 +20,7 @@ function urlFor(name, params={}) : Router
         
         if (name == (match[:name]))
             
-            matched = dropFirstAndLastSlash(match[:path])        
+            matched = dropFirstAndLastSlash(match[:path])
             matchedSplit = matched.split('/')
             len = matchedSplit.length()
             output = ['']
@@ -61,15 +58,14 @@ function urlFor(name, params={}) : Router
             if (strOut == '')
                 strOut = '/'
             end
-            k = dropFirstAndLastSlash(self.url_prefix)
-            return k + strOut + queryStr
+            
+            return (self.url_prefix) + strOut + queryStr
         end
     end
     raise("The given name '" + name + "' doesn't match any url in this router", 'Router')
 end
 
-function dropFirstAndLastSlash(aRoute)
-    route = aRoute
+function dropFirstAndLastSlash(route)
     if ((route.length()) > 0)
         f = route[0]
     else
@@ -104,9 +100,7 @@ function getMatch(route=null, method=null) : Router
         routeMatch = true
         if(method == (match[:method]))
             
-            cand = dropFirstAndLastSlash(match[:path])
-            
-            candSplit = cand.split('/')
+            candSplit = match[:path].split('/')
             lenCand = candSplit.length()
             
             if (lenCand == lenRoute)
@@ -120,6 +114,7 @@ function getMatch(route=null, method=null) : Router
                         paramName = part.slice(1, part.length())
                         dotPos = paramName.pos('.')
                         paramType = ''
+                        paramValue = routeSplit[_part]
                         if (dotPos > 0)
                             paramType = paramName.slice(0, dotPos)
                             paramName = paramName.slice(dotPos + 1)
@@ -153,7 +148,7 @@ end
 function addRouter(router) : Router
     for(router.routes, route)
         newRoute = {
-            :path: '/' + (dropFirstAndLastSlash(router.url_prefix)) + '/' + (dropFirstAndLastSlash(route[:path])),
+            :path: '/' + (router.url_prefix) + '/' + (route[:path]),
             :name: (router.name_prefix) + '_' + (route[:name]),
             :handler: route[:handler],
             :method: route[:method]
@@ -164,8 +159,9 @@ function addRouter(router) : Router
 end
 
 function addRoute(path, name, handler, method) : Router
+    
     self.routes.append({
-        :path: path,
+        :path: dropFirstAndLastSlash(path),
         :name: name,
         :handler: handler,
         :method: method
