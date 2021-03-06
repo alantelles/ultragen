@@ -60,6 +60,7 @@ begin
   AServerType.PMembers.Add('setTitle', AServerFunc);
   AServerType.PMembers.Add('setStaticPath', AServerFunc);
   AServerType.PMembers.Add('setStaticPaths', AServerFunc);
+  AServerType.PMembers.Add('setExceptionHandler', AServerFunc);
   AServerType.PMembers.Add('setMimeTypesFile', AServerFunc);
   AServerType.PMembers.Add('setStopRoute', AServerFunc);
   AActRec.AddMember('Server', AServerType);

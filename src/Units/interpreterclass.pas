@@ -534,7 +534,7 @@ begin
       end;
       if ABuilt.PValue = 'TServerInstance' then
       begin
-        Ret := TServerInstance.Create(TIntegerInstance(ArgsList[0]).PValue);
+        Ret := TServerInstance.Create(TIntegerInstance(ArgsList[0]).PValue, TBooleanInstance(ArgsList[1]).PValue);
       end
       else
       begin

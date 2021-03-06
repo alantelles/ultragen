@@ -9,6 +9,8 @@ begin
     SetAppTitle(TServerInstance(FObj))
   else if FName = 'setRootFile' then
     SetRootFile(TServerInstance(FObj))
+  else if FName = 'setExceptionHandler' then
+    TServerInstance(FObj).PExceptionHandler := TStringInstance(FParams[0]).Pvalue
   else if FName = 'setStopRoute' then
     SetStopServerRoute(TServerInstance(FObj))
   else if FName = 'setStaticPath' then

@@ -229,7 +229,9 @@ begin
 
   WebVars.Add('}');
   WebVars.Add('$request.lock()');
-  WebVars.Add('$response = $httpResponse[:response]');
+  WebVars.Add('$response = {}');
+  WebVars.Add('$response["status_code"] = '+ IntToStr(AResponse.Code));
+  WebVars.Add('$response["status"] = "'+AResponse.CodeText+'"');
   ALexer := TLexer.Create(WebVars.Text, False);
   AParser := TTParser.Create(ALexer);
   ATree := AParser.ParseCode();
