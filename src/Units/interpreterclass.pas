@@ -32,6 +32,7 @@ type
     FUltraHome: string;
     FModulesPath: TStringList;
     FResponse: TResponse;
+    FRequest: TRequest;
     procedure BootStrapRegister;
 
 
@@ -42,6 +43,7 @@ type
     property PInsertActRec: TActivationRecord read FInsertActRec write FInsertActRec;
     property PModulesPath: TStringList read FModulesPath write FModulesPath;
     property PResponse: TResponse read FResponse write FResponse;
+    property PRequest: TRequest read FRequest write FRequest;
     procedure RaiseException(AMsg: string; AType: string);
     constructor Create(var ATree: TAST);
     destructor Destroy; override;

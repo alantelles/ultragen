@@ -113,7 +113,7 @@ begin
     BTree := TUltraInterface.ParseWebRequest(ARequest, AResponse, '');
     //InsertActRec := TActivationrecord.Create('HTTPRESPONSE', 'ANY', 1);
     //InsertActRec.AddMember('response', TResponseHandlerInstance.Create(AResponse));
-    AResponse.Content := TUltraInterface.InterpretScript(FRootFile, TProgram(BTree), nil, '', AResponse);
+    AResponse.Content := TUltraInterface.InterpretScript(FRootFile, TProgram(BTree), nil, '', AResponse, ARequest);
     WriteLn(#13+'['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
       ARequest.Method + ': '+
       ARequest.URI+' -- '+ IntToStr(AResponse.Code)+
@@ -140,7 +140,7 @@ begin
          InsertActRec.AddMember('response', TResponseHandlerInstance.Create(AResponse));
          BTree := TUltraInterface.ParseWebRequest(ARequest, AResponse, E.Message);
          try
-           ResponseContent := TUltraInterface.InterpretScript(FExceptionHandler, TProgram(BTree), nil, '', AResponse);
+           ResponseContent := TUltraInterface.InterpretScript(FExceptionHandler, TProgram(BTree), nil, '', AResponse, ARequest);
          except on F: Exception do
            WriteLn('While running application exception handler, another exception occurred:', #13, #10, #13, #10, F.Message);
          end;
