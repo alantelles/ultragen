@@ -1,5 +1,5 @@
 include @Core.Web.Server
 
-s = new Server(3500)
+s = new Server(3500, true)
 s.setStopRoute('/off')
 s.run()

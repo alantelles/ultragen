@@ -22,7 +22,7 @@ function urlFor(name, params={}) : Router
         
         if (name == (match[:name]))
             
-            matched = dropFirstAndLastSlash(match[:path])
+            matched = match[:path]
             matchedSplit = matched.split('/')
             len = matchedSplit.length()
             output = ['']
@@ -106,10 +106,10 @@ function getMatch(route=null, method=null) : Router
             lenCand = candSplit.length()
             
             if (lenCand == lenRoute)
+                
                 params = {}
                 for (candSplit, part)
                     partIsParam = (part[0]) == ':'
-                    
                     if (part == (routeSplit[_part]))
                         
                     elsif (partIsParam)
@@ -155,7 +155,7 @@ end
 function addRouter(router) : Router
     for(router.routes, route)
         newRoute = {
-            :path: '/' + (router.url_prefix) + '/' + (route[:path]),
+            :path: (router.url_prefix) + '/' + (route[:path]),
             :name: (router.name_prefix) + '_' + (route[:name]),
             :handler: route[:handler],
             :method: route[:method]
