@@ -107,11 +107,12 @@ var
   InsertActRec: TActivationRecord;
   ResponseContent: string = '';
 begin
-  BTree := TUltraInterface.ParseWebRequest(ARequest, AResponse);
+
   try
   begin
-    InsertActRec := TActivationrecord.Create('HTTPRESPONSE', 'ANY', 1);
-    InsertActRec.AddMember('response', TResponseHandlerInstance.Create(AResponse));
+    BTree := TUltraInterface.ParseWebRequest(ARequest, AResponse, '');
+    //InsertActRec := TActivationrecord.Create('HTTPRESPONSE', 'ANY', 1);
+    //InsertActRec.AddMember('response', TResponseHandlerInstance.Create(AResponse));
     AResponse.Content := TUltraInterface.InterpretScript(FRootFile, TProgram(BTree), nil, '', AResponse);
     WriteLn(#13+'['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
       ARequest.Method + ': '+
@@ -137,6 +138,7 @@ begin
        begin
          InsertActRec := TActivationrecord.Create('HTTPRESPONSE', 'ANY', 1);
          InsertActRec.AddMember('response', TResponseHandlerInstance.Create(AResponse));
+         BTree := TUltraInterface.ParseWebRequest(ARequest, AResponse, E.Message);
          try
            ResponseContent := TUltraInterface.InterpretScript(FExceptionHandler, TProgram(BTree), nil, '', AResponse);
          except on F: Exception do

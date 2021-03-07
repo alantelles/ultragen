@@ -14,7 +14,7 @@ type
     public
       class function ParseString(AStringCode:string): TAST;
       class function ParseStringList(var AList: TStringList): TAST;
-      class function ParseWebRequest(var ARequest: TRequest; var AResponse: TResponse): TAST;
+      class function ParseWebRequest(var ARequest: TRequest; var AResponse: TResponse; TraceLog: string): TAST;
       class function InterpretScript(AFilePath: string; APreludes: TProgram; InsertActRec: TActivationRecord; InsertName: string; AResponse: TResponse): string;
     end;
 
@@ -73,7 +73,7 @@ begin
   Result := ParseString(AList.Text);
 end;
 
-class function TUltraInterface.ParseWebRequest(var ARequest: TRequest; var AResponse: TResponse): TAST;
+class function TUltraInterface.ParseWebRequest(var ARequest: TRequest; var AResponse: TResponse; TraceLog: string): TAST;
 var
   WebVars: TStringList;
   AParser: TTParser;
@@ -95,7 +95,7 @@ begin
   if FileExists('./_INCLUDE.ultra') then
 	  WebVars.Add('include "./_INCLUDE.ultra"');
 
-
+  WebVars.Add('$stacktrace = "'+TraceLog+'".split("\n")');
   WebVars.Add('$request = {');
   i := Pos('?', ARequest.URI);
   if i > 0 then
@@ -229,9 +229,6 @@ begin
 
   WebVars.Add('}');
   WebVars.Add('$request.lock()');
-  WebVars.Add('$response = {}');
-  WebVars.Add('$response["status_code"] = '+ IntToStr(AResponse.Code));
-  WebVars.Add('$response["status"] = "'+AResponse.CodeText+'"');
   ALexer := TLexer.Create(WebVars.Text, False);
   AParser := TTParser.Create(ALexer);
   ATree := AParser.ParseCode();
