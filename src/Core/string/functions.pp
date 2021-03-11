@@ -56,7 +56,7 @@ begin
           part := part + joiner;
       end
       else
-        raise ERunTimeError.Create('Only string instances can be joined');
+        FInter.RaiseException('Only string instances can be joined', 'Type');
     end;
   end;
   Result := TStringInstance.Create(part);

@@ -1,31 +1,46 @@
 class Router
-function init() : Router
+function init(name_prefix='', url_prefix='') : Router
+    self.name_prefix = name_prefix
+    self.url_prefix = dropFirstAndLastSlash(url_prefix)
     self.routes = []
     routeModel = """{
-        "path": '/some',
-        "handler": SomeFunction,
-        "name": RouteIdentifier(optional),
+        "path": '/some_path',
+        "handler": SomeFunctionReference,
+        "name": :identifier,
         "method": [some http verb]
     }"""
 end
 
 function HandlerFor404(params) : Router
-    live 'Page not found'
+    live 'Page not found<br>'
+    live 'Request data:<br>'
+    live $request
 end
 
-function urlFor(name, params) : Router
+function urlFor(name, params={}) : Router
     for (self.routes, match)
+        
         if (name == (match[:name]))
-            matched = Router.dropFirstAndLastSlash(match[:path])
+            
+            matched = match[:path]
             matchedSplit = matched.split('/')
             len = matchedSplit.length()
             output = ['']
             queryStr = ''
             for (matchedSplit, part)
+                
                 partIsParam = (part[0]) == ':'
+                
                 if (partIsParam)
+                    
                     paramName = part.slice(1, part.length())
+                    dotPos = paramName.pos('.')
+                    if (dotPos > 0)
+                        paramName = paramName.slice(dotPos + 1)
+                    end
+                    
                     ins = params[paramName]
+                    
                     params.drop(paramName)
                     output.append(str(ins))
                 else
@@ -45,13 +60,14 @@ function urlFor(name, params) : Router
             if (strOut == '')
                 strOut = '/'
             end
-            return strOut + queryStr
+            
+            return (self.url_prefix) + strOut + queryStr
         end
     end
-    return ''
+    raise("The given name '" + name + "' doesn't match any url in this router", 'Router')
 end
 
-function dropFirstAndLastSlash(route) : Router
+function dropFirstAndLastSlash(route)
     if ((route.length()) > 0)
         f = route[0]
     else
@@ -67,30 +83,57 @@ function dropFirstAndLastSlash(route) : Router
     if ((l == '/') && (len > 0))
         route = route.slice(0, len - 1)
     end
+    
     return route
 end
 
-function getMatch(route, method) : Router 
-    route = Router.dropFirstAndLastSlash(route)
+function getMatch(route=null, method=null) : Router
+    if (!method)
+        method = $request[:method]
+    end
+    if (!route)
+        route = $request[:route]
+    end
+    route = dropFirstAndLastSlash(route)
+    
     routeSplit = route.split('/')
     lenRoute = routeSplit.length()
     for (self.routes, match)        
         routeMatch = true
         if(method == (match[:method]))
-            cand = Router.dropFirstAndLastSlash(match[:path])
-            candSplit = cand.split('/')
+            
+            candSplit = match[:path].split('/')
             lenCand = candSplit.length()
             
             if (lenCand == lenRoute)
+                
                 params = {}
                 for (candSplit, part)
                     partIsParam = (part[0]) == ':'
                     if (part == (routeSplit[_part]))
-                    
+                        
                     elsif (partIsParam)
                         paramName = part.slice(1, part.length())
-                        params[paramName] = routeSplit[_part]
+                        dotPos = paramName.pos('.')
+                        paramType = ''
+                        paramValue = routeSplit[_part]
+                        if (dotPos > 0)
+                            paramType = paramName.slice(0, dotPos)
+                            paramName = paramName.slice(dotPos + 1)
+                            if (paramType == 'int')
+                                if ((paramValue.isInt()))
+                                    paramValue = int(routeSplit[_part])
+                                else
+                                    routeMatch = false
+                                    break
+                                end
+                            else
+                                paramValue = routeSplit[_part]
+                            end
+                        end
+                        params[paramName] = paramValue
                     else
+                        
                         routeMatch = false
                         break
                     end
@@ -100,6 +143,7 @@ function getMatch(route, method) : Router
                 continue
             end
             if (routeMatch)
+                
                 return {:handler: match[:handler], :params: params}
             end
             
@@ -108,9 +152,23 @@ function getMatch(route, method) : Router
     return {:handler: self.HandlerFor404, :params: {}}
 end
 
+function addRouter(router) : Router
+    for(router.routes, route)
+        newRoute = {
+            :path: (router.url_prefix) + '/' + (route[:path]),
+            :name: (router.name_prefix) + '_' + (route[:name]),
+            :handler: route[:handler],
+            :method: route[:method]
+        }
+        self.routes.append(newRoute)
+    end
+    
+end
+
 function addRoute(path, name, handler, method) : Router
+    
     self.routes.append({
-        :path: path,
+        :path: dropFirstAndLastSlash(path),
         :name: name,
         :handler: handler,
         :method: method

@@ -7,7 +7,7 @@ interface
 uses
       Classes, SysUtils, Strutils,
       InterpreterClass, InstanceOfClass, StringInstanceClass, DateTimeInstanceClass,
-      ListInstanceClass, ServerClass, ARClass, HttpClientInstanceClass, JsonTools;
+      ListInstanceClass, ServerClass, ARClass, HttpClientInstanceClass, JsonTools, httpdefs;
 
 type
   TParamList = array of string;
@@ -57,7 +57,8 @@ type
       {$INCLUDE 'httpclient/declarations.pp'}
 	end;
 
-
+var
+  ACookie: TCookie;
 
 implementation
 
@@ -225,6 +226,7 @@ begin
       Ret := ParseJsonFile
   end
   {$INCLUDE 'string/options.pp'}
+  {$INCLUDE 'cookies/options.pp'}
   {$INCLUDE 'list/options.pp'}
   {$INCLUDE 'integer/options.pp'}
   {$INCLUDE 'dict/options.pp'}
@@ -538,7 +540,7 @@ begin
       ResInt := StrToInt(TStringInstance(FParams[0]).PValue);
       Result := TIntegerInstance.Create(ResInt);
     except
-      raise ETypeError.Create('Can''t convert value "'+TStringInstance(FParams[0]).PValue+'" to integer', '', 1, 1);
+      FInter.RaiseException('Can''t convert value "'+TStringInstance(FParams[0]).PValue+'" to integer', 'Type');
     end;
   end
   else if FParams[0].ClassNameIs('TFloatInstance') then

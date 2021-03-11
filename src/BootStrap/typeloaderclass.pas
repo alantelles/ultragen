@@ -16,6 +16,7 @@ type TTypeLoader = class
     class procedure LoadDateTime(var AActRec: TActivationRecord);
     class procedure LoadResponseHandler(var AActRec: TActivationRecord);
     class procedure LoadServerInstance(var AActRec: TActivationRecord);
+    class procedure LoadCookiesHandler(var AActRec: TActivationrecord);
 end;
 
 implementation
@@ -30,6 +31,19 @@ begin
   AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TOSInstance', True,False, False);
   AType.PMembers.Add('getEnv', AFunc);
   AActRec.AddMember('OS', AType);
+end;
+
+class procedure TTypeLoader.LoadCookiesHandler(var AActRec: TActivationRecord);
+var
+  ADataType: TDataType;
+  AFunc: TFunctionInstance;
+begin
+  ADataType := TDataType.Create('TCookiesHandlerInstance', 'Cookies');
+  AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TCookiesHandlerInstance', True, False, False);
+  ADataType.PMembers.Add('set', AFunc);
+  ADataType.PMembers.Add('get', AFunc);
+  ADataType.PMembers.Add('unset', AFunc);
+  AActRec.AddMember('Cookies', ADataType);
 end;
 
 class procedure TTypeLoader.LoadResponseHandler(var AActRec: TActivationRecord);
@@ -60,6 +74,7 @@ begin
   AServerType.PMembers.Add('setTitle', AServerFunc);
   AServerType.PMembers.Add('setStaticPath', AServerFunc);
   AServerType.PMembers.Add('setStaticPaths', AServerFunc);
+  AServerType.PMembers.Add('setExceptionHandler', AServerFunc);
   AServerType.PMembers.Add('setMimeTypesFile', AServerFunc);
   AServerType.PMembers.Add('setStopRoute', AServerFunc);
   AActRec.AddMember('Server', AServerType);
@@ -121,6 +136,8 @@ begin
     TTypeLoader.LoadRequest(AActRec)
   else if AName = 'FileSystem' then
     TTypeLoader.LoadFileSystem(AActRec)
+  else if AName = 'Cookies' then
+    TTypeLoader.LoadCookiesHandler(AActRec)
   else if AName = 'OS' then
     TTypeLoader.LoadOS(AActRec)
   else if AName = 'DateTime' then

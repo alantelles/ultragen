@@ -1,0 +1,7 @@
+include 'router.ultra'
+include @Core.Web.Cookies
+
+Cookies.set('tops', 'manahaio')
+print(Cookies.get('zika'))
+
+live handler(params)

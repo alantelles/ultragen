@@ -32,6 +32,7 @@ type
     FUltraHome: string;
     FModulesPath: TStringList;
     FResponse: TResponse;
+    FRequest: TRequest;
     procedure BootStrapRegister;
 
 
@@ -42,6 +43,7 @@ type
     property PInsertActRec: TActivationRecord read FInsertActRec write FInsertActRec;
     property PModulesPath: TStringList read FModulesPath write FModulesPath;
     property PResponse: TResponse read FResponse write FResponse;
+    property PRequest: TRequest read FRequest write FRequest;
     procedure RaiseException(AMsg: string; AType: string);
     constructor Create(var ATree: TAST);
     destructor Destroy; override;
@@ -534,7 +536,7 @@ begin
       end;
       if ABuilt.PValue = 'TServerInstance' then
       begin
-        Ret := TServerInstance.Create(TIntegerInstance(ArgsList[0]).PValue);
+        Ret := TServerInstance.Create(TIntegerInstance(ArgsList[0]).PValue, TBooleanInstance(ArgsList[1]).PValue);
       end
       else
       begin
@@ -885,6 +887,19 @@ begin
   begin
     //try
       Ret := TInstanceOf(ASrc.PMembers.Find(Aname));
+      if (Ret <> nil) then
+      begin
+        if Ret.ClassNameIs('TIntegerInstance') then
+          Ret := TIntegerInstance.Create(Ret.PIntValue)
+        else if Ret.ClassNameIs('TBooleanInstance') then
+          Ret := TBooleanInstance.Create(Ret.PBoolValue)
+        else if Ret.ClassNameIs('TStringInstance') then
+          Ret := TStringInstance.Create(Ret.PStrValue)
+        else if Ret.ClassNameIs('TFloatInstance') then
+          Ret := TFloatInstance.Create(Ret.PFloatValue)
+        else if Ret.ClassNameIs('TNullInstance') then
+          Ret := TNullInstance.Create;
+      end;
       if Ret = nil then
         ERunTimeError.Create('Referenced attribute "'+AName+'" does not exist', FTrace, ANode.PToken);
 
@@ -1469,12 +1484,7 @@ var
 begin
   AActRec := FCallStack.Peek;
   if (AActRec.GetMember(Anode.PToken.PValue) = nil) then
-    AActRec.AddMember(ANode.PToken.PValue, TDataType.Create(ANode.PToken.PValue, ANode.PToken.PValue, True))
-  else
-  begin
-    ERunTimeError.Create('Can''t redefine class "' + ANode.PToken.PValue + '" already defined',
-      FTrace, ANode.PToken);
-  end;
+    AActRec.AddMember(ANode.PToken.PValue, TDataType.Create(ANode.PToken.PValue, ANode.PToken.PValue, True));
 end;
 
 function TInterpreter.VisitUnaryOpFloat(ANode: TUnaryOp): TFloatInstance;
@@ -1658,8 +1668,7 @@ begin
         exit;
       end
       else
-        ERunTimeError.Create('Can''t compare instances of type ' + LeftClass,
-          FTrace, ANode.PToken);
+        RaiseException('Can''t compare instances of type ' + LeftClass, 'Type');
     end
     else
       ERunTimeError.Create('Can''t compare different types ' +
