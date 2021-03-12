@@ -57,6 +57,7 @@ begin
   ADataType.PMembers.Add('clientRedirect', AFunc);
   ADataType.PMembers.Add('setStatusCode', AFunc);
   ADataType.PMembers.Add('setStatusText', AFunc);
+  ADataType.PMembers.Add('setContentType', AFunc);
   AActRec.AddMember('AppResponse', ADataType);
 end;
 

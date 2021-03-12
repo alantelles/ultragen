@@ -1,0 +1,4 @@
+include @Core.Web.AppResponse
+
+
+live "<document><top>hey</top></document>"

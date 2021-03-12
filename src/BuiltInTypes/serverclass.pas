@@ -118,7 +118,7 @@ begin
       ARequest.Method + ': '+
       ARequest.URI+' -- '+ IntToStr(AResponse.Code)+
       ' ' + AResponse.CodeText +
-      ', ' + IntToStr(AResponse.ContentLength) + ' B', #13);
+      ', ' + IntToStr(AResponse.ContentLength) + ' B, Content-Type: ' + AResponse.ContentType, #13);
 
   end;
   except on E: Exception do
@@ -132,7 +132,9 @@ begin
           ' ' + AResponse.CodeText +
           ', ' + IntToStr(AResponse.ContentLength) + ' B', #13);
        WriteLn(E.Message);
+
        if FDebug then
+
          AResponse.Content := '<h1>UltraGen ERROR!</h1><pre style="white-space: pre-wrap; font-size: 12pt"><h3>Error while fetching content at "' + ARequest.URI + '"</h3><br>'+ReplaceStr(E.Message, '<', '&lt') +'</pre>'
        else
        begin

@@ -14,6 +14,8 @@ begin
   begin
     ClientRedirect;
   end
+  else if FName = 'setContentType' then
+    FInter.PResponse.ContentType := TStringInstance(FParams[0]).PValue
   else if FName = 'setStatusText' then
     Finter.PResponse.CodeText := TStringInstance(FParams[0]).PValue;
 end
