@@ -1,4 +1,7 @@
 include @Core.Web.AppResponse
+include @Core.FileSystem
 
+# content = FileSystem.loadText('zika.json')
 
-live "<document><top>hey</top></document>"
+AppResponse.setContentType('image/png')
+AppResponse.static('zika.png')

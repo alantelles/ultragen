@@ -58,6 +58,7 @@ begin
   ADataType.PMembers.Add('setStatusCode', AFunc);
   ADataType.PMembers.Add('setStatusText', AFunc);
   ADataType.PMembers.Add('setContentType', AFunc);
+  ADataType.PMembers.Add('static', AFunc);
   AActRec.AddMember('AppResponse', ADataType);
 end;
 
