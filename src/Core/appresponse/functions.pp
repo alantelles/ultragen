@@ -32,13 +32,12 @@ begin
   begin
     AStream := TMemoryStream.Create;
     AStream.LoadFromFile(FileName);
-    Finter.PResponse.ContentStream := TMemoryStream.Create;
     Finter.PResponse.ContentStream := AStream;
     Finter.PResponse.ContentType := 'image/png';
     Finter.PResponse.ContentLength := Finter.PResponse.ContentStream.Size;
     // Finter.PResponse.SendContent;
     // Finter.PResponse.ContentStream.Free;
-    AStream.Free;
+    // AStream.Free;
     Finter.PResponse.Code := 200;
   end
   else

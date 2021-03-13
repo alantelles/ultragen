@@ -1,5 +1,0 @@
-pre = 'users/zika'
-r = 'users/zika/badabim'
-cut = pre.length()
-s = r.slice(cut)
-print(s)

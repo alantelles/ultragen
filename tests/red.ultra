@@ -1,5 +1,0 @@
-
-
-function triple()
-    return (self.a)*3
-end
