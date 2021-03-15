@@ -26,14 +26,28 @@ procedure TCoreFunction.ServeStatic;
 var
   AStream: TMemoryStream;
   FileName: string;
+  mimetry, mime, mimeGet, getExt: string;
 begin
   FileName := TStringInstance(FParams[0]).PValue;
   if FileExists(FileName) then
   begin
+    getExt := Trim(Copy(FileName, RPos('.', FileName) + 1, Length(FileName)));
     AStream := TMemoryStream.Create;
     AStream.LoadFromFile(FileName);
     Finter.PResponse.ContentStream := AStream;
-    Finter.PResponse.ContentType := 'image/png';
+    // Finter.PResponse.ContentType := 'image/png';
+    for mime in FInter.PMimeFile do
+    begin
+      mimeTry := Trim(mime);
+      if mimeTry[1] = '#' then
+        continue;
+      if Pos(' ' + getExt, mimeTry) > 1 then
+      begin
+        mimeGet := Copy(mimeTry, 1, Pos(' ', mimetry) - 1);
+        break;
+      end;
+    end;
+    FInter.PResponse.ContentType := mimeGet;
     Finter.PResponse.ContentLength := Finter.PResponse.ContentStream.Size;
     // Finter.PResponse.SendContent;
     // Finter.PResponse.ContentStream.Free;
@@ -41,7 +55,5 @@ begin
     Finter.PResponse.Code := 200;
   end
   else
-  begin
     Finter.PResponse.Code := 404;
-  end;
 end;

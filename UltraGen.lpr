@@ -63,7 +63,7 @@ begin
 		end;
     BTree := TUltraInterface.ParseStringList(ParamsNodes);
     ParamsNodes.Free;
-    LiveOut := TUltraInterface.InterpretScript(ParamStr(1), TProgram(BTree), nil, '', nil, nil);
+    LiveOut := TUltraInterface.InterpretScript(ParamStr(1), TProgram(BTree), nil, '', nil, nil, nil);
     if Trim(LiveOut) <> '' then
       Writeln(LiveOut);
     {if (ParamStr(2) = '--persist') then
