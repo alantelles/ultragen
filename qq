@@ -1,0 +1,92 @@
+[33m5e2c0fb[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m)[m HEAD@{0}: commit: WIP: implement serve static, lack handle mimetype
+[33m8d7335f[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{1}: commit: WIP: serving static files to development
+[33mc436755[m HEAD@{2}: commit: implement content type response set
+[33macd7d48[m HEAD@{3}: commit: WIP: implement cookies handling
+[33m8f7621b[m HEAD@{4}: commit: fix nested router
+[33m1a55a55[m HEAD@{5}: commit: drop response from http pass
+[33mb725159[m HEAD@{6}: reset: moving to HEAD
+[33mb725159[m HEAD@{7}: commit: fix not getting else in plain text
+[33m7e6168a[m HEAD@{8}: commit: implement error 500 exception handler
+[33m0c52bbb[m HEAD@{9}: commit: make not int dont match
+[33m59fddec[m HEAD@{10}: commit: treat default url_prefix
+[33m9c62433[m HEAD@{11}: commit: fix ref attr
+[33m813e6f0[m HEAD@{12}: checkout: moving from previous_test to master
+[33m230953a[m[33m ([m[1;32mprevious_test[m[33m)[m HEAD@{13}: reset: moving to HEAD@{8}
+[33m622867a[m HEAD@{14}: reset: moving to HEAD@{6}
+[33m230953a[m[33m ([m[1;32mprevious_test[m[33m)[m HEAD@{15}: reset: moving to HEAD@{6}
+[33m813e6f0[m HEAD@{16}: checkout: moving from master to previous_test
+[33m813e6f0[m HEAD@{17}: commit: change routes
+[33m16d4784[m HEAD@{18}: commit: allow typep parameters
+[33m939fd72[m HEAD@{19}: commit: made some tests in nested routes, change redefine class behaviour (just ignores redefinition)
+[33mc101961[m HEAD@{20}: commit: implement urlfor for nested
+[33m622867a[m HEAD@{21}: commit: implement route nesting
+[33m230953a[m[33m ([m[1;32mprevious_test[m[33m)[m HEAD@{22}: commit: Checkpoint
+[33mec5f1da[m HEAD@{23}: commit: fix class scope include
+[33mb94afa7[m HEAD@{24}: commit: - create raise statement, a rudimentary way to raise exceptions
+[33m7fc0b83[m HEAD@{25}: commit: implement each method in dict
+[33m8435c6b[m HEAD@{26}: reset: moving to HEAD
+[33m8435c6b[m HEAD@{27}: commit: checkpoint
+[33m88e51f0[m HEAD@{28}: reset: moving to HEAD
+[33m88e51f0[m HEAD@{29}: reset: moving to HEAD
+[33m88e51f0[m HEAD@{30}: reset: moving to HEAD
+[33m88e51f0[m HEAD@{31}: commit: turn namespace include in class, instead of dictionaries
+[33mf67c04d[m HEAD@{32}: checkout: moving from include_as_class to master
+[33mf67c04d[m HEAD@{33}: reset: moving to HEAD
+[33mf67c04d[m HEAD@{34}: checkout: moving from master to include_as_class
+[33mf67c04d[m HEAD@{35}: commit: checkpoint
+[33md578f89[m HEAD@{36}: pull origin master: Fast-forward
+[33m42ff0d4[m HEAD@{37}: commit: implement redirect
+[33mbea3258[m HEAD@{38}: commit: pass a response handler to web requests handler on builtin server
+[33m4ee17d1[m HEAD@{39}: commit: make possible pass a an activation record through UltraGen interface
+[33md205cfb[m HEAD@{40}: commit: add link to form_post example
+[33ma152b6e[m HEAD@{41}: commit: json and request
+[33mab1786a[m HEAD@{42}: commit: add example form post
+[33m19abb5f[m HEAD@{43}: commit: update readme with new features
+[33meae0575[m HEAD@{44}: pull origin master: Merge made by the 'recursive' strategy.
+[33mba041bc[m HEAD@{45}: commit (amend): update readme with new features
+[33m569303e[m HEAD@{46}: commit (amend): update readme with new features
+[33m78f8f7e[m HEAD@{47}: commit: update readme with new features
+[33m6e03c18[m HEAD@{48}: commit: Add examples folder
+[33m9ceed41[m HEAD@{49}: pull origin master: Fast-forward
+[33m49cd5f4[m HEAD@{50}: reset: moving to HEAD
+[33m49cd5f4[m HEAD@{51}: pull origin master: Fast-forward
+[33m2f6f48c[m HEAD@{52}: reset: moving to HEAD
+[33m2f6f48c[m HEAD@{53}: commit: checkpoint: need to fix class function definition anonymous
+[33m5590109[m HEAD@{54}: commit: check point
+[33m4cefca7[m HEAD@{55}: commit: process args for builtin functions
+[33m6162d07[m HEAD@{56}: commit: implement a fixed arguments varArgs and expandArgs processor
+[33mef69b2d[m HEAD@{57}: commit: WIP: new args processor
+[33m4dda415[m HEAD@{58}: commit: WIP: implement list unpack function call
+[33mdf1fa6e[m HEAD@{59}: commit: forbid decorators to be varargs and have no parameter
+[33mec751b6[m HEAD@{60}: commit: put decorator args in a protected scope
+[33m68c9bb7[m HEAD@{61}: commit: reference pass to decorated factory
+[33m51373e5[m HEAD@{62}: commit: implement varargs to call function by instance
+[33m306b6b5[m HEAD@{63}: commit: expose funcArgs in call by instance
+[33mdf84a38[m HEAD@{64}: commit: implement varargs to call function
+[33mcf72200[m HEAD@{65}: commit: change and add lock funcArgs
+[33mbeeaca9[m HEAD@{66}: commit (amend): implement unpack function
+[33mf0958cb[m HEAD@{67}: commit: mend
+[33m54fdfe8[m HEAD@{68}: commit: implement unpack function to localize values from list/'
+[33md2a35da[m HEAD@{69}: commit: implement funcArgs for return all function call arguments
+[33mb508bd5[m HEAD@{70}: commit: decorators implemented \o/ (need more test)
+[33m89b9c3c[m HEAD@{71}: commit: WIP: decorator implementation
+[33m8d881be[m HEAD@{72}: commit: implement basic escape markup function
+[33m46480bb[m HEAD@{73}: commit (amend): create a small web example
+[33m12dd37c[m HEAD@{74}: commit: create a small web example'
+[33mdaba204[m HEAD@{75}: commit: implement map, each, every and filter methods for lists
+[33med112e6[m HEAD@{76}: commit: checkpoint
+[33m8ae0ac6[m HEAD@{77}: reset: moving to HEAD
+[33m8ae0ac6[m HEAD@{78}: commit: test a possible decorator implementation
+[33m909eefd[m HEAD@{79}: commit: allow to pass a block as value of a list, variable or dict
+[33m85a26bb[m HEAD@{80}: commit: change modules request
+[33mc7a7695[m HEAD@{81}: reset: moving to HEAD
+[33mc7a7695[m HEAD@{82}: pull origin master: Fast-forward
+[33mdc5866d[m HEAD@{83}: reset: moving to HEAD
+[33mdc5866d[m HEAD@{84}: pull origin master: Fast-forward
+[33m913f9f7[m HEAD@{85}: reset: moving to HEAD
+[33m913f9f7[m HEAD@{86}: reset: moving to HEAD
+[33m913f9f7[m HEAD@{87}: pull origin master: Fast-forward
+[33m237d9bd[m HEAD@{88}: reset: moving to HEAD
+[33m237d9bd[m HEAD@{89}: pull origin master: Fast-forward
+[33m8263677[m HEAD@{90}: commit: fix opensslsockets call for lazarus 2.0.10
+[33m5a04ad2[m HEAD@{91}: clone: from https://github.com/alantelles/ultragen.git
