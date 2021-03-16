@@ -21,3 +21,27 @@ begin
   FInter.PResponse.Content := RespStr;
   Finter.PResponse.SendResponse;
 end;
+
+procedure TCoreFunction.ServeStatic;
+var
+  AStream: TMemoryStream;
+  FileName: string;
+begin
+  FileName := TStringInstance(FParams[0]).PValue;
+  if FileExists(FileName) then
+  begin
+    AStream := TMemoryStream.Create;
+    AStream.LoadFromFile(FileName);
+    Finter.PResponse.ContentStream := AStream;
+    Finter.PResponse.ContentType := 'image/png';
+    Finter.PResponse.ContentLength := Finter.PResponse.ContentStream.Size;
+    // Finter.PResponse.SendContent;
+    // Finter.PResponse.ContentStream.Free;
+    // AStream.Free;
+    Finter.PResponse.Code := 200;
+  end
+  else
+  begin
+    Finter.PResponse.Code := 404;
+  end;
+end;

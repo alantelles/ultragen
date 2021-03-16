@@ -106,6 +106,7 @@ var
   BTree: TAST;
   InsertActRec: TActivationRecord;
   ResponseContent: string = '';
+  //AStream: TStringStream;
 begin
 
   try
@@ -113,13 +114,17 @@ begin
     BTree := TUltraInterface.ParseWebRequest(ARequest, AResponse, '');
     //InsertActRec := TActivationrecord.Create('HTTPRESPONSE', 'ANY', 1);
     //InsertActRec.AddMember('response', TResponseHandlerInstance.Create(AResponse));
-    AResponse.Content := TUltraInterface.InterpretScript(FRootFile, TProgram(BTree), nil, '', AResponse, ARequest);
+    ResponseContent := TUltraInterface.InterpretScript(FRootFile, TProgram(BTree), nil, '', AResponse, ARequest);
+    //AStream := TSTringStream.Create(ResponseContent);
+    if AResponse.ContentStream = nil then
+      AResponse.ContentStream :=  TSTringStream.Create(ResponseContent);
     WriteLn(#13+'['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
       ARequest.Method + ': '+
       ARequest.URI+' -- '+ IntToStr(AResponse.Code)+
       ' ' + AResponse.CodeText +
-      ', ' + IntToStr(AResponse.ContentLength) + ' B', #13);
-
+      ', ' + IntToStr(AResponse.ContentLength) + ' B, Content-Type: ' + AResponse.ContentType, #13);
+    AResponse.SendContent;
+    AResponse.ContentStream.Free;
   end;
   except on E: Exception do
     begin
@@ -132,7 +137,9 @@ begin
           ' ' + AResponse.CodeText +
           ', ' + IntToStr(AResponse.ContentLength) + ' B', #13);
        WriteLn(E.Message);
+
        if FDebug then
+
          AResponse.Content := '<h1>UltraGen ERROR!</h1><pre style="white-space: pre-wrap; font-size: 12pt"><h3>Error while fetching content at "' + ARequest.URI + '"</h3><br>'+ReplaceStr(E.Message, '<', '&lt') +'</pre>'
        else
        begin

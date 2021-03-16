@@ -1,5 +1,0 @@
-function fly()
-    print("I can fly")
-end
-
-b = 99

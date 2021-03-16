@@ -1,1 +1,2 @@
 procedure ClientRedirect;
+procedure ServeStatic;
