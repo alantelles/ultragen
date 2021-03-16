@@ -175,6 +175,13 @@ function addRoute(path, name, handler, method) : Router
     })
 end
 
+function getStatic(path, name) : Router
+    self.get(path, name, function(params)
+        include @Core.Web.AppResponse
+        AppResponse.static($request[:route].slice(1))
+    end)
+end
+
 function get(path, name, handler) : Router
     self.addRoute(path, name, handler, 'GET')
 end

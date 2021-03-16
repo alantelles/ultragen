@@ -28,10 +28,9 @@ $router.get('/pic/:photo', :profile_pics, function(params)
     credit = getCredits()
     include 'templates/show_photo.ultra.html'
 end)
-$router.get('/photo/:file', :show_photo, function(params)
-    path = 'static/profile_pics/' + (params[:file]) + '.jpg'
-    AppResponse.static(path)
-end)
+$router.getStatic('/static/css/:file', :css)
+$router.getStatic('/static/profile_pics/:file', :show_photo)
+
 $router.get('/', :index, function(params)
     include 'templates/index.ultra.html'
 end)
