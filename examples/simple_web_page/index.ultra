@@ -42,8 +42,7 @@ end)
 
 # getMatch returns a dictionary with the route handler and route args
 # it receives a route and the method used.
-# if could access $request global directly
-# instead it requires argument passing to avoid coupling
+# if no args are passed, $request[:route] and $request[:method] are used
 # handler is a function that should accept a dictionary as arguments
 # localize method extract dictionary pairs and declare them as variables
 router.getMatch($request[:route], $request[:method]).localize()

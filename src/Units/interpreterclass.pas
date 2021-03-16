@@ -538,7 +538,12 @@ begin
       end;
       if ABuilt.PValue = 'TServerInstance' then
       begin
-        Ret := TServerInstance.Create(TIntegerInstance(ArgsList[0]).PValue, TBooleanInstance(ArgsList[1]).PValue);
+        if Length(ArgsList) = 2 then
+          Ret := TServerInstance.Create(TIntegerInstance(ArgsList[0]).PValue, TBooleanInstance(ArgsList[1]).PValue)
+        else if Length(ArgsList) = 1 then
+          Ret := TServerInstance.Create(TIntegerInstance(ArgsList[0]).PValue, True)
+        else
+          RaiseException(E_INVALID_ARGS, 'Arguments');
       end
       else
       begin
