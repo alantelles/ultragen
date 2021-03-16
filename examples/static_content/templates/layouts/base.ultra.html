@@ -1,0 +1,33 @@
+@function Base(navbar, content, title=null)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@if (!title)
+    <title>Static content demo</title>
+@else
+    <title>{{ title }} - Static content demo</title>
+@end
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Asap:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <a href="{{ $router.urlFor(:index) }}"><h1 class="gfont">UltraGen</h1>
+            <h2 class="gfont">Serving<br>static files<br>example</h2></a>
+            <hr>
+            <p>In this example, you can see how to serve static files. In practice, when deploying your application you will (and should) use a high performance web server like NGINX or Apache httpd to serve static files. However, you can use it while developing your application and you can also use the UltraGen way to serve files in your favor. UltraGen method to serve static files is an ordinary method. It means that you can execute some script before serving the file. This example show how to do this by creating a <i>zip</i> of the site photos.</p>
+        </div>
+        <div class="main-content">
+            {{ navbar }}
+            {{ content }}
+        </div>
+    </div>
+</body>
+</html>
+@end

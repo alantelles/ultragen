@@ -1,0 +1,10 @@
+@function NavBar(items)
+<div class="menubar">
+    <ul>
+@       for (items, item)   
+@           text = item.replace('-', ' ').capital()
+            <li><a href="{{ $router.urlFor(:profile_pics, {:photo: item}) }}">{{ text }}</a></li>
+@       end
+    </ul>
+</div>
+@end

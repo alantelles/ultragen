@@ -1,0 +1,57 @@
+body {
+    background-color: rgb(246, 255, 231);
+    font-size: 12pt;
+    line-height: 1.3;
+    
+}
+.gfont {
+    font-family: 'Asap', sans-serif;
+    
+}
+a {
+    text-decoration: none;
+    color: inherit;
+}
+h1 {
+    font-size: 3.3em;
+}
+h2 {
+    font-size: 2.0em;
+}
+.container {
+    display: flex;
+}
+.sidebar {
+    padding: 10px;
+    min-height: calc(100vh - 20px); width: 300px;
+    color: white;
+    background-color: rgb(110, 13, 13);
+}
+.main-content {
+    flex: 1;
+}
+.menubar {
+    width: 100%;
+    background-color:rgb(48, 48, 48)
+}
+.menubar ul {
+    display: flex;
+}
+.menubar li {
+    display: block;
+    
+}
+.menubar a {
+    display: block;
+    padding: 10px;
+    color: white;
+    text-decoration: none;
+    transition: background-color 150ms;
+}
+.menubar a:hover {
+    background-color: rgb(78, 78, 78);
+}
+.display {
+    font-size: 5em;
+    padding: 50px 50px;
+}

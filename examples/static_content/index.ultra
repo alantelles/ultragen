@@ -1,0 +1,42 @@
+include @Core.Web.Router
+include @Core.Web.AppResponse
+include 'templates/layouts/base.ultra.html'
+
+decorator BaseContainer(fn)
+    include 'templates/layouts/navbar.ultra.html'
+    pics = JSON.parseFile('credits.json')[:profile_pics].map(function(e)
+        return e[:id]
+    end)
+    navbar = NavBar(pics)
+    content = fn(params)
+    live Base(navbar, content)
+end
+title = null
+$router = new Router()
+$router.get('/css/:file', :css, function(params)
+    path = 'static/css/' + (params[:file])
+    AppResponse.static(path)
+end)
+$router.get('/pic/:photo', :profile_pics, function(params)
+    function getCredits()
+        credits = JSON.parseFile('credits.json')[:profile_pics]
+        credit = credits.filter(function(e)
+            return (e[:id]) == (params[:photo])
+        end)[0][:credits]
+        return credit
+    end
+    credit = getCredits()
+    include 'templates/show_photo.ultra.html'
+end)
+$router.get('/photo/:file', :show_photo, function(params)
+    path = 'static/profile_pics/' + (params[:file]) + '.jpg'
+    AppResponse.static(path)
+end)
+$router.get('/', :index, function(params)
+    include 'templates/index.ultra.html'
+end)
+
+$router.getMatch().localize()
+
+response = BaseContainer(handler)
+live response(params)
