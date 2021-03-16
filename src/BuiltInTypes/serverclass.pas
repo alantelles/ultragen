@@ -17,6 +17,7 @@ uses
       FExceptionHandler: string;
       FStopRoute: string;
       FDebug: boolean;
+      FRegisteredMimeTypes: TStringList;
     public
       property PStopRoute: string read FStopRoute write FStopRoute;
       property PRootFile: string read FRootFile write FRootFile;
@@ -90,6 +91,7 @@ end;
 procedure TServerInstance.StopServer(ARequest: TRequest;AResponse: TResponse);
 begin
   AResponse.Content := 'Server stopped';
+  FRegisteredMimeTypes.Free;
   WriteLn('Stopping server');
   Application.Terminate;
 
@@ -114,7 +116,7 @@ begin
     BTree := TUltraInterface.ParseWebRequest(ARequest, AResponse, '');
     //InsertActRec := TActivationrecord.Create('HTTPRESPONSE', 'ANY', 1);
     //InsertActRec.AddMember('response', TResponseHandlerInstance.Create(AResponse));
-    ResponseContent := TUltraInterface.InterpretScript(FRootFile, TProgram(BTree), nil, '', AResponse, ARequest);
+    ResponseContent := TUltraInterface.InterpretScript(FRootFile, TProgram(BTree), nil, '', AResponse, ARequest, FRegisteredMimeTypes);
     //AStream := TSTringStream.Create(ResponseContent);
     if AResponse.ContentStream = nil then
       AResponse.ContentStream :=  TSTringStream.Create(ResponseContent);
@@ -147,7 +149,7 @@ begin
          InsertActRec.AddMember('response', TResponseHandlerInstance.Create(AResponse));
          BTree := TUltraInterface.ParseWebRequest(ARequest, AResponse, E.Message);
          try
-           ResponseContent := TUltraInterface.InterpretScript(FExceptionHandler, TProgram(BTree), nil, '', AResponse, ARequest);
+           ResponseContent := TUltraInterface.InterpretScript(FExceptionHandler, TProgram(BTree), nil, '', AResponse, ARequest, FRegisteredMimeTypes);
          except on F: Exception do
            WriteLn('While running application exception handler, another exception occurred:', #13, #10, #13, #10, F.Message);
          end;
@@ -162,7 +164,10 @@ end;
 
 procedure TServerInstance.RunServer;
 begin
-  begin
+
+    FRegisteredMimeTypes := TStringList.Create;
+    FRegisteredMimeTypes.LoadFromFile(MimeTypesFile);
+
     if FStopRoute <> '' then
       HTTPRouter.RegisterRoute(FStopRoute, @StopServer);
     HTTPRouter.RegisterRoute('*', @ExecuteAction);
@@ -174,7 +179,7 @@ begin
     Application.Initialize;
     Application.Run;
 
-  end;
+
 end;
 
 end.

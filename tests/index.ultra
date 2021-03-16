@@ -4,11 +4,10 @@ include @Core.Web.Router
 $router = new Router()
 $router.get('/', :index, function(params)
     live 'Any text here<br>'
-    live $router.urlFor(:static, {:file: 'zika.png'})
 end)
-$router.get('/static/:type/:file', :static, function(params)
-    path = '/static/' + (params[:type]) + '/' + (params[:file])
-    AppResponse.static(path)
+$router.get('/static/:file', :static, function(params)
+    
+    AppResponse.static(params[:file])
 end)
 
 $router.getMatch().localize()

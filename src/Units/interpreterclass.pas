@@ -33,6 +33,7 @@ type
     FModulesPath: TStringList;
     FResponse: TResponse;
     FRequest: TRequest;
+    FMimeFile: TStringList;
     procedure BootStrapRegister;
 
 
@@ -44,6 +45,7 @@ type
     property PModulesPath: TStringList read FModulesPath write FModulesPath;
     property PResponse: TResponse read FResponse write FResponse;
     property PRequest: TRequest read FRequest write FRequest;
+    property PMimeFile: TStringList read FMimeFile write FMimeFile;
     procedure RaiseException(AMsg: string; AType: string);
     constructor Create(var ATree: TAST);
     destructor Destroy; override;
