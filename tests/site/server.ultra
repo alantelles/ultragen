@@ -1,4 +1,0 @@
-include @Core.Web.Server
-s = new Server(3500)
-s.setStopRoute("/off")
-s.run()

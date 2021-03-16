@@ -1,4 +1,5 @@
 include @Core.Web.Router
+include @Core.Web.AppResponse
 
 router = new Router()
 
@@ -12,9 +13,9 @@ end)
 router.post('/form_post', 'form_post', function(params)
     title = $request[:body][:title]
     body = $request[:body][:body]
-    Server.redirect(router.urlFor(:show, {:title: title, :body: body}))
+    AppResponse.redirect(router.urlFor(:show, {:title: title, :body: body}))
 end)
 
-router.getMatch($request[:route], $request[:method]).localize()
+router.getMatch().localize()
 
 live handler(params)

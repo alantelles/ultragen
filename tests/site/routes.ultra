@@ -1,4 +1,0 @@
-decorator liveBase(fn)
-    context = fn(params)
-    live Base()
-end
