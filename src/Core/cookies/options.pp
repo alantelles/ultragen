@@ -3,6 +3,7 @@ begin
   if FName = 'set' then
   begin
     ACookie := Finter.PResponse.Cookies.Add;
+    ACookie.Path := '/';
     ACookie.Name := TStringInstance(FParams[0]).PValue;
     ACookie.Value := FParams[1].AsString;
   end
