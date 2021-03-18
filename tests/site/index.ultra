@@ -4,7 +4,7 @@ include @Core.Web.Cookies
 include 'base.ultra.html'
 $router = new Router()
 $router.get('/', :index, function(params)
-    AppResponse.setHeaders({'spyro': 'gyro', 'spairo': 'jaira'})
+    
     cookieList = "<ul>"
     for(cookiesOpts.keys(), key)
         link = $router.urlFor(:set_cookie, {'key': key, 'value': cookiesOpts[key]})

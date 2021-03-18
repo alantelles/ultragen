@@ -22,3 +22,7 @@ end
 function unset(key) : Cookies
     Cookies.set(key, '', {'max-age': 0})
 end
+
+function get(key) : Cookies
+    return $request[:cookies][key]
+end
