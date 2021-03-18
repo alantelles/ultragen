@@ -1,10 +1,10 @@
 include @Core.Web.Router
 include @Core.Web.AppResponse
+include @Core.Web.Cookies
 include 'base.ultra.html'
 $router = new Router()
 $router.get('/', :index, function(params)
-    AppResponse.setHeader('spyro', 'gyro')
-    AppResponse.setHeader('spairo', 'jaira')
+    AppResponse.setHeaders({'spyro': 'gyro', 'spairo': 'jaira'})
     cookieList = "<ul>"
     for(cookiesOpts.keys(), key)
         link = $router.urlFor(:set_cookie, {'key': key, 'value': cookiesOpts[key]})
@@ -21,13 +21,13 @@ $router.get('/', :index, function(params)
     live Base(content)
 end)
 $router.get('/unset_cookie/:key', :unset_cookie, function(params)
-    include @Core.Web.Cookies
+    
     Cookies.unset(params[:key])
     AppResponse.redirect($router.urlFor(:index))
 end)
 $router.get('/set_cookie/:key/:value', :set_cookie, function(params)
-    include @Core.Web.Cookies
-    Cookies.set(params[:key], params[:value])
+    
+    Cookies.set(params[:key], params[:value], {'max-age': 50000, 'secure': true, 'httpOnly': false})
     AppResponse.redirect($router.urlFor(:index))
 end)
 

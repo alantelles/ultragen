@@ -1,1 +1,21 @@
 load Cookies
+include @Core.Web.AppResponse
+
+function set(key, value, params={}) : Cookies
+    cookie = key + '=' + value
+    value = [cookie]
+    if (!(params.hasKey('path')))
+        value.append('path=/')
+    end
+    for(params.keys(), key)
+        if (typeof(params[key]) == 'TBooleanInstance')
+            if((params[key]))
+                value.append(key)
+            end
+        else
+            value.append(key + '=' +str(params[key]))
+        end
+    end
+    AppResponse.setHeader('Set-Cookie', ';'.join(value))
+    print(cookie)
+end
