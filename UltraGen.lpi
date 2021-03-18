@@ -32,7 +32,7 @@
         <PackageName Value="LazUtils"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="34">
+    <Units Count="36">
       <Unit0>
         <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -198,6 +198,14 @@
         <Filename Value="src\Core\appresponse\functions.pp"/>
         <IsPartOfProject Value="True"/>
       </Unit33>
+      <Unit34>
+        <Filename Value="src\Core\cookies\declarations.pp"/>
+        <IsPartOfProject Value="True"/>
+      </Unit34>
+      <Unit35>
+        <Filename Value="src\Core\cookies\functions.pp"/>
+        <IsPartOfProject Value="True"/>
+      </Unit35>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -208,7 +216,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="src\Units;src\ASTs;src\Symbols;src\Exceptions;src\ActRecords;src\Core;src\BuiltInTypes;src\Utils\JsonTools;src\BootStrap;src\Utils"/>
+      <OtherUnitFiles Value="src\Units;src\ASTs;src\Symbols;src\Exceptions;src\ActRecords;src\Core;src\BuiltInTypes;src\Utils\JsonTools;src\BootStrap;src\Utils;src\Core\cookies"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Other>

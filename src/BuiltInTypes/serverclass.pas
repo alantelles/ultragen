@@ -113,6 +113,7 @@ begin
 
   try
   begin
+
     BTree := TUltraInterface.ParseWebRequest(ARequest, AResponse, '');
     //InsertActRec := TActivationrecord.Create('HTTPRESPONSE', 'ANY', 1);
     //InsertActRec.AddMember('response', TResponseHandlerInstance.Create(AResponse));

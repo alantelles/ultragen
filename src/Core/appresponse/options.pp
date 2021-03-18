@@ -10,6 +10,8 @@ begin
     if Length(FParams) > 2 then
       FInter.PResponse.Code := TIntegerInstance(FParams[2]).PValue;
   end
+  else if FName = 'setHeader' then
+    FInter.PResponse.SetCustomHeader(TStringInstance(FParams[0]).PValue, FParams[1].AsString)
   else if FName = 'clientRedirect' then
   begin
     ClientRedirect;
