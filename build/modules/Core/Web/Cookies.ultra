@@ -1,4 +1,4 @@
-load Cookies
+class Cookies
 include @Core.Web.AppResponse
 
 function set(key, value, params={}) : Cookies
@@ -17,5 +17,8 @@ function set(key, value, params={}) : Cookies
         end
     end
     AppResponse.setHeader('Set-Cookie', ';'.join(value))
-    print(cookie)
+end
+
+function unset(key) : Cookies
+    Cookies.set(key, '', {'max-age': 0})
 end

@@ -54,7 +54,7 @@ type
       {$INCLUDE 'dict/declarations.pp'}
       {$INCLUDE 'server/declarations.pp'}
       {$INCLUDE 'appresponse/declarations.pp'}
-      {$INCLUDE 'cookies/declarations.pp'}
+      {{$INCLUDE 'cookies/declarations.pp'}}
       {$INCLUDE 'httpclient/declarations.pp'}
 	end;
 
@@ -227,7 +227,7 @@ begin
       Ret := ParseJsonFile
   end
   {$INCLUDE 'string/options.pp'}
-  {$INCLUDE 'cookies/options.pp'}
+  {{$INCLUDE 'cookies/options.pp'}}
   {$INCLUDE 'list/options.pp'}
   {$INCLUDE 'integer/options.pp'}
   {$INCLUDE 'dict/options.pp'}
@@ -557,7 +557,7 @@ end;
 
 {$INCLUDE 'string/functions.pp'}
 {$INCLUDE 'list/functions.pp'}
-{$INCLUDE 'cookies/functions.pp'}
+{{$INCLUDE 'cookies/functions.pp'}}
 {$INCLUDE 'os/functions.pp'}
 
 {$INCLUDE 'filesystem/functions.pp'}

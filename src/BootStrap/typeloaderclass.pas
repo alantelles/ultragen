@@ -16,7 +16,7 @@ type TTypeLoader = class
     class procedure LoadDateTime(var AActRec: TActivationRecord);
     class procedure LoadResponseHandler(var AActRec: TActivationRecord);
     class procedure LoadServerInstance(var AActRec: TActivationRecord);
-    class procedure LoadCookiesHandler(var AActRec: TActivationrecord);
+    // class procedure LoadCookiesHandler(var AActRec: TActivationrecord);
 end;
 
 implementation
@@ -33,7 +33,7 @@ begin
   AActRec.AddMember('OS', AType);
 end;
 
-class procedure TTypeLoader.LoadCookiesHandler(var AActRec: TActivationRecord);
+{class procedure TTypeLoader.LoadCookiesHandler(var AActRec: TActivationRecord);
 var
   ADataType: TDataType;
   AFunc: TFunctionInstance;
@@ -44,7 +44,7 @@ begin
   ADataType.PMembers.Add('get', AFunc);
   ADataType.PMembers.Add('unset', AFunc);
   AActRec.AddMember('Cookies', ADataType);
-end;
+end;}
 
 class procedure TTypeLoader.LoadResponseHandler(var AActRec: TActivationRecord);
 var
@@ -139,8 +139,8 @@ begin
     TTypeLoader.LoadRequest(AActRec)
   else if AName = 'FileSystem' then
     TTypeLoader.LoadFileSystem(AActRec)
-  else if AName = 'Cookies' then
-    TTypeLoader.LoadCookiesHandler(AActRec)
+  {else if AName = 'Cookies' then
+    TTypeLoader.LoadCookiesHandler(AActRec)}
   else if AName = 'OS' then
     TTypeLoader.LoadOS(AActRec)
   else if AName = 'DateTime' then
