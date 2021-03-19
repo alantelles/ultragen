@@ -5,6 +5,11 @@ begin
     Ret := GetAllFiles()
   else if FName = 'mkdir' then
     Ret := CreateDirOpt
+  else if FName = 'delete' then
+  begin
+    writeln('deleting file');
+    DeleteFile(TStringInstance(FParams[0]).PValue)
+  end
   else if FName = 'isFile' then
     Ret := TBooleanInstance.Create(FileExists(TStringInstance(FParams[0]).PValue))
   else if FName = 'loadText' then

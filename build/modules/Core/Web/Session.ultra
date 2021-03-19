@@ -1,0 +1,59 @@
+include @Core.Web.Cookies
+include @Core.DateTime
+include @Core.FileSystem
+
+class Session
+function start() : Session
+    Session.erase = false
+    full_key = 'UGAPPSESSID_' + (Session.key)
+    started = Cookies.get(full_key)
+    Session.content = {}
+    if(!started)
+        Session.id = str(DateTime.now()).replace(' ', '').replace('-', '').replace(':', '').replace('.', '')                
+        Session.save()
+        Cookies.set('UGAPPSESSID_' + (Session.key), Session.id)
+    else
+        Session.id = started
+        session_path = 'sessions/' + (Session.id)
+        if ((FileSystem.isFile(session_path)))
+            Session.content = JSON.parseFile(session_path)
+        end
+    end
+end
+
+
+function get(key, ifNot=null) : Session
+    x = Session.content.get(key)    
+    return x
+end
+
+function set(key, value) : Session
+    Session.content[key] = value
+end
+
+function unset(key) : Session
+    if((Session.get(key)))
+        Session.content.drop(key)
+    end
+end
+
+function destroy() : Session
+    full_key = 'UGAPPSESSID_' + (Session.key)
+    id = Cookies.get(full_key)
+    Cookies.unset(full_key)
+    Session.erase = true
+    if (id)
+        session_path = './sessions/' + str(id)
+        exist = FileSystem.isFile(session_path)
+        if(exist)
+            FileSystem.delete(session_path)
+        end
+    end
+end
+
+function save() : Session
+    if(!(Session.erase))
+        session_path = './sessions/' + (Session.id)
+        JSON.createFile(Session.content, session_path)
+    end
+end

@@ -24,5 +24,9 @@ function unset(key) : Cookies
 end
 
 function get(key) : Cookies
-    return $request[:cookies][key]
+    if (($request[:cookies].hasKey(key)))
+        return $request[:cookies][key]
+    else
+        return null
+    end
 end
