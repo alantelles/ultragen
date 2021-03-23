@@ -8,9 +8,18 @@ begin
 end;
 
 function TCoreFunction.GetItem(AObj: TDictionaryInstance): TInstanceOf;
+var
+  TryRet: TInstanceOf;
 begin
-//  precisa mudar
-  Result := Aobj.PValue.GetMember(TStringInstance(FParams[0]).PValue);
+  TryRet := Aobj.PValue.GetMember(TStringInstance(FParams[0]).PValue);
+  if TryRet = nil then
+  begin
+    if Length(FParams) > 1 then
+      TryRet := FParams[1]
+    else
+      TryRet := TNullInstance.Create;
+  end;
+  Result := Tryret;
 
 end;
 

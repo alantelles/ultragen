@@ -12,11 +12,3 @@ function each(fn) : Dict
         fn(key, self[key], _key)
     end
 end
-
-function get(key, ifNot=null) : Dict
-    if ((self.hasKey(key)))
-        return self[key]
-    else
-        return ifNot
-    end
-end

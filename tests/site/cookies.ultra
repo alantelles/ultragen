@@ -5,7 +5,7 @@ cookiesOpts = {
 cookieList = "<ul>"
 for(cookiesOpts.keys(), key)
     link = $router.urlFor(:set_cookie, {'key': key, 'value': cookiesOpts[key]})
-    cookieList += '<li><a href="' + link + '">' + key + '=' + (cookiesOpts[key]) + '</a></li>'
+    cookieList += '<li><a href="' + link + '">' + key + '=' + str(cookiesOpts[key]) + '</a></li>'
 end
 cookieList += "</ul>"
 cookieList += "<p>Unset</p><ul>"

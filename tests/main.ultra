@@ -1,0 +1,5 @@
+x = {'tops': 'zika', 'dops': 99}
+print(x.get(:dops))
+print(x[:tops])
+print(x.get(:lala))
+print(x.get(:lala, 9000))

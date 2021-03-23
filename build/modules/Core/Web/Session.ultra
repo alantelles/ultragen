@@ -9,8 +9,7 @@ function start() : Session
     started = Cookies.get(full_key)
     Session.content = {}
     if(!started)
-        Session.id = str(DateTime.now()).replace(' ', '').replace('-', '').replace(':', '').replace('.', '')                
-        Session.save()
+        Session.id = str(DateTime.now()).replace(' ', '').replace('-', '').replace(':', '').replace('.', '')        
         Cookies.set('UGAPPSESSID_' + (Session.key), Session.id)
     else
         Session.id = started

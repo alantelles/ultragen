@@ -21,6 +21,10 @@ $router.get('/', :index, function(params)
     include 'cookies.ultra'
 end)
 
+$router.get('/set_cookie', :set_cookie, function()
+    
+end)
+
 $router.get('/login', :login_form, function (params)
     super = """
         <form method="post" action='/login'>

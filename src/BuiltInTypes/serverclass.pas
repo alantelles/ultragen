@@ -146,8 +146,8 @@ begin
          AResponse.Content := '<h1>UltraGen ERROR!</h1><pre style="white-space: pre-wrap; font-size: 12pt"><h3>Error while fetching content at "' + ARequest.URI + '"</h3><br>'+ReplaceStr(E.Message, '<', '&lt') +'</pre>'
        else
        begin
-         InsertActRec := TActivationrecord.Create('HTTPRESPONSE', 'ANY', 1);
-         InsertActRec.AddMember('response', TResponseHandlerInstance.Create(AResponse));
+         // InsertActRec := TActivationrecord.Create('HTTPRESPONSE', 'ANY', 1);
+         // InsertActRec.AddMember('response', TResponseHandlerInstance.Create(AResponse));
          BTree := TUltraInterface.ParseWebRequest(ARequest, AResponse, E.Message);
          try
            ResponseContent := TUltraInterface.InterpretScript(FExceptionHandler, TProgram(BTree), nil, '', AResponse, ARequest, FRegisteredMimeTypes);

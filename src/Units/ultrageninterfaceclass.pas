@@ -97,7 +97,7 @@ begin
   if FileExists('./_INCLUDE.ultra') then
 	  WebVars.Add('include "./_INCLUDE.ultra"');
 
-  WebVars.Add('$stacktrace = "'+TraceLog+'".split("\n")');
+  WebVars.Add('$stacktrace = """'+TraceLog+'""".split("\n")');
   WebVars.Add('$request = {');
   i := Pos('?', ARequest.URI);
   if i > 0 then
