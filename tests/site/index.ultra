@@ -19,10 +19,17 @@ $router.get('/', :index, function(params)
         AppResponse.redirect('/login')
     end
     include 'cookies.ultra'
+    live Base(content)
 end)
 
-$router.get('/set_cookie', :set_cookie, function()
-    
+$router.get('/unset_cookie/:key', :unset_cookie, function(params)
+    Cookies.unset(params[:key])
+    AppResponse.redirect('/')
+end)
+
+$router.get('/set_cookie/:key/:value', :set_cookie, function(params)
+    Cookies.set(params[:key], params[:value])
+    AppResponse.redirect('/')
 end)
 
 $router.get('/login', :login_form, function (params)
@@ -39,9 +46,8 @@ $router.post('/login', :try_login, function(params)
     pass = $request[:body][:credentials]
     logged = pass == 'oioioi'
     if (logged)
-        Session.set('logged', logged)    
-        live "you're logged"
-        Session.save()
+        Session.set('logged', logged)
+        AppResponse.redirect($router.urlFor(:index))
     else
         AppResponse.clientRedirect('/login', 3, "Redirecionando", "jaja")
     end
@@ -55,3 +61,4 @@ end)
 
 $router.getMatch().localize()
 live handler(params)
+Session.save()

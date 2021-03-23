@@ -51,7 +51,7 @@ function destroy() : Session
 end
 
 function save() : Session
-    if(!(Session.erase))
+    if(!(Session.erase) && ((Session.content.keys().length()) != 0))
         session_path = './sessions/' + (Session.id)
         JSON.createFile(Session.content, session_path)
     end
