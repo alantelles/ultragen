@@ -2,7 +2,16 @@ include 'templates/base.ultra.html'
 
 class Handlers
 
+function redir(params) : Handlers
+    Session.flash(str(DateTime.now()))
+    Session.flash('tu vai')
+    Session.flash('eu nao', 'danger')
+    AppResponse.redirect('/')
+end
+
 function index(params) : Handlers
+    flash = Session.getFlashMessages()
+    live str(flash) + '<br>'
     include 'templates/upload.ultra.html'
     content = UploadForm()
     live Base(content)
@@ -13,13 +22,7 @@ function saveUploadedFile(params) : Handlers
         out = '.\\uploaded\\' + folder + '\\' + str(name)
         return out
     end
-    include @Core.FileSystem
-    live 'Receiving file'
-    live '<br>'
-    live $request[:files]
-    live '<br>'
-    # fIn = $request[:files][:otherfield][:serverName]
-    # fOut = getPathOut($request[:files][:otherfield][:fileName])
+    include @Core.FileSystem    
     for ($request[:files].keys(), fileField)
         FileSystem.mkdir('uploaded\\' + fileField)
         fileEntry = $request[:files][fileField]
@@ -36,7 +39,5 @@ function saveUploadedFile(params) : Handlers
             FileSystem.copy(fIn, fOut)
         end
     end
-    # FileSystem.copy(fIn, fOut)
-    index = $router.urlFor(:index)
-    live '<a href="' + index + '">Index</a>'
+    AppResponse.redirect($router.urlFor(:index))
 end

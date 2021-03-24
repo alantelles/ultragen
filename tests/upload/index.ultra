@@ -1,11 +1,15 @@
 include @Core.Web.Router
 include @Core.Web.AppResponse
+include @Core.Web.Session
 
 include 'handlers.ultra'
 
-
+Session.key = 'BAHOLEROS'
+Session.start()
 $router = new Router()
+$router.get('/redir', :redir, Handlers.redir)
 $router.get('/', :index, Handlers.index)
 $router.post('/upload', :upload, Handlers.saveUploadedFile)
 $router.getMatch().localize()
 live handler(params)
+Session.save()

@@ -4,10 +4,11 @@ include @Core.FileSystem
 
 class Session
 function start() : Session
-    Session.erase = false
+    Session.erase = false    
     full_key = 'UGAPPSESSID_' + (Session.key)
     started = Cookies.get(full_key)
-    Session.content = {}
+    Session.content = {"__DATA__": {}}
+    Session.flashMessages = []
     if(!started)
         Session.id = str(DateTime.now()).replace(' ', '').replace('-', '').replace(':', '').replace('.', '')        
         Cookies.set('UGAPPSESSID_' + (Session.key), Session.id)
@@ -20,19 +21,31 @@ function start() : Session
     end
 end
 
+function flash(message, category="primary") : Session
+    Session.flashMessages.append({"message": str(message), "category": str(category)})
+end
+
+function getFlashMessages() : Session
+    hasFlash = Session.content.hasKey('__FLASH__')
+    msgs = []
+    if (hasFlash)        
+        msgs = Session.content["__FLASH__"]
+    end
+    return msgs
+end
 
 function get(key, ifNot=null) : Session
-    x = Session.content.get(key)    
+    x = Session.content["__DATA__"].get(key)
     return x
 end
 
 function set(key, value) : Session
-    Session.content[key] = value
+    Session.content["__DATA__"][key] = value
 end
 
 function unset(key) : Session
     if((Session.get(key)))
-        Session.content.drop(key)
+        Session.content["__DATA__"].drop(key)
     end
 end
 
@@ -51,7 +64,10 @@ function destroy() : Session
 end
 
 function save() : Session
-    if(!(Session.erase) && ((Session.content.keys().length()) != 0))
+    Session.content['__FLASH__'] = Session.flashMessages    
+    # hasData = (Session.content["__DATA__"].keys().length()) != 0
+    # hasFlash = (Session.content["__FLASH__"].length()) != 0
+    if(!(Session.erase))
         session_path = './sessions/' + (Session.id)
         JSON.createFile(Session.content, session_path)
     end
