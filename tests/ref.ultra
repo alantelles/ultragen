@@ -1,0 +1,16 @@
+class Tops
+Tops.content = {}
+
+Tops.content['zika'] = 9000
+
+print(Tops.content.get('zika'))
+
+function get(key) : Tops
+    return Tops.content.get(key)
+end
+
+function jit(key)
+    m = Tops.get(key)
+    print(m)
+end
+jit(:zika)

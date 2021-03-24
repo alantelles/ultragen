@@ -82,7 +82,7 @@ var
   ALexer: TLexer;
   ATree: TAST;
   len, i: integer;
-  comma, K, V, UHome: string;
+  comma, K, V, UHome, AuxStr: string;
 begin
 
   WebVars := TStringList.Create;
@@ -240,16 +240,20 @@ begin
   begin
     for i := 0 to len-1 do
     begin
+      AuxStr := ARequest.Files[i].LocalFileName;
+      {$IFDEF Windows}
+        AuxStr := ReplaceStr(ARequest.Files[i].LocalFileName, '\', '\\');
+      {$ENDIF}
 
       WebVars.Add('if (($request["files"].hasKey("' + ARequest.Files[i].FieldName + '")))');
       WebVars.Add('    if (typeof($request["files"]["' + ARequest.Files[i].FieldName + '"]) == "TDictionaryInstance")');
       WebVars.Add('        $request["files"]["' + ARequest.Files[i].FieldName + '"] = [$request["files"]["' + ARequest.Files[i].FieldName + '"]]');
-      WebVars.Add('        $request["files"]["' + ARequest.Files[i].FieldName + '"].append({"serverName": """'+ARequest.Files[i].LocalFileName+'""", "fileName": """'+ARequest.Files[i].FileName+'"""})');
+      WebVars.Add('        $request["files"]["' + ARequest.Files[i].FieldName + '"].append({"serverName": """'+AuxStr+'""", "fileName": """'+ARequest.Files[i].FileName+'"""})');
       WebVars.Add('    else');
-      WebVars.Add('        $request["files"]["' + ARequest.Files[i].FieldName + '"].append({"serverName": """'+ARequest.Files[i].LocalFileName+'""", "fileName": """'+ARequest.Files[i].FileName+'"""})');
+      WebVars.Add('        $request["files"]["' + ARequest.Files[i].FieldName + '"].append({"serverName": """'+AuxStr+'""", "fileName": """'+ARequest.Files[i].FileName+'"""})');
       WebVars.Add('    end');
       WebVars.Add('else');
-      WebVars.Add('    $request["files"]["'+ARequest.Files[i].FieldName+'"] = {"serverName": """'+ARequest.Files[i].LocalFileName+'""", "fileName": """'+ARequest.Files[i].FileName+'"""}');
+      WebVars.Add('    $request["files"]["'+ARequest.Files[i].FieldName+'"] = {"serverName": """'+AuxStr+'""", "fileName": """'+ARequest.Files[i].FileName+'"""}');
       WebVars.Add('end');
     end;
   end;

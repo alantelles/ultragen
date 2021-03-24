@@ -3,9 +3,9 @@ var
   AStream: TMemoryStream;
   FileIn, FileOut: string;
 begin
-  {FileIn := TStringInstance(FParams[0]).Pvalue;
+  FileIn := TStringInstance(FParams[0]).Pvalue;
   FileOut := TStringInstance(FParams[1]).Pvalue;
-  AStream := TMemoryStream.Create;
+  {AStream := TMemoryStream.Create;
   AStream.LoadFromFile(FileIn);
   AStream.SaveToFile(FileOut);
   AStream.Free;}
