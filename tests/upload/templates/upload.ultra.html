@@ -1,0 +1,19 @@
+@function UploadForm()
+<div>
+    <form action="{{ $router.urlFor(:upload) }}" method="POST" enctype="multipart/form-data">
+        <label for="username">Username</label>
+        <input type="text" name="username" id="username"><br>        
+        <label for="multi">Multípla opção</label><br>
+        <select name="multi" multiple id="multi">
+            <option value="0">opt 1</option>
+            <option value="1">opt 2</option>
+            <option value="2">opt 3</option>
+        </select><br>   
+        <label for="filefield">Choose some files</label><br>
+        <input type="file" multiple name="filefield"  id="filefield"><br>
+        <label for="otherfield">Choose a file</label><br>
+        <input type="file" name="otherfield"  id="fotherfield"><br>
+        <input type="submit" value="Send">
+    </form>
+</div>
+@end

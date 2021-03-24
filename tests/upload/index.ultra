@@ -1,0 +1,11 @@
+include @Core.Web.Router
+include @Core.Web.AppResponse
+
+include 'handlers.ultra'
+
+
+$router = new Router()
+$router.get('/', :index, Handlers.index)
+$router.post('/upload', :upload, Handlers.saveUploadedFile)
+$router.getMatch().localize()
+live handler(params)

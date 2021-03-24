@@ -130,6 +130,7 @@ begin
   AFSType.PMembers.Add('isFile', AFSFunc);
   AFSType.PMembers.Add('isDir', AFSFunc);
   AFSType.PMembers.Add('getAllFiles', AFSFunc);
+  AFSType.PMembers.Add('copy', AFSFunc);
   AFSType.PMembers.Add('delete', AFSFunc);
   AActRec.AddMember('FileSystem', AFSType);
 end;

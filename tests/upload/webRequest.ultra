@@ -1,0 +1,26 @@
+addModulePath(["\/home\/alantelles\/Arquivos\/develop\/lazarus\/ultragen\/build", "modules"].path())
+include @Core
+$stacktrace = """""".split("\n")
+$request = {
+"route": "/", 
+"method": "GET", 
+"querystring": "", 
+"query": {
+}, 
+"body_content": """""", 
+"cookies": {
+"UGAPPSESSID_zikazika": "20210323101156826"
+}, 
+"headers": {
+"accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8", 
+"accept_encoding": "gzip, deflate", 
+"accept_language": "en-US,en;q=0.5", 
+"connection": "keep-alive", 
+"cookie": "UGAPPSESSID_zikazika=20210323101156826", 
+"referer": "http://localhost:3500/upload", 
+"user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:86.0) Gecko/20100101 Firefox/86.0", 
+"Upgrade_Insecure_Requests": """1""", 
+"host": "localhost:3500"
+  } 
+}
+$request.lock()

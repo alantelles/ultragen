@@ -128,31 +128,6 @@ begin
 
 
   WebVars.Add('"body_content": """'+ReplaceStr(ARequest.Content, '"', '\"')+'""", ');
-
-  if pos(ARequest.ContentType, 'application/x-www-form-urlencoded') > 0 then
-  begin
-    WebVars.Add('"body": {');
-    len := ARequest.ContentFields.Count;
-    if len > 0 then
-    begin
-      comma := ', ';
-      for i:=0 to len - 1 do
-      begin
-        ARequest.ContentFields.GetNameValue(i, K, V);
-        if i = len - 1 then
-          comma := '';
-        WebVars.Add('"'+K+'": "'+V+'"'+comma);
-      end;
-    end;
-	  WebVars.Add('}, ');
-	end
-  else if pos(ARequest.ContentType, 'application/json') > 0 then
-  begin
-    WebVars.Add('"body": JSON.parse(''' + ARequest.Content + '''), ');
-  end;
-
-
-
   WebVars.Add('"cookies": {');
   len := ARequest.CookieFields.Count;
   if len > 0 then
@@ -227,9 +202,57 @@ begin
       WebVars.Add('"' + Replacestr(K, '-', '_') + '": """' + ARequest.CustomHeaders.Values[K] + '""", ');
     end;
     WebVars.Add('"host": "'+ARequest.Host+'"');
-  WebVars.Add('} ');
-
+  WebVars.Add('  } ');
   WebVars.Add('}');
+
+  if (pos('application/x-www-form-urlencoded', ARequest.ContentType) > 0) or
+     (pos('multipart/form-data', ARequest.ContentType) > 0) then
+  begin
+    WebVars.Add('$request["body"] = {}');
+    len := ARequest.ContentFields.Count;
+    if len > 0 then
+    begin
+      for i:=0 to len - 1 do
+      begin
+        ARequest.ContentFields.GetNameValue(i, K, V);
+        WebVars.Add('if (($request[:body].hasKey("' +k+ '")))');
+        WebVars.Add('    if (typeof($request[:body]["' + k + '"]) == "TStringInstance")');
+        WebVars.Add('        $request[:body]["' + k + '"] = [$request[:body]["' + k + '"]]');
+        Webvars.add('        $request[:body]["' + k + '"].append("""' + v + '""")');
+        Webvars.add('    else');
+
+        Webvars.add('        $request[:body]["' + k + '"].append("""' + v + '""")');
+        Webvars.add('    end');
+        Webvars.add('else');
+        WebVars.Add('    $request[:body]["'+K+'"] = """'+V+'"""');
+        Webvars.add('end');
+      end;
+    end;
+
+	end
+  else if pos(ARequest.ContentType, 'application/json') > 0 then
+  begin
+    WebVars.Add('$request["body"] = JSON.parse("""' + ARequest.Content + '""")');
+  end;
+  WebVars.Add('$request["files"] = {}');
+  len := ARequest.Files.Count;
+  if len > 0 then
+  begin
+    for i := 0 to len-1 do
+    begin
+
+      WebVars.Add('if (($request["files"].hasKey("' + ARequest.Files[i].FieldName + '")))');
+      WebVars.Add('    if (typeof($request["files"]["' + ARequest.Files[i].FieldName + '"]) == "TDictionaryInstance")');
+      WebVars.Add('        $request["files"]["' + ARequest.Files[i].FieldName + '"] = [$request["files"]["' + ARequest.Files[i].FieldName + '"]]');
+      WebVars.Add('        $request["files"]["' + ARequest.Files[i].FieldName + '"].append({"serverName": """'+ARequest.Files[i].LocalFileName+'""", "fileName": """'+ARequest.Files[i].FileName+'"""})');
+      WebVars.Add('    else');
+      WebVars.Add('        $request["files"]["' + ARequest.Files[i].FieldName + '"].append({"serverName": """'+ARequest.Files[i].LocalFileName+'""", "fileName": """'+ARequest.Files[i].FileName+'"""})');
+      WebVars.Add('    end');
+      WebVars.Add('else');
+      WebVars.Add('    $request["files"]["'+ARequest.Files[i].FieldName+'"] = {"serverName": """'+ARequest.Files[i].LocalFileName+'""", "fileName": """'+ARequest.Files[i].FileName+'"""}');
+      WebVars.Add('end');
+    end;
+  end;
   WebVars.Add('$request.lock()');
   ALexer := TLexer.Create(WebVars.Text, False);
   AParser := TTParser.Create(ALexer);

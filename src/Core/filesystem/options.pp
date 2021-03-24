@@ -5,6 +5,8 @@ begin
     Ret := GetAllFiles()
   else if FName = 'mkdir' then
     Ret := CreateDirOpt
+  else if FName = 'copy' then
+    CopyStream
   else if FName = 'delete' then
   begin
     writeln('deleting file');
