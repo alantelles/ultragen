@@ -1,7 +1,7 @@
-include @Core.Web.Router
-include @Core.Web.AppResponse
-include @Core.Web.Session
-
+# include @Core.Web.Router
+# include @Core.Web.AppResponse
+# include @Core.Web.Session
+include @Core.Web
 include 'handlers.ultra'
 
 Session.key = 'BAHOLEROS'
@@ -9,6 +9,10 @@ Session.start()
 $router = new Router()
 
 $router.get('/', :index, Handlers.index)
+$router.get('/redir', :redir, function(params)
+    Session.flash('Teste')
+    AppResponse.redirect('/')
+end)
 $router.post('/upload', :upload, Handlers.saveUploadedFile)
 $router.post('/getbin', :getbin, function(params)
     $request[:body_content].save('copy.ultra')
