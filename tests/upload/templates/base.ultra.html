@@ -8,6 +8,12 @@
     <title>Upload file example</title>
 </head>
 <body>
+@   for (Session.getFlashMessages(), msg)
+    <div>
+        <p style="padding: 20px; background-color: aquamarine;">{{ msg[:message] }}</p>
+    </div>
+@   end
+    <p><a href="/redir">Redirecionar</a></p>
     {{ content }}
 </body>
 </html>
