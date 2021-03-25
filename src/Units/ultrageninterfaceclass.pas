@@ -127,7 +127,7 @@ begin
   // WebVars.Add('"content_type": "'+ARequest.ContentType+'", ');
 
 
-  WebVars.Add('"body_content": """'+ReplaceStr(ARequest.Content, '"', '\"')+'""", ');
+  WebVars.Add('"body_content": """'+ReplaceStr(ARequest.Content, '\', '\\')+'""", ');
   WebVars.Add('"cookies": {');
   len := ARequest.CookieFields.Count;
   if len > 0 then

@@ -7,9 +7,14 @@ include 'handlers.ultra'
 Session.key = 'BAHOLEROS'
 Session.start()
 $router = new Router()
-$router.get('/redir', :redir, Handlers.redir)
+
 $router.get('/', :index, Handlers.index)
 $router.post('/upload', :upload, Handlers.saveUploadedFile)
+$router.post('/getbin', :getbin, function(params)
+    $request[:body_content].save('copy.ultra')
+    r = JSON.create({"saved": true})
+    live r
+end)
 $router.getMatch().localize()
 live handler(params)
 Session.save()

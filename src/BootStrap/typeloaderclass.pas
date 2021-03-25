@@ -5,7 +5,7 @@ unit TypeLoaderClass;
 interface
 
 uses
-  Classes, SysUtils, InstanceOfClass, InterpreterClass, ARClass;
+  Classes, SysUtils, InstanceOfClass, InterpreterClass, ARClass, ByteStreamClass;
 
 type TTypeLoader = class
   public
@@ -16,6 +16,7 @@ type TTypeLoader = class
     class procedure LoadDateTime(var AActRec: TActivationRecord);
     class procedure LoadResponseHandler(var AActRec: TActivationRecord);
     class procedure LoadServerInstance(var AActRec: TActivationRecord);
+    class procedure LoadByteStream(var AActRec: TActivationRecord);
     // class procedure LoadCookiesHandler(var AActRec: TActivationrecord);
 end;
 
@@ -31,6 +32,16 @@ begin
   AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TOSInstance', True,False, False);
   AType.PMembers.Add('getEnv', AFunc);
   AActRec.AddMember('OS', AType);
+end;
+class procedure TTypeLoader.LoadByteStream(var AActRec: TActivationRecord);
+var
+  AFunc: TFunctionInstance;
+  AType: TDataType;
+begin
+  AType := TDataType.Create('TByteStreamInstance', 'ByteStream');
+  AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TByteStreamInstance', True,False, False);
+  AType.PMembers.Add('save', AFunc);
+  AActRec.AddMember('ByteStream', AType);
 end;
 
 {class procedure TTypeLoader.LoadCookiesHandler(var AActRec: TActivationRecord);
@@ -145,6 +156,8 @@ begin
     TTypeLoader.LoadCookiesHandler(AActRec)}
   else if AName = 'OS' then
     TTypeLoader.LoadOS(AActRec)
+  else if AName = 'ByteStream' then
+    TTypeLoader.LoadByteStream(AActRec)
   else if AName = 'DateTime' then
     TTypeLoader.LoadDateTime(AActRec)
   else if AName = 'Server' then

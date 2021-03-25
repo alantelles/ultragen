@@ -69,7 +69,7 @@ implementation
 
 uses
   Math, TokenClass, Tokens, CoreFunctionsClass, LexerClass,
-  ServerClass, Dos, TypeLoaderClass;
+  ServerClass, Dos, TypeLoaderClass, ByteStreamClass;
 
 constructor TInterpreter.Create(var ATree: TAST);
 begin
@@ -544,6 +544,10 @@ begin
           Ret := TServerInstance.Create(TIntegerInstance(ArgsList[0]).PValue, True)
         else
           RaiseException(E_INVALID_ARGS, 'Arguments');
+      end
+      else if ABuilt.PValue = 'TByteStreamInstance' then
+      begin
+        Ret := TByteStreamInstance.Create(ArgsList[0]);
       end
       else
       begin

@@ -1,3 +1,4 @@
 function GetAllFiles(): TListInstance;
 function CreateDirOpt: TBooleanInstance;
-procedure CopyStream;
+procedure FSCopyFile;
+

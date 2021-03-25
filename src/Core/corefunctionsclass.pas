@@ -6,7 +6,7 @@ interface
 
 uses
       Classes, SysUtils, Strutils,
-      InterpreterClass, InstanceOfClass, StringInstanceClass, DateTimeInstanceClass,
+      InterpreterClass, InstanceOfClass, StringInstanceClass, DateTimeInstanceClass, ByteStreamClass,
       ListInstanceClass, ServerClass, ARClass, HttpClientInstanceClass, JsonTools, httpdefs;
 
 type
@@ -45,7 +45,7 @@ type
 
 
        //functions
-
+      function SaveByteStream(AObj: TByteStreamInstance): TBooleanInstance;
       {$INCLUDE 'string/declarations.pp'}
       {$INCLUDE 'list/declarations.pp'}
       {$INCLUDE 'integer/declarations.pp'}
@@ -237,6 +237,11 @@ begin
   {$INCLUDE 'appresponse/options.pp'}
   {$INCLUDE 'httpclient/options.pp'}
   {$INCLUDE 'datetime/options.pp'}
+  else if AType = 'TByteStreamInstance' then
+  begin
+    if FName = 'save' then
+      Ret := SaveByteStream(TByteStreamInstance(FObj));
+  end
   else
     raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.', '', 1, 1);
   // functions
@@ -553,6 +558,11 @@ begin
   end
   else
     raise ETypeError.Create('Can''t convert value "'+FParams[0].ClassName+'" to integer', '', 1, 1);
+end;
+
+function TCoreFunction.SaveByteStream(AObj: TByteStreamInstance): TBooleanInstance;
+begin
+  Result := AObj.SaveStream(TStringInstance(FParams[0]));
 end;
 
 {$INCLUDE 'string/functions.pp'}

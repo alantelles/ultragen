@@ -153,9 +153,8 @@
         <UnitName Value="ListInstanceClass"/>
       </Unit23>
       <Unit24>
-        <Filename Value="src\BuiltInTypes\serverclass.pas"/>
+        <Filename Value="src\BuiltInTypes\bytestreamclass.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ServerClass"/>
       </Unit24>
       <Unit25>
         <Filename Value="src\Units\ultrageninterfaceclass.pas"/>

@@ -3,6 +3,17 @@ begin
   AObj.PValue := TStringInstance(FParams[0]).PValue;
 end;
 
+procedure TCoreFunction.SaveStringStream(AObj: TStringInstance);
+var
+  AStream: TStringStream;
+  FOut: string;
+begin
+  AStream := TStringStream.Create(AObj.PValue);
+  FOut := TStringInstance(FParams[0]).PValue;
+  AStream.SaveToFile(FOut);
+  AStream.Free;
+end;
+
 function TCoreFunction.SliceString(AObj: TStringInstance):TStringInstance;
 var
   Return: string;

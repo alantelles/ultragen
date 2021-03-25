@@ -14,6 +14,8 @@ begin
 		    Ret := CapitalString(TStringInstance(FObj))
       else if FName = 'slice' then
         Ret := SliceString (TStringInstance(FObj))
+      else if FName = 'save' then
+        SaveStringStream(TStringInstance(FObj))
       else if FName = 'pos' then
         Ret := TIntegerInstance.Create(UTF8Pos(
             TStringInstance(FParams[0]).PValue,
