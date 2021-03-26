@@ -14,6 +14,7 @@ const
   TYPE_BOOLEAN = 'BOOLEAN';
   TYPE_NULL = 'NULL';
   TYPE_LIST = 'LIST';
+  TYPE_BYTE = 'BYTE';
 
 
 

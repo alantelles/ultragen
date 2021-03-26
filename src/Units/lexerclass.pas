@@ -38,6 +38,7 @@ type
     function GetString(Delim: string): TToken;
     function GetInnerAttribute: TToken;
     function GetPlainText: TToken;
+    function GetHexaNum: string;
 
   end;
 
@@ -274,6 +275,33 @@ begin
   msg := msg + ' at < Line: ' +
     IntToStr(FScriptLine) + ', Char: ' + IntToStr(FLineChar) + ' >';
   ELexicalError.Create(msg, FFileName, FScriptLine, FLineChar);
+end;
+
+function TLexer.GetHexaNum: string;
+var
+  Return: string = '';
+  GotDot: boolean = False;
+  part1, part2: string;
+  b1, b2: integer;
+begin
+  Advance(2);
+  part1 :=  FCurrChar;
+  {try
+    b1 := StrToInt(part1);
+  except
+    b1 := ord(part1[1]) - 55;
+  end;
+  b1 := b1 * 16;}
+  Advance;
+  part2 := FCurrChar;
+  {try
+    b2 := StrToInt(part1);
+  except
+    b2 := ord(part1[1]) - 55;
+  end;}
+  Advance;
+  //Result := IntToStr(b1 + b2);
+  Result := part1 + part2;
 end;
 
 function TLexer.GetNumber: string;

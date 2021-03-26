@@ -20,6 +20,11 @@
 				      exit
 				  end;
 
+          if (FCurrChar + Peek(1)) = '0x' then
+          begin
+              Result := TToken.Create(TYPE_BYTE, GetHexaNum(), FScriptLine, FLineChar, FFileName);
+              Exit;
+          end;
 
 		      {if (FCurrChar + Peek(1) = '$_') then
 		      begin

@@ -1,2 +1,17 @@
-bs = new ByteStream("o rato vinha e você cantando alegremente")
-bs.save("O pato.txt")
+###
+include @Core.ByteStream
+
+class StringStream
+function init(body) : StringStream
+    self.parent = new ByteStream(body)
+end
+function save(name) : StringStream
+    print("Estou salvando um arquivo")
+    self.parent.save(name)
+end
+
+m = new StringStream("talking for my bullshit")
+m.save('ctuhulh.txt')
+###!
+m = 0xAE
+

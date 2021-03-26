@@ -15,10 +15,32 @@ var
   LiveOut, UHome: string;
   i: integer;
   ParamsNodes: TStringList;
-
+  bT: string;
+  bB: array of byte;
+  lenBb: integer = 0;
+  BStream: TMemoryStream;
 {$R *.res}
 
 begin
+
+  bt := 'um teste côm carãc;te*4&212';
+  SetLength(bB, lenBb);
+  for i:=1 to Length(bt) do
+  begin
+    lenBb := lenBb + 1;
+    SetLength(bB, lenBb);
+    bB[i - 1] := ord(bt[i]);
+  end;
+  BStream := TMemoryStream.Create;
+  for i := 0 to Length(bB) - 1 do
+  begin
+    Writeln(bb[i]);
+    BStream.WriteByte(bb[i]);
+  end;
+  BStream.SaveToFile('teste.txt');
+
+
+  // serious
   LogLevel := '';
   {$IFDEF Windows}DecimalSeparator := '.';{$ENDIF}
   if ParamCount > 0 then
