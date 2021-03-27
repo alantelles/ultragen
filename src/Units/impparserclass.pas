@@ -1339,6 +1339,12 @@ begin
   begin
     Ret := FunctionBlock(True, False);
   end
+  else if (AToken.PType = TYPE_BYTE) then
+  begin
+    Eat(TYPE_BYTE);
+    logtext('PARSER', 'Parser', 'Creating byte node');
+    Ret := TByte.Create(AToken);
+  end
   else if (AToken.PType = TYPE_NULL) then
   begin
     Eat(TYPE_NULL);

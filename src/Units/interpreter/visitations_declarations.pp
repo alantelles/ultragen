@@ -33,6 +33,7 @@ function VisitBinLogicOp(ANode: TBinLogicOp): TBooleanInstance;
 // types
 function VisitBoolean(ANode:TBoolean):TBooleanInstance;
 function VisitNumInt(ANode:TNumInt):TIntegerInstance;
+function VisitByte(ANode:TByte): TByteInstance;
 function VisitNull(ANode:TNull):TNullInstance;
 function VisitNumFloat(ANode:TNumFloat):TFloatInstance;
 function VisitString(ANode:TString):TStringInstance;

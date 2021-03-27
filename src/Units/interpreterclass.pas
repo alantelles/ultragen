@@ -1771,6 +1771,25 @@ begin
   Result := TFloatInstance.Create(ANode.PValue.ToExtended);
 end;
 
+function TInterpreter.VisitByte(ANode: TByte): TByteInstance;
+var
+  up1, up0: integer;
+  byteHex: string;
+begin
+  byteHex := ANode.PValue;
+  try
+    up1 := StrToInt(byteHex[1]);
+  except
+    up1 := (ord(byteHex[1]) - 55) * 16;
+  end;
+  try
+    up0 := StrToInt(byteHex[2]);
+  except
+    up0 := (ord(byteHex[2])) - 55;
+  end;
+  Result := TByteInstance.Create(up1 + up0);
+end;
+
 function TInterpreter.VisitNull(ANode: TNull): TNullInstance;
 begin
 

@@ -67,6 +67,8 @@
 
   else if Anode.ClassNameIs('TNumInt') then
     Ret := VisitNumInt(TNumInt(ANode))
+  else if Anode.ClassNameIs('TByte') then
+    Ret := VisitByte(TByte(ANode))
   else if Anode.ClassNameIs('TNull') then
     Ret := VisitNull(TNull(ANode))
   else if Anode.ClassNameIs('TNumFloat') then

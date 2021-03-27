@@ -8,10 +8,11 @@ end
 function save(name) : StringStream
     print("Estou salvando um arquivo")
     self.parent.save(name)
-end
+end 
 
 m = new StringStream("talking for my bullshit")
 m.save('ctuhulh.txt')
 ###!
-m = 0xAE
-
+a = 0x01
+b = 0x02
+print(a + b)

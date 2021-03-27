@@ -15,15 +15,15 @@ var
   LiveOut, UHome: string;
   i: integer;
   ParamsNodes: TStringList;
-  bT: string;
+  {bT: string;
   bB: array of byte;
   lenBb: integer = 0;
-  BStream: TMemoryStream;
+  BStream: TMemoryStream;}
 {$R *.res}
 
 begin
 
-  bt := 'um teste côm carãc;te*4&212';
+  {bt := 'um teste côm carãc;te*4&212';
   SetLength(bB, lenBb);
   for i:=1 to Length(bt) do
   begin
@@ -37,7 +37,7 @@ begin
     Writeln(bb[i]);
     BStream.WriteByte(bb[i]);
   end;
-  BStream.SaveToFile('teste.txt');
+  BStream.SaveToFile('teste.txt');}
 
 
   // serious
