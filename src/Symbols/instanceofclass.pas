@@ -49,6 +49,16 @@ type
       procedure CopyInstance(var AReceiver: TInstanceOf); override;
 	end;
 
+  TByteInstance = class (TInstanceOf)
+      protected
+      FValue:byte;
+    public
+      property PValue:byte read FValue write FValue;
+      constructor Create(AValue: byte);
+      constructor Create;
+      function AsString: string;  override;
+      procedure CopyInstance(var AReceiver: TInstanceOf); override;
+  end;
 
   TIntegerInstance = class (TInstanceOf)
     protected
@@ -252,6 +262,33 @@ begin
     Result := '<' + AMode + ' ' + FName + ' from type ' + FType + '>'
   else
     Result := '<' + AMode + ' ' + FName + '>';
+end;
+
+
+constructor TByteInstance.Create(AValue: byte);
+begin
+  inherited Create;
+  FValue := AValue;
+  FIntValue := AValue;
+  FCoreType := True;
+end;
+
+constructor TByteInstance.Create;
+begin
+  FCoreType := True;
+end;
+
+procedure TByteInstance.CopyInstance(var AReceiver: TInstanceOf);
+var
+  Cast: TByteInstance;
+begin
+  Cast := TByteInstance.Create(FValue);
+  AReceiver := Cast;
+end;
+
+function TByteInstance.AsString:string;
+begin
+  Result := IntToStr(FValue);
 end;
 
 constructor TIntegerInstance.Create(AValue: integer);
