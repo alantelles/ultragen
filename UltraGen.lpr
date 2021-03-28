@@ -72,16 +72,21 @@ begin
     if ParamCount > 1 then
     begin
 
-
-      i := 2;
-      while ((Copy(ParamStr(i), 1, 2) <> '--')) and
-            (i <= ParamCount) do
+      if ParamStr(1) = '--serve' then
       begin
-        ParamsNodes.Add('$params.append("' + ParamStr(i) + '")');
-        i := i + 1;
+        // start a server
+      end
+      else
+      begin
+        i := 2;
+        while ((Copy(ParamStr(i), 1, 2) <> '--')) and
+              (i <= ParamCount) do
+        begin
+          ParamsNodes.Add('$params.append("' + ParamStr(i) + '")');
+          i := i + 1;
+        end;
+        ParamsNodes.Add('$params.lock()');
       end;
-      ParamsNodes.Add('$params.lock()');
-
 		end;
     BTree := TUltraInterface.ParseStringList(ParamsNodes);
     ParamsNodes.Free;

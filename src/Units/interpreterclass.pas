@@ -497,7 +497,7 @@ end;
 
 function TInterpreter.VisitNewObject(ANode: TNewObject): TInstanceOf;
 var
-  Ret, ToCast: TInstanceOf;
+  Ret, ToCast, ArgInst: TInstanceOf;
   NowAct, NewAct: TActivationRecord;
   ActInst: TDictionaryInstance;
   Gene: TInstanceOf;
@@ -506,6 +506,11 @@ var
   len, i, len2, i2: integer;
   SearchStart: integer;
   ConstRet: TFunctionInstance;
+  // byte stream section
+  c: char;
+  bytearray: array of byte;
+  nextEntry: byte;
+  lenByte: integer = 0;
 begin
   NowAct := FCallStack.Peek();
   // surgery
@@ -547,7 +552,47 @@ begin
       end
       else if ABuilt.PValue = 'TByteStreamInstance' then
       begin
-        Ret := TByteStreamInstance.Create(ArgsList[0]);
+        if not ArgsList[0].ClassNameIs('TListInstance') then
+          RaiseException(E_INVALID_ARGS_TYPE, 'Type');
+        for ArgInst in TListInstance(ArgsList[0]).PValue do
+        begin
+          lenByte := lenByte + 1;
+          if ArgInst.ClassNameIs('TIntegerInstance') then
+          begin
+            if (ArgInst.PIntValue > 255) or (Arginst.PIntValue < 0) then
+              RaiseException('An integer item from a stream input list must by between 0 and 255', 'Byte');
+            Setlength(Bytearray, lenByte);
+            ByteArray[lenByte - 1] := ArgInst.PIntValue;
+          end
+          else if ArgInst.ClassNameIs('TBooleanInstance') then
+          begin
+            setLength(ByteArray, lenbyte);
+            if Arginst.PBoolValue then
+              ByteArray[lenbyte - 1] := 1
+            else
+              Bytearray[lenByte - 1] := 0;
+          end
+          else if Arginst.ClassNameIs('TStringInstance') then
+          begin
+            for c in Arginst.PStrValue do
+            begin
+              lenbyte := lenbyte + 1;
+              setlength(bytearray, lenbyte);
+              bytearray[lenbyte - 1] := ord(c);
+            end;
+          end
+          else if ArgInst.ClassNameIs('TByteInstance') then
+          begin
+            lenByte := lenbyte + 1;
+            SetLength(bytearray, lenbyte);
+            ByteArray[lenByte - 1] := ArgInst.PIntValue;
+          end
+          else
+            RaiseException('Type ' + ArgInst.ClassName + ' is not accepted as ByteStream input list', 'Type');
+          {if not Arginst.ClassNameIs('TByteInstance') then
+            RaiseException('All items of a stream input list must be from type byte', 'Type');}
+        end;
+        Ret := TByteStreamInstance.Create(ByteArray);
       end
       else
       begin

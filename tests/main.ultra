@@ -13,6 +13,7 @@ end
 m = new StringStream("talking for my bullshit")
 m.save('ctuhulh.txt')
 ###!
-a = 0x01
-b = 0x02
-print(a + b)
+include @Core.ByteStream
+collection = [0, 1, 1, 0, "cam1"]
+stream = new ByteStream(collection)
+print(stream)

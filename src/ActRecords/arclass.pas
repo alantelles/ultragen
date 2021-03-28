@@ -275,7 +275,7 @@ begin
   Ret := TInstanceOf(FMembers.Find(AKey));
   if (not ForceRef) and (Ret <> nil) then
   begin
-    if Ret.ClassNameIs('TIntegerInstance') then
+    if Ret.ClassNameIs('TIntegerInstance') or Ret.ClassNameIs('TByteInstance') then
       Ret := TIntegerInstance.Create(Ret.PIntValue)
     else if Ret.ClassNameIs('TBooleanInstance') then
       Ret := TBooleanInstance.Create(Ret.PBoolValue)

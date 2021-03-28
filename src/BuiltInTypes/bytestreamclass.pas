@@ -5,15 +5,18 @@ unit bytestreamclass;
 interface
 
 uses
-  Classes, SysUtils, InstanceOfClass, ARClass, StringInstanceclass;
+  Classes, SysUtils, InstanceOfClass, ARClass, StringInstanceclass, ListInstanceClass;
+
+  type TByteStreamInput = array of byte;
 
   type TByteStreamInstance = class (TInstanceOf)
     protected
-      FValue: TMemoryStream;
+      FValue: TByteStreamInput;
     public
-      property PStream: TMemoryStream read FValue write FValue;
-      constructor Create(AInstance: TInstanceOf);
+
+      constructor Create(ByteArray: TByteStreamInput);
       function SaveStream(OutPath: TStringInstance): TBooleanInstance;
+      function AsString: string;  override;
   end;
 
 
@@ -25,22 +28,31 @@ uses
   ASTClass, TokenClass, Tokens, LexerClass, ImpParserClass, InterpreterClass, StrUtils,
    Dos, UltraGenInterfaceClass, ResponseHandlerClass;
 
-constructor TByteStreamInstance.Create(AInstance: TInstanceOf);
+constructor TByteStreamInstance.Create(ByteArray: TByteStreamInput);
+var
+  i:TInstanceOf;
 begin
   inherited Create;
-  FValue := TMemoryStream.Create;
-  FValue.LoadFromStream(TStringStream.Create(TStringInstance(AInstance).PValue));
+  FValue := ByteArray;
+  //FValue.LoadFromStream(TStringStream.Create(TStringInstance(AInstance).PValue));
+end;
+
+function TByteStreamInstance.AsString: string;
+var
+  i: byte;
+  ret: string = '';
+begin
+  for i in FValue do
+    ret := ret + IntTostr(i) + ' ';
+
+  result := ret;
 end;
 
 function TByteStreamInstance.SaveStream(OutPath: TStringInstance): TBooleanInstance;
+var
+  strSize: integer;
 begin
-  try
-    FValue.SaveToFile(OutPath.PValue);
-    Result := TBooleanInstance.Create(True);
-  except
-    Result := TBooleanInstance.Create(False);
-  end;
-
+  Result := TBooleanInstance.create(True);
 end;
 
 end.
