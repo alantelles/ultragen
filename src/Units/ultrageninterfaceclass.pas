@@ -146,53 +146,53 @@ begin
   // HTTP headers
   WebVars.Add('"headers": {');
     if ARequest.Accept <> '' then
-      WebVars.Add('"accept": "' + ARequest.Accept + '", ');
+      WebVars.Add('"Accept": "' + ARequest.Accept + '", ');
     if ARequest.AcceptCharset <> '' then
-      WebVars.Add('"accept_charset": "' + ARequest.AcceptCharset + '", ');
+      WebVars.Add('"Accept-Charset": "' + ARequest.AcceptCharset + '", ');
     if ARequest.AcceptEncoding <> '' then
-      WebVars.Add('"accept_encoding": "' + ARequest.AcceptEncoding + '", ');
+      WebVars.Add('"Accept-Encoding": "' + ARequest.AcceptEncoding + '", ');
     if ARequest.AcceptLanguage <> '' then
-      WebVars.Add('"accept_language": "' + ARequest.AcceptLanguage + '", ');
+      WebVars.Add('"Accept-Language": "' + ARequest.AcceptLanguage + '", ');
     if ARequest.Authorization <> '' then
-      WebVars.Add('"authorization": "' + ARequest.Authorization + '", ');
+      WebVars.Add('"Authorization": "' + ARequest.Authorization + '", ');
     if ARequest.Connection <> '' then
-      WebVars.Add('"connection": "' + ARequest.Connection + '", ');
+      WebVars.Add('"Connection": "' + ARequest.Connection + '", ');
     if ARequest.ContentEncoding <> '' then
-      WebVars.Add('"content_encoding": "' + ARequest.ContentEncoding + '", ');
+      WebVars.Add('"Content-Encoding": "' + ARequest.ContentEncoding + '", ');
     if ARequest.ContentLanguage <> '' then
-      WebVars.Add('"content_language": "' + ARequest.ContentLanguage + '", ');
+      WebVars.Add('"Content-Language": "' + ARequest.ContentLanguage + '", ');
     if ARequest.ContentLength <> 0 then
-      WebVars.Add('"content_length": "' + IntToStr(ARequest.ContentLength) + '", ');
+      WebVars.Add('"Content-Length": "' + IntToStr(ARequest.ContentLength) + '", ');
     if ARequest.ContentType <> '' then
-      WebVars.Add('"content_type": "' + ARequest.ContentType + '", ');
+      WebVars.Add('"Content-Type": "' + ARequest.ContentType + '", ');
     if ARequest.Cookie <> '' then
-      WebVars.Add('"cookie": "' + ARequest.Cookie + '", ');
+      WebVars.Add('"Cookie": "' + ARequest.Cookie + '", ');
     if ARequest.Date <> '' then
-      WebVars.Add('"date": "' + ARequest.Date + '", ');
+      WebVars.Add('"Date": "' + ARequest.Date + '", ');
     if ARequest.Expires <> '' then
-      WebVars.Add('"expires": "' + ARequest.Expires + '", ');
+      WebVars.Add('"Expires": "' + ARequest.Expires + '", ');
     if ARequest.From <> '' then
-      WebVars.Add('"from": "' + ARequest.From + '", ');
+      WebVars.Add('"From": "' + ARequest.From + '", ');
     if ARequest.IfModifiedSince <> '' then
-      WebVars.Add('"if_modified_since": "' + ARequest.IfModifiedSince + '", ');
+      WebVars.Add('"If-Modified-Since": "' + ARequest.IfModifiedSince + '", ');
     if ARequest.LastModified <> '' then
-      WebVars.Add('"last_modified": "' + ARequest.LastModified + '", ');
+      WebVars.Add('"Last-Modified": "' + ARequest.LastModified + '", ');
     if ARequest.Location <> '' then
-      WebVars.Add('"location": "' + ARequest.Location + '", ');
+      WebVars.Add('"Location": "' + ARequest.Location + '", ');
     if ARequest.Pragma <> '' then
-      WebVars.Add('"pragma": "' + ARequest.Pragma + '", ');
+      WebVars.Add('"Pragma": "' + ARequest.Pragma + '", ');
     if ARequest.Referer <> '' then
-      WebVars.Add('"referer": "' + ARequest.Referer + '", ');
+      WebVars.Add('"Referer": "' + ARequest.Referer + '", ');
     if ARequest.RetryAfter <> '' then
-      WebVars.Add('"retry_after": "' + ARequest.RetryAfter + '", ');
+      WebVars.Add('"Retry-After": "' + ARequest.RetryAfter + '", ');
     if ARequest.Server <> '' then
-      WebVars.Add('"server": "' + ARequest.Server + '", ');
+      WebVars.Add('"Server": "' + ARequest.Server + '", ');
     if ARequest.SetCookie <> '' then
-      WebVars.Add('"set_cookie": "' + ARequest.SetCookie + '", ');
+      WebVars.Add('"Set-Cookie": "' + ARequest.SetCookie + '", ');
     if ARequest.UserAgent <> '' then
-      WebVars.Add('"user_agent": "' + ARequest.UserAgent + '", ');
+      WebVars.Add('"User-Agent": "' + ARequest.UserAgent + '", ');
     if ARequest.WWWAuthenticate <> '' then
-      WebVars.Add('"www_authenticate": "' + ARequest.WWWAuthenticate + '", ');
+      WebVars.Add('"WWW-Authenticate": "' + ARequest.WWWAuthenticate + '", ');
 
 
     for V in ARequest.CustomHeaders do
