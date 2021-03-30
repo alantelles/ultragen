@@ -4,6 +4,10 @@ include @Core.FileSystem
 
 class Session
 function start() : Session
+    include @Core.OS    
+    include @Core.FileSystem
+    Session.path = (OS.getEnv('ULTRAGEN_HOME')) + '/' + 'sessions/' + (Session.key)
+    FileSystem.mkdir(Session.path, true)
     Session.erase = false    
     full_key = 'UGAPPSESSID_' + (Session.key)
     started = Cookies.get(full_key)
@@ -14,7 +18,7 @@ function start() : Session
         Cookies.set('UGAPPSESSID_' + (Session.key), Session.id)
     else
         Session.id = started
-        session_path = 'sessions/' + (Session.id)
+        session_path = (Session.path) + '/' + (Session.id)
         if ((FileSystem.isFile(session_path)))
             Session.content = JSON.parseFile(session_path)
         end
@@ -56,7 +60,7 @@ function destroy() : Session
     Cookies.unset(full_key)
     Session.erase = true
     if (id)
-        session_path = './sessions/' + str(id)
+        session_path = (Session.path) + '/' + str(id)
         exist = FileSystem.isFile(session_path)
         if(exist)
             FileSystem.delete(session_path)
@@ -69,7 +73,7 @@ function save() : Session
     # hasData = (Session.content["__DATA__"].keys().length()) != 0
     # hasFlash = (Session.content["__FLASH__"].length()) != 0
     if(!(Session.erase))
-        session_path = './sessions/' + (Session.id)
+        session_path = (Session.path) + '/' + (Session.id)
         JSON.createFile(Session.content, session_path)
     end
 end
