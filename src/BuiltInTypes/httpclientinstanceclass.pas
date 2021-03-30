@@ -23,7 +23,7 @@ type THttpClientInstance = class (TInstanceOf)
   end;
 
 implementation
-uses CoreUtils, StringInstanceCLass;
+uses CoreUtils, StringInstanceCLass, byteStreamClass;
 
 constructor THttpResponseInstance.Create(AClient: TFPHttpClient; AUrl, AResponse: string);
 var
@@ -50,6 +50,7 @@ begin
   FMembers.Add('status', TIntegerInstance.Create(AClient.ResponseStatusCode));
   FMembers.Add('headers', AHeaders);
   FMembers.Add('text', TStringInstance.Create(AResponse));
+  FMembers.Add('content', TByteStreamInstance.Create(AResponse));
   FMembers.Add('url', TStringInstance.Create(AUrl));
 end;
 

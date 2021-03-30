@@ -45,7 +45,8 @@ type
 
 
        //functions
-      function SaveByteStream(AObj: TByteStreamInstance): TBooleanInstance;
+
+      {$INCLUDE 'bytestream/declarations.pp'}
       {$INCLUDE 'string/declarations.pp'}
       {$INCLUDE 'list/declarations.pp'}
       {$INCLUDE 'integer/declarations.pp'}
@@ -237,11 +238,7 @@ begin
   {$INCLUDE 'appresponse/options.pp'}
   {$INCLUDE 'httpclient/options.pp'}
   {$INCLUDE 'datetime/options.pp'}
-  else if AType = 'TByteStreamInstance' then
-  begin
-    if FName = 'save' then
-      Ret := SaveByteStream(TByteStreamInstance(FObj));
-  end
+  {$INCLUDE 'bytestream/options.pp'}
   else
     raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.', '', 1, 1);
   // functions
@@ -560,14 +557,12 @@ begin
     raise ETypeError.Create('Can''t convert value "'+FParams[0].ClassName+'" to integer', '', 1, 1);
 end;
 
-function TCoreFunction.SaveByteStream(AObj: TByteStreamInstance): TBooleanInstance;
-begin
-  Result := AObj.SaveStream(TStringInstance(FParams[0]));
-end;
+
 
 {$INCLUDE 'string/functions.pp'}
 {$INCLUDE 'list/functions.pp'}
-{{$INCLUDE 'cookies/functions.pp'}}
+{$INCLUDE 'bytestream/functions.pp'}
+
 {$INCLUDE 'os/functions.pp'}
 
 {$INCLUDE 'filesystem/functions.pp'}

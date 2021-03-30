@@ -41,6 +41,9 @@ begin
   AType := TDataType.Create('TByteStreamInstance', 'ByteStream');
   AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TByteStreamInstance', True,False, False);
   AType.PMembers.Add('save', AFunc);
+  AType.PMembers.Add('read', AFunc);
+  AType.PMembers.Add('write', AFunc);
+  AType.PMembers.Add('length', AFunc);
   AActRec.AddMember('ByteStream', AType);
 end;
 

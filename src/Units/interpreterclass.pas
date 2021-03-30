@@ -121,6 +121,8 @@ begin
   AServerType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TServerInstance', True);}
   AActRec := FCallStack.GetFirst();
 
+  TTypeLoader.LoadType('ByteStream', self, AActrec);
+
   AJsonType := TDataType.Create('TJsonInstance', 'JSON');
   AJsonType.PMembers.Add('parse', AJsonFunc);
   AJsonType.PMembers.Add('parseFile', AJsonFunc);
@@ -552,45 +554,51 @@ begin
       end
       else if ABuilt.PValue = 'TByteStreamInstance' then
       begin
-        if not ArgsList[0].ClassNameIs('TListInstance') then
-          RaiseException(E_INVALID_ARGS_TYPE, 'Type');
-        for ArgInst in TListInstance(ArgsList[0]).PValue do
+        if Length(ArgsList) = 0 then
+          SetLength(ByteArray, 0)
+        else
         begin
-          lenByte := lenByte + 1;
-          if ArgInst.ClassNameIs('TIntegerInstance') then
+          if not ArgsList[0].ClassNameIs('TListInstance') then
+            RaiseException(E_INVALID_ARGS_TYPE, 'Type');
+          for ArgInst in TListInstance(ArgsList[0]).PValue do
           begin
-            if (ArgInst.PIntValue > 255) or (Arginst.PIntValue < 0) then
-              RaiseException('An integer item from a stream input list must by between 0 and 255', 'Byte');
-            Setlength(Bytearray, lenByte);
-            ByteArray[lenByte - 1] := ArgInst.PIntValue;
-          end
-          else if ArgInst.ClassNameIs('TBooleanInstance') then
-          begin
-            setLength(ByteArray, lenbyte);
-            if Arginst.PBoolValue then
-              ByteArray[lenbyte - 1] := 1
-            else
-              Bytearray[lenByte - 1] := 0;
-          end
-          else if Arginst.ClassNameIs('TStringInstance') then
-          begin
-            for c in Arginst.PStrValue do
+            lenByte := lenByte + 1;
+            if ArgInst.ClassNameIs('TIntegerInstance') then
             begin
-              lenbyte := lenbyte + 1;
-              setlength(bytearray, lenbyte);
-              bytearray[lenbyte - 1] := ord(c);
-            end;
-          end
-          else if ArgInst.ClassNameIs('TByteInstance') then
-          begin
-            lenByte := lenbyte + 1;
-            SetLength(bytearray, lenbyte);
-            ByteArray[lenByte - 1] := ArgInst.PIntValue;
-          end
-          else
-            RaiseException('Type ' + ArgInst.ClassName + ' is not accepted as ByteStream input list', 'Type');
-          {if not Arginst.ClassNameIs('TByteInstance') then
-            RaiseException('All items of a stream input list must be from type byte', 'Type');}
+              if (ArgInst.PIntValue > 255) or (Arginst.PIntValue < 0) then
+                RaiseException('An integer item from a stream input list must by between 0 and 255', 'Byte');
+              Setlength(Bytearray, lenByte);
+              ByteArray[lenByte - 1] := ArgInst.PIntValue;
+            end
+            else if ArgInst.ClassNameIs('TBooleanInstance') then
+            begin
+              setLength(ByteArray, lenbyte);
+              if Arginst.PBoolValue then
+                ByteArray[lenbyte - 1] := 1
+              else
+                Bytearray[lenByte - 1] := 0;
+            end
+            else if Arginst.ClassNameIs('TStringInstance') then
+            begin
+              lenbyte := lenbyte - 1;
+              for c in Arginst.PStrValue do
+              begin
+                lenbyte := lenbyte + 1;
+                setlength(bytearray, lenbyte);
+                bytearray[lenbyte - 1] := ord(c);
+              end;
+            end
+            else if ArgInst.ClassNameIs('TByteInstance') then
+            begin
+
+              SetLength(bytearray, lenbyte);
+              ByteArray[lenByte - 1] := ArgInst.PIntValue;
+            end
+            else
+              RaiseException('Type ' + ArgInst.ClassName + ' is not accepted as ByteStream input list', 'Type');
+            {if not Arginst.ClassNameIs('TByteInstance') then
+              RaiseException('All items of a stream input list must be from type byte', 'Type');}
+          end;
         end;
         Ret := TByteStreamInstance.Create(ByteArray);
       end

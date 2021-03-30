@@ -2,5 +2,9 @@
 
 POST {{url}}/getbin
 Content-Type: application/octet-stream
+X-FileName: forceerror.txt
 
-< ./ailog.png
+< ./force.txt
+
+###
+GET {{url}}/off

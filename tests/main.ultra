@@ -1,19 +1,4 @@
-###
-include @Core.ByteStream
-
-class StringStream
-function init(body) : StringStream
-    self.parent = new ByteStream(body)
-end
-function save(name) : StringStream
-    print("Estou salvando um arquivo")
-    self.parent.save(name)
-end 
-
-m = new StringStream("talking for my bullshit")
-m.save('ctuhulh.txt')
-###!
-include @Core.ByteStream
-collection = [0, 1, 1, 0, "cam1"]
-stream = new ByteStream(collection)
-print(stream)
+include @Core.Request
+url = "https://images.unsplash.com/photo-1573614999645-e5f0f16ec15d?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxleHBsb3JlLWZlZWR8Mnx8fGVufDB8fHw%3D&w=1000&q=80"
+m = Request.get(url)
+m.content.save('wallpaper.png')

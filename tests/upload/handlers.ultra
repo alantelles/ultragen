@@ -9,6 +9,13 @@ function index(params) : Handlers
     live Base(content)
 end
 
+function receiveOctet(params) : Handlers
+    stream = $request[:body_content]
+    fname = $request[:headers]['x_filename']
+    stream.save('uploaded/' + fname)
+    live 'saved?'
+end
+
 function saveUploadedFile(params) : Handlers
     function getPathOut(folder, name)
         out = '.\\uploaded\\' + folder + '\\' + str(name)
