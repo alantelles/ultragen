@@ -33,6 +33,7 @@ const
   T_ELSE = 'T_ELSE';
   T_ELSE_IF = 'T_ELSE_IF';
   T_CONTINUE = 'T_CONTINUE';
+  T_LAMBDA = 'T_LAMBDA';
   T_BREAK = 'T_BREAK';
   T_RETURN = 'T_RETURN';
   T_WHILE_LOOP = 'block:T_WHILE_LOOP';
@@ -120,6 +121,7 @@ begin
   KW.Add('include=' +  T_INCLUDE);
   KW.Add('new=' +  T_NEW_OBJECT);
   KW.Add('class=' + T_CLASS_DEF);
+  KW.Add('lambda=' + T_LAMBDA);
 
   Inners := TStringList.Create;
   Inners.Add('LIVE=' + T_LIVE_PRINT);

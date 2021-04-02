@@ -199,7 +199,7 @@ begin
     begin
       i := Pos('=', V);
       K := Copy(V, 1, i-1);
-      WebVars.Add('"' + Replacestr(K, '-', '_') + '": """' + ARequest.CustomHeaders.Values[K] + '""", ');
+      WebVars.Add('"' + K + '": """' + replaceStr(ARequest.CustomHeaders.Values[K], '/', '//') + '""", ');
     end;
     WebVars.Add('"host": "'+ARequest.Host+'"');
   WebVars.Add('  } ');

@@ -37,6 +37,7 @@ type
     function VarShortAssign(AToken: TToken; ShortCutType: string): TAST;
     function Variable(AToken: TToken): TAST;
     function FunctionBlock(Anony, IsDecorator:boolean): TAST;
+    function LambdaDef: TAST;
 
     function ExpandArgs: TAST;
     function DefParams: TASTList;
@@ -409,6 +410,67 @@ begin
   Result := TString.Create(AToken);
 end;
 
+function TTParser.LambdaDef: TAST;
+var
+  AStrId: string;
+  ParamList: TASTList;
+  InBlock: TASTList;
+  AToken: TToken;
+  AType:string = '';
+  AName:string;
+  OpenType: string;
+  AccVar: boolean=False;
+begin
+  // lambda (arg) : print(arg)
+  SetLength(ParamList, 0);
+  {if FCurrentToken.PType = T_DECOR_DEF then
+  begin
+    OpenType := T_DECOR_DEF;
+    Eat(T_DECOR_DEF)
+  end
+  else
+  begin
+    OpenType := T_FUNC_DEF;
+    Eat(T_FUNC_DEF);
+  end;}
+  Eat(T_LAMBDA);
+  AName := FormatDateTime('yyyymmddhhnnsszzz', Now);
+  AToken := TToken.Create(FCurrentToken.PType, AName,
+         FLexer.PScriptLine, FLexer.PLineChar, FLexer.PFileName);
+  AStrId := AName;
+  {if not Anony then
+    Eat(T_ID);}
+  Eat(T_LPAREN);
+  FInArgsDef := True;
+  ParamList := DefParams();
+  Eat(T_RPAREN);
+  if FCurrentToken.PType = T_MULT then
+  begin
+    AccVar := True;
+    Eat(T_MULT);
+  end;
+  {if FCurrentToken.PType = T_DICT_ASSIGN then
+  begin
+    Eat(T_DICT_ASSIGN);
+    AType := FCurrentToken.PValue;
+    Eat(T_ID);
+  end;}
+  Eat(T_DICT_ASSIGN);
+  // FInArgsDef := False;
+  if FLexer.PExtension <> '.ultra' then
+    FLexer.PScriptMode := False;
+  //Eat(T_NEWLINE);
+  SetLength(InBlock, 1);
+  InBlock[0] := Statement();
+  //Eat(T_END + OpenType);
+  logtext('PARSER', 'Parser', 'Creating lambda node');
+  {if AType <> '' then
+    AStrId := AType + ':' + AStrId;}
+  //if not IsDecorator then
+    Result := TFunctionDefinition.Create(AToken, AStrId, InBlock, ParamList, AType, False, AccVar);
+  {else
+    Result := TDecoratorDefinition.Create(AToken, AStrId, InBlock, ParamList, AType, IsDecorator, AccVar);}
+end;
 
 function TTParser.FunctionBlock(Anony, IsDecorator:boolean): TAST;
 var
@@ -1334,6 +1396,10 @@ begin
   else if (AToken.PType = T_DICT_ASSIGN) then
   begin
     Ret := InstaLiteral();
+  end
+  else if (AToken.PType = T_LAMBDA) then
+  begin
+    Ret := LambdaDef;
   end
   else if (AToken.PType = T_FUNC_DEF) then
   begin

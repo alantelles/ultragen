@@ -1,4 +1,2 @@
-include @Core.Request
-url = "https://images.unsplash.com/photo-1573614999645-e5f0f16ec15d?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxleHBsb3JlLWZlZWR8Mnx8fGVufDB8fHw%3D&w=1000&q=80"
-m = Request.get(url)
-m.content.save('wallpaper.png')
+x = lambda (arg) : print(arg)
+x(99)
