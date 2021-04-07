@@ -63,8 +63,11 @@ function urlFor(name, params={}) : Router
             if (strOut == '')
                 strOut = '/'
             end
-            
-            return (self.url_prefix) + strOut + queryStr
+            strPre = ''
+            if ((self.url_prefix) != '')
+                strPre = '/'
+            end
+            return strPre + (self.url_prefix) + strOut + queryStr
         end
     end
     raise("The given name '" + name + "' doesn't match any url in this router", 'Router')
