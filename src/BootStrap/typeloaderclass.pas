@@ -17,11 +17,23 @@ type TTypeLoader = class
     class procedure LoadResponseHandler(var AActRec: TActivationRecord);
     class procedure LoadServerInstance(var AActRec: TActivationRecord);
     class procedure LoadByteStream(var AActRec: TActivationRecord);
+    class procedure LoadMarkdownParser(var AActRec: TActivationrecord);
     // class procedure LoadCookiesHandler(var AActRec: TActivationrecord);
 end;
 
 implementation
 
+class procedure TTypeLoader.LoadMarkdownParser(var AActRec: TActivationRecord);
+var
+  AFunc: TFunctionInstance;
+  AType: TDataType;
+begin
+  Atype := TDataType.Create('TMarkdownParserInstance', 'Markdown');
+  AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TMarkdownParserInstance', True,False, False);
+  AType.PMembers.Add('parse', AFunc);
+  AType.PMembers.Add('parseFile', AFunc);
+  AActRec.AddMember('Markdown', AType);
+end;
 
 class procedure TTypeLoader.LoadOS(var AActRec: TActivationRecord);
 var
@@ -167,6 +179,8 @@ begin
     TTypeLoader.LoadServerInstance(AActRec)
   else if AName = 'AppResponse' then
     TTypeLoader.LoadResponseHandler(AActRec)
+  else if AName = 'Markdown' then
+    TTypeLoader.LoadMarkdownParser(AActRec)
   else
     AInter.RaiseException('Type "'+AName+'" does not exist and can''t be loaded', 'RunTime');
 end;

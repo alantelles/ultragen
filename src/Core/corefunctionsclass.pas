@@ -65,7 +65,7 @@ var
 implementation
 
 uses
-  CoreUtils, ExceptionsClasses, Math, ASTClass, crt, LazUTF8, FileUtil, Dos, Tokens;
+  CoreUtils, ExceptionsClasses, Math, ASTClass, crt, LazUTF8, FileUtil, Dos, Tokens, MarkdownProcessor;
 
 function TCoreFunction.Execute(AInter: TInterpreter; Fname:string; var AArgList:TInstanceList; var AObj: TInstanceOf):TInstanceOf;
 var
@@ -73,7 +73,8 @@ var
   AuxStr:string;
   DotPos, len, i, j: integer;
   Ret, Aux: TInstanceOf;
-
+  MDProc: TMarkdownProcessor;
+  AuxStrList: TStringList;
 begin
   FInter := AInter;
   Ret := TNullInstance.create;
@@ -219,6 +220,26 @@ begin
       raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.', '', 1, 1);
   // procs
 	end
+
+  else if AType = 'TMarkdownParserInstance' then
+  begin
+    if Fname = 'parse' then
+    begin
+      MdProc := TMarkdownProcessor.CreateDialect(mdCommonMark);
+      Ret := TStringInstance.Create(MdProc.process(TStringInstance(FParams[0]).PValue));
+      MdProc.Free;
+    end
+    else if FName = 'parseFile' then
+    begin
+      AuxStrList := TStringList.Create;
+      AuxStrList.SkipLastLineBreak := True;
+      AuxStrList.LoadFromFile(TStringInstance(FParams[0]).PValue);
+      MdProc := TMarkdownProcessor.CreateDialect(mdCommonMark);
+      Ret := TStringInstance.Create(AuxStrList.Text);
+      Mdproc.Free;
+
+    end;
+  end
 
   else if AType = 'TJsonInstance' then
   begin
