@@ -1,2 +1,11 @@
-x = lambda (arg) : print(arg)
-x(99)
+function zika()
+    print('zika')
+end
+
+zika = null
+
+if (zika)
+    print('passou')
+else
+    print('nao passou')
+end

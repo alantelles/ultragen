@@ -740,7 +740,7 @@ var
   len, i: integer;
   AActRec: TActivationRecord;
 begin
-  AActRec := FCallStack.GetFirst;
+  AActRec := FCallStack.Peek;
   len := Length(ANode.PTypeNames);
   for i := 0 to len-1 do
     TTypeLoader.LoadType(ANode.PTypeNames[i].PToken.PValue, Self, AActRec);
