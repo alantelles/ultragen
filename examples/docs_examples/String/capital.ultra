@@ -1,0 +1,10 @@
+m = "this is a capital demo."
+demo = m.capital()
+print(demo)
+demo = m.capital(true)
+print(demo)
+demo = m.capital(false)
+print(demo)
+# This is a capital demo.
+# This Is A Capital Demo.
+# This is a capital demo.

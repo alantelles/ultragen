@@ -1,0 +1,11 @@
+s = "This is a split demo"
+x = s.split(' ')
+print(x)
+x = s.split()
+print(x)
+code = "1414-9284-0291"
+x = code.split('-')
+print(x)
+# ['This', 'is', 'a', 'split', 'demo']
+# ['T', 'h', 'i', 's', ' ', 'i', 's', ' ', 'a', ' ', 's', 'p', 'l', 'i', 't', ' ', 'd', 'e', 'm', 'o']
+# ['1414', '9284', '0291']

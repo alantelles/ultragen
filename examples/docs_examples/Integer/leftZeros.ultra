@@ -1,0 +1,7 @@
+x = 491
+print(x.leftZeros(5))
+print(x.leftZeros(7))
+print(x.leftZeros(2))
+# 00000491
+# 0000000491
+# 00491

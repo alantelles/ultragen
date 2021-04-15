@@ -18,7 +18,7 @@ procedure LogDebug(AMsg: string; AFrom:string = 'Generic log: ');
 procedure LogTrace(AMsg: string; AFrom:string = 'Generic log: ');
 
 var
-  LogLevel:string = DEBUG;
+  LogLevel:string = '';
 
 implementation
 

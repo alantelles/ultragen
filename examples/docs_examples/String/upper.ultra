@@ -1,0 +1,4 @@
+m = "this is a upper demo."
+mUp = m.upper()
+print(mUp)
+# THIS IS A UPPER DEMO.

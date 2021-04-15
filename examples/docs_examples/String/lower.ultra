@@ -1,0 +1,4 @@
+m = "THIS IS A LOWER DEMO."
+mLow = m.lower()
+print(mLow)
+# this is a lower demo.

@@ -10,16 +10,50 @@ uses
       StrUtils, LoggingClass, httpdefs, httpprotocol, ARCLass;
 
 type
+
+
+  TUltraAdapter = class
+    private
+      FActRec: TActivationRecord;
+    public
+      property ActRec: TActivationRecord read FActRec;
+      constructor Create(AName:string);
+      function AddMember(AName: string; AValue:string):boolean;
+      function AddMember(AName: string; AValue:integer):boolean;
+  end;
   TUltraInterface = class
     public
+
       class function ParseString(AStringCode:string): TAST;
       class function ParseStringList(var AList: TStringList): TAST;
       class function ParseWebRequest(var ARequest: TRequest; var AResponse: TResponse; TraceLog: string): TAST;
       class function InterpretScript(AFilePath: string; APreludes: TProgram; InsertActRec: TActivationRecord; InsertName: string; AResponse: TResponse; ARequest: TRequest; AMimeFile: TStringList): string;
+      class function InterpretScript(
+        AFilePath: string;
+        APreludes: TProgram;
+        InsertActRec: TActivationRecord): string;
+      class function InterpretScript(
+        AFilePath: string;
+        APreludeList: TStringList;
+        AnAdapter: TUltraAdapter): string;
     end;
 
 implementation
-uses Dos, ResponseHandlerClass, StringInstanceClass;
+uses Dos, ResponseHandlerClass, StringInstanceClass, InstanceOfClass;
+
+constructor TUltraAdapter.Create(AName:string);
+begin
+  FActRec := TActivationRecord.Create(AName, 'EXTERNAL', 0);
+end;
+
+function TUltraAdapter.AddMember(AName: string; AValue: string):boolean;
+begin
+  Result := FActRec.AddMember(AName, TStringInstance.Create(AValue));
+end;
+function TUltraAdapter.AddMember(AName: string; AValue: integer):boolean;
+begin
+  Result := FActRec.AddMember(AName, TIntegerInstance.Create(AValue));
+end;
 
 class function TUltraInterface.ParseString(AStringCode: string): TAST;
 var
@@ -34,7 +68,48 @@ begin
   Result := ATree;
 end;
 
-class function TUltraInterface.InterpretScript(AFilePath: string; APreludes: TProgram; InsertActRec: TActivationRecord; InsertName:string; AResponse: TResponse; ARequest: TRequest; AMimeFile: TStringList): string;
+class function TUltraInterface.InterpretScript(
+  AFilePath: string;
+  APreludes: TProgram;
+  InsertActRec: TActivationRecord): string;
+begin
+  Result :=  InterpretScript(
+    AFilePath,
+    APreludes,
+    InsertActRec,
+    InsertActRec.PName,
+    nil,
+    nil,
+    nil);
+end;
+
+class function TUltraInterface.InterpretScript(
+  AFilePath: string;
+  APreludeList: TStringList;
+  AnAdapter: TUltraAdapter):string;
+var
+  APreludes: TProgram;
+begin
+
+  APreludes := TProgram(TUltraInterface.ParseStringList(APreludeList));
+  Result :=  InterpretScript(
+    AFilePath,
+    APreludes,
+    AnAdapter.ActRec,
+    AnAdapter.ActRec.PName,
+    nil,
+    nil,
+    nil);
+end;
+
+class function TUltraInterface.InterpretScript(
+  AFilePath: string;
+  APreludes: TProgram;
+  InsertActRec: TActivationRecord;
+  InsertName:string; AResponse:
+  TResponse;
+  ARequest: TRequest;
+  AMimeFile: TStringList): string;
 var
   len, i: integer;
   AParser: TTParser;

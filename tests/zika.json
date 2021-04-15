@@ -1,0 +1,1 @@
+{"examples": "```\nelems = ['item 1', 'item 2', 'item 3']\nfor(10, i)\n    now = i.cycle(*elems)\n    print(now)\nend\n# output:\n###\nitem 1\nitem 2\nitem 3\nitem 1\nitem 2\nitem 3\nitem 1\nitem 2\nitem 3\nitem 1\n###!\n```"}

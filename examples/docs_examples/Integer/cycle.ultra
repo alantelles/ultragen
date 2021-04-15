@@ -1,6 +1,3 @@
-include @Core.Request
-
-content = """```ruby
 elems = ['item 1', 'item 2', 'item 3']
 for(10, i)
     # the * symbol unpacks a list
@@ -17,8 +14,3 @@ end
 # index 7: item 2
 # index 8: item 3
 # index 9: item 1
-```"""
-body = {"examples": '\\n'.join(content.split('\n'))}
-
-r = Request.put('http://localhost:5000/api/members/1/', JSON.create(body), {"Content-Type": "application/json"})
-print(r.text)
