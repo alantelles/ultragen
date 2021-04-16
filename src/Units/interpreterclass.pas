@@ -1430,7 +1430,12 @@ begin
     end
 	end
 	else
+  begin
     AFileName := TStringInstance(Visit(ANode.PFilename)).PValue;
+    if DirectoryExists(AFileName) then
+      AFileName := AFileName + DirectorySeparator + '_init.ultra';
+
+  end;
   ALexer := TLexer.Create(AFileName);
   AParser := TTParser.Create(ALexer);
   ATree := AParser.ParseCode;

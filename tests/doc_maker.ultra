@@ -13,10 +13,8 @@ member = $params[1]
 id = $params[2]
 path = getPath(type, member)
 content = FileSystem.loadText(path)
-# content.prepend('```ruby')
-# content.append('```')
 
-body = {"examples": '\\n'.join(content).replace('"', '\\"')}
+body = {"examples": '\\n'.join(content)}
 print(JSON.create(body))
-r = Request.put('http://localhost:5000/api/members/' + id + '/', JSON.create(body), {"Content-Type": "application/json"})
+r = Request.put('https://ultragendocsapi.herokuapp.com/api/members/' + id + '/', JSON.create(body), {"Content-Type": "application/json"})
 print(r.text)

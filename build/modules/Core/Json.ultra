@@ -31,7 +31,7 @@ function create(obj) : JSON
         if (x > -1)
             return str(data).lower()
         elsif (input_type == (String.internal))
-            return '"' + data + '"'
+            return '"' + (data.replace('"', '\\"')) + '"'
         elsif (input_type == (Dict.internal))
             kk = dumpObj(data)
             return kk
