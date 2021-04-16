@@ -240,7 +240,13 @@ begin
       AuxStrList := TStringList.Create;
       AuxStrList.SkipLastLineBreak := True;
       AuxStrList.LoadFromFile(TStringInstance(FParams[0]).PValue);
-      MdProc := TMarkdownProcessor.CreateDialect(mdCommonMark);
+      if Length(FParams) = 2 then
+      begin
+        MdProc := TMarkdownProcessor.CreateDialect(mdDaringFireball);
+        MdProc.UnSafe := TBooleanInstance(FParams[1]).PValue;
+      end
+      else
+        MdProc := TMarkdownProcessor.CreateDialect(mdCommonMark);
       Ret := TStringInstance.Create(MdProc.Process(AuxStrList.Text));
       Mdproc.Free;
 
