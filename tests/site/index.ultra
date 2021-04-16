@@ -18,7 +18,7 @@ $router.get('/', :index, function(params)
         Session.destroy()
         AppResponse.redirect('/login')
     end
-    include 'cookies.ultra'
+    include 'cookies'
     live Base(content)
 end)
 

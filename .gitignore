@@ -31,3 +31,5 @@ lib/
 
 
 build/bin/ultragen
+build/bin/sessions/*
+!build/bin/sessions/.keep
