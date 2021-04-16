@@ -193,6 +193,7 @@ var
   Ret: string = '';
   FoundType: string;
   iToken: integer;
+  AuxStr: string;
 begin
   Ret := FCurrChar;
   Advance;
@@ -202,12 +203,29 @@ begin
     Advance;
   end;
   iToken := KW.IndexOfName(Ret);
-  if (iToken > -1) and (KW.Names[iToken] = Ret) then
+  if (iToken > -1) then
   begin
-    FoundType := KW.ValueFromIndex[iToken];
-    if Copy(FoundType, 1, 6) = 'block:' then
-      FScopeType.Add(FoundType);
-    Result := TToken.Create(FoundType, FoundType, FScriptLine, FLineChar, FFileName);
+    if (KW.Names[iToken] = Ret) then
+    begin
+      if Ret = 'end' then
+      begin
+        try
+          AuxStr := FScopeType[FSCopeType.Count-1];
+		      FScopeType.Delete(FScopeType.Count-1);
+
+        except
+          EParseError('Using "end" in a non-block scope');
+        end;
+        Result := TToken.Create(T_END+AuxStr,T_END+AuxStr, FScriptLine, FLineChar, FFileName);
+      end
+      else
+      begin
+        FoundType := KW.ValueFromIndex[iToken];
+        if Copy(FoundType, 1, 6) = 'block:' then
+          FScopeType.Add(FoundType);
+        Result := TToken.Create(FoundType, FoundType, FScriptLine, FLineChar, FFileName);
+      end;
+    end
   end
   else
     Result := TToken.Create(T_ID, Ret, FScriptLine, FLineChar, FFileName);

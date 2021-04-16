@@ -122,6 +122,7 @@ begin
   KW.Add('new=' +  T_NEW_OBJECT);
   KW.Add('class=' + T_CLASS_DEF);
   KW.Add('lambda=' + T_LAMBDA);
+  KW.Add('end=' + T_END);
 
   Inners := TStringList.Create;
   Inners.Add('LIVE=' + T_LIVE_PRINT);

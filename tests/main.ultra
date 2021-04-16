@@ -1,2 +1,14 @@
 endereco = 'zika'
 print(endereco)
+
+function t(a)
+    if (a > 5)
+        print("eh maior")
+    else
+        print('eh menor')
+    end
+end
+
+t(6)
+t(7)
+t(3)

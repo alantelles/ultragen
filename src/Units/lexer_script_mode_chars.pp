@@ -58,7 +58,7 @@
 		        exit;
 		      end;
 
-		      if (FCurrChar + Peek(2)) = 'end' then
+		      {if (FCurrChar + Peek(2)) = 'end' then
 		      begin
 		        Advance(3);
 
@@ -71,7 +71,7 @@
             end;
             Result := TToken.Create(T_END+AuxStr,T_END+AuxStr, FScriptLine, FLineChar, FFileName);
 		        exit
-		      end;
+		      end;}
 
           if (FCurrChar + Peek(2)) = '###' then
           begin
