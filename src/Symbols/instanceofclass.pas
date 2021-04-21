@@ -13,6 +13,8 @@ type
 
       FMembers: TFPHashObjectList;
       FSymbol: TSymbol;
+      FError: boolean;
+      FErrorMsg: string;
       FIntValue: integer;
       FStrValue: string;
       FBoolValue: boolean;
@@ -22,6 +24,8 @@ type
 
     public
       //property PPtrVal: PtrInst read FPtrVal write FPtrVal;
+      property PError: boolean read FError write FError;
+      property PErrorMsg: string read FErrorMsg write FErrorMsg;
       property PMembers: TFPHashObjectList read FMembers write FMembers;
       property PCoreType: boolean read FCoreType write FCoreType;
       property PSymbol: TSymbol read FSymbol;

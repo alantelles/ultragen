@@ -1,7 +1,16 @@
 // options
 else if AType = 'THttpClientInstance' then
 begin
-  if FName = 'get' then
+  if FName = 'run' then
+  begin
+    if Length(FParams) = 2 then
+    begin
+      Ret := THttpClientInstance(FObj).DoRequest(TStringInstance(FParams[0]).PValue, TStringInstance(FParams[1]).PValue);
+    end
+    else
+      FInter.RaiseException(E_INVALID_ARGS, 'Arguments');
+  end
+  else if FName = 'get' then
   begin
     if Length(FParams) = 1 then
       Ret := THttpClientInstance.RequestGet('get', TStringInstance(FParams[0]).PValue)

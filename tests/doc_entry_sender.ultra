@@ -1,0 +1,11 @@
+include @Core.Request
+include @Core.FileSystem
+
+url = 'http://ultragendocsapi.herokuapp.com/api/docs/2/'
+doc = "\\n".join(FileSystem.loadText('gs.md'))
+body = JSON.create({'content': doc})
+headers = {
+    'Authorization': 'Bearer 9_1nHR2H6Xxa37lAo9ScyMZmqElbNv5ngNAusGaO2YP5cbgyRLzk9h5iVI-1Chc7vaESpCiGg7nt8RIf42CW2Q', 
+    'Content-Type': 'application/json'}
+r = Request.put(url, body, headers)
+print(r.text)

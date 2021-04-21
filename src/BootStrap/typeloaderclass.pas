@@ -138,6 +138,7 @@ begin
   AHttpClientType.PMembers.Add('post', AHttpClientFunc);
   AHttpClientType.PMembers.Add('put', AHttpClientFunc);
   AHttpClientType.PMembers.Add('delete', AHttpClientFunc);
+  AHttpClientType.PMembers.Add('run', AHttpClientFunc);
   AActrec.AddMember('Request', AHttpClientType);
 
   AHttpResponseType := TDataType.Create('THttpResponseInstance', 'Response');

@@ -69,7 +69,7 @@ implementation
 
 uses
   Math, TokenClass, Tokens, CoreFunctionsClass, LexerClass,
-  ServerClass, Dos, TypeLoaderClass, ByteStreamClass;
+  ServerClass, Dos, TypeLoaderClass, ByteStreamClass, HttpClientInstanceClass;
 
 constructor TInterpreter.Create(var ATree: TAST);
 begin
@@ -552,6 +552,15 @@ begin
         else
           RaiseException(E_INVALID_ARGS, 'Arguments');
       end
+      else if ABuilt.PValue = 'THttpClientInstance' then
+      begin
+        if Length(ArgsList) = 1 then
+        begin
+          Ret := THttpClientInstance.Create(TStringInstance(ArgsList[0]).PValue)
+        end
+        else
+          RaiseException(E_INVALID_ARGS, 'Arguments');
+      end
       else if ABuilt.PValue = 'TByteStreamInstance' then
       begin
         if Length(ArgsList) = 0 then
@@ -855,17 +864,24 @@ begin
   LogText(INTER, 'Interpreter', 'VarAssign visitation');
   AName := ANode.PVarName.PValue;
   AValue := Visit(ANode.PValue);
-  if AValue.ClassNameIs('TFunctionInstance') then
-    AValue := TFunctionInstance(AValue);
+  try
+    if AValue.PError then
+      RaiseException(AValue.PErrorMsg, 'Internal');;
+    if AValue.ClassNameIs('TFunctionInstance') then
+      AValue := TFunctionInstance(AValue);
 
-  if AValue.ClassNameIs('TFunctionInstance') then
-  begin
-    if TFunctionInstance(AValue).PIsBuiltin then
+    if AValue.ClassNameIs('TFunctionInstance') then
     begin
-      ERunTimeError.Create('Can''t assign builtin function "' +
-        ANode.PValue.PToken.PValue + '" to variable "' + AName + '"',
-        FTrace, ANode.PToken);
+      if TFunctionInstance(AValue).PIsBuiltin then
+      begin
+        ERunTimeError.Create('Can''t assign builtin function "' +
+          ANode.PValue.PToken.PValue + '" to variable "' + AName + '"',
+          FTrace, ANode.PToken);
+      end;
     end;
+
+  except on E: Exception do
+    RaiseException(E.Message, 'Internal');
   end;
   AActrec := FCallStack.Peek;
   if ASrc = nil then
@@ -875,6 +891,8 @@ begin
 	end
   else
   begin
+    if AName[1] = '$' then
+	    ERunTimeError.Create('Can''t redefine constant attribute "'+Aname+'" from "' + ASrc.ClassName + '"', FTrace, ANode.PVarName);
     ASrc.PMembers.Add(AName, AValue);
 	end;
 end;

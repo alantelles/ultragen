@@ -1,14 +1,22 @@
-endereco = 'zika'
-print(endereco)
+include @Core.Request
 
-function t(a)
-    if (a > 5)
-        print("eh maior")
-    else
-        print('eh menor')
-    end
-end
+$url = 'https://reqres.in/api/'
+req = new Request($url)
+req.headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+}
+req.timeout = 15
+req.body = JSON.create(
+    {
+        'name': 'Alan Telles',
+        'username': 'alantelles'
+    }
+)
+resp = req.run(:post, 'users')
 
-t(6)
-t(7)
-t(3)
+resp.headers.each(function(key, value, _key)
+    print(key,': ', value)
+end)
+
+print('Return: ----\n', resp.text)
