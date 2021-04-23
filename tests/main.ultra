@@ -1,22 +1,5 @@
-include @Core.Request
-
-$url = 'https://reqres.in/api/'
-req = new Request($url)
-req.headers = {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json'
-}
-req.timeout = 15
-req.body = JSON.create(
-    {
-        'name': 'Alan Telles',
-        'username': 'alantelles'
-    }
-)
-resp = req.run(:post, 'users')
-
-resp.headers.each(function(key, value, _key)
-    print(key,': ', value)
-end)
-
-print('Return: ----\n', resp.text)
+include @Core.DateTime
+fmt = "yyyy-mm-dd hh:nn:ss"
+date = "2021-03-04 12:51:00"
+p = DateTime.parse(fmt, date)
+print(p.year())

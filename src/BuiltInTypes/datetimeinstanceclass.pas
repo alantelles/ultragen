@@ -17,6 +17,7 @@ type TDateTimeInstance = class (TInstanceOf)
     function AsString: string; override;
     function GetPartOfDate(APart: string): TInstanceOf;
     class function CreateNowDateTime: TDateTimeInstance;
+    class function ParseDateFromString(AFormat, ADate:string): TDateTimeInstance;
 end;
 
 implementation
@@ -25,6 +26,11 @@ uses DateUtils;
 constructor TDateTimeInstance.Create(ADateTime: TDateTime);
 begin
   FValue := ADateTime;
+end;
+
+class function TDateTimeInstance.ParseDateFromString(AFormat, ADate: string): TDAteTimeInstance;
+begin
+  Result := TDateTimeInstance.Create(dateutils.ScanDateTime(AFormat, ADate));
 end;
 
 function TDateTimeInstance.AsString: string;

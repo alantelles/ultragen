@@ -124,6 +124,7 @@ begin
   ADateTimeType.PMembers.Add('minute', ADateTimeFunc);
   ADateTimeType.PMembers.Add('second', ADateTimeFunc);
   ADateTimeType.PMembers.Add('milli', ADateTimeFunc);
+  ADateTimeType.PMembers.Add('parse', ADateTimeFunc);
   AActRec.AddMember('DateTime', ADateTimeType);
 end;
 
