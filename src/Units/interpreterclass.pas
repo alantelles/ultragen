@@ -533,6 +533,10 @@ begin
       ActInst.PValue.CopyActRec(NewAct);
       Result := TDictionaryInstance.Create(NewAct);
     end
+    else if Gene.ClassNameIs('TBrookServerInstance') then
+    begin
+
+    end
     else if Gene.ClassNameIs('TDataType') then
     begin
       ABuilt := TDataType(Gene);
