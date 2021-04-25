@@ -8,6 +8,7 @@ uses
   Classes, SysUtils, SymbolsClass, SymbolTableClass, ASTClass, ExceptionsClasses,Variants, Contnrs;
 
 type
+  TValueBuilder = Procedure;
   TInstanceOf = class
     protected
 
@@ -20,6 +21,7 @@ type
       FBoolValue: boolean;
       FFloatValue: extended;
       FCoreType: boolean;
+
       //FPtrVal: PtrInst;
 
     public
@@ -36,6 +38,7 @@ type
 
       constructor Create;
       function AsString: string; virtual;
+      procedure ValueBuilder; virtual;
       procedure CopyInstance(var AReceiver: TInstanceOf); virtual;
   end;
 
@@ -221,7 +224,12 @@ end;
 
 function TInstanceOf.AsString: string;
 begin
-  Result := '';
+  Result := '<Instance of ' + ClassName + '>';
+end;
+
+procedure TInstanceOf.ValueBuilder;
+begin
+
 end;
 
 constructor TNullInstance.Create;
