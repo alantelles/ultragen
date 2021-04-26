@@ -1,5 +1,2 @@
-include @Core.DateTime
-fmt = "yyyy-mm-dd hh:nn:ss"
-date = "2021-03-04 12:51:00"
-p = DateTime.parse(fmt, date)
-print(p.year())
+x = 3
+print(x)

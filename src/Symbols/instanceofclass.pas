@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, SymbolsClass, SymbolTableClass, ASTClass, ExceptionsClasses,Variants, Contnrs;
 
 type
-  TValueBuilder = Procedure;
+
   TInstanceOf = class
     protected
 
@@ -310,6 +310,7 @@ begin
   FIntValue := AValue;
   FCoreType := True;
 end;
+
 
 constructor TIntegerInstance.Create;
 begin

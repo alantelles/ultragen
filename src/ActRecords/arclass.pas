@@ -286,6 +286,7 @@ begin
     else if Ret.ClassNameIs('TNullInstance') then
       Ret := TNullInstance.Create;
   end;
+  Ret.ValueBuilder;
   Result := Ret;
 end;
 
