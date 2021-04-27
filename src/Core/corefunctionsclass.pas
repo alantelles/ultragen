@@ -7,7 +7,7 @@ interface
 uses
       Classes, SysUtils, Strutils,
       InterpreterClass, InstanceOfClass, StringInstanceClass, DateTimeInstanceClass, ByteStreamClass,
-      ListInstanceClass, ServerClass, ARClass, HttpClientInstanceClass, JsonTools, httpdefs;
+      ListInstanceClass, ServerClass, ARClass, HttpClientInstanceClass, JsonTools, httpdefs, BrookServerClass;
 
 type
   TParamList = array of string;
@@ -57,6 +57,7 @@ type
       {$INCLUDE 'appresponse/declarations.pp'}
       {{$INCLUDE 'cookies/declarations.pp'}}
       {$INCLUDE 'httpclient/declarations.pp'}
+      {$INCLUDE 'brookserver/declarations.pp'}
 	end;
 
 var
@@ -123,12 +124,12 @@ begin
       else
       begin
         Aux := Finter.PCallStack.Peek.GetTypeByInternalName(FParams[0].ClassName);
-        len := Aux.PMembers.Count;
+        len := FPArams[0].PMembers.Count;
         if len > 0 then
         begin
           for i:=0 to len-1 do
           begin
-            writeln(Aux.PMembers.NameOfIndex(i),': ', TinstanceOf(Aux.PMembers[i]).AsString);
+            writeln(FPArams[0].PMembers.NameOfIndex(i),': ', TinstanceOf(FPArams[0].PMembers[i]).AsString);
 					    end;
 				   end;
       end;
@@ -272,8 +273,11 @@ begin
   {$INCLUDE 'httpclient/options.pp'}
   {$INCLUDE 'datetime/options.pp'}
   {$INCLUDE 'bytestream/options.pp'}
+  {$INCLUDE 'brookserver/options.pp'}
+
   else
-    raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.', '', 1, 1);
+    //raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.', '', 1, 1);
+    FInter.RaiseException('Referenced function "' + FName + '" does not exist.', 'Name');
   // functions
   Result := Ret;
 end;
@@ -602,6 +606,7 @@ end;
 {$INCLUDE 'dict/functions.pp'}
 {$INCLUDE 'server/functions.pp'}
 {$INCLUDE 'appresponse/functions.pp'}
+{$INCLUDE 'brookserver/functions.pp'}
 
 {$INCLUDE 'integer/functions.pp'}
 {$INCLUDE 'httpclient/functions.pp'}

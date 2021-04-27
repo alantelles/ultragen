@@ -533,10 +533,6 @@ begin
       ActInst.PValue.CopyActRec(NewAct);
       Result := TDictionaryInstance.Create(NewAct);
     end
-    else if Gene.ClassNameIs('TBrookServerInstance') then
-    begin
-
-    end
     else if Gene.ClassNameIs('TDataType') then
     begin
       ABuilt := TDataType(Gene);
@@ -555,6 +551,10 @@ begin
           Ret := TServerInstance.Create(TIntegerInstance(ArgsList[0]).PValue, True)
         else
           RaiseException(E_INVALID_ARGS, 'Arguments');
+      end
+      else if ABuilt.PValue = 'TBrookServerInstance' then
+      begin
+        Ret := TBrookserverInstance.Create(TIntegerInstance(ArgsList[0]).PValue, TBooleanInstance(ArgsList[1]).PValue, ABuilt);
       end
       else if ABuilt.PValue = 'THttpClientInstance' then
       begin
@@ -870,7 +870,7 @@ begin
   AValue := Visit(ANode.PValue);
   try
     if AValue.PError then
-      RaiseException(AValue.PErrorMsg, 'Internal');;
+      RaiseException(AValue.PErrorMsg, 'Internal');
     if AValue.ClassNameIs('TFunctionInstance') then
       AValue := TFunctionInstance(AValue);
 

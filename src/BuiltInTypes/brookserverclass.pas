@@ -14,7 +14,7 @@ type
   TBrookServerInstance = class (TInstanceOf)
     public
       procedure RunServer;
-      constructor Create(APort: integer; ADebug: boolean);
+      constructor Create(APort: integer; ADebug: boolean; ThisType: TDataType);
   end;
 
   THTTPServer = class(TBrookHTTPServer)
@@ -33,15 +33,30 @@ begin
   AResponse.Send('{"JARBAS": "ROMERO"}', 'application/json', 200);
 end;
 
-constructor TBrookServerInstance.Create(APort: integer; ADebug: boolean);
+constructor TBrookServerInstance.Create(APort: integer; ADebug: boolean;  ThisType: TDataType);
+var
+  len, i: integer;
+  Inst: TFunctionInstance;
 begin
+  FError := TRue;
   inherited Create;
-  FMembers.Add('port', TIntegerInstance.Create(3500));
-  FMembers.Add('title', TStringInstance.Create('Untitled'));
-  FMembers.Add('indexHandler', TStringInstance.Create('index.ultra'));
-  FMembers.Add('exceptionHandler', TStringInstance.Create('exception.ultra'));
-  FMembers.Add('debug', TBooleanInstance.Create(True));
+  try
+    FMembers.Add('port', TIntegerInstance.Create(Aport));
+    FMembers.Add('title', TStringInstance.Create('Untitled'));
+    FMembers.Add('indexHandler', TStringInstance.Create('index.ultra'));
+    FMembers.Add('exceptionHandler', TStringInstance.Create('exception.ultra'));
+    FMembers.Add('debug', TBooleanInstance.Create(ADebug));
+    len := ThisType.PMembers.Count;
+    for i := 0 to len-1 do
+    begin
+      Inst := TFunctionInstance(ThisType.PMembers[i]);
+      FMembers.Add(Inst.PName, Inst);
+    end;
+    Ferror := False;
+  except on E: Exception do
+    FErrorMsg := E.Message;
 
+  end;
 end;
 
 procedure TBrookServerInstance.RunServer();
@@ -51,14 +66,21 @@ var
 begin
   MTitle := TInstanceOf(FMembers.Find('title')).AsString;
   MPort := TInstanceOf(FMembers.Find('port')).PIntValue;
+  FError := True;
   with THTTPServer.Create(nil) do
   try
-    Port := MPort;
-    Open;
-    if not Active then
-      Exit;
-    WriteLn('Running '+ MTitle +' in '+'UltraGen Builtin Development Server at port ' + IntTostr(MPort), #13);
-    ReadLn;
+    try
+      Port := MPort;
+      Open;
+      if not Active then
+        Exit;
+      FError := False;
+      WriteLn('Running '+ MTitle +' in '+'UltraGen Builtin Development Server at port ' + IntTostr(MPort), #13);
+      ReadLn;
+
+    except on E: Exception do
+      FErrorMsg := E.Message;
+    end;
   finally
     Free;
   end;

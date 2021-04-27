@@ -170,6 +170,8 @@ constructor TInstanceOf.Create;
 begin
   // FCoreType := True;
   FMembers := TFPHashObjectList.Create(True);
+  FError := False;
+  FErrorMsg := '';
 end;
 
 constructor TClassInstance.Create(AName: string);
