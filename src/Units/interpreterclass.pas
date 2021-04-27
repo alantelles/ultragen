@@ -69,7 +69,7 @@ implementation
 
 uses
   Math, TokenClass, Tokens, CoreFunctionsClass, LexerClass,
-  ServerClass, Dos, TypeLoaderClass, ByteStreamClass, HttpClientInstanceClass;
+  ServerClass, Dos, TypeLoaderClass, ByteStreamClass, HttpClientInstanceClass, BrookServerClass;
 
 constructor TInterpreter.Create(var ATree: TAST);
 begin

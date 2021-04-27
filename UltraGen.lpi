@@ -27,12 +27,15 @@
       <FormatVersion Value="2"/>
       <Modes Count="0"/>
     </RunParams>
-    <RequiredPackages Count="1">
+    <RequiredPackages Count="2">
       <Item1>
-        <PackageName Value="LazUtils"/>
+        <PackageName Value="BrookTardigrade"/>
       </Item1>
+      <Item2>
+        <PackageName Value="LazUtils"/>
+      </Item2>
     </RequiredPackages>
-    <Units Count="39">
+    <Units Count="40">
       <Unit0>
         <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -218,6 +221,11 @@
         <Filename Value="src\Core\bytestream\declarations.pp"/>
         <IsPartOfProject Value="True"/>
       </Unit38>
+      <Unit39>
+        <Filename Value="src\BuiltInTypes\brookserverclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="BrookServerClass"/>
+      </Unit39>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
