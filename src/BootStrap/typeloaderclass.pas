@@ -18,10 +18,22 @@ type TTypeLoader = class
     class procedure LoadServerInstance(var AActRec: TActivationRecord);
     class procedure LoadByteStream(var AActRec: TActivationRecord);
     class procedure LoadMarkdownParser(var AActRec: TActivationrecord);
+    class procedure LoadBrookserver(var AActRec: TActivationRecord);
     // class procedure LoadCookiesHandler(var AActRec: TActivationrecord);
 end;
 
 implementation
+
+class procedure TTypeLoader.LoadBrookserver(var AActRec: TActivationRecord);   
+var
+  AFunc: TFunctionInstance;
+  AType: TDataType;
+begin
+  Atype := TDataType.Create('TBrookServerInstance', 'BrookServer');
+  AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBrookServerInstance', True,False, False);
+  Atype.PMembers.Add('run', AFunc);
+  AActrec.AddMember('BrookServer', AType);
+end;
 
 class procedure TTypeLoader.LoadMarkdownParser(var AActRec: TActivationRecord);
 var
@@ -181,6 +193,8 @@ begin
     TTypeLoader.LoadServerInstance(AActRec)
   else if AName = 'AppResponse' then
     TTypeLoader.LoadResponseHandler(AActRec)
+  else if AName = 'BrookServer' then
+    TTypeLoader.LoadBrookserver(AActRec)
   else if AName = 'Markdown' then
     TTypeLoader.LoadMarkdownParser(AActRec)
   else
