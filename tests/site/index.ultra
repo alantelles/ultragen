@@ -59,6 +59,7 @@ $router.get('/logout', :logout, function(params)
 end)
 
 
-$router.getMatch().localize()
-live handler(params)
-Session.save()
+match = $router.getMatch()
+print(match)
+# live handler(params)
+# Session.save()
