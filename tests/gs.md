@@ -1,1 +1,0 @@
-UltraGen was first designed to process text, without the intention of be a script language.

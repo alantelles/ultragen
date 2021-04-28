@@ -1,5 +1,0 @@
-include @Core.Brook
-
-s = new BrookServer(3500, true)
-s.title = 'Brook PoC'
-s.run()

@@ -15,6 +15,7 @@ type TTypeLoader = class
     class procedure LoadOS(var AActRec: TActivationRecord);
     class procedure LoadDateTime(var AActRec: TActivationRecord);
     class procedure LoadResponseHandler(var AActRec: TActivationRecord);
+    class procedure LoadBrookResponseHandler(var AActRec: TActivationRecord);
     class procedure LoadServerInstance(var AActRec: TActivationRecord);
     class procedure LoadByteStream(var AActRec: TActivationRecord);
     class procedure LoadMarkdownParser(var AActRec: TActivationrecord);
@@ -29,10 +30,10 @@ var
   AFunc: TFunctionInstance;
   AType: TDataType;
 begin
-  Atype := TDataType.Create('TBrookServerInstance', 'BrookServer');
+  Atype := TDataType.Create('TBrookServerInstance', 'Server');
   AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBrookServerInstance', True,False, False);
   Atype.PMembers.Add('run', AFunc);
-  AActrec.AddMember('BrookServer', AType);
+  AActrec.AddMember('Server', AType);
 end;
 
 class procedure TTypeLoader.LoadMarkdownParser(var AActRec: TActivationRecord);
@@ -83,6 +84,29 @@ begin
   ADataType.PMembers.Add('unset', AFunc);
   AActRec.AddMember('Cookies', ADataType);
 end;}
+
+class procedure TTypeLoader.LoadBrookResponseHandler(var AActRec: TActivationRecord);
+var
+  ADataType: TDataType;
+  AFunc: TFunctionInstance;
+begin
+  ADataType := TDataType.Create('TBrookResponseInstance', 'AppResponse');
+  AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBrookResponseInstance', True, False, False);
+  AdataType.PMembers.Add('$headers', TDictionaryInstance.Create(
+    TActivationRecord.Create('AppResponseHeaders', AR_DICT, -1)
+  ));
+  AdataType.PMembers.Add('$cookies', TDictionaryInstance.Create(
+    TActivationRecord.Create('AppResponseCookies', AR_DICT, -1)
+  ));
+  {ADataType.PMembers.Add('redirect', AFunc);
+  ADataType.PMembers.Add('clientRedirect', AFunc);
+  ADataType.PMembers.Add('setStatusCode', AFunc);
+  ADataType.PMembers.Add('setStatusText', AFunc);
+  ADataType.PMembers.Add('setContentType', AFunc);
+  ADataType.PMembers.Add('setHeader', AFunc);
+  ADataType.PMembers.Add('static', AFunc);}
+  AActRec.AddMember('AppResponse', ADataType);
+end;
 
 class procedure TTypeLoader.LoadResponseHandler(var AActRec: TActivationRecord);
 var
@@ -195,6 +219,8 @@ begin
     TTypeLoader.LoadResponseHandler(AActRec)
   else if AName = 'BrookServer' then
     TTypeLoader.LoadBrookserver(AActRec)
+  else if AName = 'BrookAppResponse' then
+    TTypeLoader.LoadBrookResponseHandler(AActRec)
   else if AName = 'Markdown' then
     TTypeLoader.LoadMarkdownParser(AActRec)
   else

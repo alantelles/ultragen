@@ -34,12 +34,14 @@ type
     FResponse: TResponse;
     FRequest: TRequest;
     FMimeFile: TStringList;
+    FDontDestroyLast: boolean;
     procedure BootStrapRegister;
 
 
   public
     property PCallStack: TStack read FCallStack write FCallStack;
     property PTree: TAST read FTree;
+
     property PLive: string read FLiveOutput;
     property PInsertActRec: TActivationRecord read FInsertActRec write FInsertActRec;
     property PModulesPath: TStringList read FModulesPath write FModulesPath;
@@ -53,7 +55,7 @@ type
     procedure PassCallStack(var ACallStack: TStack; ToParent: boolean);
 
     function Interpret(DontPush: boolean = False; ANameActRec: TActivationRecord = nil): string;
-    function Interpret(InsertActRec: TActivationRecord; Insertname: string): string;
+    function Interpret(InsertActRec: TActivationRecord; Insertname: string; DontDestroyLast: boolean = False): string;
     function ExecuteFunctionByInstance(AFunction: TFunctionInstance; Args: TASTList; ANode: TAST; ASrcinstance: TInstanceOf): TInstanceOf;
     function ProcessFuncArgs(var AFunction: TFunctionInstance; var AActRec: TActivationRecord; AEvalParams: TASTList): TInstanceList;
 
@@ -168,18 +170,21 @@ var
 begin
   FDontPush := DontPush;
   FNameSpace := ANameActRec;
+
   Ret := Visit(FTree);
+
   Result := '';
 end;
 
-function TInterpreter.Interpret(InsertActRec: TActivationRecord; InsertName: string): string;
+function TInterpreter.Interpret(InsertActRec: TActivationRecord; InsertName: string; DontDestroyLast: boolean = False): string;
 var
   Ret: TInstanceOf;
 begin
-
+  FDontDestroyLast := DontDestroyLast;
   FInsertActRec := InsertActRec;
   FInsertName := InsertName;
   Ret := Visit(FTree);
+
   Result := '';
 end;
 
@@ -554,7 +559,7 @@ begin
       end
       else if ABuilt.PValue = 'TBrookServerInstance' then
       begin
-        Ret := TBrookserverInstance.Create(TIntegerInstance(ArgsList[0]).PValue, TBooleanInstance(ArgsList[1]).PValue, ABuilt);
+        Ret := TBrookserverInstance.Create(TIntegerInstance(ArgsList[0]).PValue, TBooleanInstance(ArgsList[1]).PValue);
       end
       else if ABuilt.PValue = 'THttpClientInstance' then
       begin
@@ -1414,7 +1419,7 @@ begin
 
   FTrace.Free;
   FLiveOutput := GetLive();
-  if not FDontPush then
+  if not FDontPush and not FDontDestroyLast then
     FCallStack.Pop();
 end;
 

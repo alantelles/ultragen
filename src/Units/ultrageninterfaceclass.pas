@@ -11,6 +11,10 @@ uses
 
 type
 
+  TUltraResult = record
+    LiveOutput: string;
+    ActRec: TActivationRecord;
+  end;
 
   TUltraAdapter = class
     private
@@ -27,6 +31,7 @@ type
       class function ParseString(AStringCode:string): TAST;
       class function ParseStringList(var AList: TStringList): TAST;
       class function ParseWebRequest(var ARequest: TRequest; var AResponse: TResponse; TraceLog: string): TAST;
+
       class function InterpretScript(AFilePath: string; APreludes: TProgram; InsertActRec: TActivationRecord; InsertName: string; AResponse: TResponse; ARequest: TRequest; AMimeFile: TStringList): string;
       class function InterpretScript(
         AFilePath: string;
@@ -36,6 +41,10 @@ type
         AFilePath: string;
         APreludeList: TStringList;
         AnAdapter: TUltraAdapter): string;
+      class function InterpretScriptWithResult(
+        AFilePath: string;
+        APreludeList: TStringList;
+        AnAdapter: TUltraAdapter): TUltraResult;
     end;
 
 implementation
@@ -67,6 +76,44 @@ begin
   AParser.Free;
   Result := ATree;
 end;
+
+class function TUltraInterface.InterpretScriptWithResult(
+  AFilePath: string;
+  APreludeList: TStringList;
+  AnAdapter: TUltraAdapter): TUltraResult;
+var
+  len, i: integer;
+  AParser: TTParser;
+  ALexer: TLexer;
+  APreludes: TProgram;
+  ATree: TAST;
+  AInter: TInterpreter;
+  LiveOut: string;
+begin
+  APreludes := TProgram(TUltraInterface.ParseStringList(APreludeList));
+  ALexer := TLexer.Create(AFilePath);
+  AParser := TTParser.Create(ALexer);
+  ATree := AParser.ParseCode();
+  if APreludes <> nil then
+  begin
+    len := Length(APreludes.PChildren);
+    if len > 0 then
+    begin
+      for i:=0 to len-1 do
+	TProgram(ATree).AddPrelude(APreludes.PChildren[i]);
+    end;
+  end;
+  AParser.Free;
+  AInter := TInterpreter.Create(ATree);
+  AInter.Interpret(AnAdapter.ActRec, AnAdapter.ActRec.PName, True);
+  LiveOut := AInter.PLive;
+
+  AInter.Free;
+  Result.LiveOutput := LiveOut;
+  Result.ActRec := AInter.PCallStack.Peek;
+end;
+
+
 
 class function TUltraInterface.InterpretScript(
   AFilePath: string;

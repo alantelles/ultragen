@@ -1,0 +1,16 @@
+include @Core.Brook.AppResponse
+a = {
+    :headers: {
+        'Content-Type': 'application/json',
+        'X-Powered-By': "UltraGen/Brook Server"
+    },
+    :cookies: {
+        'SESSION': 'pikadasgalazias',
+        'tomb': 'uiouio'
+    }
+}
+
+AppResponse.$headers['toby'] = 'kkkk'
+
+live AppResponse.$headers
+live a

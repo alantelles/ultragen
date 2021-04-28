@@ -1,2 +1,4 @@
-x = 3
-print(x)
+include @Core.Brook.Server
+
+s = new Server(3500, true)
+s.run()
