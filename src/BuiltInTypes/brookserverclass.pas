@@ -74,6 +74,7 @@ var
 begin
   try
   begin
+    AResponse.Headers.Add('X-Powered-By', 'UltraGen/Brook server');
     Adapter := TUltraAdapter.Create('$request');
     //Adapter.ActRec.AddMember('AppResponse', );
     Adapter.AddMember('route', ARequest.Path);
@@ -99,10 +100,14 @@ begin
     AResponse.SendBytes(Content, Len, 'text/html', Status);
   end;
   except on E: Exception do
-    RaiseInternalException(ARequest, AResponse, E.Message);
-
-
-
+    if TBooleanInstance(FUltraInstance.PMembers.Find('debug')).PValue then
+      RaiseInternalException(ARequest, AResponse, E.Message)
+    else
+    begin
+      Adapter.AddMember('$stacktrace', E.Message);
+      UltraResult := TUltraInterface.InterpretScriptWithResult('exception.ultra', Prelude, Adapter);
+      AResponse.Send(UltraResult.LiveOutput, 'text/html', 500);
+    end;
   end;
 end;
 
