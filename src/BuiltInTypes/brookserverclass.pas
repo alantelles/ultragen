@@ -46,6 +46,22 @@ begin
   Result := Bytes;
 end;
 
+procedure RaiseInternalException(ARequest: TBrookHTTPRequest; AResponse: TBrookHTTPResponse; ErrMsg: string);
+var
+  Status: integer = 500;
+  len: integer;
+begin
+  Len := Length(ErrMsg);
+  WriteLn(#13+'['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
+      ARequest.Method + ': '+
+      ARequest.Path+' -- '+ IntToStr(Status) +
+      //' ' + AResponse.s +
+      ', ' + IntToStr(Len) + ' B, Content-Type: text/html', #13);
+  WriteLn(ErrMsg);
+  AResponse.Send('<h1>UltraGen ERROR!</h1><pre style="white-space: pre-wrap; font-size: 12pt"><h3>Error while fetching content at "' + ARequest.Path + '"</h3><br>'+ReplaceStr(ErrMsg, '<', '&lt') +'</pre>',
+    'text/html', Status);
+end;
+
 procedure THTTPServer.DoRequest(ASender: TObject; ARequest: TBrookHTTPRequest; AResponse: TBrookHTTPResponse);
 var
   Content: TBytes;
@@ -56,30 +72,38 @@ var
   ContentType: string = 'text/html';
   AppResponse: TDataType;
 begin
-  Adapter := TUltraAdapter.Create('$request');
-  //Adapter.ActRec.AddMember('AppResponse', );
-  Adapter.AddMember('route', ARequest.Path);
-  //Content := StrToBytes('{"jarbas": "Romero"}');
-  Prelude := TStringList.Create;
-  Prelude.Add('addModulePath(["'+ ReplaceStr(GetEnv('ULTRAGEN_HOME'), '\', '\\') + '", "modules"].path())');
-  Prelude.Add('include @Core');
-  UltraResult := TUltraInterface.InterpretScriptWithResult('index.ultra', Prelude, Adapter);
-  writeln(UltraResult.ActRec.GetMember('a').AsString);
-  AppResponse := TDataType(UltraResult.ActRec.GetMember('AppResponse'));
-  if AppResponse <> nil then
-    writeln(appresponse.AsString)
-  else
-    writeln('nao tem appresponse');
-  Status := 200;
-  Content := StrToBytes(UltraResult.LiveOutput);
-  Len := Length(Content);
+  try
+  begin
+    Adapter := TUltraAdapter.Create('$request');
+    //Adapter.ActRec.AddMember('AppResponse', );
+    Adapter.AddMember('route', ARequest.Path);
+    //Content := StrToBytes('{"jarbas": "Romero"}');
+    Prelude := TStringList.Create;
+    Prelude.Add('addModulePath(["'+ ReplaceStr(GetEnv('ULTRAGEN_HOME'), '\', '\\') + '", "modules"].path())');
+    Prelude.Add('include @Core');
+    UltraResult := TUltraInterface.InterpretScriptWithResult('index.ultra', Prelude, Adapter);
+    AppResponse := TDataType(UltraResult.ActRec.GetMember('AppResponse'));
+    if AppResponse <> nil then
+    begin
+      // TODO : process response
+    end;
+    Status := 200;
+    Content := StrToBytes(UltraResult.LiveOutput);
+    Len := Length(Content);
 
-  WriteLn(#13+'['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
-      ARequest.Method + ': '+
-      ARequest.Path+' -- '+ IntToStr(Status) +
-      //' ' + AResponse.s +
-      ', ' + IntToStr(Len) + ' B, Content-Type: ' + ContentType, #13);
-  AResponse.SendBytes(Content, Len, 'text/html', Status);
+    WriteLn(#13+'['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
+        ARequest.Method + ': '+
+        ARequest.Path+' -- '+ IntToStr(Status) +
+        //' ' + AResponse.s +
+        ', ' + IntToStr(Len) + ' B, Content-Type: ' + ContentType, #13);
+    AResponse.SendBytes(Content, Len, 'text/html', Status);
+  end;
+  except on E: Exception do
+    RaiseInternalException(ARequest, AResponse, E.Message);
+
+
+
+  end;
 end;
 
 constructor TBrookServerInstance.Create(APort: integer; ADebug: boolean);
