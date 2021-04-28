@@ -7,8 +7,8 @@ include @Core.FileSystem
 
 include 'base.ultra.html'
 
-Session.key = 'zikazika'
-Session.start()
+# Session.key = 'zikazika'
+# Session.start()
 
 $router = new Router()
 $router.get('/', :index, function(params)
@@ -30,6 +30,13 @@ end)
 $router.get('/set_cookie/:key/:value', :set_cookie, function(params)
     Cookies.set(params[:key], params[:value])
     AppResponse.redirect('/')
+end)
+
+$router.get('/many', :many, function(params)
+    
+    Cookies.set('other', 'otherValue') 
+    Cookies.set('some', 'someValue')
+    #AppResponse.setHeader('Set-Cookie', Cookies.retrieve())
 end)
 
 $router.get('/login', :login_form, function (params)
@@ -59,7 +66,7 @@ $router.get('/logout', :logout, function(params)
 end)
 
 
-match = $router.getMatch()
-print(match)
-# live handler(params)
-# Session.save()
+match = $router.getMatch().localize()
+
+live handler(params)
+#Session.save()

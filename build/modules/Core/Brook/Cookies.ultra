@@ -1,5 +1,4 @@
 class Cookies
-include @Core.Web.AppResponse
 
 Cookies.all = {}
 
@@ -11,27 +10,26 @@ function set(key, value, params={}) : Cookies
         params['path'] = '/'
     end
     paramsList = []
-    for(params.keys(), paramKey)
-        if (typeof(params[paramKey]) == 'TBooleanInstance')
-            if((params[paramKey]))
-                value.append(paramKey)
-                paramsList.append(str(paramKey))
+    for(params.keys(), key)
+        if (typeof(params[key]) == 'TBooleanInstance')
+            if((params[key]))
+                value.append(key)
+                paramsList.append(str(key))
             end
         else
-            paramsList.append(key + '=' str(params[paramKey]))
-            value.append(paramKey + '=' +str(params[paramKey]))
+            paramsList.append(key + '=' str(params[key]))
+            value.append(key + '=' +str(params[key]))
         end
     end
-    AppResponse.setHeader('Set-Cookie', ';'.join(value))
-    Cookies.all[key] = ';'.join(value)
+    newVal = key + '=' + str(valueOrig) + ';' + (';'.join(value))
+    Cookies.all[key] = newVal
 end
 
 function retrieve() : Cookies
     result = ''
     for(Cookies.all.keys(), cookie)
-        result += (Cookies.all[cookie]) + '\\r\\n'
+        result += (Cookies.all[cookie]) + ';'
     end
-    result = result.slice(0, (result.length()) - 1)
     return result
 end
 

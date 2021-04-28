@@ -1,4 +1,5 @@
 include @Core.Brook.AppResponse
+include @Core.Brook.Cookies
 a = {
     :headers: {
         'Content-Type': 'application/json',
@@ -10,7 +11,8 @@ a = {
     }
 }
 
-AppResponse.$headers['toby'] = 'kkkk'
+AppResponse.$headers['X-Toby'] = AppResponse
+AppResponse.$cookies['UGD_SESSION'] = "Yes I'm logged"
+AppResponse.$cookies['OUTRO'] = "algum novo"
 
-live AppResponse.$headers
 live a

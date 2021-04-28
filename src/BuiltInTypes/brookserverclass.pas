@@ -74,6 +74,8 @@ var
   ContentType: string = 'text/html';
   AppResponse: TDataType;
   IndexHandler, ExceptionHandler: string;
+  ADict: TActivationRecord;
+  i: integer;
 begin
   try
   begin
@@ -91,7 +93,18 @@ begin
     AppResponse := TDataType(UltraResult.ActRec.GetMember('AppResponse'));
     if AppResponse <> nil then
     begin
-      // TODO : process response
+      ADict := TDictionaryInstance(AppResponse.PMembers.Find('$headers')).PValue;
+      if ADict.PMembers.Count > 0 then
+      begin
+        for i:=0 to ADict.PMembers.Count-1 do
+          AResponse.Headers.Add( ADict.PMembers.NameOfIndex(i), TInstanceOf(ADict.PMembers[i]).AsString);
+      end;
+      ADict := TDictionaryInstance(AppResponse.PMembers.Find('$cookies')).PValue;
+      if ADict.PMembers.Count > 0 then
+      begin
+        for i:=0 to ADict.PMembers.Count-1 do
+          AResponse.SetCookie(ADict.PMembers.NameOfIndex(i), TInstanceOf(ADict.PMembers[i]).AsString);
+      end;// TODO : process response
     end;
     Status := 200;
     Content := StrToBytes(UltraResult.LiveOutput);
