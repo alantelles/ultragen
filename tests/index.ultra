@@ -11,7 +11,6 @@ a = {
 }
 
 AppResponse.$headers['toby'] = 'kkkk'
-AppResponse.$headers = 90
 
 live AppResponse.$headers
 live a

@@ -50,15 +50,17 @@ procedure RaiseInternalException(ARequest: TBrookHTTPRequest; AResponse: TBrookH
 var
   Status: integer = 500;
   len: integer;
+  htmlErr: string;
 begin
-  Len := Length(ErrMsg);
+  htmlErr := '<h1>UltraGen ERROR!</h1><pre style="white-space: pre-wrap; font-size: 12pt"><h3>Error while fetching content at "' + ARequest.Path + '"</h3><br>'+ReplaceStr(ErrMsg, '<', '&lt') +'</pre>';
+  Len := Length(htmlerr);
   WriteLn(#13+'['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
       ARequest.Method + ': '+
       ARequest.Path+' -- '+ IntToStr(Status) +
       //' ' + AResponse.s +
       ', ' + IntToStr(Len) + ' B, Content-Type: text/html', #13);
   WriteLn(ErrMsg);
-  AResponse.Send('<h1>UltraGen ERROR!</h1><pre style="white-space: pre-wrap; font-size: 12pt"><h3>Error while fetching content at "' + ARequest.Path + '"</h3><br>'+ReplaceStr(ErrMsg, '<', '&lt') +'</pre>',
+  AResponse.Send(htmlErr,
     'text/html', Status);
 end;
 
@@ -71,6 +73,7 @@ var
   Prelude: TSTringList;
   ContentType: string = 'text/html';
   AppResponse: TDataType;
+  IndexHandler, ExceptionHandler: string;
 begin
   try
   begin
@@ -82,7 +85,9 @@ begin
     Prelude := TStringList.Create;
     Prelude.Add('addModulePath(["'+ ReplaceStr(GetEnv('ULTRAGEN_HOME'), '\', '\\') + '", "modules"].path())');
     Prelude.Add('include @Core');
-    UltraResult := TUltraInterface.InterpretScriptWithResult('index.ultra', Prelude, Adapter);
+    IndexHandler := TStringInstance(FUltraInstance.PMembers.Find('indexHandler')).PValue;
+    ExceptionHandler := TStringInstance(FUltraInstance.PMembers.Find('exceptionHandler')).PValue;
+    UltraResult := TUltraInterface.InterpretScriptWithResult(IndexHandler, Prelude, Adapter);
     AppResponse := TDataType(UltraResult.ActRec.GetMember('AppResponse'));
     if AppResponse <> nil then
     begin
@@ -105,8 +110,18 @@ begin
     else
     begin
       Adapter.AddMember('$stacktrace', E.Message);
-      UltraResult := TUltraInterface.InterpretScriptWithResult('exception.ultra', Prelude, Adapter);
-      AResponse.Send(UltraResult.LiveOutput, 'text/html', 500);
+      try
+        WriteLn(E.Message);
+        UltraResult := TUltraInterface.InterpretScriptWithResult(ExceptionHandler, Prelude, Adapter);
+        AResponse.Send(UltraResult.LiveOutput, 'text/html', 500);
+
+      except on F: Exception do
+        if True then
+        begin
+          WriteLn('While running application exception handler, another exception occurred:', #13, #10, #13, #10, F.Message);
+          AResponse.Send('500 Internal Server Error', 'text/html', 500);
+        end;
+      end;
     end;
   end;
 end;

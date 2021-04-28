@@ -1,2 +1,4 @@
 live "<h1>This is my beautiful exception page</h1>"
+live '<pre>'
 live $request[:$stacktrace].replace('\n', '<br>')
+live '</pre>'
