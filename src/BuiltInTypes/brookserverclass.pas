@@ -64,7 +64,7 @@ begin
     'text/html', Status);
 end;
 
-procedure SetCookiesFromUltra(AResponse: TBrookHTTPResponse);
+{procedure SetCookiesFromUltra(AResponse: TBrookHTTPResponse);
 var
   AListInst: TListInstance;
   Gene: TInstanceOf;
@@ -83,7 +83,7 @@ begin
 
     // AResponse.SetCookie(ADict.PMembers.NameOfIndex(i), TInstanceOf(ADict.PMembers[i]).AsString);
   end;
-end;
+end;}
 
 procedure THTTPServer.DoRequest(ASender: TObject; ARequest: TBrookHTTPRequest; AResponse: TBrookHTTPResponse);
 var
@@ -121,10 +121,10 @@ begin
           AResponse.Headers.Add( ADict.PMembers.NameOfIndex(i), TInstanceOf(ADict.PMembers[i]).AsString);
       end;
       ADict := TDictionaryInstance(AppResponse.PMembers.Find('$cookies')).PValue;
-      if ADict.PMembers.Count > 0 then
+      {if ADict.PMembers.Count > 0 then
       begin
         SetCookiesFromUltra(AResponse);
-      end;// TODO : process response
+      end;// TODO : process response}
     end;
     Status := 200;
     Content := StrToBytes(UltraResult.LiveOutput);
@@ -167,7 +167,7 @@ begin
   FError := TRue;
   inherited Create;
   try
-    FMembers.Add('port', TIntegerInstance.Create(Aport));
+    FMembers.Add('port', TintegerInstance.Create(Aport));
     FMembers.Add('title', TStringInstance.Create('Untitled'));
     FMembers.Add('indexHandler', TStringInstance.Create('index.ultra'));
     FMembers.Add('exceptionHandler', TStringInstance.Create('exception.ultra'));

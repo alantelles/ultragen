@@ -13,7 +13,7 @@ begin
   if Length(FParams) = 0 then
     Result := AObj.ReadStream
   else if Length(FParams) = 1 then
-    Result := AObj.ReadStream(TIntegerInstance(FParams[0]).PValue)
+    Result := AObj.ReadStream(TintegerInstance(FParams[0]).PValue)
   else
     FInter.RaiseException(E_INVALID_ARGS, 'Arguments');
 end;

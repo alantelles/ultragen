@@ -1,0 +1,9 @@
+include @Core.DateTime
+
+
+x = DateTime.now()
+y = DateTime.parse('yyyy-mm-dd hh:nn:ss', '2021-04-04 10:00:00')
+z = DateTime.parse('yyyy-mm-dd hh:nn:ss', '2021-01-04 10:00:00')
+print(y.compare(x))
+print(y.compare(z))
+print(y.compare(y))

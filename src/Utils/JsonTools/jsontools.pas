@@ -46,7 +46,7 @@ type
   TJsonNodeEnumerator = record
   private
     FNode: TJsonNode;
-    FIndex: Integer;
+    FIndex: integer;
   public
     procedure Init(Node: TJsonNode);
     function GetCurrent: TJsonNode;
@@ -75,7 +75,7 @@ type
 
   TJsonNode = class
   private
-    FStack: Integer;
+    FStack: integer;
     FParent: TJsonNode;
     FName: string;
     FKind: TJsonNodeKind;
@@ -92,7 +92,7 @@ type
     function GetName: string;
     procedure SetName(const Value: string);
     function GetValue: string;
-    function GetCount: Integer;
+    function GetCount: integer;
     function GetAsJson: string;
     function GetAsArray: TJsonNode;
     function GetAsObject: TJsonNode;
@@ -131,7 +131,7 @@ type
     function Add(const Name: string; const N: Double): TJsonNode; overload;
     function Add(const Name: string; const S: string): TJsonNode; overload;
     { Delete a child node by index or name }
-    procedure Delete(Index: Integer); overload;
+    procedure Delete(Index: integer); overload;
     procedure Delete(const Name: string); overload;
     { Remove all child nodes }
     procedure Clear;
@@ -139,7 +139,7 @@ type
       array or object or if the index is out of bounds.
 
       See also: Count }
-    function Child(Index: Integer): TJsonNode; overload;
+    function Child(Index: integer): TJsonNode; overload;
     { Get a child node by name. If no node is found nil will be returned. }
     function Child(const Name: string): TJsonNode; overload;
     { Search for a node using a path string }
@@ -160,7 +160,7 @@ type
     property Value: string read GetValue write Parse;
     { The number of child nodes. If node is not an object or array this
       property will return 0. }
-    property Count: Integer read GetCount;
+    property Count: integer read GetCount;
     { AsJson is the more efficient version of Value. Text returned from AsJson
       is the most compact representation of the node in json form.
 
@@ -437,7 +437,7 @@ end;
 procedure TJsonNode.LoadFromStream(Stream: TStream);
 var
   S: string;
-  I: Int64;
+  I: integer;
 begin
   I := Stream.Size - Stream.Position;
   S := '';
@@ -449,7 +449,7 @@ end;
 procedure TJsonNode.SaveToStream(Stream: TStream);
 var
   S: string;
-  I: Int64;
+  I: integer;
 begin
   S := Value;
   I := Length(S);
@@ -917,7 +917,7 @@ begin
   Result := Add(nkString, Name, JsonStringEncode(S));
 end;
 
-procedure TJsonNode.Delete(Index: Integer);
+procedure TJsonNode.Delete(Index: integer);
 var
   N: TJsonNode;
 begin
@@ -951,7 +951,7 @@ end;
 
 procedure TJsonNode.Clear;
 var
-  I: Integer;
+  I: integer;
 begin
   if FList <> nil then
   begin
@@ -962,7 +962,7 @@ begin
   end;
 end;
 
-function TJsonNode.Child(Index: Integer): TJsonNode;
+function TJsonNode.Child(Index: integer): TJsonNode;
 begin
   if FKind in [nkArray, nkObject] then
   begin
@@ -979,7 +979,7 @@ end;
 function TJsonNode.Child(const Name: string): TJsonNode;
 var
   N: TJsonNode;
-  I: Integer;
+  I: integer;
 begin
   Result := nil;
   if (FList <> nil) and (FKind in [nkArray, nkObject]) then
@@ -1052,7 +1052,7 @@ function TJsonNode.Format(const Indent: string): string;
 
   function EnumNodes: string;
   var
-    I, J: Integer;
+    I, J: integer;
     S: string;
   begin
     if (FList = nil) or (FList.Count = 0) then
@@ -1090,7 +1090,7 @@ function TJsonNode.FormatCompact: string;
 
   function EnumNodes: string;
   var
-    I, J: Integer;
+    I, J: integer;
   begin
     Result := '';
     if (FList = nil) or (FList.Count = 0) then
@@ -1125,7 +1125,7 @@ begin
   Result := Format('');
 end;
 
-function TJsonNode.GetCount: Integer;
+function TJsonNode.GetCount: integer;
 begin
   if FList <> nil then
     Result := FList.Count
@@ -1169,9 +1169,9 @@ end;
 
 function JsonStringEncode(const S: string): string;
 
-  function Len(C: PChar): Integer;
+  function Len(C: PChar): integer;
   var
-    I: Integer;
+    I: integer;
   begin
     I := 0;
     while C^ > #0 do
@@ -1196,7 +1196,7 @@ const
 var
   C: PChar;
   R: string;
-  I: Integer;
+  I: integer;
 begin
   if S = '' then
     Exit('""');
@@ -1259,7 +1259,7 @@ begin
     Result := '';
 end;
 
-function UnicodeToSize(C: LongWord): Integer; inline;
+function UnicodeToSize(C: LongWord): integer; inline;
 begin
   if C = 0 then
     Result := 1
@@ -1289,7 +1289,7 @@ begin
     Result := Ord(C) - LoA + 10;
 end;
 
-function HexToInt(A, B, C, D: Char): Integer; inline;
+function HexToInt(A, B, C, D: Char): integer; inline;
 begin
   Result := HexToByte(A) shl 12 or HexToByte(B) shl 8 or HexToByte(C) shl 4 or
     HexToByte(D);
@@ -1297,9 +1297,9 @@ end;
 
 function JsonStringDecode(const S: string): string;
 
-  function Len(C: PChar): Integer;
+  function Len(C: PChar): integer;
   var
-    I, J: Integer;
+    I, J: integer;
   begin
     if C^ <> '"'  then
       Exit(0);
@@ -1339,7 +1339,7 @@ const
 var
   C: PChar;
   R: string;
-  I, J: Integer;
+  I, J: integer;
   H: string;
 begin
   C := PChar(S);

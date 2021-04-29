@@ -111,7 +111,7 @@ var
 begin
 
   {AStrType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TStringInstance', True);
-  AIntType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TIntegerInstance', True);}
+  AIntType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TintegerInstance', True);}
   AFloatFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFloatInstance', True, False, False);
   {AListType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TListInstance', True);
   AFuncType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFunctionInstance', True);}
@@ -243,7 +243,7 @@ begin
       ATypedKey := TDictkeyNode(ANode.PKeys[i]);
       ARepo := Visit(ATypedkey.PKey);
       if ARepo.ClassNameIs('TStringInstance') or
-        ARepo.ClassNameIs('TIntegerInstance') then
+        ARepo.ClassNameIs('TintegerInstance') then
         AActRec.AddMember(ARepo.AsString, Visit(ATypedKey.PValue))
       else if ARepo.ClassNameIs('TNullInstance') then
       begin
@@ -259,7 +259,7 @@ begin
           begin
             O2 := ACast.PValue[j];
             if O2.ClassNameIs('TStringInstance') or
-              O2.ClassNameIs('TIntegerInstance') then
+              O2.ClassNameIs('TintegerInstance') then
               AActRec.AddMember(ACast.PValue[j].AsString, Visit(ATypedKey.PValue))
             else
               ERunTimeError.Create('This type can''t be used as a Dict key');
@@ -439,7 +439,7 @@ begin
     begin
       AValue := TFunctionInstance.Create(ANode.PName, ANode.PParamList,
         ANode.PBlock, RealType.PValue, False, ANode.PIsDecorator, ANode.PAcceptVarargs);
-      AValue.PMembers.Add('$paramCount', TIntegerInstance.Create(Length(ANode.PParamList)));
+      AValue.PMembers.Add('$paramCount', TintegerInstance.Create(Length(ANode.PParamList)));
       RealType.PMembers.Add(ANode.PName, AValue);
     end
     else
@@ -451,7 +451,7 @@ begin
   begin
     AValue := TFunctionInstance.Create(ANode.PName, ANode.PParamList,
         ANode.PBlock, 'TCoreFunction', False, ANode.PIsDecorator, ANode.PAcceptVarargs);
-    AValue.PMembers.Add('$paramCount', TIntegerInstance.Create(Length(ANode.PParamList)));
+    AValue.PMembers.Add('$paramCount', TintegerInstance.Create(Length(ANode.PParamList)));
     AActRec.AddMember(ANode.PName, AValue);
     Result := AValue;
   end;
@@ -551,15 +551,15 @@ begin
       if ABuilt.PValue = 'TServerInstance' then
       begin
         if Length(ArgsList) = 2 then
-          Ret := TServerInstance.Create(TIntegerInstance(ArgsList[0]).PValue, TBooleanInstance(ArgsList[1]).PValue)
+          Ret := TServerInstance.Create(TintegerInstance(ArgsList[0]).PValue, TBooleanInstance(ArgsList[1]).PValue)
         else if Length(ArgsList) = 1 then
-          Ret := TServerInstance.Create(TIntegerInstance(ArgsList[0]).PValue, True)
+          Ret := TServerInstance.Create(TintegerInstance(ArgsList[0]).PValue, True)
         else
           RaiseException(E_INVALID_ARGS, 'Arguments');
       end
       else if ABuilt.PValue = 'TBrookServerInstance' then
       begin
-        Ret := TBrookserverInstance.Create(TIntegerInstance(ArgsList[0]).PValue, TBooleanInstance(ArgsList[1]).PValue);
+        Ret := TBrookserverInstance.Create(TintegerInstance(ArgsList[0]).PValue, TBooleanInstance(ArgsList[1]).PValue);
       end
       else if ABuilt.PValue = 'THttpClientInstance' then
       begin
@@ -581,7 +581,7 @@ begin
           for ArgInst in TListInstance(ArgsList[0]).PValue do
           begin
             lenByte := lenByte + 1;
-            if ArgInst.ClassNameIs('TIntegerInstance') then
+            if ArgInst.ClassNameIs('TintegerInstance') then
             begin
               if (ArgInst.PIntValue > 255) or (Arginst.PIntValue < 0) then
                 RaiseException('An integer item from a stream input list must by between 0 and 255', 'Byte');
@@ -767,7 +767,7 @@ end;
 procedure TInterpreter.VisitForLoop(ANode: TForLoop);
 var
   AInst, AListRes: TInstanceOf;
-  AInt, AIndex: TIntegerInstance;
+  AInt, AIndex: TintegerInstance;
   AActRec: TActivationRecord;
   len, len2, j, i: integer;
 
@@ -785,7 +785,7 @@ begin
       for i := 0 to ACandidate.Count - 1 do
       begin
         AActRec.AddMember(Anode.PVar, ACandidate.PValue[i]);
-        AActRec.AddMember('_' + Anode.PVar, TIntegerInstance.Create(i));
+        AActRec.AddMember('_' + Anode.PVar, TintegerInstance.Create(i));
         len := Length(ANode.PBlock);
         if len > 0 then
         begin
@@ -814,7 +814,7 @@ begin
       for i := 0 to len - 1 do
       begin
         AActRec.AddMember(Anode.PVar, TStringInstance.Create(AListRes.PStrValue[i+1]));
-        AActRec.AddMember('_' + Anode.PVar, TIntegerInstance.Create(i));
+        AActRec.AddMember('_' + Anode.PVar, TintegerInstance.Create(i));
         len2 := Length(ANode.PBlock);
         if len2 > 0 then
         begin
@@ -832,15 +832,15 @@ begin
       end;
     end;
   end
-  else if AListRes.ClassNameIs('TIntegerInstance') then
+  else if AListRes.ClassNameIs('TintegerInstance') then
   begin
     len := AListRes.PIntValue;
     if len > 0 then
     begin
       for i := 0 to len - 1 do
       begin
-        AActRec.AddMember(Anode.PVar, TIntegerInstance.Create(i));
-        AActRec.AddMember('_' + Anode.PVar, TIntegerInstance.Create(i));
+        AActRec.AddMember(Anode.PVar, TintegerInstance.Create(i));
+        AActRec.AddMember('_' + Anode.PVar, TintegerInstance.Create(i));
         len2 := Length(ANode.PBlock);
         if len2 > 0 then
         begin
@@ -936,8 +936,8 @@ begin
     ASrcList := TListInstance(ASrc);
     if ASrcList.PChangeLocked then
       EValueError.Create('Can''t change values of change locked List', FTrace, ANode.PToken);
-    if AIndex.ClassNameIs('TIntegerInstance') then
-      ASrcList.SetItem(TIntegerInstance(AIndex).PValue, AddedValue)
+    if AIndex.ClassNameIs('TintegerInstance') then
+      ASrcList.SetItem(TintegerInstance(AIndex).PValue, AddedValue)
     else
     begin
       ERunTimeError.Create('Invalid type for List index',
@@ -980,8 +980,8 @@ begin
       Ret := TInstanceOf(ASrc.PMembers.Find(Aname));
       if (Ret <> nil) then
       begin
-        if Ret.ClassNameIs('TIntegerInstance') then
-          Ret := TIntegerInstance.Create(Ret.PIntValue)
+        if Ret.ClassNameIs('TintegerInstance') then
+          Ret := TintegerInstance.Create(Ret.PIntValue)
         else if Ret.ClassNameIs('TBooleanInstance') then
           Ret := TBooleanInstance.Create(Ret.PBoolValue)
         else if Ret.ClassNameIs('TStringInstance') then
@@ -1609,27 +1609,27 @@ begin
       FTrace, ANode.PToken);
 end;
 
-function TInterpreter.VisitUnaryOp(ANode: TUnaryOp): TIntegerInstance;
+function TInterpreter.VisitUnaryOp(ANode: TUnaryOp): TintegerInstance;
 var
   AOper: string;
-  Ret: TIntegerInstance;
+  Ret: TintegerInstance;
   ATerm: TInstanceOf;
 begin
   ATerm := Visit(ANode.PExpr);
-  if ATerm.ClassNameIs('TIntegerInstance') then
+  if ATerm.ClassNameIs('TintegerInstance') then
   begin
     AOper := ANode.POper.PType;
     if AOper = T_PLUS then
     begin
       ATerm.PIntValue := ATerm.PIntValue;
-      TIntegerInstance(Aterm).PValue := TIntegerInstance(ATerm).PValue
+      TintegerInstance(Aterm).PValue := TintegerInstance(ATerm).PValue
     end
     else if AOper = T_MINUS then
     begin
       Aterm.PIntValue := ATerm.PIntValue * (-1);
-      TIntegerInstance(Aterm).PValue := TIntegerInstance(ATerm).PValue * (-1);
+      TintegerInstance(Aterm).PValue := TintegerInstance(ATerm).PValue * (-1);
     end;
-    Result := TIntegerInstance(ATerm);
+    Result := TintegerInstance(ATerm);
   end
   else
     ERunTimeError.Create('Invalid operation for class ' + ATerm.ClassName,
@@ -1717,10 +1717,10 @@ begin
         Result := TBooleanInstance.Create(Cmp);
         exit;
       end
-      else if LeftClass = 'TIntegerInstance' then
+      else if LeftClass = 'TintegerInstance' then
       begin
-        LeftInt := TIntegerInstance(AresL).PValue;
-        RightInt := TIntegerInstance(AResR).PValue;
+        LeftInt := TintegerInstance(AresL).PValue;
+        RightInt := TintegerInstance(AResR).PValue;
         if (ANode.POper.PType = T_GT) then
           Cmp := LeftInt > RightInt
         else if (ANode.POper.PType = T_LT) then
@@ -1792,8 +1792,8 @@ begin
   AResR := Visit(Anode.PRight);
   LeftClass := AResL.ClassName;
   RightClass := AresR.ClassName;
-  LeftNum := (LeftClass = 'TIntegerInstance') or (LeftClass = 'TFloatInstance');
-  RightNum := (RightClass = 'TIntegerInstance') or (RightClass = 'TFloatInstance');
+  LeftNum := (LeftClass = 'TintegerInstance') or (LeftClass = 'TFloatInstance');
+  RightNum := (RightClass = 'TintegerInstance') or (RightClass = 'TFloatInstance');
   Numeric := LeftNum and RightNum;
   StrOper := (LeftClass = 'TStringInstance') and (RightClass = 'TStringInstance');
   Mismatch := ((LeftClass = 'TStringInstance') and (RightClass <> 'TStringInstance')) and
@@ -1812,12 +1812,12 @@ begin
   end
   else if Numeric then
   begin
-    if AResl.ClassNameIs('TIntegerInstance') then
-      LeftExt := TIntegerInstance(AresL).PValue
+    if AResl.ClassNameIs('TintegerInstance') then
+      LeftExt := TintegerInstance(AresL).PValue
     else
       LeftExt := TFloatInstance(AResL).PValue;
-    if AResR.ClassNameIs('TIntegerInstance') then
-      RightExt := TIntegerInstance(AresR).PValue
+    if AResR.ClassNameIs('TintegerInstance') then
+      RightExt := TintegerInstance(AresR).PValue
     else
       RightExt := TFloatInstance(AResR).PValue;
 
@@ -1835,7 +1835,7 @@ begin
     else if (ANode.POper.PType = T_DIV) then
       ResExt := LeftExt / RightExt;
     if Floor(ResExt) = ResExt then
-      Result := TIntegerInstance.Create(Floor(ResExt))
+      Result := TintegerInstance.Create(Floor(ResExt))
     else
       Result := TFloatInstance.Create(ResExt);
   end
@@ -1881,10 +1881,10 @@ begin
   Result := TNullInstance.Create;
 end;
 
-function TInterpreter.VisitNumInt(ANode: TNumInt): TIntegerInstance;
+function TInterpreter.VisitNumInt(ANode: TNumInt): TintegerInstance;
 begin
 
-  Result := TIntegerInstance.Create(ANode.PValue.ToInteger);
+  Result := TintegerInstance.Create(ANode.PValue.Tointeger);
 end;
 
 function TInterpreter.VisitString(ANode: TString): TStringInstance;
@@ -1923,15 +1923,15 @@ function TInterpreter.VisitListAccess(ANode: TListAccessAST): TInstanceOf;
 var
   AList: TListInstance;
   AStr, AIndexStr: TStringInstance;
-  AIndexInt: TIntegerInstance;
+  AIndexInt: TintegerInstance;
   AVarRef: TVariableReference;
   ARet, ASrc, AIndex: TInstanceOf;
 begin
   AIndex := Visit(ANode.PIndex);
   if AIndex.ClassNameIs('TStringInstance') then
     AIndexStr := TStringInstance(AIndex)
-  else if AIndex.ClassNameIs('TIntegerInstance') then
-    AIndexInt := TIntegerInstance(AIndex)
+  else if AIndex.ClassNameIs('TintegerInstance') then
+    AIndexInt := TintegerInstance(AIndex)
   else if AIndex.ClassNameIs('TNullInstance') then
   begin
 
@@ -1944,7 +1944,7 @@ begin
     ARet := TListInstance(ASrc).GetItem(AIndexInt)
   else if ASrc.ClassNameIs('TStringInstance') then
   begin
-    if AIndex.ClassNameIs('TIntegerInstance') then
+    if AIndex.ClassNameIs('TintegerInstance') then
       ARet := TStringInstance(ASrc).GetChar(AIndexInt)
     else
       ERunTimeError.Create('Foridden type for index using with List',
@@ -1954,7 +1954,7 @@ begin
   begin
     if AIndex.ClassNameIs('TStringInstance') then
       ARet := TDictionaryInstance(ASrc).PValue.GetMember(AindexStr.PValue)
-    else if AIndex.ClassNameIs('TIntegerInstance') then
+    else if AIndex.ClassNameIs('TintegerInstance') then
       ARet := TDictionaryInstance(ASrc).PValue.GetMember(IntToStr(AIndexInt.PValue))
     else if Aindex.ClassNameIs('TNullInstance') then
       ARet := TDictionaryInstance(ASrc).PDefault

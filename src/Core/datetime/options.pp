@@ -10,6 +10,19 @@ begin
         TSTringInstance(FPArams[1]).PValue
     );
   end
+  else if FName = 'unixTime' then
+    Ret := TIntegerInstance.Create(DateTimeToUnix(TDateTimeInstance(FObj).PValue))
+
+  else if FName = 'format' then
+  begin
+    Ret := TStringInstance.Create(
+        FormatDateTime(TStringInstance(FParams[0]).PValue, TDateTimeInstance(FObj).PValue)
+    );
+  end
+  else if FName = 'compare' then
+  begin
+    Ret := TIntegerInstance.Create(CompareDateTime(TDateTimeInstance(FObj).PValue, TDateTimeInstance(FParams[0]).PValue));
+  end
   else if (FName = 'hour') or
           (FName = 'minute') or
           (FName = 'second') or

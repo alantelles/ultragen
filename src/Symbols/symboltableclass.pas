@@ -62,7 +62,7 @@ end;
 
 procedure TSymbolTable.SetBuiltins;
 begin
-  FSymbols.Add(TYPE_INTEGER, TBuiltinSymbol.Create(TYPE_INTEGER));
+  FSymbols.Add(TYPE_integer, TBuiltinSymbol.Create(TYPE_integer));
   FSymbols.Add(TYPE_FLOAT, TBuiltinSymbol.Create(TYPE_FLOAT));
   FSymbols.Add(TYPE_STRING, TBuiltinSymbol.Create(TYPE_STRING));
   FSymbols.Add(TYPE_BOOLEAN, TBuiltinSymbol.Create(TYPE_BOOLEAN));

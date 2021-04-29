@@ -18,7 +18,7 @@ type
       property PArgs:TInstanceList read FArgs write FArgs;
       property PValue:string read FValue write FValue;
       constructor Create(AValue: string);
-      function GetChar(AnIndex: TIntegerInstance):TStringInstance;
+      function GetChar(AnIndex: TintegerInstance):TStringInstance;
       function AsString: string;  override;
       procedure CopyInstance(var AReceiver: TInstanceOf); override;
       //procedures
@@ -42,7 +42,7 @@ begin
   Result := FValue;
 end;
 
-function TStringInstance.GetChar(AnIndex: TIntegerInstance):TStringInstance;
+function TStringInstance.GetChar(AnIndex: TintegerInstance):TStringInstance;
 begin
   if UTF8Length(FValue) < AnIndex.PValue + 1 then
     raise ERunTimeError.Create('Index is greater than string size', '', 1, 1);

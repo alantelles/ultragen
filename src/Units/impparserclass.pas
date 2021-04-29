@@ -1451,9 +1451,9 @@ begin
   end
   // END INNER ATTRIBUTES
 
-  else if (AToken.PType = TYPE_INTEGER) then
+  else if (AToken.PType = TYPE_integer) then
   begin
-    Eat(TYPE_INTEGER);
+    Eat(TYPE_integer);
     logtext('PARSER', 'Parser', 'Creating integer node');
     Ret := TNumInt.Create(AToken);
   end

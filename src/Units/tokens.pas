@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, StrUtils, TokenClass;
 
 const
-  TYPE_INTEGER = 'INTEGER';
+  TYPE_integer = 'integer';
   TYPE_FLOAT = 'FLOAT';      
   TYPE_STRING = 'STRING';
   TYPE_BOOLEAN = 'BOOLEAN';

@@ -41,19 +41,19 @@ end;
 function TDateTimeInstance.GetPartOfDate(APart: string): TInstanceOf;
 begin
   if APart = 'year' then
-    Result := TIntegerInstance.Create(YearOf(FValue))
+    Result := TintegerInstance.Create(YearOf(FValue))
   else if APart = 'month' then
-    Result := TIntegerInstance.Create(MonthOf(FValue))
+    Result := TintegerInstance.Create(MonthOf(FValue))
   else if APart = 'day' then
-    Result := TIntegerInstance.Create(DayOf(FValue))
+    Result := TintegerInstance.Create(DayOf(FValue))
   else if APart = 'hour' then
-    Result := TIntegerInstance.Create(HourOf(FValue))
+    Result := TintegerInstance.Create(HourOf(FValue))
   else if APart = 'minute' then
-    Result := TIntegerInstance.Create(MinuteOf(FValue))
+    Result := TintegerInstance.Create(MinuteOf(FValue))
   else if APart = 'second' then
-    Result := TIntegerInstance.Create(SecondOf(FValue))
+    Result := TintegerInstance.Create(SecondOf(FValue))
   else if APart = 'milli' then
-    Result := TIntegerInstance.Create(MilliSecondOf(FValue));
+    Result := TintegerInstance.Create(MilliSecondOf(FValue));
 end;
 
 class function TDateTimeInstance.CreateNowDateTime: TDateTimeInstance;

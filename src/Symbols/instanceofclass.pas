@@ -67,7 +67,7 @@ type
       procedure CopyInstance(var AReceiver: TInstanceOf); override;
   end;
 
-  TIntegerInstance = class (TInstanceOf)
+  TintegerInstance = class (TInstanceOf)
     protected
       FValue:integer;
     public
@@ -305,7 +305,7 @@ begin
   Result := IntToStr(FValue);
 end;
 
-constructor TIntegerInstance.Create(AValue: integer);
+constructor TintegerInstance.Create(AValue: integer);
 begin
   inherited Create;
   FValue := AValue;
@@ -314,20 +314,20 @@ begin
 end;
 
 
-constructor TIntegerInstance.Create;
+constructor TintegerInstance.Create;
 begin
   FCoreType := True;
 end;
 
-procedure TIntegerInstance.CopyInstance(var AReceiver: TInstanceOf);
+procedure TintegerInstance.CopyInstance(var AReceiver: TInstanceOf);
 var
-  Cast: TIntegerInstance;
+  Cast: TintegerInstance;
 begin
-  Cast := TIntegerInstance.Create(FValue);
+  Cast := TintegerInstance.Create(FValue);
   AReceiver := Cast;
 end;
 
-function TIntegerInstance.AsString:string;
+function TintegerInstance.AsString:string;
 begin
   Result := IntToStr(FValue);
 end;

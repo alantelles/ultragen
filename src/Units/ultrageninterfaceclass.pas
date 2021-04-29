@@ -61,7 +61,7 @@ begin
 end;
 function TUltraAdapter.AddMember(AName: string; AValue: integer):boolean;
 begin
-  Result := FActRec.AddMember(AName, TIntegerInstance.Create(AValue));
+  Result := FActRec.AddMember(AName, TintegerInstance.Create(AValue));
 end;
 
 class function TUltraInterface.ParseString(AStringCode: string): TAST;
