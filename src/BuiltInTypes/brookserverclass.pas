@@ -32,7 +32,7 @@ type
 implementation
 
 uses
-  StringInstanceClass, UltraGenInterfaceClass, Dos, StrUtils, ARClass;
+  StringInstanceClass, UltraGenInterfaceClass, Dos, StrUtils, ARClass, ListInstanceClass;
 
 function StrToBytes(Astr: string): TBytes;
 var
@@ -62,6 +62,27 @@ begin
   WriteLn(ErrMsg);
   AResponse.Send(htmlErr,
     'text/html', Status);
+end;
+
+procedure SetCookiesFromUltra(AResponse: TBrookHTTPResponse);
+var
+  AListInst: TListInstance;
+  Gene: TInstanceOf;
+  CookieOpts: TActivationRecord;
+  CookieStr: string;
+begin
+  for i:=0 to ADict.PMembers.Count-1 do
+  begin
+    Gene := ADict.PMembers[i];
+    if (Gene.ClassNameIs('TListInstance')) then
+    begin
+      AListInst := TListInstance(Gene);
+      // $cookie['key'] = ['value', {'path': '/', 'max-age': 310000, 'Secure': true}]
+      AResponse.Headers.Add('Set-Cookie', ADict.PMembers.NameOfIndex(i) + '=' + TInstanceOf(ADict.PMembers[i]).AsString);
+    end;
+
+    // AResponse.SetCookie(ADict.PMembers.NameOfIndex(i), TInstanceOf(ADict.PMembers[i]).AsString);
+  end;
 end;
 
 procedure THTTPServer.DoRequest(ASender: TObject; ARequest: TBrookHTTPRequest; AResponse: TBrookHTTPResponse);
@@ -102,8 +123,7 @@ begin
       ADict := TDictionaryInstance(AppResponse.PMembers.Find('$cookies')).PValue;
       if ADict.PMembers.Count > 0 then
       begin
-        for i:=0 to ADict.PMembers.Count-1 do
-          AResponse.SetCookie(ADict.PMembers.NameOfIndex(i), TInstanceOf(ADict.PMembers[i]).AsString);
+        SetCookiesFromUltra(AResponse);
       end;// TODO : process response
     end;
     Status := 200;

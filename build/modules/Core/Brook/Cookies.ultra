@@ -1,6 +1,9 @@
 class Cookies
+include @Core.Brook.AppResponse
 
 Cookies.all = {}
+
+
 
 function set(key, value, params={}) : Cookies    
     cookie = key + '=' + value
@@ -21,14 +24,14 @@ function set(key, value, params={}) : Cookies
             value.append(key + '=' +str(params[key]))
         end
     end
-    newVal = key + '=' + str(valueOrig) + ';' + (';'.join(value))
+    newVal = ';'.join(value)    
     Cookies.all[key] = newVal
 end
 
 function retrieve() : Cookies
     result = ''
     for(Cookies.all.keys(), cookie)
-        result += (Cookies.all[cookie]) + ';'
+        result += (Cookies.all[cookie]) + ','
     end
     return result
 end

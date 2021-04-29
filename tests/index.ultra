@@ -1,18 +1,11 @@
 include @Core.Brook.AppResponse
 include @Core.Brook.Cookies
-a = {
-    :headers: {
-        'Content-Type': 'application/json',
-        'X-Powered-By': "UltraGen/Brook Server"
-    },
-    :cookies: {
-        'SESSION': 'pikadasgalazias',
-        'tomb': 'uiouio'
-    }
-}
 
 AppResponse.$headers['X-Toby'] = AppResponse
-AppResponse.$cookies['UGD_SESSION'] = "Yes I'm logged"
-AppResponse.$cookies['OUTRO'] = "algum novo"
+AppResponse.$cookies['Mahailo'] = ["zika"]
+AppResponse.$cookies['UGD_SESSION'] = ["outro novo", {'Secure': true}]
+AppResponse.$cookies['OUTRO'] = ["algum novo", {'max-age': 3100000}]
 
-live a
+live Cookies.retrieve()
+live '<br>\n'
+live $request
