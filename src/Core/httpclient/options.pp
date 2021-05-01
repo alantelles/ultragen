@@ -45,7 +45,7 @@ begin
       Ret := THttpClientInstance.RequestGet(
         'delete',
         TStringInstance(FParams[0]).PValue,
-        TDictionaryInstance(FParams[2])
+        TDictionaryInstance(FParams[1])
         )
     else
       FInter.RaiseException(E_INVALID_ARGS, 'Arguments');

@@ -285,30 +285,33 @@ begin
   detour := 0;
   ups := 0;
   len := Length(AEvalParams);
-  for i:=0 to len-1 do
+  if len > 0 then
   begin
-    if AEvalParams[i].ClassNameIs('TExpandArgs') then
+    for i:=0 to len-1 do
     begin
-      AVal := VisitExpandArgs(TExpandArgs(AEvalParams[i]));
-      if AVal.ClassNameIs('TListInstance') then
+      if AEvalParams[i].ClassNameIs('TExpandArgs') then
       begin
-        for j := 0 to TListInstance(AVal).Count-1 do
+        AVal := VisitExpandArgs(TExpandArgs(AEvalParams[i]));
+        if AVal.ClassNameIs('TListInstance') then
         begin
-          ups := ups + 1;
-          SetLength(ArgsList, ups);
-          ArgsList[i + detour] := TListInstance(AVal).PValue[j];
-          detour := detour + 1;
-        end;
-        detour := detour - 1;
+          for j := 0 to TListInstance(AVal).Count-1 do
+          begin
+            ups := ups + 1;
+            SetLength(ArgsList, ups);
+            ArgsList[i + detour] := TListInstance(AVal).PValue[j];
+            detour := detour + 1;
+          end;
+          detour := detour - 1;
+        end
+        else
+          ERunTimeError.Create('Only lists can be expanded', FTrace, nil);
       end
       else
-        ERunTimeError.Create('Only lists can be expanded', FTrace, nil);
-    end
-    else
-    begin
-      ups := ups + 1;
-      SetLength(ArgsList, ups);
-      ArgsList[i + detour] := Visit(AEvalParams[i]);
+      begin
+        ups := ups + 1;
+        SetLength(ArgsList, ups);
+        ArgsList[i + detour] := Visit(AEvalParams[i]);
+      end;
     end;
   end;
   if not AFunction.PIsBuiltin then
