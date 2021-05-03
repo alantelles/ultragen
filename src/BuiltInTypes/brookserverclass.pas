@@ -167,7 +167,7 @@ begin
   FError := TRue;
   inherited Create;
   try
-    FMembers.Add('port', TintegerInstance.Create(Aport));
+    FMembers.Add('port', TIntegerInstance.Create(Aport));
     FMembers.Add('title', TStringInstance.Create('Untitled'));
     FMembers.Add('indexHandler', TStringInstance.Create('index.ultra'));
     FMembers.Add('exceptionHandler', TStringInstance.Create('exception.ultra'));

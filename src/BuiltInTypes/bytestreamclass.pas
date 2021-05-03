@@ -36,7 +36,7 @@ constructor TByteStreamInstance.Create(ByteArray: TByteStreamInput);
 begin
   inherited Create;
   FValue := ByteArray;
-  FMembers.Add('position', TintegerInstance.Create(0));
+  FMembers.Add('position', TIntegerInstance.Create(0));
   //FValue.LoadFromStream(TStringStream.Create(TStringInstance(AInstance).PValue));
 end;
 constructor TByteStreamInstance.Create(ByteArray: string);
@@ -54,7 +54,7 @@ begin
       temp[i - 1] := ord(ByteArray[i]);
   end;
   FValue := Temp;
-  FMembers.Add('position', TintegerInstance.Create(0));
+  FMembers.Add('position', TIntegerInstance.Create(0));
 end;
 
 procedure TByteStreamInstance.WriteStream(ByteArray: TByteStreamInput);
@@ -62,14 +62,14 @@ var
 
   position, i, lenContent, totallen: integer;
 begin
-  position := TintegerInstance(FMembers.Find('position')).PValue;
+  position := TIntegerInstance(FMembers.Find('position')).PValue;
   lencontent := Length(ByteArray);
   totalLen := Length(FValue);
   if (position + lencontent) > totallen then
     SetLength(FValue, position + lenContent);
   for i:=0 to (lenContent-1) do
     FValue[i + position] := ByteArray[i];
-  TintegerInstance(FMembers.Find('position')).PValue := position + lenContent;
+  TIntegerInstance(FMembers.Find('position')).PValue := position + lenContent;
 end;
 
 function TByteStreamInstance.ReadStream: TByteStreamInstance;
@@ -78,7 +78,7 @@ var
   len, lenOut, i, start: integer;
 begin
 
-  start := TintegerInstance(Pmembers.Find('position')).PValue;
+  start := TIntegerInstance(Pmembers.Find('position')).PValue;
   len := Length(FValue);
 
   SetLength(Temp, 0);
@@ -89,7 +89,7 @@ begin
     SetLength(Temp, lenout);
     Temp[lenOut - 1] := FValue[i];
   end;
-  TintegerInstance(Pmembers.Find('position')).PValue := len;
+  TIntegerInstance(Pmembers.Find('position')).PValue := len;
   Result := TByteStreamInstance.Create(Temp);
 end;
 
@@ -99,7 +99,7 @@ var
   len, lenOut, i, start, limit: integer;
 begin
 
-  start := TintegerInstance(Pmembers.Find('position')).PValue;
+  start := TIntegerInstance(Pmembers.Find('position')).PValue;
   limit := start + count;
   len := Length(FValue);
   if limit > len then
@@ -112,7 +112,7 @@ begin
     SetLength(Temp, lenout);
     Temp[lenOut - 1] := FValue[i];
   end;
-  TintegerInstance(Pmembers.Find('position')).PValue := limit;
+  TIntegerInstance(Pmembers.Find('position')).PValue := limit;
   Result := TByteStreamInstance.Create(Temp);
 end;
 

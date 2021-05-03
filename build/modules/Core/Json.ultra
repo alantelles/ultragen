@@ -26,16 +26,17 @@ function create(obj) : JSON
     function dumpVal(data)
 
         input_type = typeof(data)
-        tri = [Integer.internal, Boolean.internal, Float.internal]
+        tri = [Integer.$internal, Boolean.$internal, Float.$internal]
+        
         x = tri.pos(input_type)
         if (x > -1)
             return str(data).lower()
-        elsif (input_type == (String.internal))
+        elsif (input_type == (String.$internal))
             return '"' + (data.replace('"', '\\"')) + '"'
-        elsif (input_type == (Dict.internal))
+        elsif (input_type == (Dict.$internal))
             kk = dumpObj(data)
             return kk
-        elsif (input_type == (List.internal))
+        elsif (input_type == (List.$internal))
             kk = dumpValList(data)
             return kk
         else
@@ -55,9 +56,9 @@ function create(obj) : JSON
     end
 
     input_type = typeof(obj)
-    if (input_type == (List.internal))
+    if (input_type == (List.$internal))
         out = dumpList(obj)
-    elsif (input_type == (Dict.internal))
+    elsif (input_type == (Dict.$internal))
         out = dumpObj(obj)
     else
         return 'Invalid type for conversion'

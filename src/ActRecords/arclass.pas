@@ -256,7 +256,7 @@ begin
 	end;
 	if (i > -1) then
   begin
-    {if FMembers[i].ClassNameIs('TintegerInstance') or
+    {if FMembers[i].ClassNameIs('TIntegerInstance') or
        FMembers[i].ClassNameIs('TBooleanInstance') or
        FMembers[i].ClassNameIs('TStringInstance') or
        FMembers[i].ClassNameIs('TFloatInstance') or
@@ -275,8 +275,8 @@ begin
   Ret := TInstanceOf(FMembers.Find(AKey));
   if (not ForceRef) and (Ret <> nil) then
   begin
-    if Ret.ClassNameIs('TintegerInstance') or Ret.ClassNameIs('TByteInstance') then
-      Ret := TintegerInstance.Create(Ret.PIntValue)
+    if Ret.ClassNameIs('TIntegerInstance') or Ret.ClassNameIs('TByteInstance') then
+      Ret := TIntegerInstance.Create(Ret.PIntValue)
     else if Ret.ClassNameIs('TBooleanInstance') then
       Ret := TBooleanInstance.Create(Ret.PBoolValue)
     else if Ret.ClassNameIs('TStringInstance') then

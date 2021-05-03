@@ -27,7 +27,7 @@ type
       procedure Clear;
       procedure LockAll;
       function AsString:string; override;
-      function GetItem(AIndex: TintegerInstance):TInstanceOf;
+      function GetItem(AIndex: TIntegerInstance):TInstanceOf;
       function GetItem(AIndex: integer):TInstanceOf;
       procedure SetItem(AIndex: integer; AItem: TInstanceOf);
       function PopItem:TInstanceOf;
@@ -173,7 +173,7 @@ begin
     begin
       if FValue[i] <> nil then
       begin
-        if FValue[i].ClassNameIs('TintegerInstance') or
+        if FValue[i].ClassNameIs('TIntegerInstance') or
            FValue[i].ClassNameIs('TBooleanInstance') or
            FValue[i].ClassNameIs('TStringInstance') or
            FValue[i].ClassNameIs('TFloatInstance') or
@@ -212,8 +212,8 @@ begin
   AItem.CopyInstance(ToAdd);
   {if AItem <> nil then
   begin
-    if AItem.ClassNameIs('TintegerInstance') then
-      ToAdd := TintegerInstance.Create(AItem.PIntValue)
+    if AItem.ClassNameIs('TIntegerInstance') then
+      ToAdd := TIntegerInstance.Create(AItem.PIntValue)
     else if AItem.ClassNameIs('TBooleanInstance') then
       ToAdd := TBooleanInstance.Create(AItem.PBoolValue)
     else if AItem.ClassNameIs('TStringInstance') then
@@ -237,8 +237,8 @@ begin
   ToAdd := AItem;
   {if AItem <> nil then
   begin
-    if AItem.ClassNameIs('TintegerInstance') then
-      ToAdd := TintegerInstance.Create(AItem.PIntValue)
+    if AItem.ClassNameIs('TIntegerInstance') then
+      ToAdd := TIntegerInstance.Create(AItem.PIntValue)
     else if AItem.ClassNameIs('TBooleanInstance') then
       ToAdd := TBooleanInstance.Create(AItem.PBoolValue)
     else if AItem.ClassNameIs('TStringInstance') then
@@ -261,7 +261,7 @@ begin
   end;
 end;
 
-function TListInstance.GetItem(AIndex: TintegerInstance):TInstanceOf;
+function TListInstance.GetItem(AIndex: TIntegerInstance):TInstanceOf;
 var
   Ret: TInstanceOf;
   AIndVal: integer;

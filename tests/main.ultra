@@ -1,6 +1,10 @@
-include @Core.Request
-
-url = 'http://localhost:5000/'
-r = new Request(url)
-resp = r.run(:delete, '')
-print(resp.text)
+a = {
+    'str': "a string",
+    "int": 900,
+    'boolean': true,
+    'null': null,
+    'list': [],
+    'obj': {},
+    'float': 9.5
+}
+print(JSON.create(a))

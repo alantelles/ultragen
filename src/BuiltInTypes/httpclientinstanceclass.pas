@@ -34,7 +34,7 @@ begin
   inherited Create;
   FMembers.Add('$baseUrl', TStringInstance.Create(baseUrl));
   FMembers.Add('headers', TNullInstance.Create);
-  FMembers.Add('timeout', TintegerInstance.Create(10));
+  FMembers.Add('timeout', TIntegerInstance.Create(10));
   FMembers.Add('allowRedirects', TBooleanInstance.Create(True));
   FMembers.Add('body', TStringInstance.Create(''));
 end;
@@ -64,7 +64,7 @@ begin
     end;
 
   end;
-  AClient.ConnectTimeout := TintegerInstance(FMembers.Find('timeout')).PValue * 1000;
+  AClient.ConnectTimeout := TIntegerInstance(FMembers.Find('timeout')).PValue * 1000;
   // TODO: handle form files send
   try
     if Method = 'get' then
@@ -108,7 +108,7 @@ begin
 	end;
 	//len := AHeaders.PValue.AddMember(Ahead);
   FMembers.Add('status_text', TStringInstance.Create(AClient.ResponseStatusText));
-  FMembers.Add('status', TintegerInstance.Create(AClient.ResponseStatusCode));
+  FMembers.Add('status', TIntegerInstance.Create(AClient.ResponseStatusCode));
   FMembers.Add('headers', AHeaders);
   FMembers.Add('text', TStringInstance.Create(AResponse));
   FMembers.Add('content', TByteStreamInstance.Create(AResponse));

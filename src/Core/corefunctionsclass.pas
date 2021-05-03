@@ -37,7 +37,7 @@ type
 
       function GetTypeOf:TStringInstance;
       function CastToStr:TStringInstance;
-      function CastToInt:TintegerInstance;
+      function CastToInt:TIntegerInstance;
       function Range: TListInstance;
       procedure DumpLive;
       function ParseJson: TInstanceOf;
@@ -72,6 +72,7 @@ function TCoreFunction.Execute(AInter: TInterpreter; Fname:string; var AArgList:
 var
   AType:string = '';
   AuxStr:string;
+  AuxDateTime: TDateTime;
   DotPos, len, i, j: integer;
   Ret, Aux: TInstanceOf;
   MDProc: TMarkdownProcessor;
@@ -158,8 +159,8 @@ begin
 		end
 		else if FName = 'pause' then
     begin
-      if FParams[0].ClassNameIs('TintegerInstance') then
-        Sleep(TintegerInstance(FParams[0]).PValue)
+      if FParams[0].ClassNameIs('TIntegerInstance') then
+        Sleep(TIntegerInstance(FParams[0]).PValue)
       else
         //raise EArgumentsError.Create('Argument type for this function must be integer', '', 1, 1);
         AInter.RaiseException('Argument type for this function must be integer', 'Arguments');
@@ -315,25 +316,25 @@ begin
   step := 1;
   asize := 0;
   if Length(FParams) = 3 then
-    step := TintegerInstance(FParams[2]).PValue;
+    step := TIntegerInstance(FParams[2]).PValue;
   counter := 0;
   if Length(FParams) = 1 then
   begin
-    len := TintegerInstance(FParams[0]).PValue;
+    len := TIntegerInstance(FParams[0]).PValue;
     SetLength(AList, len);
     if len > 0 then
     begin
       for i:=0 to len - 1 do
       begin
-        AList[counter] := TintegerInstance.Create(i);
+        AList[counter] := TIntegerInstance.Create(i);
         counter := counter + 1;
 			end;
 		end;
 	end
   else if (Length(FParams) = 2) or (Length(FParams) = 3) then
   begin
-    start := TintegerInstance(FParams[0]).PValue;
-    len := TintegerInstance(FParams[1]).PValue;
+    start := TIntegerInstance(FParams[0]).PValue;
+    len := TIntegerInstance(FParams[1]).PValue;
     SetLength(AList, 0);
     if len > start then //  3, 5
     begin
@@ -346,7 +347,7 @@ begin
 				end;
         ASize := ASize + 1;
         SetLength(AList, ASize);
-			  AList[Asize - 1] := TintegerInstance.Create(i);
+			  AList[Asize - 1] := TIntegerInstance.Create(i);
         counter := counter + 1;
 			end;
 		end
@@ -355,7 +356,7 @@ begin
       SetLength(AList, start - len);
       for i := start downto len + 1 do
       begin
-        AList[counter] := TintegerInstance.Create(i);
+        AList[counter] := TIntegerInstance.Create(i);
         counter := counter + 1;
 			end;
     end;
@@ -426,7 +427,7 @@ begin
     if Pos('.', ANode.Value) > 0 then
       AInst.add(TFloatInstance.Create(ANode.AsNumber))
     else
-      AInst.add(TintegerInstance.Create(Floor(ANode.AsNumber)));
+      AInst.add(TIntegerInstance.Create(Floor(ANode.AsNumber)));
   end
   else if ANode.Kind = nkNull then
     AInst.add(TNullInstance.Create());
@@ -445,7 +446,7 @@ begin
     if Pos('.', ANode.Value) > 0 then
       AInst.PValue.AddMember(ANode.Name, TFloatInstance.Create(ANode.AsNumber))
     else
-      AInst.PValue.AddMember(ANode.Name, TintegerInstance.Create(Floor(ANode.AsNumber)));
+      AInst.PValue.AddMember(ANode.Name, TIntegerInstance.Create(Floor(ANode.AsNumber)));
   end
   else if ANode.Kind = nkNull then
     AInst.PValue.AddMember(ANode.Name, TNullInstance.Create());
@@ -568,17 +569,17 @@ begin
   Result := TStringInstance.Create(FParams[0].AsString);
 end;
 
-function TCoreFunction.CastToInt:TintegerInstance;
+function TCoreFunction.CastToInt:TIntegerInstance;
 var
   ResInt: integer;
 begin
-  if FParams[0].ClassNameIs('TintegerInstance') then
-    Result := TintegerInstance(FParams[0])
+  if FParams[0].ClassNameIs('TIntegerInstance') then
+    Result := TIntegerInstance(FParams[0])
   else if FParams[0].ClassNameIs('TStringInstance') then
   begin
     try
       ResInt := StrToInt(TStringInstance(FParams[0]).PValue);
-      Result := TintegerInstance.Create(ResInt);
+      Result := TIntegerInstance.Create(ResInt);
     except
       FInter.RaiseException('Can''t convert value "'+TStringInstance(FParams[0]).PValue+'" to integer', 'Type');
     end;
@@ -586,7 +587,7 @@ begin
   else if FParams[0].ClassNameIs('TFloatInstance') then
   begin
     if Trunc(TFloatInstance(FParams[0]).PValue) = TFloatInstance(FParams[0]).PValue then
-      Result := TintegerInstance.Create(Trunc(TFloatInstance(FParams[0]).PValue))
+      Result := TIntegerInstance.Create(Trunc(TFloatInstance(FParams[0]).PValue))
     else
       raise ETypeError.Create('Can''t convert value "'+FloatToStr(TFloatInstance(FParams[0]).PValue)+'" to integer', '', 1, 1);
   end

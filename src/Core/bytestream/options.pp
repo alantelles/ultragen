@@ -7,5 +7,5 @@ begin
   else if FName = 'write' then
     WriteByteStreamPart(TByteStreamInstance(FObj))
   else if FName = 'length' then
-    Ret := TintegerInstance.Create(Length(TByteStreamInstance(FObj).PValue));
+    Ret := TIntegerInstance.Create(Length(TByteStreamInstance(FObj).PValue));
 end

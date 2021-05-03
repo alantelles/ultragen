@@ -173,6 +173,17 @@ begin
   ADateTimeType.PMembers.Add('format', ADateTimeFunc);
   ADateTimeType.PMembers.Add('unixTime', ADateTimeFunc);
   ADateTimeType.PMembers.Add('compare', ADateTimeFunc);
+  ADateTimeType.PMembers.Add('compareTime', ADateTimeFunc);
+  ADateTimeType.PMembers.Add('compareDate', ADateTimeFunc);
+  ADateTimeType.PMembers.Add('addDays', ADateTimeFunc);
+  ADateTimeType.PMembers.Add('addMonts', ADateTimeFunc);
+  ADateTimeType.PMembers.Add('addYears', ADateTimeFunc);
+  ADateTimeType.PMembers.Add('addHours', ADateTimeFunc);
+  ADateTimeType.PMembers.Add('addMinutes', ADateTimeFunc);
+  ADateTimeType.PMembers.Add('addSeconds', ADateTimeFunc);
+  ADateTimeType.PMembers.Add('addMillis', ADateTimeFunc);
+  ADateTimeType.PMembers.Add('addWeeks', ADateTimeFunc);
+  ADateTimeType.PMembers.Add('isBetween', ADateTimeFunc);
   AActRec.AddMember('DateTime', ADateTimeType);
 end;
 
