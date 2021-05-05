@@ -81,6 +81,9 @@ begin
           (FName = 'year') or
           (FName = 'month') or
           (FName = 'day') or
+          (FName = 'weekDay') or
+          (FName = 'weekDayAbbr') or
+          (FName = 'weekDayName') or
           (FName = 'milli') then
     Ret := TDateTimeInstance(FObj).GetPartOfDate(FName);
 

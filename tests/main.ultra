@@ -1,10 +1,6 @@
-a = {
-    'str': "a string",
-    "int": 900,
-    'boolean': true,
-    'null': null,
-    'list': [],
-    'obj': {},
-    'float': 9.5
-}
-print(JSON.create(a))
+include @Core.DateTime
+
+x = DateTime.now()
+print(x.weekDay())
+print(x.weekDayAbbr())
+print(x.weekDayName())

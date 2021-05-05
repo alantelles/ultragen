@@ -6,4 +6,4 @@ RUN mkdir /application
 WORKDIR /application
 ENV ULTRAGEN_HOME="/opt/ultragen"
 ENV PATH=$PATH:$ULTRAGEN_HOME/bin
-ENTRYPOINT ["ultragen"]
+CMD ["ultragen"]

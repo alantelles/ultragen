@@ -21,10 +21,12 @@ type TDateTimeInstance = class (TInstanceOf)
 end;
 
 implementation
-uses DateUtils;
+uses DateUtils, StringInstanceClass;
 
 constructor TDateTimeInstance.Create(ADateTime: TDateTime);
 begin
+  inherited Create;
+
   FValue := ADateTime;
 end;
 
@@ -52,6 +54,12 @@ begin
     Result := TIntegerInstance.Create(MinuteOf(FValue))
   else if APart = 'second' then
     Result := TIntegerInstance.Create(SecondOf(FValue))
+  else if APart = 'weekDay' then
+    Result := TIntegerInstance.Create(DayofTheWeek(FValue))
+  else if APart = 'weekDayName' then
+    Result := TStringInstance.Create(FormatDateTime('dddd', FValue))
+  else if APart = 'weekDayAbbr' then
+    Result := TStringInstance.Create(FormatDateTime('ddd', FValue))
   else if APart = 'milli' then
     Result := TIntegerInstance.Create(MilliSecondOf(FValue));
 end;

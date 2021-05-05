@@ -169,6 +169,9 @@ begin
   ADateTimeType.PMembers.Add('minute', ADateTimeFunc);
   ADateTimeType.PMembers.Add('second', ADateTimeFunc);
   ADateTimeType.PMembers.Add('milli', ADateTimeFunc);
+  ADateTimeType.PMembers.Add('weekDay', ADateTimeFunc);
+  ADateTimeType.PMembers.Add('weekDayAbbr', ADateTimeFunc);
+  ADateTimeType.PMembers.Add('weekDayName', ADateTimeFunc);
   ADateTimeType.PMembers.Add('parse', ADateTimeFunc);
   ADateTimeType.PMembers.Add('format', ADateTimeFunc);
   ADateTimeType.PMembers.Add('unixTime', ADateTimeFunc);
@@ -184,6 +187,7 @@ begin
   ADateTimeType.PMembers.Add('addMillis', ADateTimeFunc);
   ADateTimeType.PMembers.Add('addWeeks', ADateTimeFunc);
   ADateTimeType.PMembers.Add('isBetween', ADateTimeFunc);
+
   AActRec.AddMember('DateTime', ADateTimeType);
 end;
 
