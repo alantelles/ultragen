@@ -2,35 +2,36 @@
 ## The website machine
 ### Desktop/Web Template Engine/Scripting Language
 
-UltraGen é uma linguagem de script e template engine feita com o propósito de facilitar a construção de páginas web suportando o uso de texto plano em conjunto com sintaxe de script.
+UltraGen is a script langauage and template engine built to turn easier to create a web application supporting plain text as well script execution.
 
 ## Features
 
-- Fácil de aprender
-- Sintaxe simples e com pouca variação
-- Tipagem dinâmica e forte
-- Orientada a objetos
-- Stream de saída duplo builtin (stdout e "live")
-- Facilmente extensível
+- Easy to learn
+- Simple syntax
+- Dynamic and strong typing
+- Object oriented
+- Aparted builtin web response output stream (*live* output) in addition to *stdout*.
+- Easily extensible
 
-## Por que UltraGen?
+## Why UltraGen?
 
-Existem tecnologias de template engine no mercado, mas todas as de mainstream são providas como pacotes e frameworks de alguma linguagem, cada qual com sua curva de aprendizado, a exceção do PHP. Porém, PHP tem as ressalvas de design (tipagem fraca e coreção, variação nos nomes de funções, funções relacionadas ao mesmo tipo implementadas como métodos ou funções), além do stream único de saída (toda saída definida é feita pelo "echo"). UltraGen busca resolver os dois problemas. Um design consistente pensado já observando os paradigmas atuais, a template engine está incluida na linguagem, então não é necessário aprender a linguagem e o framework de extensão, nem instalar outras ferramentas para este fim. Além disso, é possível imprimir na saída web ou no console com funções diferentes.
+There are many technologies for template engine however all well known mainstream are provided as a package or framework of some language, each one with its own learning curve. Even the response body is treated in a separated method. UltraGen tries to solve this as making the web development **part** of the language. You don't need to learn the script and the language, since they are all UltraGen. It also ships with a web framework embedded that implement many of developers needs, like cookies, sessions or routes handling.
+In addition to create web pages UltraGen can be used to process any type of text that has variable data inside a template, like XMLs or config files with some changes.
 
-## Exemplos
+## Examples
 
 Hello, World!
 ```ruby
 print('Hello, World!')
-# imprimindo no console
+# print at console(stdout)
 ```
 
-Hello, World! (imprimindo na página web)
+Hello, World! (adding to http response)
 ```ruby
 live 'Hello, World!'
 ```
 
-Variáveis e tipos
+Variables and types
 ```ruby
 a = 'texto' # string
 a = 10 # int
@@ -41,14 +42,14 @@ a = """uma string
 com várias linhas"""
 ```
 
-Chamando métodos
+Calling methods
 ```ruby
 a = 'Hello, World!'
 print(a.upper())
 # HELLO, WORLD!
 ```
 
-Laços de repetição
+Loops
 ```ruby
 # for com listas
 for (['item1', 'item2', 'item3'], i)
@@ -75,7 +76,7 @@ while(x < 10)
 end
 ```
 
-Tipos compostos
+Lists and dictionaries
 ```ruby
 # listas
 a_list = ['item1', 'item2', 'item3']
@@ -84,12 +85,12 @@ a_list = ['item1', 'item2', 'item3']
 a_dict = {
     'key1': 'valor1',
     'key2': 'valor2',
-    a_list: 'valor para qualquer elemento em a_list',
-    null: 'valor para uma chave que não exista'
+    a_list: 'value for any element in a_list',
+    null: "default value for a key that doesn't exists"
 }
 ```
 
-Embutida em texto plano
+Embedded in plain text
 ```html
 @header = 'My Website'
 @body = 'THIS IS MY WEBSITE'
@@ -97,13 +98,13 @@ Embutida em texto plano
 <p>{{ body.lower() }}</p>
 ```
 
-Imprimirá
+Will print
 ```html
 <h1>My Website</h1>
 <p>this is my website</p>
 ```
 
-Passando uma closure como valor
+Passing a closure as value
 ```ruby
 myFunc = function()
     print('Hello')
@@ -138,6 +139,5 @@ wrapped()
 
 ```
 
-
 ## Releases
-Atualmente ainda não há releases da linguagem. Siga o projeto para ser notificado e experimente UltraGen!
+At this time UltraGen is in pre-release phase and it's only available through Docker image with `docker pull alantelles/ultragen`. Pre-releases are using *CalVer*.
