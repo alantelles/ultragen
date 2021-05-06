@@ -64,26 +64,38 @@ begin
     'text/html', Status);
 end;
 
-{procedure SetCookiesFromUltra(AResponse: TBrookHTTPResponse);
+procedure SetCookiesFromUltra(AResponse: TBrookHTTPResponse; ADict: TActivationRecord);
 var
   AListInst: TListInstance;
   Gene: TInstanceOf;
   CookieOpts: TActivationRecord;
   CookieStr: string;
+  i: integer;
+  ACookie: TClassInstance;
+
 begin
   for i:=0 to ADict.PMembers.Count-1 do
   begin
-    Gene := ADict.PMembers[i];
+    Gene := TInstanceOf(ADict.PMembers[i]);
     if (Gene.ClassNameIs('TListInstance')) then
     begin
       AListInst := TListInstance(Gene);
       // $cookie['key'] = ['value', {'path': '/', 'max-age': 310000, 'Secure': true}]
       AResponse.Headers.Add('Set-Cookie', ADict.PMembers.NameOfIndex(i) + '=' + TInstanceOf(ADict.PMembers[i]).AsString);
+    end
+    else if (Gene.ClassNameIs('TClassInstance')) then
+    begin
+      if (TClassInstance(Gene).PValue = 'Cookie') then
+      begin
+        ACookie := TClassInstance(Gene);
+        AResponse.Headers.Add('Set-Cookie', ADict.PMembers.NameOfIndex(i) + '=' + TInstanceOf(ACookie.PMembers.Find('value')).AsString);
+      end;
     end;
+
 
     // AResponse.SetCookie(ADict.PMembers.NameOfIndex(i), TInstanceOf(ADict.PMembers[i]).AsString);
   end;
-end;}
+end;
 
 procedure THTTPServer.DoRequest(ASender: TObject; ARequest: TBrookHTTPRequest; AResponse: TBrookHTTPResponse);
 var
@@ -121,10 +133,10 @@ begin
           AResponse.Headers.Add( ADict.PMembers.NameOfIndex(i), TInstanceOf(ADict.PMembers[i]).AsString);
       end;
       ADict := TDictionaryInstance(AppResponse.PMembers.Find('$cookies')).PValue;
-      {if ADict.PMembers.Count > 0 then
+      if ADict.PMembers.Count > 0 then
       begin
-        SetCookiesFromUltra(AResponse);
-      end;// TODO : process response}
+        SetCookiesFromUltra(AResponse, ADict);
+      end;// TODO : process response
     end;
     Status := 200;
     Content := StrToBytes(UltraResult.LiveOutput);
@@ -135,7 +147,9 @@ begin
         ARequest.Path+' -- '+ IntToStr(Status) +
         //' ' + AResponse.s +
         ', ' + IntToStr(Len) + ' B, Content-Type: ' + ContentType, #13);
-    AResponse.SendBytes(Content, Len, 'text/html', Status);
+    //AResponse.SendBytes(Content, Len, 'text/html', Status);
+    //AResponse.SendBytes([], 1, 'text/html', Status);
+    AResponse.Send(UltraResult.LiveOutput, 'text/html', Status);
   end;
   except on E: Exception do
     if TBooleanInstance(FUltraInstance.PMembers.Find('debug')).PValue then

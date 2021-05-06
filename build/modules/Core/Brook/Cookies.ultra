@@ -1,5 +1,5 @@
 class Cookies
-include @Core.Brook.AppResponse
+include @Core.Web.AppResponse
 
 Cookies.all = {}
 

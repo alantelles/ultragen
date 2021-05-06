@@ -1,27 +1,7 @@
-include @Core.Web
+include @Core.Brook.AppResponse
+include @Core.Web.Cookie
 
-decorator emptyDecor(fn)
-    live 'view decor'
-    live fn(params)    
-end
+x = new Cookie('mika')
 
-decorator Zone(fn)
-    live 'inside decorator'
-    live fn(params)
-end
-
-index = emptyDecor(function (params)
-    live 'Zika'
-end)
-
-r = new Router()
-r.default_decorator = Zone
-r.get('/', :index, index)
-r.get('/empty', :empty, index)
-
-zika = r.getMatch()
-
-
-hd = zika[:handler_decorator]
-handler = hd(zika[:handler])
-live handler(zika[:params])
+AppResponse.$cookies['tops'] = x
+AppResponse.$cookies['zika'] = x

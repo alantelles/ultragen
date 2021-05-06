@@ -1,0 +1,9 @@
+class Cookie
+
+function init(value, params={}) : Cookie
+    if (!(params.hasKey('path')))
+        params['path'] = '/'
+    end
+    self.params = params
+end
+

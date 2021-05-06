@@ -35,12 +35,14 @@ type
     FRequest: TRequest;
     FMimeFile: TStringList;
     FDontDestroyLast: boolean;
+    FExceptionThrown: boolean;
     procedure BootStrapRegister;
 
 
   public
     property PCallStack: TStack read FCallStack write FCallStack;
     property PTree: TAST read FTree;
+    property PExceptionThrown: boolean read FExceptionThrown write FExceptionThrown;
 
     property PLive: string read FLiveOutput;
     property PInsertActRec: TActivationRecord read FInsertActRec write FInsertActRec;
@@ -81,6 +83,7 @@ begin
   FTrace := TStringList.Create;
   FTrace.SkipLastLineBreak := True;
   FTrace.LineBreak := sLineBreak + '+ ';
+  FExceptionThrown := False;
   //FUltraHome := GetEnv('ULTRAGEN_HOME');
   //FModulesPath := FUltraHome + DirectorySeparator + 'modules'
   FModulesPath := TStringList.Create;
@@ -93,6 +96,7 @@ end;
 
 procedure TInterpreter.RaiseException(AMsg: string; AType: string);
 begin
+  FExceptionThrown := True;
   EClientException.Create(AMsg, FTrace, FNowNode.PToken, AType);
 end;
 
@@ -170,8 +174,15 @@ var
 begin
   FDontPush := DontPush;
   FNameSpace := ANameActRec;
-
-  Ret := Visit(FTree);
+  try
+    try
+      Ret := Visit(FTree);
+    except on E: Exception do
+      if not FExceptionThrown then
+        RaiseException(E.Message, 'Internal');
+    end;
+  finally
+  end;
 
   Result := '';
 end;
@@ -183,7 +194,15 @@ begin
   FDontDestroyLast := DontDestroyLast;
   FInsertActRec := InsertActRec;
   FInsertName := InsertName;
-  Ret := Visit(FTree);
+  try
+    try
+      Ret := Visit(FTree);
+    except on E: Exception do
+      if not FExceptionThrown then
+        RaiseException(E.Message, 'Internal');
+    end;
+  finally
+  end;
 
   Result := '';
 end;
