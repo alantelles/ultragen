@@ -70,7 +70,7 @@ var
   Gene: TInstanceOf;
   CookieOpts: TActivationRecord;
   CookieStr: string;
-  i: integer;
+  i, j, len: integer;
   ACookie: TClassInstance;
 
 begin
@@ -88,7 +88,18 @@ begin
       if (TClassInstance(Gene).PValue = 'Cookie') then
       begin
         ACookie := TClassInstance(Gene);
-        AResponse.Headers.Add('Set-Cookie', ADict.PMembers.NameOfIndex(i) + '=' + TInstanceOf(ACookie.PMembers.Find('value')).AsString);
+        CookieStr := '';
+        CookieStr := CookieStr + TInstanceOf(ACookie.PMembers.Find('value')).AsString;
+        CookieOpts := TDictionaryInstance(ACookie.PMembers.Find('params')).PValue;
+        for j:=0 to CookieOpts.PMembers.Count - 1 do
+        begin
+          if CookieOpts.PMembers[j].ClassName = 'TBooleanInstance' then
+            if TBooleanInstance(CookieOpts.PMembers[j]).PValue then
+              CookieStr := CookieStr + ';' + CookieOpts.PMembers.NameOfIndex(j)
+          else
+            CookieStr := CookieStr + ';' + CookieOpts.PMembers.NameOfIndex(j) + '=' + TInstanceOf(CookieOpts.PMembers[j]).AsString;
+        end;
+        AResponse.Headers.Add('Set-Cookie', ADict.PMembers.NameOfIndex(i) + '=' + CookieStr);
       end;
     end;
 
