@@ -102,7 +102,6 @@ begin
             CookieStr := CookieStr + ';' + CookieOpts.PMembers.NameOfIndex(j) + '=' + TInstanceOf(CookieOpts.PMembers[j]).AsString;
 
         end;
-        writeln(cookiestr);
         AResponse.Headers.Add('Set-Cookie', ADict.PMembers.NameOfIndex(i) + '=' + CookieStr);
       end;
     end;

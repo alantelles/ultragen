@@ -1,3 +1,5 @@
+include @Core.DateTime
+
 class Cookie
 
 function init(value, params={}) : Cookie
@@ -7,3 +9,16 @@ function init(value, params={}) : Cookie
     self.params = params
 end
 
+function expires(y, m, d, h=0, n=0, s=0, gmt=0) : Cookie
+    strDate = concat(y, '-', m, '-', d, ' ', h, ':', n, ':', s)
+    print(strDate)
+    parsed = DateTime.parse('yyyy-m-d h:n:s', strDate)
+    
+    if (gmt > 0)
+        gmt = '+' + str(gmt)
+    else
+        gmt = str(gmt)
+    end
+    formatted = parsed.format("dd mmm yyyy hh:nn:ss 'GMT'" + gmt)
+    return formatted
+end
