@@ -1,0 +1,25 @@
+{
+    "name": "ultragen-lang-sh",
+    "displayName": "Ultragen Lang SH",
+    "description": "syntax highlighting for UltraGen",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.54.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "ultragen",
+            "aliases": ["UltraGen", "ultragen"],
+            "extensions": [".ultra"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "ultragen",
+            "scopeName": "source.ultragen",
+            "path": "./syntaxes/ultragen.tmLanguage.json"
+        }]
+    }
+}

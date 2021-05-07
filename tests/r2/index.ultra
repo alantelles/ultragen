@@ -2,7 +2,7 @@ include @Core.Brook.AppResponse
 include @Core.DateTime
 include @Core.Web.Cookie
 
-x = new Cookie('mika', {'httpOnly': true, 'secure': true, 'max-age': 3600 * 8})
+x = new Cookie('mika', {'httpOnly': true, 'secure': true, 'Max-Age': 1})
 
-AppResponse.$cookies['tops'] = x
-AppResponse.$cookies['zika'] = new Cookie('outro', {'samesite': 'Lax'})
+# AppResponse.$cookies['tops'] = x
+AppResponse.$cookies['zika'] = new Cookie('outro', {'SameSite': 'Lax'})

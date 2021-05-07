@@ -94,11 +94,15 @@ begin
         for j:=0 to CookieOpts.PMembers.Count - 1 do
         begin
           if CookieOpts.PMembers[j].ClassName = 'TBooleanInstance' then
+          begin
             if TBooleanInstance(CookieOpts.PMembers[j]).PValue then
               CookieStr := CookieStr + ';' + CookieOpts.PMembers.NameOfIndex(j)
+          end
           else
             CookieStr := CookieStr + ';' + CookieOpts.PMembers.NameOfIndex(j) + '=' + TInstanceOf(CookieOpts.PMembers[j]).AsString;
+
         end;
+        writeln(cookiestr);
         AResponse.Headers.Add('Set-Cookie', ADict.PMembers.NameOfIndex(i) + '=' + CookieStr);
       end;
     end;

@@ -1,4 +1,0 @@
-class Cookie
-function init(name, value)
-    self.MaxAge = 
-end
