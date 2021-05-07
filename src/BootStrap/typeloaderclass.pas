@@ -122,6 +122,10 @@ begin
   ADataType := TDataType.Create('TAppResponseInstance', 'AppResponse');
   AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TAppResponseInstance',
     True, False, False);
+  AdataType.PMembers.Add('$headers', TDictionaryInstance.Create(
+    TActivationRecord.Create('AppResponseHeaders', AR_DICT, -1)));
+  AdataType.PMembers.Add('$cookies', TDictionaryInstance.Create(
+    TActivationRecord.Create('AppResponseCookies', AR_DICT, -1)));
   ADataType.PMembers.Add('redirect', AFunc);
   ADataType.PMembers.Add('clientRedirect', AFunc);
   ADataType.PMembers.Add('setStatusCode', AFunc);

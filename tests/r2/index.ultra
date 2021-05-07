@@ -3,13 +3,10 @@ include @Core.DateTime
 include @Core.Web.Cookie
 include @Core.DateTime
 
-expires = DateTime.parse('yyyy-mm-dd hh:nn:ss', '2021-07-04 00:00:00')
-cookieFmt = "04 Jul 2021 07:28:00 GMT0"
-cookieFmtDate = "04 Jul 2021"
-cookieFmtTime = "00:12:34"
+route = $request[:route]
+if (route == '/redir')
+    AppResponse.redirect = "/novidade"
+    
+end
 
-x = new Cookie('mika', {'httpOnly': true, 'secure': true})
-
-# AppResponse.$cookies['tops'] = x
-AppResponse.$cookies['zika'] = new Cookie('outro', {'SameSite': 'Lax', 'expires': Cookie.expires(2021, 6, 1)})
-
+live $request

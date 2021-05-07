@@ -122,7 +122,9 @@ var
   AppResponse: TDataType;
   IndexHandler, ExceptionHandler: string;
   ADict: TActivationRecord;
+  AInst: TInstanceOf;
   i: integer;
+  Redirected: boolean = False;
 begin
   try
   begin
@@ -151,6 +153,17 @@ begin
       begin
         SetCookiesFromUltra(AResponse, ADict);
       end;// TODO : process response
+      AInst := TInstanceOf(AppResponse.PMembers.Find('redirect'));
+      if AInst <> nil then
+      begin
+        WriteLn(#13+'['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
+        ARequest.Method + ': '+
+        ARequest.Path+' -- '+ IntToStr(303) +
+        //' ' + AResponse.s +
+        ', ' + IntToStr(0) + ' B, Content-Type: ' + ContentType, #13);
+        Redirected := True;
+        AResponse.SendAndRedirect('tekas', AInst.AsString, 'text/html', 303);
+      end;
     end;
     Status := 200;
     Content := StrToBytes(UltraResult.LiveOutput);
@@ -163,7 +176,8 @@ begin
         ', ' + IntToStr(Len) + ' B, Content-Type: ' + ContentType, #13);
     //AResponse.SendBytes(Content, Len, 'text/html', Status);
     //AResponse.SendBytes([], 1, 'text/html', Status);
-    AResponse.Send(UltraResult.LiveOutput, 'text/html', Status);
+    if not Redirected then
+      AResponse.Send(UltraResult.LiveOutput, 'text/html', Status);
   end;
   except on E: Exception do
     if TBooleanInstance(FUltraInstance.PMembers.Find('debug')).PValue then

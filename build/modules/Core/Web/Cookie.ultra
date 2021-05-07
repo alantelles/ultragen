@@ -9,7 +9,7 @@ function init(value, params={}) : Cookie
     self.params = params
 end
 
-function expires(y, m, d, h=0, n=0, s=0, gmt=0) : Cookie
+function expires(y, m=1, d=1, h=0, n=0, s=0, gmt=0) : Cookie
     strDate = concat(y, '-', m, '-', d, ' ', h, ':', n, ':', s)
     print(strDate)
     parsed = DateTime.parse('yyyy-m-d h:n:s', strDate)
