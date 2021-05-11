@@ -160,9 +160,9 @@ begin
     end;
 
     Adapter := TUltraAdapter.Create('$request');
-    //Adapter.ActRec.AddMember('AppResponse', );
     Adapter.AddMember('route', ARequest.Path);
-    //Content := StrToBytes('{"jarbas": "Romero"}');
+    Adapter.AddMember('method', ARequest.Method);
+
     Prelude := TStringList.Create;
     Prelude.Add('addModulePath(["'+ ReplaceStr(GetEnv('ULTRAGEN_HOME'), '\', '\\') + '", "modules"].path())');
     Prelude.Add('include @Core');

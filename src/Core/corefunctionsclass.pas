@@ -84,7 +84,10 @@ begin
   if AObj <> nil then
   begin
     if AObj.ClassNameIs('TDataType') then
-      AType := TDataType(AObj).PValue
+    begin
+      AType := TDataType(AObj).PValue;
+      FObj := AObj;
+    end
     else
     begin
       AType := AObj.ClassName;

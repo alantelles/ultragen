@@ -1,0 +1,11 @@
+
+function index(params) 
+    live "Este é o handler de index"
+    live '<form action="/" method="post"><button>Go!</button></form>'
+end
+
+function posted(params)
+    print("Redirecting...")
+    AppResponse.status = 301
+    AppResponse.redirect('/')
+end

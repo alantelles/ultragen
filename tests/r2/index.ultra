@@ -1,11 +1,16 @@
 include @Core.Brook.AppResponse
 include @Core.DateTime
 include @Core.Web.Cookie
-include @Core.DateTime
+include @Core.Web.Router
 
-route = $request[:route]
-if (route == '/redir')
-    AppResponse.redirect("/novidade")
-end
-live "<a href='/redir'>Redir</a>"
-live $request
+include 'handlers.ultra'
+
+$r = new Router()
+$r.get('/', :index, index)
+$r.post('/', :posted, posted)
+
+$r.getMatch().localize()
+
+content = handler(params)
+
+include 'index.ultra.html'
