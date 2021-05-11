@@ -6,6 +6,5 @@ end
 
 function posted(params)
     print("Redirecting...")
-    AppResponse.status = 301
     AppResponse.redirect('/')
 end
