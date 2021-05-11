@@ -885,6 +885,7 @@ begin
   else if (FCurrentToken.PType = T_SHORT_INC) or
           (FCurrentToken.PType = T_SHORT_DEC) or
           (FCurrentToken.PType = T_SHORT_MULT) or
+          (FCurrentToken.PType = T_SHORT_INT_DIV)  or
           (FCurrentToken.PType = T_SHORT_DIV) then
   begin
     Ret := VarShortAssign(Ret.PToken, FCurrentToken.PType)
@@ -1152,6 +1153,14 @@ begin
     OperToken := TToken.Create(
         T_DIV,
         '/',
+        AToken.PLineNo,
+        AToken.PCharNo,
+        AToken.PScriptName
+      )
+  else if ShortCutType = T_SHORT_INT_DIV then
+    OperToken := TToken.Create(
+        T_INT_DIV,
+        '//',
         AToken.PLineNo,
         AToken.PCharNo,
         AToken.PScriptName

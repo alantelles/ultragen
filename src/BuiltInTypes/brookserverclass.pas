@@ -115,8 +115,7 @@ procedure LogRequest(ARequest: TBrookHTTPRequest; Status, Len: integer; ContentT
 begin
    WriteLn(#13+'['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
         ARequest.Method + ': '+
-        ARequest.Path+' -- '+ IntToStr(Status) +
-        //' ' + AResponse.s +
+        ARequest.Path+' -- '+ IntToStr(Status) + ' ' +
         ', ' + IntToStr(Len) + ' B, Content-Type: ' + ContentType, #13);
 end;
 
@@ -154,7 +153,6 @@ begin
     AResponse.Headers.Add('X-Powered-By', 'UltraGen/Brook server');
     if ARequest.Path = '/favicon.ico' then
     begin
-
       SendFavIcon(ARequest, AResponse);
       Exit;
     end;

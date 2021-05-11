@@ -103,6 +103,15 @@ begin
 
 end;
 
+procedure LogRequest(ARequest: TRequest; Status, Len: integer; ContentType:string);
+begin
+   WriteLn(#13+'['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
+        ARequest.Method + ': '+
+        ARequest.URI+' -- '+ IntToStr(Status) +
+        //' ' + AResponse.s +
+        ', ' + IntToStr(Len) + ' B, Content-Type: ' + ContentType, #13);
+end;
+
 procedure TServerInstance.ExecuteAction(ARequest: TRequest; AResponse: TResponse);
 var
   BTree: TAST;
@@ -120,12 +129,12 @@ begin
     ResponseContent := TUltraInterface.InterpretScript(FRootFile, TProgram(BTree), nil, '', AResponse, ARequest, FRegisteredMimeTypes);
     //AStream := TSTringStream.Create(ResponseContent);
     if AResponse.ContentStream = nil then
+    begin
       AResponse.ContentStream :=  TSTringStream.Create(ResponseContent);
-    WriteLn(#13+'['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
-      ARequest.Method + ': '+
-      ARequest.URI+' -- '+ IntToStr(AResponse.Code)+
-      ' ' + AResponse.CodeText +
-      ', ' + IntToStr(AResponse.ContentLength) + ' B, Content-Type: ' + AResponse.ContentType, #13);
+      Aresponse.ContentType := 'text/html; charset=utf-8';
+    end;
+
+    LogRequest(ARequest, AResponse.Code, AResponse.ContentLength, AResponse.ContentType);
     AResponse.SendContent;
     AResponse.ContentStream.Free;
   end;

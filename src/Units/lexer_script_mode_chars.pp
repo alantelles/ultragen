@@ -159,6 +159,13 @@
 		        exit
 		      end;
 
+          if (FCurrChar = '/') and (Peek(2) = '/=') then
+		      begin
+		        Advance(3);
+		        Result := TToken.Create(T_SHORT_INT_DIV, '//=', FScriptLine, FLineChar, FFileName);
+		        exit
+		      end;
+
           if (FCurrChar = T_LINE_COMMENT) then
 		      begin
 		        Advance;

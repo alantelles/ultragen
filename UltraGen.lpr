@@ -9,7 +9,7 @@ uses
   Classes, SysUtils,
   { you can add units after this }
   ASTClass, LexerClass, ImpParserClass, InterpreterClass, StrUtils,
-  LoggingClass, UltraGenInterfaceClass, DateTimeInstanceClass, Dos;
+  LoggingClass, UltraGenInterfaceClass, DateTimeInstanceClass, ServerClass, Dos;
 var
   BTree: TAST;
   LiveOut, UHome: string;
