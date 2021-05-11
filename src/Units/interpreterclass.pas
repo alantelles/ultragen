@@ -11,7 +11,7 @@ uses
   StackClass,
   ARClass, InstanceofClass,
   StringInstanceClass, ExceptionsClasses,
-  ListInstanceClass, httpdefs;
+  ListInstanceClass, httpdefs, UltraWebHandlersClass;
 
 type
   TInterpreter = class
@@ -36,14 +36,18 @@ type
     FMimeFile: TStringList;
     FDontDestroyLast: boolean;
     FExceptionThrown: boolean;
+
+    FWebHandlers: TUltraWebHandlers;
+    FRedirected: boolean;
     procedure BootStrapRegister;
 
 
   public
+    property PRedirected: boolean read FRedirected write FRedirected;
     property PCallStack: TStack read FCallStack write FCallStack;
     property PTree: TAST read FTree;
     property PExceptionThrown: boolean read FExceptionThrown write FExceptionThrown;
-
+    property PWebHandlers: TUltraWebHandlers read FWebHandlers write FWebHandlers;
     property PLive: string read FLiveOutput;
     property PInsertActRec: TActivationRecord read FInsertActRec write FInsertActRec;
     property PModulesPath: TStringList read FModulesPath write FModulesPath;
@@ -87,6 +91,7 @@ begin
   //FUltraHome := GetEnv('ULTRAGEN_HOME');
   //FModulesPath := FUltraHome + DirectorySeparator + 'modules'
   FModulesPath := TStringList.Create;
+  FRedirected := False;
 end;
 
 destructor TInterpreter.Destroy;

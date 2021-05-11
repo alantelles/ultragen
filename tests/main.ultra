@@ -1,6 +1,0 @@
-include @Core.DateTime
-
-x = DateTime.now()
-print(x.weekDay())
-print(x.weekDayAbbr())
-print(x.weekDayName())

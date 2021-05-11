@@ -7,13 +7,13 @@ interface
 uses
       Classes, SysUtils,
       ASTClass, LexerClass, ImpParserClass, InterpreterClass,
-      StrUtils, LoggingClass, httpdefs, httpprotocol, ARCLass;
+      StrUtils, LoggingClass, httpdefs, httpprotocol, ARCLass, UltraWebHandlersClass;
 
 type
-
   TUltraResult = record
     LiveOutput: string;
     ActRec: TActivationRecord;
+    Redirected: boolean;
   end;
 
   TUltraAdapter = class
@@ -44,11 +44,13 @@ type
       class function InterpretScriptWithResult(
         AFilePath: string;
         APreludeList: TStringList;
-        AnAdapter: TUltraAdapter): TUltraResult;
+        AnAdapter: TUltraAdapter;
+        WebHandlers: TUltraWebHandlers = nil): TUltraResult;
     end;
 
 implementation
 uses Dos, ResponseHandlerClass, StringInstanceClass, InstanceOfClass;
+
 
 constructor TUltraAdapter.Create(AName:string);
 begin
@@ -80,7 +82,8 @@ end;
 class function TUltraInterface.InterpretScriptWithResult(
   AFilePath: string;
   APreludeList: TStringList;
-  AnAdapter: TUltraAdapter): TUltraResult;
+  AnAdapter: TUltraAdapter;
+  WebHandlers: TUltraWebHandlers): TUltraResult;
 var
   len, i: integer;
   AParser: TTParser;
@@ -105,9 +108,10 @@ begin
   end;
   AParser.Free;
   AInter := TInterpreter.Create(ATree);
+  AInter.PWebHandlers := WebHandlers;
   AInter.Interpret(AnAdapter.ActRec, AnAdapter.ActRec.PName, True);
   LiveOut := AInter.PLive;
-
+  Result.Redirected := AInter.PRedirected;
   AInter.Free;
   Result.LiveOutput := LiveOut;
   Result.ActRec := AInter.PCallStack.Peek;

@@ -104,8 +104,8 @@ begin
     TActivationRecord.Create('AppResponseHeaders', AR_DICT, -1)));
   AdataType.PMembers.Add('$cookies', TDictionaryInstance.Create(
     TActivationRecord.Create('AppResponseCookies', AR_DICT, -1)));
-  {ADataType.PMembers.Add('redirect', AFunc);
-  ADataType.PMembers.Add('clientRedirect', AFunc);
+  ADataType.PMembers.Add('redirect', AFunc);
+  {ADataType.PMembers.Add('clientRedirect', AFunc);
   ADataType.PMembers.Add('setStatusCode', AFunc);
   ADataType.PMembers.Add('setStatusText', AFunc);
   ADataType.PMembers.Add('setContentType', AFunc);

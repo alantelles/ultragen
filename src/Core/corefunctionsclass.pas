@@ -66,14 +66,15 @@ var
 implementation
 
 uses
-  CoreUtils, ExceptionsClasses, Math, ASTClass, crt, LazUTF8, FileUtil, Dos, Tokens, MarkdownProcessor, DateUtils;
+  CoreUtils, ExceptionsClasses, Math, ASTClass, crt, LazUTF8, FileUtil, Dos, Tokens, MarkdownProcessor, DateUtils,
+  BrookHTTPResponse, UltraWebHandlersClass;
 
 function TCoreFunction.Execute(AInter: TInterpreter; Fname:string; var AArgList:TInstanceList; var AObj: TInstanceOf):TInstanceOf;
 var
   AType:string = '';
   AuxStr:string;
   AuxDateTime: TDateTime;
-  DotPos, len, i, j: integer;
+  DotPos, len, i, j, AuxInt: integer;
   Ret, Aux: TInstanceOf;
   MDProc: TMarkdownProcessor;
   AuxStrList: TStringList;
@@ -275,6 +276,7 @@ begin
   {$INCLUDE 'datetime/options.pp'}
   {$INCLUDE 'bytestream/options.pp'}
   {$INCLUDE 'brookserver/options.pp'}
+  {$INCLUDE 'brookappresponse/options.pp'}
 
   else
     //raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.', '', 1, 1);

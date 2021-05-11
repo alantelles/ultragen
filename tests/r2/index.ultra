@@ -5,8 +5,7 @@ include @Core.DateTime
 
 route = $request[:route]
 if (route == '/redir')
-    AppResponse.redirect = "/novidade"
-    
+    AppResponse.redirect("/novidade")
 end
-
+live "<a href='/redir'>Redir</a>"
 live $request

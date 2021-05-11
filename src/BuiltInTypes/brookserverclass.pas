@@ -32,7 +32,7 @@ type
 implementation
 
 uses
-  StringInstanceClass, UltraGenInterfaceClass, Dos, StrUtils, ARClass, ListInstanceClass;
+  StringInstanceClass, UltraGenInterfaceClass, Dos, StrUtils, ARClass, ListInstanceClass, UltraWebHandlersClass;
 
 function StrToBytes(Astr: string): TBytes;
 var
@@ -111,6 +111,27 @@ begin
   end;
 end;
 
+procedure LogRequest(ARequest: TBrookHTTPRequest; Status, Len: integer; ContentType:string);
+begin
+   WriteLn(#13+'['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
+        ARequest.Method + ': '+
+        ARequest.Path+' -- '+ IntToStr(Status) +
+        //' ' + AResponse.s +
+        ', ' + IntToStr(Len) + ' B, Content-Type: ' + ContentType, #13);
+end;
+
+procedure SendFavIcon(ARequest: TBrookHTTPRequest; AResponse: TBrookHTTPResponse);
+var
+  AStream: TFileStream;
+begin
+
+  AStream := TFileStream.Create(GetEnv('ULTRAGEN_HOME') + DirectorySeparator + 'assets'  + DirectorySeparator + 'favicon.ico', fmOpenRead);
+  LogRequest(ARequest, 200, AStream.Size, 'image/x-icon');
+  AResponse.SendStream(AStream, True, 200);
+end;
+
+
+
 procedure THTTPServer.DoRequest(ASender: TObject; ARequest: TBrookHTTPRequest; AResponse: TBrookHTTPResponse);
 var
   Content: TBytes;
@@ -123,12 +144,21 @@ var
   IndexHandler, ExceptionHandler: string;
   ADict: TActivationRecord;
   AInst: TInstanceOf;
+  StatusInst: TInstanceOf;
   i: integer;
   Redirected: boolean = False;
 begin
+  Status := 0;
   try
   begin
     AResponse.Headers.Add('X-Powered-By', 'UltraGen/Brook server');
+    if ARequest.Path = '/favicon.ico' then
+    begin
+
+      SendFavIcon(ARequest, AResponse);
+      Exit;
+    end;
+
     Adapter := TUltraAdapter.Create('$request');
     //Adapter.ActRec.AddMember('AppResponse', );
     Adapter.AddMember('route', ARequest.Path);
@@ -138,10 +168,14 @@ begin
     Prelude.Add('include @Core');
     IndexHandler := TStringInstance(FUltraInstance.PMembers.Find('indexHandler')).PValue;
     ExceptionHandler := TStringInstance(FUltraInstance.PMembers.Find('exceptionHandler')).PValue;
-    UltraResult := TUltraInterface.InterpretScriptWithResult(IndexHandler, Prelude, Adapter);
+    UltraResult := TUltraInterface.InterpretScriptWithResult(IndexHandler, Prelude, Adapter, TUltraBrookHandlers.Create(ARequest, Aresponse));
     AppResponse := TDataType(UltraResult.ActRec.GetMember('AppResponse'));
     if AppResponse <> nil then
     begin
+      StatusInst := TInstanceOf(AppResponse.PMembers.Find('status'));
+      if StatusInst <> nil then
+        if StatusInst.ClassNameIs('TIntegerInstance') then
+          Status := TIntegerInstance(StatusInst).PValue;
       ADict := TDictionaryInstance(AppResponse.PMembers.Find('$headers')).PValue;
       if ADict.PMembers.Count > 0 then
       begin
@@ -153,30 +187,23 @@ begin
       begin
         SetCookiesFromUltra(AResponse, ADict);
       end;// TODO : process response
-      AInst := TInstanceOf(AppResponse.PMembers.Find('redirect'));
-      if AInst <> nil then
-      begin
-        WriteLn(#13+'['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
-        ARequest.Method + ': '+
-        ARequest.Path+' -- '+ IntToStr(303) +
-        //' ' + AResponse.s +
-        ', ' + IntToStr(0) + ' B, Content-Type: ' + ContentType, #13);
-        Redirected := True;
-        AResponse.SendAndRedirect('tekas', AInst.AsString, 'text/html', 303);
-      end;
+      //AInst := TInstanceOf(AppResponse.PMembers.Find('redirect'));
+      //if AInst <> nil then
+      //begin
+      //  if Status = 0 then
+      //    Status := 303;
+      //  Redirected := True;
+      //  AResponse.SendAndRedirect('tekas', AInst.AsString, 'text/html', Status);
+      //end;
     end;
-    Status := 200;
+
     Content := StrToBytes(UltraResult.LiveOutput);
     Len := Length(Content);
 
-    WriteLn(#13+'['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
-        ARequest.Method + ': '+
-        ARequest.Path+' -- '+ IntToStr(Status) +
-        //' ' + AResponse.s +
-        ', ' + IntToStr(Len) + ' B, Content-Type: ' + ContentType, #13);
-    //AResponse.SendBytes(Content, Len, 'text/html', Status);
-    //AResponse.SendBytes([], 1, 'text/html', Status);
-    if not Redirected then
+    if Status = 0 then
+      Status := 200;
+    LogRequest(ARequest, Status, Len, ContentType);
+    if not (Redirected or UltraResult.Redirected) then
       AResponse.Send(UltraResult.LiveOutput, 'text/html', Status);
   end;
   except on E: Exception do

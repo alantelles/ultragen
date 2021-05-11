@@ -1,11 +1,6 @@
-include @Core.Brook.AppResponse
-include @Core.Brook.Cookies
+include 'base.ultra.html'
 
-AppResponse.$headers['X-Toby'] = AppResponse
-AppResponse.$cookies['Mahailo'] = ["zika"]
-AppResponse.$cookies['UGD_SESSION'] = ["outro novo", {'Secure': true}]
-AppResponse.$cookies['OUTRO'] = ["algum novo", {'max-age': 3100000}]
+title = "Hello, World!"
 
-live Cookies.retrieve()
-live '<br>\n'
-live $request
+t  = "a" + str(5)
+live t
