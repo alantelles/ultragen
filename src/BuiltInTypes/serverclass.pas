@@ -1,196 +1,286 @@
-unit ServerClass;
+unit BrookServerClass;
 
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  Classes, SysUtils, InstanceOfClass, ARClass,
-  httpdefs, httproute, fphttpapp, fphttpserver, fpwebfile{,
-    blcksock, sockets, Synautil};
+  Classes, SysUtils, InstanceOfClass, StackClass,
+  BrookHTTPRequest,
+  BrookHTTPResponse,
+  BrookHTTPServer;
 
-  type TServerInstance = class (TInstanceOf)
-    protected
-      FTitle: string;
-      FPort: integer;
-      FRootFile: string;
-      FExceptionHandler: string;
-      FStopRoute: string;
-      FDebug: boolean;
-      FRegisteredMimeTypes: TStringList;
+type
+  TBrookServerInstance = class (TInstanceOf)
     public
-      property PStopRoute: string read FStopRoute write FStopRoute;
-      property PRootFile: string read FRootFile write FRootFile;
-      property PExceptionHandler: string read FExceptionHandler write FExceptionHandler;
-      property PTitle: string read FTitle write FTitle;
-      property PPort: integer read FPort write FPort;
-      procedure ExecuteAction(ARequest: TRequest; AResponse: TResponse);
-      procedure StopServer(ARequest: TRequest;AResponse: TResponse);
-      procedure SetStaticPath(AALias, APath: string);
-      procedure SetStaticPaths(AStatic: TActivationRecord);
-      procedure SetMimeTypesFile(AFile:string);
-
-      //procedure AttendConnection(ASocket: TTCPBlockSocket);
-
-      procedure SetServerStopRoute(ARoute:string);
       procedure RunServer;
       constructor Create(APort: integer; ADebug: boolean);
   end;
 
+  THTTPServer = class(TBrookHTTPServer)
+  protected
+    FUltraInstance: TBrookServerInstance;
 
-procedure ShowException(AResponse: TResponse; AException: Exception; var Switch: boolean);
+    procedure DoRequest(ASender: TObject; ARequest: TBrookHTTPRequest;
+      AResponse: TBrookHTTPResponse); override;
+
+  public
+    property UltraInstance: TBrookServerInstance read FUltraInstance write FUltraInstance ;
+
+  end;
 
 implementation
 
 uses
-  ASTClass, TokenClass, Tokens, LexerClass, ImpParserClass, InterpreterClass, StrUtils,
-  StringInstanceClass, Dos, UltraGenInterfaceClass, ResponseHandlerClass;
+  StringInstanceClass, UltraGenInterfaceClass, Dos, StrUtils, ARClass, ListInstanceClass, UltraWebHandlersClass;
 
-constructor TServerInstance.Create(APort: integer; ADebug: boolean);
-begin
-  inherited Create;
-  MimeTypesFile := GetEnv('ULTRAGEN_HOME') + DirectorySeparator + 'assets' + DirectorySeparator + 'mime-types.txt';
-  FMembers.Add('title', TStringInstance.Create('Untitled application'));
-  FPort := Aport;
-  FRootFile := 'index.ultra';
-  FExceptionHandler := 'exception.ultra';
-  FDebug := ADebug;
-  FStopRoute := '';
-end;
-
-procedure TServerInstance.SetStaticPath(AALias, APath: string);
-begin
-  ForceDirectories(Apath);
-  RegisterFileLocation(AAlias, APath);
-end;
-
-procedure TServerInstance.SetStaticPaths(AStatic: TActivationRecord);
+function StrToBytes(Astr: string): TBytes;
 var
-  i: integer;
+  i, len: integer;
+  Bytes: TBytes;
+begin                            
+  len := Length(ASTr);
+  SetLength(Bytes, Len);
+  for i:=1 to len do
+    Bytes[i-1] := ord(AStr[i]);
+  Result := Bytes;
+end;
+
+procedure RaiseInternalException(ARequest: TBrookHTTPRequest; AResponse: TBrookHTTPResponse; ErrMsg: string);
+var
+  Status: integer = 500;
+  len: integer;
+  htmlErr: string;
 begin
-  if AStatic.PMembers.Count > 0 then
+  htmlErr := '<h1>UltraGen ERROR!</h1><pre style="white-space: pre-wrap; font-size: 12pt"><h3>Error while fetching content at "' + ARequest.Path + '"</h3><br>'+ReplaceStr(ErrMsg, '<', '&lt') +'</pre>';
+  Len := Length(htmlerr);
+  WriteLn(#13+'['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
+      ARequest.Method + ': '+
+      ARequest.Path+' -- '+ IntToStr(Status) +
+      //' ' + AResponse.s +
+      ', ' + IntToStr(Len) + ' B, Content-Type: text/html', #13);
+  WriteLn(ErrMsg);
+  AResponse.Send(htmlErr,
+    'text/html', Status);
+end;
+
+procedure SetCookiesFromUltra(AResponse: TBrookHTTPResponse; ADict: TActivationRecord);
+var
+  AListInst: TListInstance;
+  Gene: TInstanceOf;
+  CookieOpts: TActivationRecord;
+  CookieStr: string;
+  i, j, len: integer;
+  ACookie: TClassInstance;
+
+begin
+  for i:=0 to ADict.PMembers.Count-1 do
   begin
-    for i:=0 to Astatic.PMembers.Count-1 do
+    Gene := TInstanceOf(ADict.PMembers[i]);
+    if (Gene.ClassNameIs('TListInstance')) then
     begin
-      ForceDirectories(TStringInstance(AStatic.PMembers[i]).PValue);
-      RegisterFileLocation(AStatic.PMembers.NameOfIndex(i), TStringInstance(AStatic.PMembers[i]).PValue);
+      AListInst := TListInstance(Gene);
+      // $cookie['key'] = ['value', {'path': '/', 'max-age': 310000, 'Secure': true}]
+      AResponse.Headers.Add('Set-Cookie', ADict.PMembers.NameOfIndex(i) + '=' + TInstanceOf(ADict.PMembers[i]).AsString);
+    end
+    else if (Gene.ClassNameIs('TClassInstance')) then
+    begin
+      if (TClassInstance(Gene).PValue = 'Cookie') then
+      begin
+        ACookie := TClassInstance(Gene);
+        CookieStr := '';
+        CookieStr := CookieStr + TInstanceOf(ACookie.PMembers.Find('value')).AsString;
+        CookieOpts := TDictionaryInstance(ACookie.PMembers.Find('params')).PValue;
+        for j:=0 to CookieOpts.PMembers.Count - 1 do
+        begin
+          if CookieOpts.PMembers[j].ClassName = 'TBooleanInstance' then
+          begin
+            if TBooleanInstance(CookieOpts.PMembers[j]).PValue then
+              CookieStr := CookieStr + ';' + CookieOpts.PMembers.NameOfIndex(j)
+          end
+          else
+            CookieStr := CookieStr + ';' + CookieOpts.PMembers.NameOfIndex(j) + '=' + TInstanceOf(CookieOpts.PMembers[j]).AsString;
+
+        end;
+        AResponse.Headers.Add('Set-Cookie', ADict.PMembers.NameOfIndex(i) + '=' + CookieStr);
+      end;
     end;
+
+
+    // AResponse.SetCookie(ADict.PMembers.NameOfIndex(i), TInstanceOf(ADict.PMembers[i]).AsString);
   end;
 end;
 
-procedure TServerInstance.SetServerStopRoute(ARoute:string);
-begin
-  FStopRoute := ARoute;
-end;
-
-procedure TServerInstance.SetMimeTypesFile(AFile:string);
-begin
-  MimeTypesFile := AFile;
-end;
-
-procedure TServerInstance.StopServer(ARequest: TRequest;AResponse: TResponse);
-begin
-  AResponse.Content := 'Server stopped';
-  FRegisteredMimeTypes.Free;
-  WriteLn('Stopping server');
-  Application.Terminate;
-
-  WriteLn('Server stopped');
-end;
-
-procedure ShowException(AResponse: TResponse; AException: Exception; var Switch: boolean);
-begin
-
-end;
-
-procedure LogRequest(ARequest: TRequest; Status, Len: integer; ContentType:string);
+procedure LogRequest(ARequest: TBrookHTTPRequest; Status, Len: integer; ContentType:string);
 begin
    WriteLn(#13+'['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
         ARequest.Method + ': '+
-        ARequest.URI+' -- '+ IntToStr(Status) +
-        //' ' + AResponse.s +
+        ARequest.Path+' -- '+ IntToStr(Status) + ' ' +
         ', ' + IntToStr(Len) + ' B, Content-Type: ' + ContentType, #13);
 end;
 
-procedure TServerInstance.ExecuteAction(ARequest: TRequest; AResponse: TResponse);
+procedure SendFavIcon(ARequest: TBrookHTTPRequest; AResponse: TBrookHTTPResponse);
 var
-  BTree: TAST;
-  InsertActRec: TActivationRecord;
-  ResponseContent: string = '';
-  //AStream: TStringStream;
+  AStream: TFileStream;
 begin
 
+  AStream := TFileStream.Create(GetEnv('ULTRAGEN_HOME') + DirectorySeparator + 'assets'  + DirectorySeparator + 'favicon.ico', fmOpenRead);
+  LogRequest(ARequest, 200, AStream.Size, 'image/x-icon');
+  AResponse.SendStream(AStream, True, 200);
+end;
+
+
+
+procedure THTTPServer.DoRequest(ASender: TObject; ARequest: TBrookHTTPRequest; AResponse: TBrookHTTPResponse);
+var
+  Content: TBytes;
+  Len, Status: integer;
+  UltraResult: TUltraResult;
+  Adapter: TUltraAdapter;
+  Prelude: TSTringList;
+  ContentType: string = 'text/html';
+  AppResponse: TDataType;
+  IndexHandler, ExceptionHandler: string;
+  ADict: TActivationRecord;
+  AInst: TInstanceOf;
+  StatusInst: TInstanceOf;
+  i: integer;
+  Redirected: boolean = False;
+begin
+  Status := 0;
   try
   begin
-
-    BTree := TUltraInterface.ParseWebRequest(ARequest, AResponse, '');
-    //InsertActRec := TActivationrecord.Create('HTTPRESPONSE', 'ANY', 1);
-    //InsertActRec.AddMember('response', TResponseHandlerInstance.Create(AResponse));
-    ResponseContent := TUltraInterface.InterpretScript(FRootFile, TProgram(BTree), nil, '', AResponse, ARequest, FRegisteredMimeTypes);
-    //AStream := TSTringStream.Create(ResponseContent);
-    if AResponse.ContentStream = nil then
+    AResponse.Headers.Add('X-Powered-By', 'UltraGen/Brook server');
+    if ARequest.Path = '/favicon.ico' then
     begin
-      AResponse.ContentStream :=  TSTringStream.Create(ResponseContent);
-      Aresponse.ContentType := 'text/html; charset=utf-8';
+      SendFavIcon(ARequest, AResponse);
+      Exit;
     end;
 
-    LogRequest(ARequest, AResponse.Code, AResponse.ContentLength, AResponse.ContentType);
-    AResponse.SendContent;
-    AResponse.ContentStream.Free;
+    Adapter := TUltraAdapter.Create('$request');
+    Adapter.AddMember('route', ARequest.Path);
+    Adapter.AddMember('method', ARequest.Method);
+
+    Prelude := TStringList.Create;
+    Prelude.Add('addModulePath(["'+ ReplaceStr(GetEnv('ULTRAGEN_HOME'), '\', '\\') + '", "modules"].path())');
+    Prelude.Add('include @Core');
+    IndexHandler := TStringInstance(FUltraInstance.PMembers.Find('indexHandler')).PValue;
+    ExceptionHandler := TStringInstance(FUltraInstance.PMembers.Find('exceptionHandler')).PValue;
+    UltraResult := TUltraInterface.InterpretScriptWithResult(IndexHandler, Prelude, Adapter, TUltraBrookHandlers.Create(ARequest, Aresponse));
+    AppResponse := TDataType(UltraResult.ActRec.GetMember('AppResponse'));
+    if AppResponse <> nil then
+    begin
+      StatusInst := TInstanceOf(AppResponse.PMembers.Find('status'));
+      if StatusInst <> nil then
+        if StatusInst.ClassNameIs('TIntegerInstance') then
+          Status := TIntegerInstance(StatusInst).PValue;
+      ADict := TDictionaryInstance(AppResponse.PMembers.Find('$headers')).PValue;
+      if ADict.PMembers.Count > 0 then
+      begin
+        for i:=0 to ADict.PMembers.Count-1 do
+          AResponse.Headers.Add( ADict.PMembers.NameOfIndex(i), TInstanceOf(ADict.PMembers[i]).AsString);
+      end;
+      ADict := TDictionaryInstance(AppResponse.PMembers.Find('$cookies')).PValue;
+      if ADict.PMembers.Count > 0 then
+      begin
+        SetCookiesFromUltra(AResponse, ADict);
+      end;// TODO : process response
+      //AInst := TInstanceOf(AppResponse.PMembers.Find('redirect'));
+      //if AInst <> nil then
+      //begin
+      //  if Status = 0 then
+      //    Status := 303;
+      //  Redirected := True;
+      //  AResponse.SendAndRedirect('tekas', AInst.AsString, 'text/html', Status);
+      //end;
+    end;
+
+    Content := StrToBytes(UltraResult.LiveOutput);
+    Len := Length(Content);
+
+    if Status = 0 then
+      Status := 200;
+    LogRequest(ARequest, Status, Len, ContentType);
+    if not (Redirected or UltraResult.Redirected) then
+      AResponse.Send(UltraResult.LiveOutput, 'text/html', Status);
   end;
   except on E: Exception do
+    if TBooleanInstance(FUltraInstance.PMembers.Find('debug')).PValue then
+      RaiseInternalException(ARequest, AResponse, E.Message)
+    else
     begin
+      Adapter.AddMember('$stacktrace', E.Message);
+      try
+        WriteLn(E.Message);
+        UltraResult := TUltraInterface.InterpretScriptWithResult(ExceptionHandler, Prelude, Adapter);
+        AResponse.Send(UltraResult.LiveOutput, 'text/html', 500);
 
-       AResponse.Code := 500;
-       AResponse.CodeText := 'Internal server error';
-       WriteLn('['+FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now)+'] ' +
-          ARequest.Method + ': '+
-          ARequest.URI+' -- '+ IntToStr(AResponse.Code)+
-          ' ' + AResponse.CodeText +
-          ', ' + IntToStr(AResponse.ContentLength) + ' B', #13);
-       WriteLn(E.Message);
-
-       if FDebug then
-
-         AResponse.Content := '<h1>UltraGen ERROR!</h1><pre style="white-space: pre-wrap; font-size: 12pt"><h3>Error while fetching content at "' + ARequest.URI + '"</h3><br>'+ReplaceStr(E.Message, '<', '&lt') +'</pre>'
-       else
-       begin
-         // InsertActRec := TActivationrecord.Create('HTTPRESPONSE', 'ANY', 1);
-         // InsertActRec.AddMember('response', TResponseHandlerInstance.Create(AResponse));
-         BTree := TUltraInterface.ParseWebRequest(ARequest, AResponse, E.Message);
-         try
-           ResponseContent := TUltraInterface.InterpretScript(FExceptionHandler, TProgram(BTree), nil, '', AResponse, ARequest, FRegisteredMimeTypes);
-         except on F: Exception do
-           WriteLn('While running application exception handler, another exception occurred:', #13, #10, #13, #10, F.Message);
-         end;
-         if ResponseContent = '' then
-           ResponseContent := IntToStr(AResponse.Code) + ' ' + AResponse.CodeText;
-         AResponse.Content := ResponseContent;
-       end;
+      except on F: Exception do
+        if True then
+        begin
+          WriteLn('While running application exception handler, another exception occurred:', #13, #10, #13, #10, F.Message);
+          AResponse.Send('500 Internal Server Error', 'text/html', 500);
+        end;
+      end;
     end;
   end;
 end;
 
-
-procedure TServerInstance.RunServer;
+constructor TBrookServerInstance.Create(APort: integer; ADebug: boolean);
+var
+  len, i: integer;
+  Inst: TFunctionInstance;
 begin
+  FError := TRue;
+  inherited Create;
+  try
+    FMembers.Add('port', TIntegerInstance.Create(Aport));
+    FMembers.Add('title', TStringInstance.Create('Untitled'));
+    FMembers.Add('indexHandler', TStringInstance.Create('index.ultra'));
+    FMembers.Add('exceptionHandler', TStringInstance.Create('exception.ultra'));
+    FMembers.Add('debug', TBooleanInstance.Create(ADebug));
+    {len := ThisType.PMembers.Count;
+    for i := 0 to len-1 do
+    begin
+      Inst := TFunctionInstance(ThisType.PMembers[i]);
+      FMembers.Add(Inst.PName, Inst);
+    end;}
+    Ferror := False;
+  except on E: Exception do
+    FErrorMsg := E.Message;
 
-    FRegisteredMimeTypes := TStringList.Create;
-    FRegisteredMimeTypes.LoadFromFile(MimeTypesFile);
+  end;
+end;
 
-    if FStopRoute <> '' then
-      HTTPRouter.RegisterRoute(FStopRoute, @StopServer);
-    HTTPRouter.RegisterRoute('*', @ExecuteAction);
-    WriteLn('Running '+TInstanceOf(FMembers.Find('title')).AsString+' in '+'UltraGen Builtin Development Server at port '+IntToStr(FPort), #13);
-    Application.Title := 'UltraGen Builtin Development Server';
-    Application.Port := FPort;
-    Application.Threaded := True;
-    Application.OnShowRequestException := @ShowException;
-    Application.Initialize;
-    Application.Run;
+procedure TBrookServerInstance.RunServer();
+var
+  MPort: integer;
+  MTitle: string;
+begin
+  MTitle := TInstanceOf(FMembers.Find('title')).AsString;
+  MPort := TInstanceOf(FMembers.Find('port')).PIntValue;
+  FError := True;
+  with THTTPServer.Create(nil) do
+  try
+    try
+      UltraInstance := Self;
+      Port := MPort;
+      Open;
+      if not Active then
+        Exit;
+      FError := False;
+      WriteLn('Running '+ MTitle +' in '+'Brook High Performance Server at port ' + IntTostr(MPort), #13);
+      ReadLn;
 
+    except on E: Exception do
+      FErrorMsg := E.Message;
+    end;
+  finally
+    Free;
+  end;
 
 end;
+
 
 end.
 
