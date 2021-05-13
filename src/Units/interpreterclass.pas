@@ -76,7 +76,7 @@ type
 implementation
 
 uses
-  Math, TokenClass, Tokens, CoreFunctionsClass, LexerClass,
+  Math, TokenClass, Tokens, CoreFunctionsClass, LexerClass, DateTimeInstanceClass,
   ServerClass, Dos, TypeLoaderClass, ByteStreamClass, HttpClientInstanceClass, BrookServerClass;
 
 constructor TInterpreter.Create(var ATree: TAST);
@@ -585,7 +585,7 @@ begin
       end
       else if ABuilt.PValue = 'THttpClientInstance' then
       begin
-        if Length(ArgsList) = 1 then
+        if Len = 1 then
         begin
           Ret := THttpClientInstance.Create(TStringInstance(ArgsList[0]).PValue)
         end
@@ -594,11 +594,11 @@ begin
       end
       else if ABuilt.PValue = 'TDateTimeInstance' then
       begin
-        if Length(ArgsList) = 3
+        Ret := TDateTimeInstance.ConstructDateTime(ArgsList);
       end
       else if ABuilt.PValue = 'TByteStreamInstance' then
       begin
-        if Length(ArgsList) = 0 then
+        if Len = 0 then
           SetLength(ByteArray, 0)
         else
         begin
