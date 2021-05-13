@@ -1,6 +1,11 @@
-include 'base.ultra.html'
+include @Core.Brook.AppResponse
+include @Core.DateTime
+include @Core.Web.Cookie
 
-title = "Hello, World!"
+AppResponse.$headers['x-teste'] = "algum header"
+AppResponse.$headers['x-tudo'] = "com hamburguer"
+AppResponse.$cookies['outro'] = new Cookie("outro valor", {"expires": new DateTime(2022, 1, 1, 12, 0, 0), "secure": true})
+AppResponse.$cookies['umcookie'] = "algum valor genérico"
 
-t  = "a" + str(5)
-live t
+# AppResponse.$cookies['outro'] = Cookie.expire()
+live JSON.create($request)

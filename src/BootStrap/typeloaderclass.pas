@@ -142,10 +142,10 @@ begin
     TActivationRecord.Create('AppResponseCookies', AR_DICT, -1)));
   ADataType.PMembers.Add('redirect', AFunc);
   ADataType.PMembers.Add('clientRedirect', AFunc);
-  ADataType.PMembers.Add('setStatusCode', AFunc);
+  {ADataType.PMembers.Add('setStatusCode', AFunc);
   ADataType.PMembers.Add('setStatusText', AFunc);
   ADataType.PMembers.Add('setContentType', AFunc);
-  ADataType.PMembers.Add('setHeader', AFunc);
+  ADataType.PMembers.Add('setHeader', AFunc);}
   ADataType.PMembers.Add('static', AFunc);
   AActRec.AddMember('AppResponse', ADataType);
 end;
@@ -252,6 +252,8 @@ begin
     TTypeLoader.LoadOS(AActRec)
   else if AName = 'ByteStream' then
     TTypeLoader.LoadByteStream(AActRec)
+  else if AName = 'Helpers' then
+    TTypeLoader.LoadHelpers(AActRec)
   else if AName = 'DateTime' then
     TTypeLoader.LoadDateTime(AActRec)
   else if AName = 'Server' then

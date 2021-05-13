@@ -9,6 +9,11 @@ uses
   httpdefs, httproute, fphttpapp, fphttpserver, fpwebfile, ARClass;
 
 type
+  TProcessedAppResponse = record
+    Status: integer;
+    ContentType: string;
+  end;
+
   TServerInstance = class (TInstanceOf)
     public
       procedure ExecuteAction(ARequest: TRequest; AResponse: TResponse);
@@ -22,7 +27,8 @@ type
 implementation
 
 uses
-  StringInstanceClass, UltraGenInterfaceClass, Dos, StrUtils, ListInstanceClass, UltraWebHandlersClass;
+  StringInstanceClass, UltraGenInterfaceClass, Dos, StrUtils, ListInstanceClass, UltraWebHandlersClass,
+  DateTimeInstanceClass, httpprotocol;
 
 function StrToBytes(Astr: string): TBytes;
 var
@@ -56,30 +62,61 @@ begin
   AResponse.SendResponse;
 end;
 
+procedure SetCookie(AKey, AValue:string; AResponse: TResponse);
+var
+  ACookie: TCookie;
+begin
+  ACookie := AResponse.Cookies.Add;
+  ACookie.Name := AKey;
+  ACookie.Value := AValue;
+  ACookie.Path := '/';
+end;
+
 procedure SetCookie(Akey: string; ACookieObj: TInstanceOf; AResponse: TResponse);
 var
   ACookie: TCookie;
   CookieStr: string;
   CookieOpts: TActivationRecord;
   j: integer;
+  AObj: TObject;
 begin
-  CookieStr := '';
-  CookieStr := CookieStr + TInstanceOf(ACookieObj.PMembers.Find('value')).AsString;
-  CookieOpts := TDictionaryInstance(ACookieObj.PMembers.Find('params')).PValue;
-
-
-
-  for j:=0 to CookieOpts.PMembers.Count - 1 do
+  ACookie := AResponse.Cookies.Add;
+  {AObj := ACookieObj.PMembers.Find('sameSite');
+  if AObj.ClassNameIs('TStringInstance') then
   begin
-    if CookieOpts.PMembers[j].ClassName = 'TBooleanInstance' then
-    begin
-      if TBooleanInstance(CookieOpts.PMembers[j]).PValue then
-        CookieStr := CookieStr + ';' + CookieOpts.PMembers.NameOfIndex(j)
-    end
+    CookieStr := lowercase(TStringInstance(AObj).PValue);
+    if CookieStr = 'lax' then
+      ACookie.SameSite := ssLax
+    else if CookieStr = 'strict' then
+      ACookie.SameSite := ssStrict
     else
-      CookieStr := CookieStr + ';' + CookieOpts.PMembers.NameOfIndex(j) + '=' + TInstanceOf(CookieOpts.PMembers[j]).AsString;
-    AResponse.Cookies.Add;
-  end;
+      ACookie.SameSite := ssNone;
+  end;}
+  ACookie.Name := AKey;
+  ACookie.Value := TInstanceOf(ACookieObj.PMembers.Find('value')).AsString;
+  AObj := ACookieObj.PMembers.Find('httpOnly');
+  if AObj.ClassNameIs('TBooleanInstance') then
+    ACookie.HttpOnly := TBooleanInstance(AObj).PValue;
+
+  AObj := ACookieObj.PMembers.Find('expires');
+  if AObj.ClassNameIs('TDateTimeInstance') then
+    ACookie.Expires := TDateTimeInstance(AObj).PValue;
+
+  {AObj := ACookieObj.PMembers.Find('maxAge');
+  if AObj.ClassNameIs('TIntegerInstance') then
+    ACookie.MaxAge := TIntegerInstance(AObj).PValue;}
+
+  AObj := ACookieObj.PMembers.Find('domain');
+  if AObj.ClassNameIs('TStringInstance') then
+    ACookie.Domain := TStringInstance(AObj).PValue;
+
+  AObj := ACookieObj.PMembers.Find('path');
+  if AObj.ClassNameIs('TStringInstance') then
+    ACookie.Path := TStringInstance(AObj).PValue;
+
+  AObj := ACookieObj.PMembers.Find('secure');
+  if AObj.ClassNameIs('TBooleanInstance') then
+    ACookie.Secure := TBooleanInstance(AObj).PValue;
 end;
 
 procedure SetCookiesFromUltra(AResponse: TResponse; ADict: TActivationRecord);
@@ -87,24 +124,26 @@ var
   AListInst: TListInstance;
   Gene: TInstanceOf;
 
-  CookieStr: string;
+  CookieStr, Akey: string;
   i, j, len: integer;
   ACookie: TClassInstance;
 
 begin
   for i:=0 to ADict.PMembers.Count-1 do
   begin
+    AKey := ADict.PMembers.NameOfIndex(i);
     Gene := TInstanceOf(ADict.PMembers[i]);
     if (Gene.ClassNameIs('TClassInstance')) then
     begin
       if (TClassInstance(Gene).PValue = 'Cookie') then
       begin
-        SetCookie(ADict.PMembers.NameOfIndex(i), Gene, AResponse);
-      end;
-    end;
-
-
-    // AResponse.SetCookie(ADict.PMembers.NameOfIndex(i), TInstanceOf(ADict.PMembers[i]).AsString);
+        SetCookie(AKey, Gene, AResponse);
+      end
+      else
+        SetCookie(AKey, httpencode(Gene.AsString), AResponse);
+    end
+    else
+      SetCookie(AKey, httpencode(Gene.AsString), AResponse);
   end;
 end;
 
@@ -127,6 +166,7 @@ begin
   AResponse.ContentType := 'image/x-icon';
   AResponse.ContentStream := AStream;
   AResponse.SendResponse;
+  AResponse.ContentStream.Free;
 end;
 
 procedure SetHeadersFromUltra(AResponse: TResponse; ADict: TActivationRecord);
@@ -136,8 +176,6 @@ begin
   for i:=0 to ADict.PMembers.Count-1 do
   begin
     AResponse.SetCustomHeader(ADict.PMembers.NameOfIndex(i), TInstanceOf(ADict.PMembers[i]).AsString);
-    {if ADict.PMembers.NameOfIndex(i) = 'Content-Type' then
-      ContentType := TInstanceOf(ADict.PMembers[i]).AsString;}
   end;
 end;
 
@@ -159,11 +197,11 @@ begin
   end;
 end;
 
-procedure ProcessAppResponse(AResponse: TResponse; AppResponse: TDataType);
+function ProcessAppResponse(AResponse: TResponse; AppResponse: TDataType): integer;
 var
   StatusInst: TInstanceOf;
   ADict: TActivationRecord;
-  Status: integer;
+  Status: integer = 200;
 begin
   if AppResponse <> nil then
   begin
@@ -183,6 +221,7 @@ begin
     end;
     // TODO : process response
   end;
+  Result := Status
 end;
 
 procedure SendResponse(AResponse: TResponse; Status: integer; ContentType: string; Content: string);
@@ -232,10 +271,11 @@ begin
     ExceptionHandler := TStringInstance(FMembers.Find('exceptionHandler')).PValue;
     UltraResult := TUltraInterface.InterpretScriptWithResult(IndexHandler, Prelude, Adapter, WebHandlers);
     AppResponse := TDataType(UltraResult.ActRec.GetMember('AppResponse'));
-    ProcessAppResponse(AResponse, AppResponse);
+    Status := ProcessAppResponse(AResponse, AppResponse);
     Len := Length(UltraResult.LiveOutput);
-    if Status = 0 then
-      Status := 200;
+    ContentType := AResponse.GetCustomHeader('Content-Type');
+    if ContentType = '' then
+      ContentType := 'text/html; charset=utf-8';
     LogRequest(ARequest, Status, Len, ContentType);
     if not (Redirected or UltraResult.Redirected) then
     begin
@@ -318,6 +358,10 @@ begin
 
   HTTPRouter.RegisterRoute('*', @ExecuteAction);
   WriteLn('Running '+TInstanceOf(FMembers.Find('title')).AsString+' in '+'UltraGen Builtin Development Server at port '+IntToStr(MPort), #13);
+  if MStopRoute <> '' then
+    WriteLn('Run a request to "' +MStopRoute+ '" to stop server')
+  else
+    WriteLn('No stop route defined');
   Application.Title := 'UltraGen Builtin Development Server';
   Application.Port := MPort;
   Application.Threaded := True;

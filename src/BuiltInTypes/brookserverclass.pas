@@ -33,7 +33,8 @@ type
 implementation
 
 uses
-  StringInstanceClass, UltraGenInterfaceClass, Dos, StrUtils, ARClass, ListInstanceClass, UltraWebHandlersClass;
+  StringInstanceClass, UltraGenInterfaceClass, Dos, StrUtils, ARClass, ListInstanceClass, UltraWebHandlersClass,
+  DateTimeInstanceClass, httpprotocol;
 
 function StrToBytes(Astr: string): TBytes;
 var
@@ -65,29 +66,76 @@ begin
     'text/html', Status);
 end;
 
+procedure SetCookie(AKey, AValue:string; AResponse: TBrookHTTPResponse);
+var
+  ACookie: TBrookHTTPCookie;
+begin
+  ACookie := AResponse.Cookies.Add;
+  ACookie.Name := AKey;
+  ACookie.Value := httpencode(AValue);
+  ACookie.Path := '/';
+end;
+
 procedure SetCookie(Akey: string; ACookieObj: TInstanceOf; AResponse: TBrookHTTPResponse);
 var
   ACookie: TBrookHTTPCookie;
   CookieStr: string;
   CookieOpts: TActivationRecord;
   j: integer;
+  AObj: TObject;
 begin
-  CookieStr := '';
-  CookieStr := CookieStr + TInstanceOf(ACookieObj.PMembers.Find('value')).AsString;
-  CookieOpts := TDictionaryInstance(ACookieObj.PMembers.Find('params')).PValue;
-  for j:=0 to CookieOpts.PMembers.Count - 1 do
+  //CookieStr := '';
+  //CookieStr := CookieStr + TInstanceOf(ACookieObj.PMembers.Find('value')).AsString;
+  //CookieOpts := TDictionaryInstance(ACookieObj.PMembers.Find('params')).PValue;
+  //for j:=0 to CookieOpts.PMembers.Count - 1 do
+  //begin
+  //  if CookieOpts.PMembers[j].ClassName = 'TBooleanInstance' then
+  //  begin
+  //    if TBooleanInstance(CookieOpts.PMembers[j]).PValue then
+  //      CookieStr := CookieStr + ';' + CookieOpts.PMembers.NameOfIndex(j)
+  //  end
+  //  else
+  //    CookieStr := CookieStr + ';' + CookieOpts.PMembers.NameOfIndex(j) + '=' + TInstanceOf(CookieOpts.PMembers[j]).AsString;
+  //
+  //end;
+  ACookie := AResponse.Cookies.Add;
+  ACookie.Name := AKey;
+  ACookie.Value := TInstanceOf(ACookieObj.PMembers.Find('value')).AsString;
+  AObj := ACookieObj.PMembers.Find('sameSite');
+  if AObj.ClassNameIs('TStringInstance') then
   begin
-    if CookieOpts.PMembers[j].ClassName = 'TBooleanInstance' then
-    begin
-      if TBooleanInstance(CookieOpts.PMembers[j]).PValue then
-        CookieStr := CookieStr + ';' + CookieOpts.PMembers.NameOfIndex(j)
-    end
+    CookieStr := lowercase(TStringInstance(AObj).PValue);
+    if CookieStr = 'lax' then
+      ACookie.SameSite := ssLax
+    else if CookieStr = 'strict' then
+      ACookie.SameSite := ssStrict
     else
-      CookieStr := CookieStr + ';' + CookieOpts.PMembers.NameOfIndex(j) + '=' + TInstanceOf(CookieOpts.PMembers[j]).AsString;
-
+      ACookie.SameSite := ssNone;
   end;
+  AObj := ACookieObj.PMembers.Find('httpOnly');
+  if AObj.ClassNameIs('TBooleanInstance') then
+    ACookie.HttpOnly := TBooleanInstance(AObj).PValue;
 
-  AResponse.Headers.Add('Set-Cookie', Akey + '=' + CookieStr);
+  AObj := ACookieObj.PMembers.Find('expires');
+  if AObj.ClassNameIs('TDateTimeInstance') then
+    ACookie.Expires := TDateTimeInstance(AObj).PValue;
+
+  AObj := ACookieObj.PMembers.Find('maxAge');
+  if AObj.ClassNameIs('TIntegerInstance') then
+    if TIntegerInstance(AObj).PValue > -1 then
+      ACookie.MaxAge := TIntegerInstance(AObj).PValue;
+
+  AObj := ACookieObj.PMembers.Find('domain');
+  if AObj.ClassNameIs('TStringInstance') then
+    ACookie.Domain := TStringInstance(AObj).PValue;
+
+  AObj := ACookieObj.PMembers.Find('path');
+  if AObj.ClassNameIs('TStringInstance') then
+    ACookie.Path := TStringInstance(AObj).PValue;
+
+  AObj := ACookieObj.PMembers.Find('secure');
+  if AObj.ClassNameIs('TBooleanInstance') then
+    ACookie.Secure := TBooleanInstance(AObj).PValue;
 end;
 
 procedure SetCookiesFromUltra(AResponse: TBrookHTTPResponse; ADict: TActivationRecord);
@@ -95,31 +143,26 @@ var
   AListInst: TListInstance;
   Gene: TInstanceOf;
   CookieOpts: TActivationRecord;
-  CookieStr: string;
+  CookieStr, Akey: string;
   i, j, len: integer;
   ACookie: TClassInstance;
 
 begin
   for i:=0 to ADict.PMembers.Count-1 do
   begin
+    AKey := ADict.PMembers.NameOfIndex(i);
     Gene := TInstanceOf(ADict.PMembers[i]);
-    if (Gene.ClassNameIs('TListInstance')) then
-    begin
-      AListInst := TListInstance(Gene);
-      // $cookie['key'] = ['value', {'path': '/', 'max-age': 310000, 'Secure': true}]
-      AResponse.Headers.Add('Set-Cookie', ADict.PMembers.NameOfIndex(i) + '=' + TInstanceOf(ADict.PMembers[i]).AsString);
-    end
-    else if (Gene.ClassNameIs('TClassInstance')) then
+    if (Gene.ClassNameIs('TClassInstance')) then
     begin
       if (TClassInstance(Gene).PValue = 'Cookie') then
       begin
-        ACookie := TClassInstance(Gene);
-        SetCookie(ADict.PMembers.NameOfIndex(i), Gene, AResponse);
-      end;
-    end;
-
-
-    // AResponse.SetCookie(ADict.PMembers.NameOfIndex(i), TInstanceOf(ADict.PMembers[i]).AsString);
+        SetCookie(Akey, Gene, AResponse);
+      end
+      else
+        SetCookie(Akey, Gene.AsString, AResponse);
+    end
+    else
+      SetCookie(Akey, Gene.AsString, AResponse);
   end;
 end;
 
@@ -282,6 +325,7 @@ begin
         Exit;
       FError := False;
       WriteLn('Running '+ MTitle +' in '+'Brook High Performance Server at port ' + IntTostr(MPort), #13);
+      Writeln('Press enter to stop server');
       ReadLn;
 
     except on E: Exception do

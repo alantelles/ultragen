@@ -6,13 +6,14 @@ class Cookie
 function init(value, params={}) : Cookie
     self.value = Helpers.urlencode(value)
     self.expires = null
-    self.maxAge = 0
+    self.maxAge = -1
     self.domain = null
     self.path = '/'
     self.secure = false
-    self.httpOnly = :None    
+    self.sameSite = :None
+    self.httpOnly = false    
     if ((params.hasKey('expires')))
-        self.expires = params[expires]
+        self.expires = params['expires']
     end
     if ((params.hasKey('max-age')))
         self.maxAge = params['max-age']
@@ -26,7 +27,12 @@ function init(value, params={}) : Cookie
     if ((params.hasKey('secure')))
         self.domain = params['secure']
     end
-    if ((params.hasKey('http-only')))
-        self.httpOnly = params['http-only']
+    if ((params.hasKey('httpOnly')))
+        self.httpOnly = params['httpOnly']
     end
+end
+
+function expire() : Cookie
+    ret = new Cookie('', {'expires': new DateTime(1970, 1, 1, 12)})
+    return ret
 end
