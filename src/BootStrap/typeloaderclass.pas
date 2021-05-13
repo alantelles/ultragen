@@ -22,10 +22,24 @@ type
     class procedure LoadByteStream(var AActRec: TActivationRecord);
     class procedure LoadMarkdownParser(var AActRec: TActivationrecord);
     class procedure LoadBrookserver(var AActRec: TActivationRecord);
+    class procedure LoadHelpers(var AActRec: TActivationRecord);
     // class procedure LoadCookiesHandler(var AActRec: TActivationrecord);
   end;
 
 implementation
+
+class procedure TTypeLoader.LoadHelpers(var AActRec: TActivationRecord);
+var
+  AFunc: TFunctionInstance;
+  AType: TDataType;
+begin
+  Atype := TDataType.Create('THelpersInstance', 'Helpers');
+  AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'THelpersInstance',
+    True, False, False);
+  Atype.PMembers.Add('urlencode', AFunc);
+  Atype.PMembers.Add('urldecode', AFunc);
+  AActRec.AddMember('Helpers', AType);
+end;
 
 class procedure TTypeLoader.LoadBrookserver(var AActRec: TActivationRecord);
 var
@@ -144,16 +158,9 @@ begin
   AServerType := TDataType.Create('TServerInstance', 'Server');
   AServerFunc := TFunctionInstance.Create('BuiltIn', nil, nil,
     'TServerInstance', True, False, False);
-  AServerType.PMembers.Add('setPort', AServerFunc);
-  AServerType.PMembers.Add('setRootFile', AServerFunc);
   AServerType.PMembers.Add('run', AServerFunc);
-  AServerType.PMembers.Add('init', AServerFunc);
-  AServerType.PMembers.Add('setTitle', AServerFunc);
   AServerType.PMembers.Add('setStaticPath', AServerFunc);
   AServerType.PMembers.Add('setStaticPaths', AServerFunc);
-  AServerType.PMembers.Add('setExceptionHandler', AServerFunc);
-  AServerType.PMembers.Add('setMimeTypesFile', AServerFunc);
-  AServerType.PMembers.Add('setStopRoute', AServerFunc);
   AActRec.AddMember('Server', AServerType);
 end;
 

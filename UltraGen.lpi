@@ -35,7 +35,7 @@
         <PackageName Value="LazUtils"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="44">
+    <Units Count="46">
       <Unit0>
         <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -244,6 +244,14 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="ServerClass"/>
       </Unit43>
+      <Unit44>
+        <Filename Value="src\Core\helpers\declarations.pp"/>
+        <IsPartOfProject Value="True"/>
+      </Unit44>
+      <Unit45>
+        <Filename Value="src\Core\helpers\options.pp"/>
+        <IsPartOfProject Value="True"/>
+      </Unit45>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -254,7 +262,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="src\Units;src\ASTs;src\Symbols;src\Exceptions;src\ActRecords;src\Core;src\BuiltInTypes;src\Utils\JsonTools;src\BootStrap;src\Utils;src\Core\cookies;src\Core\bytestream;src\Utils\MarkdownParser;src\Core\brookserver;src\Core\brookappresponse"/>
+      <OtherUnitFiles Value="src\Units;src\ASTs;src\Symbols;src\Exceptions;src\ActRecords;src\Core;src\BuiltInTypes;src\Utils\JsonTools;src\BootStrap;src\Utils;src\Core\cookies;src\Core\bytestream;src\Utils\MarkdownParser;src\Core\brookserver;src\Core\brookappresponse;src\Core\helpers"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Other>

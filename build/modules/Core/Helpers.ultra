@@ -1,10 +1,1 @@
-function scopedInclude(file)
-    include file : inc
-    return inc
-end
-
-function render(file, context=null)
-    include file : inc
-    return inc.__LIVE__
-end
-
+load HelpersInstance

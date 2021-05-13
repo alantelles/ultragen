@@ -18,10 +18,16 @@ type TDateTimeInstance = class (TInstanceOf)
     function GetPartOfDate(APart: string): TInstanceOf;
     class function CreateNowDateTime: TDateTimeInstance;
     class function ParseDateFromString(AFormat, ADate:string): TDateTimeInstance;
+    class function ConstructDateTime(AValues: TInstanceList): TDateTimeInstance;
 end;
 
 implementation
 uses DateUtils, StringInstanceClass;
+
+class function TDateTimeInstance.ConstructDateTime(AValues: TInstanceList): TDateTimeInstance;
+begin
+
+end;
 
 constructor TDateTimeInstance.Create(ADateTime: TDateTime);
 begin

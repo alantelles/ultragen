@@ -66,6 +66,9 @@ begin
   CookieStr := '';
   CookieStr := CookieStr + TInstanceOf(ACookieObj.PMembers.Find('value')).AsString;
   CookieOpts := TDictionaryInstance(ACookieObj.PMembers.Find('params')).PValue;
+
+
+
   for j:=0 to CookieOpts.PMembers.Count - 1 do
   begin
     if CookieOpts.PMembers[j].ClassName = 'TBooleanInstance' then
@@ -75,7 +78,7 @@ begin
     end
     else
       CookieStr := CookieStr + ';' + CookieOpts.PMembers.NameOfIndex(j) + '=' + TInstanceOf(CookieOpts.PMembers[j]).AsString;
-
+    AResponse.Cookies.Add;
   end;
 end;
 
@@ -97,22 +100,6 @@ begin
       if (TClassInstance(Gene).PValue = 'Cookie') then
       begin
         SetCookie(ADict.PMembers.NameOfIndex(i), Gene, AResponse);
-        {ACookie := TClassInstance(Gene);
-        CookieStr := '';
-        CookieStr := CookieStr + TInstanceOf(ACookie.PMembers.Find('value')).AsString;
-        CookieOpts := TDictionaryInstance(ACookie.PMembers.Find('params')).PValue;
-        for j:=0 to CookieOpts.PMembers.Count - 1 do
-        begin
-          if CookieOpts.PMembers[j].ClassName = 'TBooleanInstance' then
-          begin
-            if TBooleanInstance(CookieOpts.PMembers[j]).PValue then
-              CookieStr := CookieStr + ';' + CookieOpts.PMembers.NameOfIndex(j)
-          end
-          else
-            CookieStr := CookieStr + ';' + CookieOpts.PMembers.NameOfIndex(j) + '=' + TInstanceOf(CookieOpts.PMembers[j]).AsString;
-
-        end;
-        AResponse.Headers.Add('Set-Cookie', ADict.PMembers.NameOfIndex(i) + '=' + CookieStr);}
       end;
     end;
 

@@ -8,7 +8,8 @@ uses
   Classes, SysUtils, InstanceOfClass, StackClass,
   BrookHTTPRequest,
   BrookHTTPResponse,
-  BrookHTTPServer;
+  BrookHTTPServer,
+  brookHttpCookies;
 
 type
   TBrookServerInstance = class (TInstanceOf)
@@ -64,6 +65,31 @@ begin
     'text/html', Status);
 end;
 
+procedure SetCookie(Akey: string; ACookieObj: TInstanceOf; AResponse: TBrookHTTPResponse);
+var
+  ACookie: TBrookHTTPCookie;
+  CookieStr: string;
+  CookieOpts: TActivationRecord;
+  j: integer;
+begin
+  CookieStr := '';
+  CookieStr := CookieStr + TInstanceOf(ACookieObj.PMembers.Find('value')).AsString;
+  CookieOpts := TDictionaryInstance(ACookieObj.PMembers.Find('params')).PValue;
+  for j:=0 to CookieOpts.PMembers.Count - 1 do
+  begin
+    if CookieOpts.PMembers[j].ClassName = 'TBooleanInstance' then
+    begin
+      if TBooleanInstance(CookieOpts.PMembers[j]).PValue then
+        CookieStr := CookieStr + ';' + CookieOpts.PMembers.NameOfIndex(j)
+    end
+    else
+      CookieStr := CookieStr + ';' + CookieOpts.PMembers.NameOfIndex(j) + '=' + TInstanceOf(CookieOpts.PMembers[j]).AsString;
+
+  end;
+
+  AResponse.Headers.Add('Set-Cookie', Akey + '=' + CookieStr);
+end;
+
 procedure SetCookiesFromUltra(AResponse: TBrookHTTPResponse; ADict: TActivationRecord);
 var
   AListInst: TListInstance;
@@ -88,21 +114,7 @@ begin
       if (TClassInstance(Gene).PValue = 'Cookie') then
       begin
         ACookie := TClassInstance(Gene);
-        CookieStr := '';
-        CookieStr := CookieStr + TInstanceOf(ACookie.PMembers.Find('value')).AsString;
-        CookieOpts := TDictionaryInstance(ACookie.PMembers.Find('params')).PValue;
-        for j:=0 to CookieOpts.PMembers.Count - 1 do
-        begin
-          if CookieOpts.PMembers[j].ClassName = 'TBooleanInstance' then
-          begin
-            if TBooleanInstance(CookieOpts.PMembers[j]).PValue then
-              CookieStr := CookieStr + ';' + CookieOpts.PMembers.NameOfIndex(j)
-          end
-          else
-            CookieStr := CookieStr + ';' + CookieOpts.PMembers.NameOfIndex(j) + '=' + TInstanceOf(CookieOpts.PMembers[j]).AsString;
-
-        end;
-        AResponse.Headers.Add('Set-Cookie', ADict.PMembers.NameOfIndex(i) + '=' + CookieStr);
+        SetCookie(ADict.PMembers.NameOfIndex(i), Gene, AResponse);
       end;
     end;
 

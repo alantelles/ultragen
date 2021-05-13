@@ -58,6 +58,7 @@ type
       {{$INCLUDE 'cookies/declarations.pp'}}
       {$INCLUDE 'httpclient/declarations.pp'}
       {$INCLUDE 'brookserver/declarations.pp'}
+      {$INCLUDE 'helpers/declarations.pp' }
 	end;
 
 var
@@ -67,7 +68,7 @@ implementation
 
 uses
   CoreUtils, ExceptionsClasses, Math, ASTClass, crt, LazUTF8, FileUtil, Dos, Tokens, MarkdownProcessor, DateUtils,
-  BrookHTTPResponse, UltraWebHandlersClass;
+  BrookHTTPResponse, UltraWebHandlersClass, HttpProtocol;
 
 function TCoreFunction.Execute(AInter: TInterpreter; Fname:string; var AArgList:TInstanceList; var AObj: TInstanceOf):TInstanceOf;
 var
@@ -272,6 +273,7 @@ begin
   {$INCLUDE 'integer/options.pp'}
   {$INCLUDE 'dict/options.pp'}
   {$INCLUDE 'os/options.pp'}
+  {$INCLUDE 'helpers/options.pp'}
   {$INCLUDE 'filesystem/options.pp'}
   {$INCLUDE 'server/options.pp'}
   {$INCLUDE 'appresponse/options.pp'}
