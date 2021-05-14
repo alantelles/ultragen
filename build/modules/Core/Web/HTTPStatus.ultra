@@ -1,0 +1,8 @@
+class HTTPStatus
+
+HTTPStatus.OK = 200
+HTTPStatus.Created = 202
+HTTPStatus.NotFound = 404
+HTTPStatus.SeeOther = 303
+HTTPStatus.InternalError = 500
+HTTPStatus.ProxyError = 502

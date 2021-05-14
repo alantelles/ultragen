@@ -1,0 +1,6 @@
+class MIMETypes
+MIMETypes.JSON = 'application/json'
+MIMETypes.TEXT = 'text/plain; charset=utf-8'
+MIMETypes.HTML = 'text/html; charset=utf-8'
+MIMETypes.XML = 'application/xml'
+

@@ -60,10 +60,10 @@ begin
       ARequest.Method + ': '+
       ARequest.Path+' -- '+ IntToStr(Status) +
       //' ' + AResponse.s +
-      ', ' + IntToStr(Len) + ' B, Content-Type: text/html', #13);
+      ', ' + IntToStr(Len) + ' B, Content-Type: text/html; charset=utf-8', #13);
   WriteLn(ErrMsg);
   AResponse.Send(htmlErr,
-    'text/html', Status);
+    'text/html; charset=utf-8', Status);
 end;
 
 procedure SetCookie(AKey, AValue:string; AResponse: TBrookHTTPResponse);
@@ -184,7 +184,42 @@ begin
   AResponse.SendStream(AStream, True, 200);
 end;
 
+procedure SetHeadersFromUltra(AResponse: TBrookHTTPResponse; ADict: TActivationRecord);
+var
+  i: integer;
+begin
+  for i:=0 to ADict.PMembers.Count-1 do
+  begin
+    AResponse.Headers.Add(ADict.PMembers.NameOfIndex(i), TInstanceOf(ADict.PMembers[i]).AsString);
+  end;
+end;
 
+function ProcessAppResponse(AResponse: TBrookHTTPResponse; AppResponse: TDataType): integer;
+var
+  StatusInst: TInstanceOf;
+  ADict: TActivationRecord;
+  Status: integer = 200;
+begin
+  if AppResponse <> nil then
+  begin
+    StatusInst := TInstanceOf(AppResponse.PMembers.Find('status'));
+    if StatusInst <> nil then
+      if StatusInst.ClassNameIs('TIntegerInstance') then
+        Status := TIntegerInstance(StatusInst).PValue;
+    ADict := TDictionaryInstance(AppResponse.PMembers.Find('$headers')).PValue;
+    if ADict.PMembers.Count > 0 then
+    begin
+      SetHeadersFromUltra(AResponse, ADict);
+    end;
+    ADict := TDictionaryInstance(AppResponse.PMembers.Find('$cookies')).PValue;
+    if ADict.PMembers.Count > 0 then
+    begin
+      SetCookiesFromUltra(AResponse, ADict);
+    end;
+    // TODO : process response
+  end;
+  Result := Status
+end;
 
 procedure THTTPServer.DoRequest(ASender: TObject; ARequest: TBrookHTTPRequest; AResponse: TBrookHTTPResponse);
 var
@@ -193,7 +228,7 @@ var
   UltraResult: TUltraResult;
   Adapter: TUltraAdapter;
   Prelude: TSTringList;
-  ContentType: string = 'text/html';
+  ContentType: string = '';
   AppResponse: TDataType;
   IndexHandler, ExceptionHandler: string;
   ADict: TActivationRecord;
@@ -201,7 +236,9 @@ var
   StatusInst: TInstanceOf;
   i: integer;
   Redirected: boolean = False;
+  WebHandlers: TUltraBrookHandlers;
 begin
+  WebHandlers := TUltraBrookHandlers.Create(ARequest, Aresponse);
   Status := 0;
   try
   begin
@@ -221,43 +258,18 @@ begin
     Prelude.Add('include @Core');
     IndexHandler := TStringInstance(FUltraInstance.PMembers.Find('indexHandler')).PValue;
     ExceptionHandler := TStringInstance(FUltraInstance.PMembers.Find('exceptionHandler')).PValue;
-    UltraResult := TUltraInterface.InterpretScriptWithResult(IndexHandler, Prelude, Adapter, TUltraBrookHandlers.Create(ARequest, Aresponse));
+    UltraResult := TUltraInterface.InterpretScriptWithResult(IndexHandler, Prelude, Adapter, WebHandlers);
     AppResponse := TDataType(UltraResult.ActRec.GetMember('AppResponse'));
-    if AppResponse <> nil then
-    begin
-      StatusInst := TInstanceOf(AppResponse.PMembers.Find('status'));
-      if StatusInst <> nil then
-        if StatusInst.ClassNameIs('TIntegerInstance') then
-          Status := TIntegerInstance(StatusInst).PValue;
-      ADict := TDictionaryInstance(AppResponse.PMembers.Find('$headers')).PValue;
-      if ADict.PMembers.Count > 0 then
-      begin
-        for i:=0 to ADict.PMembers.Count-1 do
-          AResponse.Headers.Add( ADict.PMembers.NameOfIndex(i), TInstanceOf(ADict.PMembers[i]).AsString);
-      end;
-      ADict := TDictionaryInstance(AppResponse.PMembers.Find('$cookies')).PValue;
-      if ADict.PMembers.Count > 0 then
-      begin
-        SetCookiesFromUltra(AResponse, ADict);
-      end;// TODO : process response
-      //AInst := TInstanceOf(AppResponse.PMembers.Find('redirect'));
-      //if AInst <> nil then
-      //begin
-      //  if Status = 0 then
-      //    Status := 303;
-      //  Redirected := True;
-      //  AResponse.SendAndRedirect('tekas', AInst.AsString, 'text/html', Status);
-      //end;
-    end;
+    Status := ProcessAppResponse(AResponse, AppResponse);
 
-    Content := StrToBytes(UltraResult.LiveOutput);
-    Len := Length(Content);
+    Len := Length(UltraResult.LiveOutput);
+    ContentType := AResponse.Headers.Get('Content-Type');
+    if ContentType = '' then
+      ContentType := 'text/html; charset=utf-8';
 
-    if Status = 0 then
-      Status := 200;
     LogRequest(ARequest, Status, Len, ContentType);
     if not (Redirected or UltraResult.Redirected) then
-      AResponse.Send(UltraResult.LiveOutput, 'text/html', Status);
+      AResponse.Send(UltraResult.LiveOutput, ContentType, Status);
   end;
   except on E: Exception do
     if TBooleanInstance(FUltraInstance.PMembers.Find('debug')).PValue then
@@ -267,14 +279,20 @@ begin
       Adapter.AddMember('$stacktrace', E.Message);
       try
         WriteLn(E.Message);
-        UltraResult := TUltraInterface.InterpretScriptWithResult(ExceptionHandler, Prelude, Adapter);
-        AResponse.Send(UltraResult.LiveOutput, 'text/html', 500);
+        ContentType := 'text/html; charset=utf-8';
+        UltraResult := TUltraInterface.InterpretScriptWithResult(ExceptionHandler, Prelude, Adapter, WebHandlers);
+        AppResponse := TDataType(UltraResult.ActRec.GetMember('AppResponse'));
+        ProcessAppResponse(AResponse, AppResponse);
+        Len := Length(UltraResult.LiveOutput);
+        Status := 500;
+        LogRequest(ARequest, Status, Len, ContentType);
+        AResponse.Send(UltraResult.LiveOutput, ContentType, Status);
 
       except on F: Exception do
         if True then
         begin
           WriteLn('While running application exception handler, another exception occurred:', #13, #10, #13, #10, F.Message);
-          AResponse.Send('500 Internal Server Error', 'text/html', 500);
+          AResponse.Send('500 Internal Server Error', 'text/html; charset=utf-8', 500);
         end;
       end;
     end;

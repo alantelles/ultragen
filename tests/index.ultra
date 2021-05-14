@@ -1,11 +1,31 @@
 include @Core.Brook.AppResponse
-include @Core.DateTime
-include @Core.Web.Cookie
+include @Core.Web.Router
+include @Core.Web.MIMETypes
+include @Core.Web.HTTPStatus
 
-AppResponse.$headers['x-teste'] = "algum header"
-AppResponse.$headers['x-tudo'] = "com hamburguer"
-AppResponse.$cookies['outro'] = new Cookie("outro valor", {"expires": new DateTime(2022, 1, 1, 12, 0, 0), "secure": true})
-AppResponse.$cookies['umcookie'] = "algum valor genérico"
+r = new Router()
+r.get('/', :index, function(params)
+    headers = {
+        'x-zika': 'comi',
+        'x-tika': 'maykao',
+        'x-tops': 'juno'
+    }
+    AppResponse.contentType(MIMETypes.JSON)
+    AppResponse.status = HTTPStatus.Created
+    AppResponse.setHeaders(headers)
+    AppResponse.$cookies['vira'] = "na raba toma tapao"
+    AppResponse.$cookies['virax'] = "tobiruba"
+    live JSON.create({:resp: "index"})
+end)
 
-# AppResponse.$cookies['outro'] = Cookie.expire()
-live JSON.create($request)
+r.get('/redir', :redir, function(params)
+    AppResponse.status = 307
+    AppResponse.redirect('/zika')
+end)
+
+r.get('/zika', :redir, function(params)
+    live 'zika'
+end)
+
+r.getMatch().localize()
+live handler(params)

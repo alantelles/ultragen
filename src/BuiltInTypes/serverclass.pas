@@ -54,7 +54,7 @@ begin
       ARequest.Method + ': '+
       ARequest.URI+' -- '+ IntToStr(Status) +
       //' ' + AResponse.s +
-      ', ' + IntToStr(Len) + ' B, Content-Type: text/html', #13);
+      ', ' + IntToStr(Len) + ' B, Content-Type: text/html; charset=utf-8', #13);
   WriteLn(ErrMsg);
   //AResponse.Send(htmlErr, 'text/html', Status);
   AResponse.ContentType := 'text/html; charset=utf-8';
@@ -239,7 +239,7 @@ var
   UltraResult: TUltraResult;
   Adapter: TUltraAdapter;
   Prelude: TSTringList;
-  ContentType: string = 'text/html';
+  ContentType: string = 'text/html; charset=utf-8';
   AppResponse: TDataType;
   IndexHandler, ExceptionHandler: string;
   ADict: TActivationRecord;
@@ -290,7 +290,7 @@ begin
       Adapter.AddMember('$stacktrace', E.Message);
       try
         WriteLn(E.Message);
-        ContentType := 'text/html';
+        ContentType := 'text/html; charset=utf-8';
         UltraResult := TUltraInterface.InterpretScriptWithResult(ExceptionHandler, Prelude, Adapter, WebHandlers);
         AppResponse := TDataType(UltraResult.ActRec.GetMember('AppResponse'));
         ProcessAppResponse(AResponse, AppResponse);
@@ -303,7 +303,7 @@ begin
         begin
           WriteLn('While running application exception handler, another exception occurred:', #13, #10, #13, #10, F.Message);
 
-          SendResponse(AResponse, 500, 'text/html', '500 Internal Server Error');
+          SendResponse(AResponse, 500, 'text/html; charset=utf-8', '500 Internal Server Error');
         end;
       end;
     end;
