@@ -1,8 +1,15 @@
-class HTTPStatus
+class HttpStatus
 
-HTTPStatus.OK = 200
-HTTPStatus.Created = 202
-HTTPStatus.NotFound = 404
-HTTPStatus.SeeOther = 303
-HTTPStatus.InternalError = 500
-HTTPStatus.ProxyError = 502
+# Request OK codes
+HttpStatus.OK = 200
+HttpStatus.Created = 202
+
+# Redirect codes
+HttpStatus.SeeOther = 303
+
+# Client errors codes
+HttpStatus.NotFound = 404
+
+# Server errors codes
+HttpStatus.InternalError = 500
+HttpStatus.ProxyError = 502

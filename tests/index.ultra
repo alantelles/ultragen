@@ -1,26 +1,22 @@
 include @Core.Brook.AppResponse
 include @Core.Web.Router
-include @Core.Web.MIMETypes
-include @Core.Web.HTTPStatus
+include @Core.Web.MimeTypes
+include @Core.Web.HttpStatus
 
 r = new Router()
 r.get('/', :index, function(params)
-    headers = {
-        'x-zika': 'comi',
-        'x-tika': 'maykao',
-        'x-tops': 'juno'
-    }
-    AppResponse.contentType(MIMETypes.JSON)
-    AppResponse.status = HTTPStatus.Created
-    AppResponse.setHeaders(headers)
-    AppResponse.$cookies['vira'] = "na raba toma tapao"
-    AppResponse.$cookies['virax'] = "tobiruba"
-    live JSON.create({:resp: "index"})
+    include 'base.ultra.html'
+    live Base('Teste')
+end)
+r.get("/static/:type/:filename", :static, function(params)
+    params.localize()
+    AppResponse.static('static/' + type + '/' + filename)
 end)
 
 r.get('/redir', :redir, function(params)
-    AppResponse.status = 307
-    AppResponse.redirect('/zika')
+    # AppResponse.status = 307
+    # AppResponse.clientRedirect('/zika', 5, "Você será redirecionado em 5 segundos", "Pode crê")
+    AppResponse.static('any')
 end)
 
 r.get('/zika', :redir, function(params)

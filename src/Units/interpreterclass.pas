@@ -31,9 +31,6 @@ type
     FNowNode: TAST;
     FUltraHome: string;
     FModulesPath: TStringList;
-    FResponse: TResponse;
-    FRequest: TRequest;
-    FMimeFile: TStringList;
     FDontDestroyLast: boolean;
     FExceptionThrown: boolean;
 
@@ -51,9 +48,7 @@ type
     property PLive: string read FLiveOutput;
     property PInsertActRec: TActivationRecord read FInsertActRec write FInsertActRec;
     property PModulesPath: TStringList read FModulesPath write FModulesPath;
-    property PResponse: TResponse read FResponse write FResponse;
-    property PRequest: TRequest read FRequest write FRequest;
-    property PMimeFile: TStringList read FMimeFile write FMimeFile;
+    property PUltraHome: string read FUltraHome write FUltraHome;
     procedure RaiseException(AMsg: string; AType: string);
     constructor Create(var ATree: TAST);
     destructor Destroy; override;

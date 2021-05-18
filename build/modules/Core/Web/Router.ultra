@@ -16,8 +16,11 @@ end
 
 function HandlerFor404(params) : Router
     live 'Page not found<br>'
-    live 'Request data:<br>'
+    live 'Request data:<br>'    
     live $request
+    live '<br>Params: '
+    live params
+    live '<br>'
 end
 
 function urlFor(name, params={}) : Router
@@ -100,6 +103,10 @@ function getMatch(route=null, method=null) : Router
     if (!route)
         route = $request[:route]
     end
+    hasQueryString = route.pos("?")
+    if (hasQueryString > -1)
+        route = route.slice(0, hasQueryString)
+    end
     route = dropFirstAndLastSlash(route)
     
     routeSplit = route.split('/')
@@ -159,7 +166,7 @@ function getMatch(route=null, method=null) : Router
             
         end
     end
-    return {:handler: self.HandlerFor404, :params: {}}
+    return {:handler: self.HandlerFor404, :params: params}
 end
 
 function addRouter(router) : Router

@@ -35,7 +35,7 @@
         <PackageName Value="LazUtils"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="46">
+    <Units Count="48">
       <Unit0>
         <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -252,6 +252,14 @@
         <Filename Value="src\Core\helpers\options.pp"/>
         <IsPartOfProject Value="True"/>
       </Unit45>
+      <Unit46>
+        <Filename Value="src\Core\brookappresponse\functions.pp"/>
+        <IsPartOfProject Value="True"/>
+      </Unit46>
+      <Unit47>
+        <Filename Value="src\Core\brookappresponse\declarations.pp"/>
+        <IsPartOfProject Value="True"/>
+      </Unit47>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

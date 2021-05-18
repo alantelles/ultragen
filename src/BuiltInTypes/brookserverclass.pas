@@ -230,7 +230,7 @@ var
   Prelude: TSTringList;
   ContentType: string = '';
   AppResponse: TDataType;
-  IndexHandler, ExceptionHandler: string;
+  IndexHandler, ExceptionHandler,UltraHome: string;
   ADict: TActivationRecord;
   AInst: TInstanceOf;
   StatusInst: TInstanceOf;
@@ -253,12 +253,13 @@ begin
     Adapter.AddMember('route', ARequest.Path);
     Adapter.AddMember('method', ARequest.Method);
 
+    UltraHome := ReplaceStr(GetEnv('ULTRAGEN_HOME'), '\', '\\');
     Prelude := TStringList.Create;
-    Prelude.Add('addModulePath(["'+ ReplaceStr(GetEnv('ULTRAGEN_HOME'), '\', '\\') + '", "modules"].path())');
+    Prelude.Add('addModulePath(["'+ UltraHome + '", "modules"].path())');
     Prelude.Add('include @Core');
     IndexHandler := TStringInstance(FUltraInstance.PMembers.Find('indexHandler')).PValue;
     ExceptionHandler := TStringInstance(FUltraInstance.PMembers.Find('exceptionHandler')).PValue;
-    UltraResult := TUltraInterface.InterpretScriptWithResult(IndexHandler, Prelude, Adapter, WebHandlers);
+    UltraResult := TUltraInterface.InterpretScriptWithResult(IndexHandler, Prelude, Adapter, UltraHome, WebHandlers);
     AppResponse := TDataType(UltraResult.ActRec.GetMember('AppResponse'));
     Status := ProcessAppResponse(AResponse, AppResponse);
 
@@ -280,7 +281,7 @@ begin
       try
         WriteLn(E.Message);
         ContentType := 'text/html; charset=utf-8';
-        UltraResult := TUltraInterface.InterpretScriptWithResult(ExceptionHandler, Prelude, Adapter, WebHandlers);
+        UltraResult := TUltraInterface.InterpretScriptWithResult(ExceptionHandler, Prelude, Adapter, UltraHome, WebHandlers);
         AppResponse := TDataType(UltraResult.ActRec.GetMember('AppResponse'));
         ProcessAppResponse(AResponse, AppResponse);
         Len := Length(UltraResult.LiveOutput);

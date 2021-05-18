@@ -119,12 +119,12 @@ begin
   AdataType.PMembers.Add('$cookies', TDictionaryInstance.Create(
     TActivationRecord.Create('AppResponseCookies', AR_DICT, -1)));
   ADataType.PMembers.Add('redirect', AFunc);
-  {ADataType.PMembers.Add('clientRedirect', AFunc);
-  ADataType.PMembers.Add('setStatusCode', AFunc);
+  ADataType.PMembers.Add('clientRedirect', AFunc);
+  {ADataType.PMembers.Add('setStatusCode', AFunc);
   ADataType.PMembers.Add('setStatusText', AFunc);
   ADataType.PMembers.Add('setContentType', AFunc);
-  ADataType.PMembers.Add('setHeader', AFunc);
-  ADataType.PMembers.Add('static', AFunc);}
+  ADataType.PMembers.Add('setHeader', AFunc);}
+  ADataType.PMembers.Add('static', AFunc);
   AActRec.AddMember('AppResponse', ADataType);
 end;
 
@@ -142,10 +142,6 @@ begin
     TActivationRecord.Create('AppResponseCookies', AR_DICT, -1)));
   ADataType.PMembers.Add('redirect', AFunc);
   ADataType.PMembers.Add('clientRedirect', AFunc);
-  {ADataType.PMembers.Add('setStatusCode', AFunc);
-  ADataType.PMembers.Add('setStatusText', AFunc);
-  ADataType.PMembers.Add('setContentType', AFunc);
-  ADataType.PMembers.Add('setHeader', AFunc);}
   ADataType.PMembers.Add('static', AFunc);
   AActRec.AddMember('AppResponse', ADataType);
 end;

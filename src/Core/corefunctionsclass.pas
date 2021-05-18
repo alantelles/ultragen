@@ -55,7 +55,7 @@ type
       {$INCLUDE 'dict/declarations.pp'}
       {$INCLUDE 'server/declarations.pp'}
       {$INCLUDE 'appresponse/declarations.pp'}
-      {{$INCLUDE 'cookies/declarations.pp'}}
+      {$INCLUDE 'brookappresponse/declarations.pp'}
       {$INCLUDE 'httpclient/declarations.pp'}
       {$INCLUDE 'brookserver/declarations.pp'}
       {$INCLUDE 'helpers/declarations.pp' }
@@ -614,6 +614,8 @@ end;
 {$INCLUDE 'dict/functions.pp'}
 {$INCLUDE 'server/functions.pp'}
 {$INCLUDE 'appresponse/functions.pp'}
+{$INCLUDE 'brookappresponse/functions.pp'}
+
 {$INCLUDE 'brookserver/functions.pp'}
 
 {$INCLUDE 'integer/functions.pp'}

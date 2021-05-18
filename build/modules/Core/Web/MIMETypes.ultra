@@ -1,6 +1,9 @@
-class MIMETypes
-MIMETypes.JSON = 'application/json'
-MIMETypes.TEXT = 'text/plain; charset=utf-8'
-MIMETypes.HTML = 'text/html; charset=utf-8'
-MIMETypes.XML = 'application/xml'
+# This list is note meant to be exhaustive and feature just some more used types
+# You can include this in your app and extend it with others you need
+
+class MimeTypes
+MimeTypes.JSON = 'application/json'
+MimeTypes.TEXT = 'text/plain; charset=utf-8'
+MimeTypes.HTML = 'text/html; charset=utf-8'
+MimeTypes.XML = 'application/xml'
 

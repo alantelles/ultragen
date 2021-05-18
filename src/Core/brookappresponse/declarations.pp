@@ -1,0 +1,2 @@
+procedure BrookClientRedirect;
+procedure BrookServeStatic;

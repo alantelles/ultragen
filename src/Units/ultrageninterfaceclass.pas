@@ -45,6 +45,7 @@ type
         AFilePath: string;
         APreludeList: TStringList;
         AnAdapter: TUltraAdapter;
+        UltraHome: string;
         WebHandlers: TUltraWebHandlers = nil): TUltraResult;
     end;
 
@@ -83,7 +84,8 @@ class function TUltraInterface.InterpretScriptWithResult(
   AFilePath: string;
   APreludeList: TStringList;
   AnAdapter: TUltraAdapter;
-  WebHandlers: TUltraWebHandlers): TUltraResult;
+  UltraHome: string;
+  WebHandlers: TUltraWebHandlers = nil): TUltraResult;
 var
   len, i: integer;
   AParser: TTParser;
@@ -109,6 +111,7 @@ begin
   AParser.Free;
   AInter := TInterpreter.Create(ATree);
   AInter.PWebHandlers := WebHandlers;
+  AInter.PUltraHome := UltraHome;
   AInter.Interpret(AnAdapter.ActRec, AnAdapter.ActRec.PName, True);
   LiveOut := AInter.PLive;
   Result.Redirected := AInter.PRedirected;
@@ -183,9 +186,6 @@ begin
   end;
   AParser.Free;
   AInter := TInterpreter.Create(ATree);
-  AInter.PResponse := AResponse;
-  AInter.PRequest := ARequest;
-  Ainter.PMimeFile := AMimeFile;
   if InsertActRec <> nil then
     AInter.Interpret(InsertActRec, InsertName)
   else
