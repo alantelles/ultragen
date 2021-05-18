@@ -1,10 +1,12 @@
-include @Core.Brook.AppResponse
+
+include @Core.Web.AppResponse
 include @Core.Web.Router
 include @Core.Web.MimeTypes
 include @Core.Web.HttpStatus
-
+JSON.createFile(locals(), 'locals.json')
 r = new Router()
 r.get('/', :index, function(params)
+    
     include 'base.ultra.html'
     live Base('Teste')
 end)
@@ -14,9 +16,8 @@ r.get("/static/:type/:filename", :static, function(params)
 end)
 
 r.get('/redir', :redir, function(params)
-    # AppResponse.status = 307
-    # AppResponse.clientRedirect('/zika', 5, "Você será redirecionado em 5 segundos", "Pode crê")
-    AppResponse.static('any')
+    AppResponse.status = 307
+    AppResponse.clientRedirect('/zika', 5, "Você será redirecionado em 5 segundos", "Pode crê")
 end)
 
 r.get('/zika', :redir, function(params)

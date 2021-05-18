@@ -28,7 +28,7 @@ implementation
 
 uses
   StringInstanceClass, UltraGenInterfaceClass, Dos, StrUtils, ListInstanceClass, UltraWebHandlersClass,
-  DateTimeInstanceClass, httpprotocol;
+  DateTimeInstanceClass, httpprotocol, ByteStreamClass;
 
 function StrToBytes(Astr: string): TBytes;
 var
@@ -232,6 +232,88 @@ begin
   AResponse.SendResponse;
 end;
 
+function SetRequestHeadersToUltra(ARequest: TRequest): TDictionaryInstance;
+var
+  WebVars: TActivationRecord;
+  K, V: string;
+  i: integer;
+begin
+  WebVars := TActivationRecord.Create('requestHeaders', AR_DICT, -1);
+  if ARequest.Accept <> '' then
+    WebVars.AddMember('Accept', TStringInstance.Create(ARequest.Accept));
+  if ARequest.AcceptCharset <> '' then
+    WebVars.AddMember('Accept-Charset', TStringInstance.Create(ARequest.AcceptCharset));
+  if ARequest.AcceptEncoding <> '' then
+    WebVars.AddMember('Accept-Encoding', TStringInstance.Create(ARequest.AcceptEncoding));
+  if ARequest.AcceptLanguage <> '' then
+    WebVars.AddMember('Accept-Language', TStringInstance.Create(ARequest.AcceptLanguage));
+  if ARequest.Authorization <> '' then
+    WebVars.AddMember('Authorization', TStringInstance.Create(ARequest.Authorization));
+  if ARequest.Connection <> '' then
+    WebVars.AddMember('Connection', TStringInstance.Create(ARequest.Connection));
+  if ARequest.ContentEncoding <> '' then
+    WebVars.AddMember('Content-Encoding', TStringInstance.Create(ARequest.ContentEncoding));
+  if ARequest.ContentLanguage <> '' then
+    WebVars.AddMember('Content-Language', TStringInstance.Create(ARequest.ContentLanguage));
+  if ARequest.ContentLength <> 0 then
+    WebVars.AddMember('Content-Length', TStringInstance.Create(IntToStr(ARequest.ContentLength)));
+  if ARequest.ContentType <> '' then
+    WebVars.AddMember('Content-Type', TStringInstance.Create(ARequest.ContentType));
+  if ARequest.Cookie <> '' then
+    WebVars.AddMember('Cookie', TStringInstance.Create(ARequest.Cookie));
+  if ARequest.Date <> '' then
+    WebVars.AddMember('Date', TStringInstance.Create(ARequest.Date));
+  if ARequest.Expires <> '' then
+    WebVars.AddMember('Expires', TStringInstance.Create(ARequest.Expires));
+  if ARequest.From <> '' then
+    WebVars.AddMember('From', TStringInstance.Create(ARequest.From));
+  if ARequest.IfModifiedSince <> '' then
+    WebVars.AddMember('If-Modified-Since', TStringInstance.Create(ARequest.IfModifiedSince));
+  if ARequest.LastModified <> '' then
+    WebVars.AddMember('Last-Modified', TStringInstance.Create(ARequest.LastModified));
+  if ARequest.Location <> '' then
+    WebVars.AddMember('Location', TStringInstance.Create(ARequest.Location));
+  if ARequest.Pragma <> '' then
+    WebVars.AddMember('Pragma', TStringInstance.Create(ARequest.Pragma));
+  if ARequest.Referer <> '' then
+    WebVars.AddMember('Referer', TStringInstance.Create(ARequest.Referer));
+  if ARequest.RetryAfter <> '' then
+    WebVars.AddMember('Retry-After', TStringInstance.Create(ARequest.RetryAfter));
+  if ARequest.Server <> '' then
+    WebVars.AddMember('Server', TStringInstance.Create(ARequest.Server));
+  if ARequest.SetCookie <> '' then
+    WebVars.AddMember('Set-Cookie', TStringInstance.Create(ARequest.SetCookie));
+  if ARequest.UserAgent <> '' then
+    WebVars.AddMember('User-Agent', TStringInstance.Create(ARequest.UserAgent));
+  if ARequest.WWWAuthenticate <> '' then
+    WebVars.AddMember('WWW-Authenticate', TStringInstance.Create(ARequest.WWWAuthenticate));
+  for V in ARequest.CustomHeaders do
+  begin
+    i := Pos('=', V);
+    K := Copy(V, 1, i-1);
+    WebVars.AddMember(K, TStringInstance.Create(ARequest.CustomHeaders.Values[K]));
+  end;
+  WebVars.AddMember('host', TStringInstance.Create(ARequest.Host));
+  // AnActRec.AddMember('headers', TDictionaryInstance.Create(WebVars, TNullInstance.Create()));
+  Result := TDictionaryInstance.Create(WebVars, TNullInstance.Create);
+end;
+
+function SetRequestCookiesToUltra(ARequest: TRequest): TDictionaryInstance;
+var
+  WebVars: TActivationRecord;
+  K, V: string;
+  i: integer;
+begin
+  WebVars := TActivationRecord.Create('cookies', AR_DICT, -1);
+  for V in ARequest.CookieFields do
+  begin
+    i := Pos('=', V);
+    K := Copy(V, 1, i-1);
+    WebVars.AddMember(K, TStringInstance.Create(ARequest.CookieFields.Values[K]));
+  end;
+  Result := TDictionaryInstance.Create(WebVars, TNullInstance.Create);
+end;
+
 procedure TServerInstance.ExecuteAction(ARequest: TRequest; AResponse: TResponse);
 var
   Content: TBytes;
@@ -263,6 +345,11 @@ begin
     Adapter := TUltraAdapter.Create('$request');
     Adapter.AddMember('route', ARequest.URI);
     Adapter.AddMember('method', ARequest.Method);
+    Adapter.ActRec.AddMember('headers', SetRequestHeadersToUltra(ARequest));
+    Adapter.ActRec.AddMember('cookies', SetRequestCookiesToUltra(ARequest));
+    Adapter.AddMember('querystring', ARequest.QueryString);
+    Adapter.ActRec.AddMember('body': ARequest.Content);
+    Adapter.ActRec.AddMember('raw_body', TByteStreamInstance.Create(ARequest.Content));
 
     UltraHome := ReplaceStr(GetEnv('ULTRAGEN_HOME'), '\', '\\');
     Prelude := TStringList.Create;

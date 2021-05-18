@@ -200,6 +200,11 @@ begin
 		end
     else if FName = 'urlEncode' then
         Ret := TStringInstance.Create(httpEncode(FParams[0].AsString))
+    else if FName = 'urlDecode' then
+        Ret := TStringInstance.Create(httpDecode(FParams[0].AsString))
+
+    else if FName = 'locals' then
+      Ret := TDictionaryInstance.Create(FInter.PCallStack.Peek)
 
     else if FName = 'dropModulePath' then
     begin
