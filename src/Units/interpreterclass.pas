@@ -11,7 +11,7 @@ uses
   StackClass,
   ARClass, InstanceofClass,
   StringInstanceClass, ExceptionsClasses,
-  ListInstanceClass, httpdefs, UltraWebHandlersClass;
+  ListInstanceClass, UltraWebHandlersClass;
 
 type
   TInterpreter = class

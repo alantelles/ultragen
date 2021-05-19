@@ -173,6 +173,7 @@
       <Unit27>
         <Filename Value="src\Utils\JsonTools\jsontools.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="JsonTools"/>
       </Unit27>
       <Unit28>
         <Filename Value="src\BootStrap\typeloaderclass.pas"/>

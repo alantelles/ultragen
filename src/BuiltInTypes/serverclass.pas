@@ -28,7 +28,7 @@ implementation
 
 uses
   StringInstanceClass, UltraGenInterfaceClass, Dos, StrUtils, ListInstanceClass, UltraWebHandlersClass,
-  DateTimeInstanceClass, httpprotocol, ByteStreamClass;
+  DateTimeInstanceClass, httpprotocol, ByteStreamClass, CoreFunctionsClass;
 
 function StrToBytes(Astr: string): TBytes;
 var
@@ -298,6 +298,81 @@ begin
   Result := TDictionaryInstance.Create(WebVars, TNullInstance.Create);
 end;
 
+function SetArgsFromUltra(ARequest: TRequest): TDictionaryInstance;
+var
+  Args: TActivationRecord;
+  i: integer;
+  k, v: string;
+  AInst: TListInstance;
+begin
+  Args := TActivationRecord.Create('args', AR_DICT, -1);
+  if ARequest.QueryFields.Count > 0 then
+  begin
+    for i := 0 to ARequest.QueryFields.Count-1 do
+    begin
+      k := ARequest.QueryFields.Names[i];
+      v := ARequest.QueryFields.ValueFromIndex[i];
+      if AnsiEndsStr('[]', k) then
+      begin
+        k := Copy(k, 1, RPos('[', k) - 1);
+        Ainst := TListInstance(Args.PMembers.Find(k));
+        if Ainst = nil then
+        begin
+          AInst := TListInstance.Create();
+          Args.PMembers.Add(k, AInst);
+        end;
+        TListInstance(AInst).Add(TStringInstance.Create(v));
+      end
+      else
+        Args.PMembers.Add(k, TStringInstance.Create(v));
+    end;
+  end;
+  Result := TDictionaryInstance.Create(Args, TNullInstance.Create);
+end;
+
+function SetFormPostBodyFromUltra(ARequest: TRequest): TDictionaryInstance;
+var
+  Args: TActivationRecord;
+  i: integer;
+  k, v: string;
+  AInst: TListInstance;
+begin
+  Args := TActivationRecord.Create('formBody', AR_DICT, -1);
+  if ARequest.ContentFields.Count > 0 then
+  begin
+    for i := 0 to ARequest.ContentFields.Count-1 do
+    begin
+      k := ARequest.ContentFields.Names[i];
+      v := ARequest.ContentFields.ValueFromIndex[i];
+      if AnsiEndsStr('[]', k) then
+      begin
+        k := Copy(k, 1, RPos('[', k) - 1);
+        Ainst := TListInstance(Args.PMembers.Find(k));
+        if Ainst = nil then
+        begin
+          AInst := TListInstance.Create();
+          Args.PMembers.Add(k, AInst);
+        end;
+        TListInstance(AInst).Add(TStringInstance.Create(v));
+      end
+      else
+        Args.PMembers.Add(k, TStringInstance.Create(v));
+    end;
+  end;
+  Result := TDictionaryInstance.Create(Args, TNullInstance.Create);
+end;
+
+function SetJsonPostBodyFromUltra(ARequest: TRequest): TInstanceOf;
+var
+  AParser: TCoreFunction;
+  Ret: TInstanceOf;
+begin
+  AParser := TCoreFunction.Create;
+  Ret := AParser.ParseJson(ARequest.Content);
+  AParser.Free;
+  Result := Ret;
+end;
+
 function SetRequestCookiesToUltra(ARequest: TRequest): TDictionaryInstance;
 var
   WebVars: TActivationRecord;
@@ -312,6 +387,27 @@ begin
     WebVars.AddMember(K, TStringInstance.Create(ARequest.CookieFields.Values[K]));
   end;
   Result := TDictionaryInstance.Create(WebVars, TNullInstance.Create);
+end;
+
+function SetRequestDict(ARequest: TRequest): TUltraAdapter;
+var
+  Adapter: TUltraAdapter;
+begin
+  Adapter := TUltraAdapter.Create('$request');
+  Adapter.AddMember('route', ARequest.URI);
+  Adapter.AddMember('method', ARequest.Method);
+  Adapter.ActRec.AddMember('headers', SetRequestHeadersToUltra(ARequest));
+  Adapter.ActRec.AddMember('cookies', SetRequestCookiesToUltra(ARequest));
+  Adapter.AddMember('query', ARequest.QueryString);
+  Adapter.ActRec.AddMember('args', SetArgsFromUltra(ARequest));
+  Adapter.AddMember('body', ARequest.Content);
+  Adapter.ActRec.AddMember('rawBody', TByteStreamInstance.Create(ARequest.Content));
+  if ARequest.ContentType = 'application/x-www-form-urlencoded' then
+    Adapter.ActRec.AddMember('form', SetFormPostBodyFromUltra(ARequest));
+  if ARequest.ContentType = 'application/json' then
+    Adapter.ActRec.AddMember('json', SetJsonPostBodyFromUltra(ARequest));
+
+  Result := Adapter;
 end;
 
 procedure TServerInstance.ExecuteAction(ARequest: TRequest; AResponse: TResponse);
@@ -342,14 +438,7 @@ begin
       Exit;
     end;
 
-    Adapter := TUltraAdapter.Create('$request');
-    Adapter.AddMember('route', ARequest.URI);
-    Adapter.AddMember('method', ARequest.Method);
-    Adapter.ActRec.AddMember('headers', SetRequestHeadersToUltra(ARequest));
-    Adapter.ActRec.AddMember('cookies', SetRequestCookiesToUltra(ARequest));
-    Adapter.AddMember('querystring', ARequest.QueryString);
-    Adapter.ActRec.AddMember('body': ARequest.Content);
-    Adapter.ActRec.AddMember('raw_body', TByteStreamInstance.Create(ARequest.Content));
+    Adapter := SetRequestDict(ARequest);
 
     UltraHome := ReplaceStr(GetEnv('ULTRAGEN_HOME'), '\', '\\');
     Prelude := TStringList.Create;

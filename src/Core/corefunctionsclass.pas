@@ -41,6 +41,7 @@ type
       function Range: TListInstance;
       procedure DumpLive;
       function ParseJson: TInstanceOf;
+      function ParseJson(AInput: string): TInstanceOf;
       function ParseJsonFile: TInstanceOf;
 
 
@@ -462,6 +463,35 @@ begin
   end
   else if ANode.Kind = nkNull then
     AInst.PValue.AddMember(ANode.Name, TNullInstance.Create());
+end;
+
+function TCoreFunction.ParseJson(AInput: string): TInstanceOf;
+var
+  AJson: TJsonNode;
+  ADict: TDictionaryInstance;
+  AList: TListInstance;
+begin
+
+
+  AJson := TJsonNode.Create;
+  try
+    AJson.Parse(AInput);
+  except on E: Exception do
+    Raise Exception.Create(E.Message);
+  end;
+	//Traverse(AJson, ADict, AList, AJson.Kind);
+  if AJson.Kind = nkArray then
+  begin
+    AList := TListInstance.Create();
+    TraverseJsonList(AJson, AList);
+    Result := AList;
+	end
+	else
+  begin
+    ADict := TDictionaryInstance.Create(TActivationRecord.Create('json', AR_DICT, 1));
+    TraverseJsonObj(AJson, ADict);
+    Result := ADict;
+  end;
 end;
 
 function TCoreFunction.ParseJson: TInstanceOf;

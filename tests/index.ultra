@@ -3,16 +3,42 @@ include @Core.Web.AppResponse
 include @Core.Web.Router
 include @Core.Web.MimeTypes
 include @Core.Web.HttpStatus
-JSON.createFile(locals(), 'locals.json')
 r = new Router()
-r.get('/', :index, function(params)
-    
+
+r.get('/', :index, function(params)    
     include 'base.ultra.html'
     live Base('Teste')
 end)
+
 r.get("/static/:type/:filename", :static, function(params)
     params.localize()
     AppResponse.static('static/' + type + '/' + filename)
+end)
+
+r.post("/json", :json, function(params)
+
+    function getSeeAlso(data)
+        return data[:glossary][:GlossDiv][:GlossList][:GlossEntry][:GlossDef][:GlossSeeAlso]
+    end
+
+    function lowerMap(i)
+        return i.lower()
+    end
+
+    AppResponse.contentType(MimeTypes.JSON)
+    resp = getSeeAlso($request[:json])
+    live JSON.create([{'data': resp}, {'data': resp.map(lowerMap)}])
+end)
+
+r.post("/new", :formPost, function(params)
+    live $request[:form]
+end)
+
+r.get("/new", :newData, function(params)
+    include @Core.Helpers
+    include 'base.ultra.html'
+    content = Helpers.render('new_data.ultra.html')
+    live Base('Novo', content)
 end)
 
 r.get('/redir', :redir, function(params)

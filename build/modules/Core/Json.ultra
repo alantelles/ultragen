@@ -39,6 +39,8 @@ function create(obj) : JSON
         elsif (input_type == (List.$internal))
             kk = dumpValList(data)
             return kk
+        elsif (input_type == ('TNullInstance'))
+            return 'null'
         elsif (input_type)
             return '"' + (str(input_type).replace('"', '\\"'))  + '"'
         else 

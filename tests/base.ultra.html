@@ -1,4 +1,4 @@
-@function Base(title)
+@function Base(title, content="")
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,8 +10,7 @@
 </head>
 <body>
     <h1>{{ title }}</h1>
-    <p>{{ $request }}</p>
-    <p>{{ $request[:cookies]['outro'] }}</p>
+    <div>{{ content }}</div>
 </body>
 </html>
 @end

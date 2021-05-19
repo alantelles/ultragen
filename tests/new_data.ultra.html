@@ -1,0 +1,18 @@
+<form action="{{ r.urlFor('formPost') }}" method="post">
+    <label for="name">Name: </label>
+    <input type="text" name="name" id="name"/><br>
+    <label for="username">Username: </label>
+    <input type="text" name="username" id="username"/><br>
+    <label for="married">Casado</label>
+    <select name="married" id="married">
+        <option value="1">Yes</option>
+        <option value="0">No</option>
+    </select><br>
+    <label for="places">Places I visited</label><br>
+    <select name="places[]" id="places" multiple>
+        <option value="1">Bento Gonçalves</option>
+        <option value="2">Corumbá</option>
+        <option value="3">Curitiba</option>
+    </select><br>
+    <button type="submit">Send</button>
+</form>
