@@ -373,6 +373,45 @@ begin
   Result := Ret;
 end;
 
+function SetFilesPostBodyFromUltra(ARequest: TRequest): TDictionaryInstance;
+var
+  FileData, Args: TActivationRecord;
+  AFile: TUploadedFile;
+  i: integer;
+  k: string;
+  AInst: TInstanceOf;
+begin
+  Args := TActivationRecord.Create('files', AR_DICT, -1);
+  if ARequest.Files.Count > 0 then
+  begin
+    for i := 0 to ARequest.Files.Count-1 do
+    begin
+      AFile := Arequest.Files[i];
+      k := AFile.FieldName;
+      FileData := TActivationrecord.Create(k, AR_DICT, -1);
+      FileData.AddMember('name', TStringInstance.Create(AFile.FileName));
+      FileData.AddMember('tempName', TStringInstance.Create(AFile.LocalFileName));
+      FileData.AddMember('disposition', TStringInstance.Create(AFile.Disposition));
+      FileData.AddMember('length', TIntegerInstance(AFile.Size));
+      FileData.AddMember('contentType', TStringInstance.Create(AFile.ContentType));
+      if AnsiEndsStr('[]', k) then
+      begin
+        k := Copy(k, 1, RPos('[', k) - 1);
+        Ainst := TListInstance(Args.PMembers.Find(k));
+        if Ainst = nil then
+        begin
+          AInst := TListInstance.Create();
+          Args.PMembers.Add(k, AInst);
+        end;
+        TListInstance(AInst).Add(TDictionaryInstance.Create(FileData, TNullInstance.Create()));
+      end
+      else
+        Args.PMembers.Add(k, TDictionaryInstance.Create(FileData, TNullInstance.Create()));
+    end;
+  end;
+  Result := TDictionaryInstance.Create(Args, TNullInstance.Create)));
+end;
+
 function SetRequestCookiesToUltra(ARequest: TRequest): TDictionaryInstance;
 var
   WebVars: TActivationRecord;
@@ -392,7 +431,9 @@ end;
 function SetRequestDict(ARequest: TRequest): TUltraAdapter;
 var
   Adapter: TUltraAdapter;
+  v: string;
 begin
+  v := ARequest.ContentType;
   Adapter := TUltraAdapter.Create('$request');
   Adapter.AddMember('route', ARequest.URI);
   Adapter.AddMember('method', ARequest.Method);
@@ -406,6 +447,11 @@ begin
     Adapter.ActRec.AddMember('form', SetFormPostBodyFromUltra(ARequest));
   if ARequest.ContentType = 'application/json' then
     Adapter.ActRec.AddMember('json', SetJsonPostBodyFromUltra(ARequest));
+  if AnsiStartsStr('multipart/form-data;', ARequest.ContentType) then
+  begin
+    Adapter.ActRec.AddMember('form', SetFormPostBodyFromUltra(ARequest));
+    Adapter.ActRec.AddMember('files', SetFilesPostBodyFromUltra(ARequest));
+  end;
 
   Result := Adapter;
 end;

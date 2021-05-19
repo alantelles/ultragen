@@ -1,4 +1,3 @@
-include @Core.DateTime
-
-x = new DateTime(2022, 10, 10).addDays(22)
-print(x)
+a = 0.4 + 0.6
+print(typeof(a))
+print(a + 7)

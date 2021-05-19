@@ -30,8 +30,35 @@ r.post("/json", :json, function(params)
     live JSON.create([{'data': resp}, {'data': resp.map(lowerMap)}])
 end)
 
+r.post("/file", :filePost, function(params)
+    live $request
+end)
+
 r.post("/new", :formPost, function(params)
-    live $request[:form]
+    function coerceNum(num)
+        return int(num)
+    end
+    function coerceBool(bool)
+        if (bool == "true")
+            return true
+        end
+        if (bool == "false")
+            return false
+        end
+        return null
+    end
+    output = {}
+    for ($request[:form].keys(), key)
+        if (key == "places")
+            output[key] = $request[:form][key].map(coerceNum)
+        elsif (key == "married")
+            output[key] = coerceBool($request[:form][key])
+        else
+            output[key] = $request[:form][key]
+        end
+    end
+    JSON.createFile(output, 'form.json')
+    AppResponse.redirect(r.urlFor(:index))
 end)
 
 r.get("/new", :newData, function(params)
