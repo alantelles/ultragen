@@ -386,7 +386,8 @@ begin
   begin
     for i := 0 to ARequest.Files.Count-1 do
     begin
-      AFile := Arequest.Files[i];
+      writeln(arequest.Files[i].FieldName)
+      {AFile := Arequest.Files[i];
       k := AFile.FieldName;
       FileData := TActivationrecord.Create(k, AR_DICT, -1);
       FileData.AddMember('name', TStringInstance.Create(AFile.FileName));
@@ -406,10 +407,10 @@ begin
         TListInstance(AInst).Add(TDictionaryInstance.Create(FileData, TNullInstance.Create()));
       end
       else
-        Args.PMembers.Add(k, TDictionaryInstance.Create(FileData, TNullInstance.Create()));
+        Args.PMembers.Add(k, TDictionaryInstance.Create(FileData, TNullInstance.Create()));}
     end;
   end;
-  Result := TDictionaryInstance.Create(Args, TNullInstance.Create)));
+  Result := TDictionaryInstance.Create(Args, TNullInstance.Create);
 end;
 
 function SetRequestCookiesToUltra(ARequest: TRequest): TDictionaryInstance;
