@@ -267,8 +267,20 @@ begin
     WebVars.AddMember('Expires', TStringInstance.Create(ARequest.Expires));
   if ARequest.From <> '' then
     WebVars.AddMember('From', TStringInstance.Create(ARequest.From));
+  if ARequest.IfMatch <> '' then
+    WebVars.AddMember('If-Match', TStringInstance.Create(ARequest.IfMatch));
+  if ARequest.IfNoneMatch <> '' then
+    WebVars.AddMember('If-None-Match', TStringInstance.Create(ARequest.IfNoneMatch));
+  if ARequest.IfRange <> '' then
+    WebVars.AddMember('If-Range', TStringInstance.Create(ARequest.IfRange));
+  if ARequest.IfUnModifiedSince <> '' then
+    WebVars.AddMember('If-Unmodified-Since', TStringInstance.Create(ARequest.IfUnmodifiedSince));
   if ARequest.IfModifiedSince <> '' then
     WebVars.AddMember('If-Modified-Since', TStringInstance.Create(ARequest.IfModifiedSince));
+  if ARequest.TE <> '' then
+    WebVars.AddMember('Te', TStringInstance.Create(ARequest.TE));
+  if ARequest.Upgrade <> '' then
+    WebVars.AddMember('Upgrade', TStringInstance.Create(ARequest.Upgrade));
   if ARequest.LastModified <> '' then
     WebVars.AddMember('Last-Modified', TStringInstance.Create(ARequest.LastModified));
   if ARequest.Location <> '' then
@@ -287,13 +299,16 @@ begin
     WebVars.AddMember('User-Agent', TStringInstance.Create(ARequest.UserAgent));
   if ARequest.WWWAuthenticate <> '' then
     WebVars.AddMember('WWW-Authenticate', TStringInstance.Create(ARequest.WWWAuthenticate));
+  if ARequest.HTTPXRequestedWith <> '' then
+    WebVars.AddMember('X-Requested-With', TStringInstance.Create(ARequest.HTTPXRequestedWith));
+
   for V in ARequest.CustomHeaders do
   begin
     i := Pos('=', V);
     K := Copy(V, 1, i-1);
     WebVars.AddMember(K, TStringInstance.Create(ARequest.CustomHeaders.Values[K]));
   end;
-  WebVars.AddMember('host', TStringInstance.Create(ARequest.Host));
+  WebVars.AddMember('Host', TStringInstance.Create(ARequest.Host));
   // AnActRec.AddMember('headers', TDictionaryInstance.Create(WebVars, TNullInstance.Create()));
   Result := TDictionaryInstance.Create(WebVars, TNullInstance.Create);
 end;
@@ -386,14 +401,13 @@ begin
   begin
     for i := 0 to ARequest.Files.Count-1 do
     begin
-      writeln(arequest.Files[i].FieldName)
-      {AFile := Arequest.Files[i];
+      AFile := Arequest.Files[i];
       k := AFile.FieldName;
       FileData := TActivationrecord.Create(k, AR_DICT, -1);
       FileData.AddMember('name', TStringInstance.Create(AFile.FileName));
       FileData.AddMember('tempName', TStringInstance.Create(AFile.LocalFileName));
       FileData.AddMember('disposition', TStringInstance.Create(AFile.Disposition));
-      FileData.AddMember('length', TIntegerInstance(AFile.Size));
+      FileData.AddMember('size', TIntegerInstance.Create(AFile.Size));
       FileData.AddMember('contentType', TStringInstance.Create(AFile.ContentType));
       if AnsiEndsStr('[]', k) then
       begin
@@ -407,7 +421,7 @@ begin
         TListInstance(AInst).Add(TDictionaryInstance.Create(FileData, TNullInstance.Create()));
       end
       else
-        Args.PMembers.Add(k, TDictionaryInstance.Create(FileData, TNullInstance.Create()));}
+        Args.PMembers.Add(k, TDictionaryInstance.Create(FileData, TNullInstance.Create()));
     end;
   end;
   Result := TDictionaryInstance.Create(Args, TNullInstance.Create);

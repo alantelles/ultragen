@@ -1,0 +1,32 @@
+{
+    "files_multi": [
+        {
+            "name": "node-v15.12.0-linux-x64.tar.xz",
+            "tempName": "/tmp/CGI00038.tmp",
+            "disposition": "form-data",
+            "size": 21767776,
+            "contentType": "application/x-xz"
+        },
+        {
+            "name": "libsagui-3.3.2-glibc-2.31-linux_amd64.tar.gz",
+            "tempName": "/tmp/CGI00039.tmp",
+            "disposition": "form-data",
+            "size": 240556,
+            "contentType": "application/gzip"
+        },
+        {
+            "name": "delphi-markdown-master.zip",
+            "tempName": "/tmp/CGI00040.tmp",
+            "disposition": "form-data",
+            "size": 325922,
+            "contentType": "application/zip"
+        }
+    ],
+    "files": {
+        "name": "TDA2822.gif",
+        "tempName": "/tmp/CGI00041.tmp",
+        "disposition": "form-data",
+        "size": 33071,
+        "contentType": "image/gif"
+    }
+}

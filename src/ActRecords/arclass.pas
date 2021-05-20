@@ -142,6 +142,7 @@ function TDictionaryInstance.AsString:string;
 var
   Ret:string = '{ ';
   len, i: integer;
+  AInst: TInstanceOf;
 begin
   len := FValue.FMembers.Count;
   if len > 0 then
@@ -149,7 +150,8 @@ begin
     for i:=0 to len - 1 do
     begin
       ret := Ret + '''' + FValue.FMembers.NameOfIndex(i) + ''': ';
-      if FValue.FMembers[i].ClassNameIs('TStringInstance') then
+      Ainst := TInstanceOf(FValue.FMembers[i]);
+      if AInst.ClassNameIs('TStringInstance') then
         Ret := Ret + '''' + TInstanceOf(FValue.FMembers[i]).AsString + ''''
       else
         Ret := Ret + TInstanceOf(FValue.FMembers[i]).AsString;

@@ -1,4 +1,5 @@
-GET http://localhost:3500
+@url = http://localhost:3500
+GET {{url}}/headers
 ###
 POST http://localhost:3500/json
 Content-Type: application/json

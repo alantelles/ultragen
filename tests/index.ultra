@@ -11,6 +11,8 @@ r.get('/', :index, function(params)
     live Base('Teste')
 end)
 
+r.get('/headers', :headers, lambda(params) : live $request[:headers])
+
 r.get("/static/:type/:filename", :static, function(params)
     params.localize()
     AppResponse.static('static/' + type + '/' + filename)
@@ -32,7 +34,8 @@ r.post("/json", :json, function(params)
 end)
 
 r.post("/file", :filePost, function(params)
-    live $request
+    live $request[:files]
+    JSON.createFile($request[:files], 'files.json')
 end)
 
 r.post("/new", :formPost, function(params)
