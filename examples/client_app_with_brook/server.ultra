@@ -1,0 +1,17 @@
+include @Core.Brook.Server
+
+# second parameter set the debug mode
+# if false, exceptions are passed to exceptionHandler page
+s = new Server(5000, true)
+
+# this is the default, no need to set
+s.indexHandler = 'index.ultra'
+
+# this is the default, no need to set
+s.exceptionHandler = 'exception.ultra'
+
+# this will run the server and pass the requests to index handler
+s.run()
+
+
+

@@ -80,6 +80,16 @@ function urlFor(name, params={}) : Router
     raise("The given name '" + name + "' doesn't match any url in this router", 'Router')
 end
 
+function urlText(name) : Router
+    for (self.routes, match)        
+        if (name == (match[:name]))            
+            return match[:frontName]
+        end
+    end
+    raise("The given name '" + name + "' doesn't match any url in this router", 'Router')
+end
+
+
 function dropFirstAndLastSlash(route)
     if ((route.length()) > 0)
         f = route[0]
@@ -187,14 +197,19 @@ function addRouter(router) : Router
     
 end
 
-function addRoute(path, name, handler, method, handler_decorator) : Router
+function addRoute(path, name, handler, method, frontName) : Router
+    frontName = str(frontName)
+    if (frontName == 'null')
+        frontName = name.capital()
+    end
     self.routes.append({
         :path: dropFirstAndLastSlash(path),
         :name: name,
         :handler: handler,
         :method: method,
         :params: {},
-        :handler_decorator: self.default_decorator
+        :handler_decorator: self.default_decorator,
+        :frontName: frontName
     })
 end
 
@@ -205,22 +220,22 @@ function getStatic(path, name) : Router
     end)
 end
 
-function get(path, name, handler, decor=null) : Router
-    self.addRoute(path, name, handler, 'GET', decor)
+function get(path, name, handler, frontName=null) : Router
+    self.addRoute(path, name, handler, 'GET', frontName)
 end
 
-function post(path, name, handler, decor=null) : Router
-    self.addRoute(path, name, handler, 'POST', decor)
+function post(path, name, handler, frontName=null) : Router
+    self.addRoute(path, name, handler, 'POST', frontName)
 end
 
-function delete(path, name, handler, decor=null) : Router
-    self.addRoute(path, name, handler, 'DELETE', decor)
+function delete(path, name, handler, frontName=null) : Router
+    self.addRoute(path, name, handler, 'DELETE', frontName)
 end
 
-function patch(path, name, handler, decor=null) : Router
-    self.addRoute(path, name, handler, 'PATCH', decor)
+function patch(path, name, handler, frontName=null) : Router
+    self.addRoute(path, name, handler, 'PATCH', frontName)
 end
 
-function put(path, name, handler, decor=null) : Router
-    self.addRoute(path, name, handler, 'PUT', decor)
+function put(path, name, handler, frontName=null) : Router
+    self.addRoute(path, name, handler, 'PUT', frontName)
 end

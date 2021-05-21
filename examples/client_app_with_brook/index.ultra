@@ -1,0 +1,56 @@
+# this includes the AppResponse that matches server
+include @Core.Web.AppResponseInterface
+
+# the incredible built-in UltraGen router
+include @Core.Web.Router
+
+# including the client as it will be used in all endpoints
+include 'client.ultra'
+
+# include the base template
+include 'templates/base.ultra.html'
+
+# I got the habit to declare things that won't change as constants so it will not be messed up with other names along app
+$router = new Router()
+
+# declare the routes setting a method, a path, a name and a handler
+# the handler can be an anonymous function or a reference
+# it must receive the "params" argument
+$router.get('/', :index, function(params)
+    # you can declare functions inside functions in UltraGen
+    function Render()
+        include 'templates/films.ultra.html'
+        client = new GhibliClient()
+        resp = client.getFilms()
+        live Films(resp)
+    end
+
+    # now we pass a function to Base decorator that will render it content inside Base
+    # the result is another function, as Base is a decorator
+    output = Base(Render)
+    # so we "live" the output by executing Render function decorated by Base
+    # the live of a scope is returned by default, so we don't need return keyword
+    live output()
+end, 'Home')
+
+# you can set a parameter in route
+# parameters will be passed as a dict to handler - the params argument
+$router.get('/films/:id', :film, function(params)
+    # You can pass an anonymous function to a decorator
+    output = Base(function ()
+        include 'templates/film.ultra.html'
+        client = new GhibliClient()
+        resp = client.getFilm(params[:id])
+        people = client.getPeopleFromFilm(resp[:id])
+        live Film(resp,people)
+    end)
+    live output()
+end)
+
+# the getMatch method returns a dictionary with route values
+# the handler and the parameters of matched route are in it
+# so we can "localize" the dict and use the keys as variables
+# by default it receives the request method and route
+$router.getMatch().localize()
+
+live handler(params)
