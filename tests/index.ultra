@@ -34,11 +34,13 @@ end)
 
 r.post("/file", :filePost, function(params)
     include @Core.FileSystem
+    ###
     uploaded = $request[:files]
     tempname = uploaded[:files_multi][0][:tempName]
     outName = uploaded[:files_multi][0][:name]
     FileSystem.copy(tempname, outName)
-    live $request[:files][:files_multi]
+    ###!
+    live $request
 end)
 
 r.post("/new", :formPost, function(params)

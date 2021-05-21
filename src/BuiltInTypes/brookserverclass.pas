@@ -33,7 +33,7 @@ implementation
 
 uses
   StringInstanceClass, UltraGenInterfaceClass, Dos, StrUtils, ARClass, ListInstanceClass, UltraWebHandlersClass,
-  DateTimeInstanceClass, httpprotocol, BrookStringMap, BrookHTTPCookies;
+  DateTimeInstanceClass, httpprotocol, BrookHTTPUploads, CoreFunctionsClass, BrookStringMap, BrookHTTPCookies, ByteStreamClass;
 
 function StrToBytes(Astr: string): TBytes;
 var
@@ -244,24 +244,64 @@ end;
 
 function SetArgsFromUltra(ARequest: TBrookHTTPRequest): TDictionaryInstance;
 var
-  WebVars: TActivationRecord;
-  K, V: string;
-  First: boolean;
+  Args: TActivationRecord;
+  k: string;
+  AInst: TListInstance;
   Pair: TBrookStringPair;
-  ADict: TDictionaryInstance;
 begin
-  WebVars := TActivationRecord.Create('requestHeaders', AR_DICT, -1);
-  First := ARequest.Params.First(Pair);
-  if First then
+  Args := TActivationRecord.Create('args', AR_DICT, -1);
+  if ARequest.Params.First(Pair) then
   begin
-    WebVars.AddMember(Pair.Name, TStringInstance.Create(Pair.Value));
-    while (ARequest.Params.Next(Pair)) do
-    begin
-      WebVars.AddMember(Pair.Name, TStringInstance.Create(Pair.Value));
-    end;
+    repeat
+      k := Pair.Name;
+      if AnsiEndsStr('[]', k) then
+      begin
+        k := Copy(k, 1, RPos('[', k) - 1);
+        Ainst := TListInstance(Args.PMembers.Find(k));
+        if Ainst = nil then
+        begin
+          AInst := TListInstance.Create();
+          Args.PMembers.Add(k, AInst);
+        end;
+        TListInstance(AInst).Add(TStringInstance.Create(Pair.Value));
+      end
+      else
+        Args.PMembers.Add(k, TStringInstance.Create(Pair.Value));
+    until not ARequest.Params.Next(Pair)
   end;
-  ADict := TDictionaryInstance.Create(WebVars, TStringInstance.Create(''));
-  Result := ADict;
+
+  Result := TDictionaryInstance.Create(Args);
+end;
+
+function SetFormPostBodyFromUltra(ARequest: TBrookHTTPRequest): TDictionaryInstance;
+var
+  Args: TActivationRecord;
+  k: string;
+  AInst: TListInstance;
+  Pair: TBrookStringPair;
+begin
+  Args := TActivationRecord.Create('post', AR_DICT, -1);
+  if ARequest.Fields.First(Pair) then
+  begin
+    repeat
+      k := Pair.Name;
+      if AnsiEndsStr('[]', k) then
+      begin
+        k := Copy(k, 1, RPos('[', k) - 1);
+        Ainst := TListInstance(Args.PMembers.Find(k));
+        if Ainst = nil then
+        begin
+          AInst := TListInstance.Create();
+          Args.PMembers.Add(k, AInst);
+        end;
+        TListInstance(AInst).Add(TStringInstance.Create(Pair.Value));
+      end
+      else
+        Args.PMembers.Add(k, TStringInstance.Create(Pair.Value));
+    until not ARequest.Fields.Next(Pair)
+  end;
+
+  Result := TDictionaryInstance.Create(Args);
 end;
 
 function SetRequestHeadersToUltra(ARequest: TBrookHTTPRequest): TDictionaryInstance;
@@ -286,6 +326,48 @@ begin
   Result := ADict;
 end;
 
+function SetFilesPostBodyFromUltra(ARequest: TBrookHTTPRequest): TDictionaryInstance;
+var
+  FileData, Args: TActivationRecord;
+  i: integer;
+  k: string;
+  AInst: TInstanceOf;
+  AFile: TBrookHTTPUpload;
+begin
+  Args := TActivationRecord.Create('files', AR_DICT, -1);
+  //AFile := ARequest.Files.First;
+  //if AFile <> nil then
+  //begin
+  //  repeat
+  //    AFile := Arequest.Files[i];
+    for AFile in ARequest.Files do
+    begin
+      k := AFile.Field;
+      FileData := TActivationrecord.Create(k, AR_DICT, -1);
+      FileData.AddMember('name', TStringInstance.Create(AFile.Name));
+      FileData.AddMember('tempName', TStringInstance.Create(AFile.Directory));
+      FileData.AddMember('size', TIntegerInstance.Create(AFile.Size));
+      FileData.AddMember('contentType', TStringInstance.Create(AFile.Mime));
+      if AnsiEndsStr('[]', k) then
+      begin
+        k := Copy(k, 1, RPos('[', k) - 1);
+        Ainst := TListInstance(Args.PMembers.Find(k));
+        if Ainst = nil then
+        begin
+          AInst := TListInstance.Create();
+          Args.PMembers.Add(k, AInst);
+        end;
+        TListInstance(AInst).Add(TDictionaryInstance.Create(FileData));
+      end
+      else
+        Args.PMembers.Add(k, TDictionaryInstance.Create(FileData));
+    end;
+    //  AFile := ARequest.Files.Next;
+    //until AFile = nil
+  //end;
+  Result := TDictionaryInstance.Create(Args);
+end;
+
 function SetQueryStringToUltra(ARequest: TBrookHTTPRequest): string;
 var
   Ret: string;
@@ -293,6 +375,17 @@ begin
   Ret := ReplaceStr(ARequest.Params.ToString, sLineBreak, '&');
   Ret := Copy(Ret, 1, Length(Ret) - 1);
   Result := ret;
+end;
+
+function SetJsonPostBodyFromUltra(ARequest: TBrookHTTPRequest): TInstanceOf;
+var
+  AParser: TCoreFunction;
+  Ret: TInstanceOf;
+begin
+  AParser := TCoreFunction.Create;
+  Ret := AParser.ParseJson(ARequest.Payload.ToString);
+  AParser.Free;
+  Result := Ret;
 end;
 
 function SetRequestDict(ARequest: TBrookHTTPRequest): TUltraAdapter;
@@ -307,6 +400,17 @@ begin
   Adapter.ActRec.AddMember('cookies', SetRequestCookiesToUltra(ARequest));
   Adapter.AddMember('query', SetQueryStringToUltra(ARequest));
   Adapter.ActRec.AddMember('args', SetArgsFromUltra(ARequest));
+  Adapter.AddMember('body', ARequest.Payload.ToString);
+  Adapter.ActRec.AddMember('rawBody', TByteStreamInstance.Create(ARequest.Payload.ToString));
+  if ARequest.ContentType = 'application/x-www-form-urlencoded' then
+    Adapter.ActRec.AddMember('form', SetFormPostBodyFromUltra(ARequest));
+  if ARequest.ContentType = 'application/json' then
+    Adapter.ActRec.AddMember('json', SetJsonPostBodyFromUltra(ARequest));
+  if AnsiStartsStr('multipart/form-data;', ARequest.ContentType) then
+  begin
+    Adapter.ActRec.AddMember('form', SetFormPostBodyFromUltra(ARequest));
+    Adapter.ActRec.AddMember('files', SetFilesPostBodyFromUltra(ARequest));
+  end;
   Result := Adapter;
 end;
 
