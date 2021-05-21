@@ -14,6 +14,7 @@ function VisitDict(ANode: TDictNode): TDictionaryInstance;
 procedure VisitClassDefinition(ANode: TClassDefinition);
 procedure VisitLoadType(ANode: TLoadType);
 function VisitExpandArgs(ANode: TExpandArgs): TListInstance;
+function VisitAssignedTest(ANode: TAssignedTest): TBooleanInstance;
 
 // references
 procedure VisitVarAssign(ANode: TVarAssign; ASrc: TInstanceOf);

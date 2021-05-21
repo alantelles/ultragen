@@ -1,5 +1,9 @@
 @url = http://localhost:3500
 GET {{url}}/headers
+X-Requested-With: zika.com
+Referer: lalala.com
+###
+GET {{url}}/off
 ###
 POST http://localhost:3500/json
 Content-Type: application/json

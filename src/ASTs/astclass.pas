@@ -40,6 +40,15 @@ type
     function Count: integer;
   end;
 
+  TAssignedTest = class(TAST)
+  protected
+    FValue: TAST;
+  public
+    property PValue: TAST read FValue;
+    destructor Destroy;
+    constructor Create(AValue: TAST; AToken: TToken);
+  end;
+
   TDictKeyNode = class(TAST)
   protected
     FKey: TAST;
@@ -377,7 +386,17 @@ begin
   inherited;
 end;
 
+constructor TAssignedTest.Create(AValue: TAST; AToken: TToken);
+begin
+  FValue := AValue;
+  FToken := AToken;
+end;
 
+destructor TAssignedTest.Destroy;
+begin
+  FValue.Free;
+  inherited;
+end;
 
 constructor TDictKeyNode.Create(AKey: TAST; AValue: TAST; AToken: TToken);
 begin

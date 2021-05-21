@@ -207,7 +207,6 @@ begin
   Result := '';
 end;
 
-
 function TInterpreter.GetLive: string;
 var
   AActRec: TActivationRecord;
@@ -218,6 +217,19 @@ begin
   i := AActRec.GetMember('__LIVE__');
   Aval := TStringInstance(i);
   Result := AVal.PValue;
+end;
+
+function TInterpreter.VisitAssignedTest(ANode: TAssignedTest): TBooleanInstance;
+var
+  Ret: TBooleanInstance;
+begin
+  try
+    Visit(ANode.PValue);
+    Ret := TBooleanInstance.Create(True)
+  except
+    Ret := TBooleanInstance.Create(False);
+  end;
+  Result := Ret;
 end;
 
 function TInterpreter.VisitExpandArgs(ANode: TExpandArgs): TListInstance;

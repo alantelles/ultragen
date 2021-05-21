@@ -4,6 +4,8 @@ include @Core.Web.Router
 include @Core.Web.MimeTypes
 include @Core.Web.HttpStatus
 
+
+
 r = new Router()
 
 r.get('/', :index, function(params)    
@@ -11,7 +13,7 @@ r.get('/', :index, function(params)
     live Base('Teste')
 end)
 
-r.get('/headers', :headers, lambda(params) : live $request[:headers])
+r.get('/headers', :headers, lambda(params) : live locals())
 
 r.get("/static/:type/:filename", :static, function(params)
     params.localize()
@@ -34,8 +36,12 @@ r.post("/json", :json, function(params)
 end)
 
 r.post("/file", :filePost, function(params)
-    live $request[:files]
-    JSON.createFile($request[:files], 'files.json')
+    include @Core.FileSystem
+    uploaded = $request[:files]
+    tempname = uploaded[:files_multi][0][:tempName]
+    outName = uploaded[:files_multi][0][:name]
+    FileSystem.copy(tempname, outName)
+    live $request[:files][:files_multi]
 end)
 
 r.post("/new", :formPost, function(params)
