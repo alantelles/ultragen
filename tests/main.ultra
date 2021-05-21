@@ -1,2 +1,1 @@
-a = {'zika': 56}
-print(assigned a[:zikag])
+raise('Tá braba a vida')

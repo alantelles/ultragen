@@ -174,15 +174,16 @@ var
 begin
   FDontPush := DontPush;
   FNameSpace := ANameActRec;
-  try
+  Ret := Visit(FTree);
+  {try
     try
       Ret := Visit(FTree);
     except on E: Exception do
-      if not FExceptionThrown then
+      //if not FExceptionThrown then
         RaiseException(E.Message, 'Internal');
     end;
   finally
-  end;
+  end;}
 
   Result := '';
 end;
@@ -198,7 +199,7 @@ begin
     try
       Ret := Visit(FTree);
     except on E: Exception do
-      if not FExceptionThrown then
+      //if not FExceptionThrown then
         RaiseException(E.Message, 'Internal');
     end;
   finally

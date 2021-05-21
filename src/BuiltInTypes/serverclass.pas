@@ -239,6 +239,7 @@ var
   i: integer;
 begin
   WebVars := TActivationRecord.Create('requestHeaders', AR_DICT, -1);
+
   if ARequest.Accept <> '' then
     WebVars.AddMember('Accept', TStringInstance.Create(ARequest.Accept));
   if ARequest.AcceptCharset <> '' then
@@ -450,6 +451,7 @@ var
 begin
   v := ARequest.ContentType;
   Adapter := TUltraAdapter.Create('$request');
+  Adapter.AddMember('server', 'FPWeb');
   Adapter.AddMember('route', ARequest.URI);
   Adapter.AddMember('method', ARequest.Method);
   Adapter.ActRec.AddMember('headers', SetRequestHeadersToUltra(ARequest));
@@ -492,7 +494,7 @@ begin
   WebHandlers := TUltraFPWebHandlers.Create(ARequest, AResponse);
   try
   begin
-    AResponse.SetCustomHeader('X-Powered-By', 'UltraGen/FPWeb server');
+
     if ARequest.URI = '/favicon.ico' then
     begin
       SendFavIcon(ARequest, AResponse);
@@ -500,7 +502,7 @@ begin
     end;
 
     Adapter := SetRequestDict(ARequest);
-
+    AResponse.SetCustomHeader('X-Powered-By', 'UltraGen/FPWeb server');
     UltraHome := ReplaceStr(GetEnv('ULTRAGEN_HOME'), '\', '\\');
     Prelude := TStringList.Create;
     Prelude.Add('addModulePath(["'+ UltraHome + '", "modules"].path())');

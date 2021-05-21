@@ -252,7 +252,7 @@ begin
     Adapter := TUltraAdapter.Create('$request');
     Adapter.AddMember('route', ARequest.Path);
     Adapter.AddMember('method', ARequest.Method);
-
+    Adapter.AddMember('server', 'Brook');
     UltraHome := ReplaceStr(GetEnv('ULTRAGEN_HOME'), '\', '\\');
     Prelude := TStringList.Create;
     Prelude.Add('addModulePath(["'+ UltraHome + '", "modules"].path())');

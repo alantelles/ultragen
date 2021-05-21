@@ -2,6 +2,11 @@ class Router
 
 
 function init(name_prefix='', url_prefix='') : Router
+    appResponseIsSet = assigned AppResponse
+    print(appResponseIsSet)
+    if (!appResponseIsSet)
+        raise("No AppResponse handler is set for this application", 'Router')
+    end
     self.default_decorator = null
     self.name_prefix = name_prefix
     self.url_prefix = dropFirstAndLastSlash(url_prefix)
