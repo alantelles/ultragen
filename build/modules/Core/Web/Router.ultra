@@ -2,8 +2,7 @@ class Router
 
 
 function init(name_prefix='', url_prefix='') : Router
-    appResponseIsSet = assigned AppResponse
-    print(appResponseIsSet)
+    appResponseIsSet = assigned AppResponse    
     if (!appResponseIsSet)
         raise("No AppResponse handler is set for this application", 'Router')
     end

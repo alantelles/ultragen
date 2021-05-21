@@ -2,6 +2,7 @@
 GET {{url}}/headers
 X-Requested-With: zika.com
 Referer: lalala.com
+Another: zikzika
 ###
 GET {{url}}/off
 ###

@@ -310,8 +310,7 @@ begin
     WebVars.AddMember(K, TStringInstance.Create(ARequest.CustomHeaders.Values[K]));
   end;
   WebVars.AddMember('Host', TStringInstance.Create(ARequest.Host));
-  // AnActRec.AddMember('headers', TDictionaryInstance.Create(WebVars, TNullInstance.Create()));
-  Result := TDictionaryInstance.Create(WebVars, TNullInstance.Create);
+  Result := TDictionaryInstance.Create(WebVars, TStringInstance.Create(''));
 end;
 
 function SetArgsFromUltra(ARequest: TRequest): TDictionaryInstance;
@@ -343,7 +342,7 @@ begin
         Args.PMembers.Add(k, TStringInstance.Create(v));
     end;
   end;
-  Result := TDictionaryInstance.Create(Args, TNullInstance.Create);
+  Result := TDictionaryInstance.Create(Args);
 end;
 
 function SetFormPostBodyFromUltra(ARequest: TRequest): TDictionaryInstance;
@@ -375,7 +374,7 @@ begin
         Args.PMembers.Add(k, TStringInstance.Create(v));
     end;
   end;
-  Result := TDictionaryInstance.Create(Args, TNullInstance.Create);
+  Result := TDictionaryInstance.Create(Args);
 end;
 
 function SetJsonPostBodyFromUltra(ARequest: TRequest): TInstanceOf;
@@ -419,13 +418,13 @@ begin
           AInst := TListInstance.Create();
           Args.PMembers.Add(k, AInst);
         end;
-        TListInstance(AInst).Add(TDictionaryInstance.Create(FileData, TNullInstance.Create()));
+        TListInstance(AInst).Add(TDictionaryInstance.Create(FileData));
       end
       else
-        Args.PMembers.Add(k, TDictionaryInstance.Create(FileData, TNullInstance.Create()));
+        Args.PMembers.Add(k, TDictionaryInstance.Create(FileData));
     end;
   end;
-  Result := TDictionaryInstance.Create(Args, TNullInstance.Create);
+  Result := TDictionaryInstance.Create(Args);
 end;
 
 function SetRequestCookiesToUltra(ARequest: TRequest): TDictionaryInstance;
@@ -441,15 +440,13 @@ begin
     K := Copy(V, 1, i-1);
     WebVars.AddMember(K, TStringInstance.Create(ARequest.CookieFields.Values[K]));
   end;
-  Result := TDictionaryInstance.Create(WebVars, TNullInstance.Create);
+  Result := TDictionaryInstance.Create(WebVars, TStringInstance.Create(''));
 end;
 
 function SetRequestDict(ARequest: TRequest): TUltraAdapter;
 var
   Adapter: TUltraAdapter;
-  v: string;
 begin
-  v := ARequest.ContentType;
   Adapter := TUltraAdapter.Create('$request');
   Adapter.AddMember('server', 'FPWeb');
   Adapter.AddMember('route', ARequest.URI);

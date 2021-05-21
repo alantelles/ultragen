@@ -8,8 +8,7 @@ uses
   Classes, SysUtils, InstanceOfClass, StackClass,
   BrookHTTPRequest,
   BrookHTTPResponse,
-  BrookHTTPServer,
-  brookHttpCookies;
+  BrookHTTPServer;
 
 type
   TBrookServerInstance = class (TInstanceOf)
@@ -34,7 +33,7 @@ implementation
 
 uses
   StringInstanceClass, UltraGenInterfaceClass, Dos, StrUtils, ARClass, ListInstanceClass, UltraWebHandlersClass,
-  DateTimeInstanceClass, httpprotocol;
+  DateTimeInstanceClass, httpprotocol, BrookStringMap, BrookHTTPCookies;
 
 function StrToBytes(Astr: string): TBytes;
 var
@@ -221,6 +220,96 @@ begin
   Result := Status
 end;
 
+function SetRequestCookiesToUltra(ARequest: TBrookHTTPRequest): TDictionaryInstance;
+var
+  WebVars: TActivationRecord;
+  K, V: string;
+  First: boolean;
+  Pair: TBrookStringPair;
+  ADict: TDictionaryInstance;
+begin
+  WebVars := TActivationRecord.Create('requestCookies', AR_DICT, -1);
+  First := ARequest.Cookies.First(Pair);
+  if First then
+  begin
+    WebVars.AddMember(Pair.Name, TStringInstance.Create(Pair.Value));
+    while (ARequest.Cookies.Next(Pair)) do
+    begin
+      WebVars.AddMember(Pair.Name, TStringInstance.Create(Pair.Value));
+    end;
+  end;
+  ADict := TDictionaryInstance.Create(WebVars, TStringInstance.Create(''));
+  Result := ADict;
+end;
+
+function SetArgsFromUltra(ARequest: TBrookHTTPRequest): TDictionaryInstance;
+var
+  WebVars: TActivationRecord;
+  K, V: string;
+  First: boolean;
+  Pair: TBrookStringPair;
+  ADict: TDictionaryInstance;
+begin
+  WebVars := TActivationRecord.Create('requestHeaders', AR_DICT, -1);
+  First := ARequest.Params.First(Pair);
+  if First then
+  begin
+    WebVars.AddMember(Pair.Name, TStringInstance.Create(Pair.Value));
+    while (ARequest.Params.Next(Pair)) do
+    begin
+      WebVars.AddMember(Pair.Name, TStringInstance.Create(Pair.Value));
+    end;
+  end;
+  ADict := TDictionaryInstance.Create(WebVars, TStringInstance.Create(''));
+  Result := ADict;
+end;
+
+function SetRequestHeadersToUltra(ARequest: TBrookHTTPRequest): TDictionaryInstance;
+var
+  WebVars: TActivationRecord;
+  K, V: string;
+  First: boolean;
+  Pair: TBrookStringPair;
+  ADict: TDictionaryInstance;
+begin
+  WebVars := TActivationRecord.Create('requestHeaders', AR_DICT, -1);
+  First := ARequest.Headers.First(Pair);
+  if First then
+  begin
+    WebVars.AddMember(Pair.Name, TStringInstance.Create(Pair.Value));
+    while (ARequest.Headers.Next(Pair)) do
+    begin
+      WebVars.AddMember(Pair.Name, TStringInstance.Create(Pair.Value));
+    end;
+  end;
+  ADict := TDictionaryInstance.Create(WebVars, TStringInstance.Create(''));
+  Result := ADict;
+end;
+
+function SetQueryStringToUltra(ARequest: TBrookHTTPRequest): string;
+var
+  Ret: string;
+begin
+  Ret := ReplaceStr(ARequest.Params.ToString, sLineBreak, '&');
+  Ret := Copy(Ret, 1, Length(Ret) - 1);
+  Result := ret;
+end;
+
+function SetRequestDict(ARequest: TBrookHTTPRequest): TUltraAdapter;
+var
+  Adapter: TUltraAdapter;
+begin
+  Adapter := TUltraAdapter.Create('$request');
+  Adapter.AddMember('route', ARequest.Path);
+  Adapter.AddMember('method', ARequest.Method);
+  Adapter.AddMember('server', 'Brook');
+  Adapter.ActRec.AddMember('headers', SetRequestHeadersToUltra(ARequest));
+  Adapter.ActRec.AddMember('cookies', SetRequestCookiesToUltra(ARequest));
+  Adapter.AddMember('query', SetQueryStringToUltra(ARequest));
+  Adapter.ActRec.AddMember('args', SetArgsFromUltra(ARequest));
+  Result := Adapter;
+end;
+
 procedure THTTPServer.DoRequest(ASender: TObject; ARequest: TBrookHTTPRequest; AResponse: TBrookHTTPResponse);
 var
   Content: TBytes;
@@ -249,10 +338,8 @@ begin
       Exit;
     end;
 
-    Adapter := TUltraAdapter.Create('$request');
-    Adapter.AddMember('route', ARequest.Path);
-    Adapter.AddMember('method', ARequest.Method);
-    Adapter.AddMember('server', 'Brook');
+    Adapter := SetRequestDict(ARequest);
+
     UltraHome := ReplaceStr(GetEnv('ULTRAGEN_HOME'), '\', '\\');
     Prelude := TStringList.Create;
     Prelude.Add('addModulePath(["'+ UltraHome + '", "modules"].path())');

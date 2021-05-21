@@ -10,7 +10,7 @@ r.get('/', :index, function(params)
     live Base('Teste')
 end)
 
-r.get('/headers', :headers, lambda(params) : live str($request) + '<br>' + str(AppResponse))
+r.get('/headers', :headers, lambda(params) : live $request)
 
 r.get("/static/:type/:filename", :static, function(params)
     params.localize()
