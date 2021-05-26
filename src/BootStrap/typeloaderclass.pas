@@ -23,7 +23,7 @@ type
     class procedure LoadMarkdownParser(var AActRec: TActivationrecord);
     class procedure LoadBrookserver(var AActRec: TActivationRecord);
     class procedure LoadHelpers(var AActRec: TActivationRecord);
-    class procedure LoadUploaded(var AActRec: TActivationRecord);
+    class procedure LoadBrookUploaded(AActRec: TActivationRecord);
   end;
 
 implementation
@@ -41,12 +41,12 @@ begin
   AActRec.AddMember('Helpers', AType);
 end;
 
-class procedure TTypeloader.LoadUploaded(var AActRec: TActivationRecord);
+class procedure TTypeloader.LoadBrookUploaded(AActRec: TActivationRecord);
 var
   AFunc: TFunctionInstance;
   AType: TDataType;
 begin
-  AType := TDataType.Create('TUploadedInstance', 'Uploaded');
+  AType := TDataType.Create('TBrookUploadedInstance', 'Uploaded');
   AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TUploadedInstance' ,
     True, False, False);
   AType.PMembers.Add('save', AFunc);
@@ -274,8 +274,8 @@ begin
     TTypeLoader.LoadBrookResponseHandler(AActRec)
   else if AName = 'Markdown' then
     TTypeLoader.LoadMarkdownParser(AActRec)
-  else if AName = 'Uploaded' then
-    TTypeLoader.LoadUploaded(AActRec)
+  else if AName = 'BrookUploaded' then
+    TTypeLoader.LoadBrookUploaded(AActRec)
   else
     AInter.RaiseException('Type "' + AName + '" does not exist and can''t be loaded',
       'RunTime');

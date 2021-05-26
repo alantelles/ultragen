@@ -254,7 +254,7 @@
         <IsPartOfProject Value="True"/>
       </Unit45>
       <Unit46>
-        <Filename Value="src\Core\uploaded\options.pp"/>
+        <Filename Value="src\Core\brookuploaded\options.pp"/>
         <IsPartOfProject Value="True"/>
       </Unit46>
     </Units>
@@ -267,7 +267,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="src\Units;src\ASTs;src\Symbols;src\Exceptions;src\ActRecords;src\Core;src\BuiltInTypes;src\Utils\JsonTools;src\BootStrap;src\Utils;src\Core\bytestream;src\Utils\MarkdownParser;src\Core\brookserver;src\Core\brookappresponse;src\Core\helpers;src\Core\uploaded"/>
+      <OtherUnitFiles Value="src\Units;src\ASTs;src\Symbols;src\Exceptions;src\ActRecords;src\Core;src\BuiltInTypes;src\Utils\JsonTools;src\BootStrap;src\Utils;src\Core\bytestream;src\Utils\MarkdownParser;src\Core\brookserver;src\Core\brookappresponse;src\Core\helpers;src\Core\brookuploaded"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Other>

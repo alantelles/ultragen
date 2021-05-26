@@ -152,7 +152,7 @@ type
       procedure CopyInstance(var AReceiver: TInstanceOf); override;
   end;
 
-  TUploadedInstance = class(TInstanceOf)
+  TBrookUploadedInstance = class(TInstanceOf)
     protected
       FValue: TBrookHTTPUpload;
     public
@@ -177,13 +177,13 @@ implementation
 uses
   Tokens, StringInstanceClass;
 
-constructor TUploadedInstance.Create(AHandler: TBrookHTTPUpload);
+constructor TBrookUploadedInstance.Create(AHandler: TBrookHTTPUpload);
 begin
   inherited Create;
   FValue := AHandler;
 end;
 
-function TUploadedInstance.SaveFile(FileName: string): TBooleanInstance;
+function TBrookUploadedInstance.SaveFile(FileName: string): TBooleanInstance;
 var
   e: string;
   res: boolean;
@@ -193,7 +193,7 @@ begin
   Result := TBooleanInstance.Create(res);
 end;
 
-function TUploadedInstance.AsString: string;
+function TBrookUploadedInstance.AsString: string;
 begin
   Result := '<Uploaded file ' + FValue.Name + ' in field ' + FValue.Field + '>';
 end;

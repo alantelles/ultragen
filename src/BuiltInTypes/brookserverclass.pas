@@ -33,7 +33,7 @@ implementation
 
 uses
   StringInstanceClass, UltraGenInterfaceClass, Dos, StrUtils, ARClass, ListInstanceClass, UltraWebHandlersClass,
-  DateTimeInstanceClass, httpprotocol, BrookHTTPUploads, CoreFunctionsClass, BrookStringMap, BrookHTTPCookies, ByteStreamClass;
+  DateTimeInstanceClass, httpprotocol, BrookHTTPUploads, CoreFunctionsClass, BrookStringMap, BrookHTTPCookies, ByteStreamClass, typeLoaderClass;
 
 function StrToBytes(Astr: string): TBytes;
 var
@@ -333,6 +333,7 @@ var
   k: string;
   AInst: TInstanceOf;
   AFile: TBrookHTTPUpload;
+  AUpload: TBrookUploadedInstance;
 begin
   Args := TActivationRecord.Create('files', AR_DICT, -1);
   //AFile := ARequest.Files.First;
@@ -343,12 +344,13 @@ begin
     for AFile in ARequest.Files do
     begin
       k := AFile.Field;
+      AUpload := TBrookUploadedInstance.Create(AFile);
       FileData := TActivationrecord.Create(k, AR_DICT, -1);
       FileData.AddMember('name', TStringInstance.Create(AFile.Name));
       FileData.AddMember('tempName', TStringInstance.Create(AFile.Directory));
       FileData.AddMember('size', TIntegerInstance.Create(AFile.Size));
       FileData.AddMember('contentType', TStringInstance.Create(AFile.Mime));
-      FileData.AddMember('handle',TUploadedInstance.Create(AFile));
+      FileData.AddMember('handler',TBrookUploadedInstance.Create(AFile));
       if AnsiEndsStr('[]', k) then
       begin
         k := Copy(k, 1, RPos('[', k) - 1);
@@ -449,6 +451,8 @@ begin
     Prelude := TStringList.Create;
     Prelude.Add('addModulePath(["'+ UltraHome + '", "modules"].path())');
     Prelude.Add('include @Core');
+    if Adapter.ActRec.PMembers.Find('files') <> nil then
+      Prelude.Add('load BrookUploaded');
     IndexHandler := TStringInstance(FUltraInstance.PMembers.Find('indexHandler')).PValue;
     ExceptionHandler := TStringInstance(FUltraInstance.PMembers.Find('exceptionHandler')).PValue;
     UltraResult := TUltraInterface.InterpretScriptWithResult(IndexHandler, Prelude, Adapter, UltraHome, WebHandlers);
