@@ -34,15 +34,16 @@ end)
 
 r.post("/file", :filePost, function(params)
     include @Core.FileSystem
-    uploaded = $request[:files]
+    uploaded = $request[:files][:files]
+    var = uploaded.save('zika.png')
+
     # tempname = uploaded[:files_multi][0][:tempName]
     # outName = uploaded[:files_multi][0][:name]
     # FileSystem.copy(tempname, outName)
     # uploaded[:files][:handle].save('cloud.png')
     
-    h = uploaded[:files][:handler]
-    h.save("tikomiro.gif")
-    live uploaded[:files]
+    
+    live var
 end)
 
 r.post("/new", :formPost, function(params)

@@ -336,38 +336,29 @@ var
   AUpload: TBrookUploadedInstance;
 begin
   Args := TActivationRecord.Create('files', AR_DICT, -1);
-  //AFile := ARequest.Files.First;
-  //if AFile <> nil then
-  //begin
-  //  repeat
-  //    AFile := Arequest.Files[i];
-    for AFile in ARequest.Files do
+  for AFile in ARequest.Files do
+  begin
+    k := AFile.Field;
+    AUpload := TBrookUploadedInstance.Create(AFile);
+    //FileData := TActivationrecord.Create(k, AR_DICT, -1);
+    //FileData.AddMember('name', TStringInstance.Create(AFile.Name));
+    //FileData.AddMember('size', TIntegerInstance.Create(AFile.Size));
+    //FileData.AddMember('contentType', TStringInstance.Create(AFile.Mime));
+    //FileData.AddMember('handler',TBrookUploadedInstance.Create(AFile));
+    if AnsiEndsStr('[]', k) then
     begin
-      k := AFile.Field;
-      AUpload := TBrookUploadedInstance.Create(AFile);
-      FileData := TActivationrecord.Create(k, AR_DICT, -1);
-      FileData.AddMember('name', TStringInstance.Create(AFile.Name));
-      FileData.AddMember('tempName', TStringInstance.Create(AFile.Directory));
-      FileData.AddMember('size', TIntegerInstance.Create(AFile.Size));
-      FileData.AddMember('contentType', TStringInstance.Create(AFile.Mime));
-      FileData.AddMember('handler',TBrookUploadedInstance.Create(AFile));
-      if AnsiEndsStr('[]', k) then
+      k := Copy(k, 1, RPos('[', k) - 1);
+      Ainst := TListInstance(Args.PMembers.Find(k));
+      if Ainst = nil then
       begin
-        k := Copy(k, 1, RPos('[', k) - 1);
-        Ainst := TListInstance(Args.PMembers.Find(k));
-        if Ainst = nil then
-        begin
-          AInst := TListInstance.Create();
-          Args.PMembers.Add(k, AInst);
-        end;
-        TListInstance(AInst).Add(TDictionaryInstance.Create(FileData));
-      end
-      else
-        Args.PMembers.Add(k, TDictionaryInstance.Create(FileData));
-    end;
-    //  AFile := ARequest.Files.Next;
-    //until AFile = nil
-  //end;
+        AInst := TListInstance.Create();
+        Args.PMembers.Add(k, AInst);
+      end;
+      TListInstance(AInst).Add(AUpload);
+    end
+    else
+      Args.PMembers.Add(k, AUpload);
+  end;
   Result := TDictionaryInstance.Create(Args);
 end;
 
@@ -509,13 +500,7 @@ begin
     FMembers.Add('indexHandler', TStringInstance.Create('index.ultra'));
     FMembers.Add('exceptionHandler', TStringInstance.Create('exception.ultra'));
     FMembers.Add('debug', TBooleanInstance.Create(ADebug));
-    FMembers.Add('uploadsDir', TStringInstance.Create(ReplaceStr(GetEnv('ULTRAGEN_HOME'), '\', '\\') + 'brook_uploads'));
-    {len := ThisType.PMembers.Count;
-    for i := 0 to len-1 do
-    begin
-      Inst := TFunctionInstance(ThisType.PMembers[i]);
-      FMembers.Add(Inst.PName, Inst);
-    end;}
+    FMembers.Add('uploadsDir', TStringInstance.Create(GetEnv('ULTRAGEN_HOME') + directorySeparator + 'brook_uploads'));
     Ferror := False;
   except on E: Exception do
     FErrorMsg := E.Message;

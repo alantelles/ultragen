@@ -76,6 +76,7 @@ var
   AType:string = '';
   AuxStr:string;
   AuxDateTime: TDateTime;
+  AuxBool: boolean;
   DotPos, len, i, j, AuxInt: integer;
   Ret, Aux: TInstanceOf;
   MDProc: TMarkdownProcessor;

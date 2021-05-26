@@ -50,6 +50,9 @@ begin
   AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TUploadedInstance' ,
     True, False, False);
   AType.PMembers.Add('save', AFunc);
+  AType.PMembers.Add('name', AFunc);
+  AType.PMembers.Add('size', AFunc);
+  AType.PMembers.Add('contentType', AFunc);
   AActRec.AddMember('Uploaded', AType);
 end;
 

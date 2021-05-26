@@ -156,6 +156,7 @@ type
     protected
       FValue: TBrookHTTPUpload;
     public
+      property PValue: TBrookHTTPUpload read FValue;
       constructor Create(AHandler: TBrookHTTPUpload);
       function SaveFile(FileName: string): TBooleanInstance;
       function AsString: string;  override;
