@@ -599,6 +599,7 @@ begin
     WriteLn('Run a request to "' +MStopRoute+ '" to stop server')
   else
     WriteLn('No stop route defined');
+
   Application.Title := 'UltraGen Builtin Development Server';
   Application.Port := MPort;
   Application.Threaded := True;

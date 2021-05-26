@@ -1,5 +1,7 @@
 @url = http://localhost:3500
-GET {{url}}/headers
+GET {{url}}/form
+###
+GET {{url}}/headers?zika=tops&tomas=768&tomas=999
 X-Requested-With: zika.com
 Referer: lalala.com
 Another: zikzika

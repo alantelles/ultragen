@@ -348,6 +348,7 @@ begin
       FileData.AddMember('tempName', TStringInstance.Create(AFile.Directory));
       FileData.AddMember('size', TIntegerInstance.Create(AFile.Size));
       FileData.AddMember('contentType', TStringInstance.Create(AFile.Mime));
+      FileData.AddMember('handle',TUploadedInstance.Create(AFile));
       if AnsiEndsStr('[]', k) then
       begin
         k := Copy(k, 1, RPos('[', k) - 1);
@@ -504,6 +505,7 @@ begin
     FMembers.Add('indexHandler', TStringInstance.Create('index.ultra'));
     FMembers.Add('exceptionHandler', TStringInstance.Create('exception.ultra'));
     FMembers.Add('debug', TBooleanInstance.Create(ADebug));
+    FMembers.Add('uploadsDir', TStringInstance.Create(ReplaceStr(GetEnv('ULTRAGEN_HOME'), '\', '\\') + 'brook_uploads'));
     {len := ThisType.PMembers.Count;
     for i := 0 to len-1 do
     begin
@@ -528,11 +530,13 @@ begin
   with THTTPServer.Create(nil) do
   try
     try
+      UploadsDir := TStringInstance(FMembers.Find('uploadsDir')).PValue;
       UltraInstance := Self;
       Port := MPort;
       Open;
       if not Active then
         Exit;
+      ForceDirectories(UploadsDir);
       FError := False;
       WriteLn('Running '+ MTitle +' in '+'Brook High Performance Server at port ' + IntTostr(MPort), #13);
       Writeln('Press enter to stop server');

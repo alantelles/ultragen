@@ -23,7 +23,7 @@ type
     class procedure LoadMarkdownParser(var AActRec: TActivationrecord);
     class procedure LoadBrookserver(var AActRec: TActivationRecord);
     class procedure LoadHelpers(var AActRec: TActivationRecord);
-    // class procedure LoadCookiesHandler(var AActRec: TActivationrecord);
+    class procedure LoadUploaded(var AActRec: TActivationRecord);
   end;
 
 implementation
@@ -39,6 +39,18 @@ begin
   Atype.PMembers.Add('urlencode', AFunc);
   Atype.PMembers.Add('urldecode', AFunc);
   AActRec.AddMember('Helpers', AType);
+end;
+
+class procedure TTypeloader.LoadUploaded(var AActRec: TActivationRecord);
+var
+  AFunc: TFunctionInstance;
+  AType: TDataType;
+begin
+  AType := TDataType.Create('TUploadedInstance', 'Uploaded');
+  AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TUploadedInstance' ,
+    True, False, False);
+  AType.PMembers.Add('save', AFunc);
+  AActRec.AddMember('Uploaded', AType);
 end;
 
 class procedure TTypeLoader.LoadBrookserver(var AActRec: TActivationRecord);
@@ -262,6 +274,8 @@ begin
     TTypeLoader.LoadBrookResponseHandler(AActRec)
   else if AName = 'Markdown' then
     TTypeLoader.LoadMarkdownParser(AActRec)
+  else if AName = 'Uploaded' then
+    TTypeLoader.LoadUploaded(AActRec)
   else
     AInter.RaiseException('Type "' + AName + '" does not exist and can''t be loaded',
       'RunTime');
