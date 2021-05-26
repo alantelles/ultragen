@@ -35,7 +35,7 @@
         <PackageName Value="LazUtils"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="44">
+    <Units Count="47">
       <Unit0>
         <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -173,6 +173,7 @@
       <Unit27>
         <Filename Value="src\Utils\JsonTools\jsontools.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="JsonTools"/>
       </Unit27>
       <Unit28>
         <Filename Value="src\BootStrap\typeloaderclass.pas"/>
@@ -202,48 +203,60 @@
         <IsPartOfProject Value="True"/>
       </Unit33>
       <Unit34>
-        <Filename Value="src\Core\cookies\declarations.pp"/>
+        <Filename Value="src\Core\bytestream\options.pp"/>
         <IsPartOfProject Value="True"/>
       </Unit34>
       <Unit35>
-        <Filename Value="src\Core\cookies\functions.pp"/>
+        <Filename Value="src\Core\bytestream\functions.pp"/>
         <IsPartOfProject Value="True"/>
       </Unit35>
       <Unit36>
-        <Filename Value="src\Core\bytestream\options.pp"/>
+        <Filename Value="src\Core\bytestream\declarations.pp"/>
         <IsPartOfProject Value="True"/>
       </Unit36>
       <Unit37>
-        <Filename Value="src\Core\bytestream\functions.pp"/>
-        <IsPartOfProject Value="True"/>
-      </Unit37>
-      <Unit38>
-        <Filename Value="src\Core\bytestream\declarations.pp"/>
-        <IsPartOfProject Value="True"/>
-      </Unit38>
-      <Unit39>
         <Filename Value="src\BuiltInTypes\brookserverclass.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="BrookServerClass"/>
-      </Unit39>
-      <Unit40>
+      </Unit37>
+      <Unit38>
         <Filename Value="src\Core\brookserver\options.pp"/>
         <IsPartOfProject Value="True"/>
-      </Unit40>
-      <Unit41>
+      </Unit38>
+      <Unit39>
         <Filename Value="src\Units\ultrawebhandlersclass.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UltraWebHandlersClass"/>
-      </Unit41>
-      <Unit42>
+      </Unit39>
+      <Unit40>
         <Filename Value="src\Core\brookappresponse\options.pp"/>
         <IsPartOfProject Value="True"/>
-      </Unit42>
-      <Unit43>
+      </Unit40>
+      <Unit41>
         <Filename Value="src\BuiltInTypes\serverclass.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ServerClass"/>
+      </Unit41>
+      <Unit42>
+        <Filename Value="src\Core\helpers\declarations.pp"/>
+        <IsPartOfProject Value="True"/>
+      </Unit42>
+      <Unit43>
+        <Filename Value="src\Core\helpers\options.pp"/>
+        <IsPartOfProject Value="True"/>
       </Unit43>
+      <Unit44>
+        <Filename Value="src\Core\brookappresponse\functions.pp"/>
+        <IsPartOfProject Value="True"/>
+      </Unit44>
+      <Unit45>
+        <Filename Value="src\Core\brookappresponse\declarations.pp"/>
+        <IsPartOfProject Value="True"/>
+      </Unit45>
+      <Unit46>
+        <Filename Value="src\Core\brookuploaded\options.pp"/>
+        <IsPartOfProject Value="True"/>
+      </Unit46>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -254,7 +267,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="src\Units;src\ASTs;src\Symbols;src\Exceptions;src\ActRecords;src\Core;src\BuiltInTypes;src\Utils\JsonTools;src\BootStrap;src\Utils;src\Core\cookies;src\Core\bytestream;src\Utils\MarkdownParser;src\Core\brookserver;src\Core\brookappresponse"/>
+      <OtherUnitFiles Value="src\Units;src\ASTs;src\Symbols;src\Exceptions;src\ActRecords;src\Core;src\BuiltInTypes;src\Utils\JsonTools;src\BootStrap;src\Utils;src\Core\bytestream;src\Utils\MarkdownParser;src\Core\brookserver;src\Core\brookappresponse;src\Core\helpers;src\Core\brookuploaded"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Other>

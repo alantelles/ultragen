@@ -1,16 +1,1 @@
-include @Core.Request
-
-url = "http://minipaas.alantelles.com/app"
-content = {
-    :name: 'ultragendocs',
-    :domain: 'alantelles.com',
-    :image: 'alantelles/ultragendocs:v1',
-    :port: 3500
-}
-headers = {
-    "Authorization": "Bearer wrong_token",
-    "Content-Type": "application/json"
-}
-
-r = Request.post(url, JSON.create(content), headers)
-print(r.text)
+raise('Tá braba a vida')

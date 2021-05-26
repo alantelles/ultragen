@@ -1,0 +1,15 @@
+class HttpStatus
+
+# Request OK codes
+HttpStatus.OK = 200
+HttpStatus.Created = 202
+
+# Redirect codes
+HttpStatus.SeeOther = 303
+
+# Client errors codes
+HttpStatus.NotFound = 404
+
+# Server errors codes
+HttpStatus.InternalError = 500
+HttpStatus.ProxyError = 502

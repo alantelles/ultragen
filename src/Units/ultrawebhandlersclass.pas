@@ -7,12 +7,15 @@ interface
 uses
   Classes, SysUtils, httpdefs,
   BrookHTTPRequest,
-  BrookHTTPResponse;
+  BrookHTTPResponse, StrUtils;
 
 type
 
   TUltraWebHandlers = class
-
+    FFallbackMimeTypes: TStringList;
+    public
+      property FallbackMimeTypes: TStringList read FFallbackMimeTypes;
+      constructor Create;
   end;
 
   TUltraFPWebHandlers = class (TUltraWebHandlers)
@@ -35,6 +38,16 @@ type
 
 implementation
 
+constructor TUltraWebHandlers.Create;
+begin
+  FFallbackMimeTypes := TStringList.Create;
+  FFallbackMimeTypes.Add('image/jpeg            jpeg jpg jpe');
+  FFallbackMimeTypes.Add('image/gif               gif');
+  FFallbackMimeTypes.Add('image/png                   png');
+  FFallbackMimeTypes.Add('text/css                    css');
+  FFallbackMimeTypes.Add('application/javascript              js');
+  FFallbackMimeTypes.Add('image/svg+xml                   svg svgz');
+end;
 
 constructor TUltraBrookHandlers.Create(ARequest: TBrookHTTPRequest; AResponse: TBrookHTTPResponse);
 begin

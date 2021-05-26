@@ -1,0 +1,49 @@
+@function Film(data, characters)
+<h2>{{ data[:title] }}</h2>
+<div class="card">
+    <div class="card-body">
+        <table class="table table-bordered">
+            <tbody>
+                <tr>
+                    <th style="width: 150px;">Title:</th>
+                    <td>{{ data[:title] }}</td>
+                </tr>
+                <tr>
+                    <th>Original title:</th>
+                    <td>{{ data[:original_title] }}</td>
+                </tr>
+                <tr>
+                    <th>Plot:</th>
+                    <td>{{ data[:description] }}</td>
+                </tr>
+                <tr>
+                    <th>Director:</th>
+                    <td>{{ data[:director] }}</td>
+                </tr>
+                <tr>
+                    <th>Release date:</th>
+                    <td>{{ data[:release_date] }}</td>
+                </tr>
+                <tr>
+                    <th>Score review:</th>
+                    <td>{{ data[:rt_score] }}</td>
+                </tr>
+                <tr>
+                    <th>Characters</th>
+                    <td>
+@               if ((characters.length()))
+@                   for (characters, character)                        
+                            <p style="line-height: 0.6;">{{ character[:name] }}</p>
+@                   end
+@               else
+                    <p>No characters found for this film</p>
+@               end
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<br>
+<a href="{{ $router.urlFor(:index) }}"><button class="btn btn-primary">Back to index</button></a>
+@end

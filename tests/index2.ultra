@@ -1,0 +1,11 @@
+include @Core.Web.AppResponseInterface
+include @Core.Web.Router
+
+$r = new Router()
+
+$r.get('/form', :form, function(params)
+    live $request
+end)
+
+$r.getMatch().localize()
+live handler(params)

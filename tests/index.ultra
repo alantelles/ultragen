@@ -1,6 +1,93 @@
-include 'base.ultra.html'
+include @Core.Web.AppResponseInterface
+include @Core.Web.Router
+include @Core.Web.MimeTypes
+include @Core.Web.HttpStatus
 
-title = "Hello, World!"
+r = new Router()
 
-t  = "a" + str(5)
-live t
+r.get('/', :index, function(params)    
+    include 'base.ultra.html'
+    live Base('Teste')
+end)
+
+r.get('/headers', :headers, lambda(params) : live $request)
+
+r.get("/static/:type/:filename", :static, function(params)
+    params.localize()
+    AppResponse.static('static/' + type + '/' + filename)
+end)
+
+r.post("/json", :json, function(params)
+
+    function getSeeAlso(data)
+        return data[:glossary][:GlossDiv][:GlossList][:GlossEntry][:GlossDef][:GlossSeeAlso]
+    end
+
+    function lowerMap(i)
+        return i.lower()
+    end
+
+    AppResponse.contentType(MimeTypes.JSON)
+    resp = getSeeAlso($request[:json])
+    live JSON.create([{'data': resp}, {'data': resp.map(lowerMap)}])
+end)
+
+r.post("/file", :filePost, function(params)
+    include @Core.FileSystem
+    uploaded = $request[:files][:files]
+    var = uploaded.save('zika.png')
+
+    # tempname = uploaded[:files_multi][0][:tempName]
+    # outName = uploaded[:files_multi][0][:name]
+    # FileSystem.copy(tempname, outName)
+    # uploaded[:files][:handle].save('cloud.png')
+    
+    
+    live var
+end)
+
+r.post("/new", :formPost, function(params)
+    function coerceNum(num)
+        return int(num)
+    end
+    function coerceBool(bool)
+        if (bool == "true")
+            return true
+        end
+        if (bool == "false")
+            return false
+        end
+        return null
+    end
+    output = {}
+    for ($request[:form].keys(), key)
+        if (key == "places")
+            output[key] = $request[:form][key].map(coerceNum)
+        elsif (key == "married")
+            output[key] = coerceBool($request[:form][key])
+        else
+            output[key] = $request[:form][key]
+        end
+    end
+    JSON.createFile(output, 'form.json')
+    AppResponse.redirect(r.urlFor(:index))
+end)
+
+r.get("/new", :newData, function(params)
+    include @Core.Helpers
+    include 'base.ultra.html'
+    content = Helpers.render('new_data.ultra.html')
+    live Base('Novo', content)
+end)
+
+r.get('/redir', :redir, function(params)
+    AppResponse.status = 307
+    AppResponse.clientRedirect('/zika', 5, "Você será redirecionado em 5 segundos", "Pode crê")
+end)
+
+r.get('/zika', :redir, function(params)
+    live 'zika'
+end)
+
+r.getMatch().localize()
+live handler(params)

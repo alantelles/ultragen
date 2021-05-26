@@ -38,6 +38,7 @@ type
     function Variable(AToken: TToken): TAST;
     function FunctionBlock(Anony, IsDecorator:boolean): TAST;
     function LambdaDef: TAST;
+    function AssignedTest: TAST;
 
     function ExpandArgs: TAST;
     function DefParams: TASTList;
@@ -86,6 +87,21 @@ destructor TTParser.Destroy;
 begin
   FLexer.Free;
   inherited;
+end;
+
+function TTParser.AssignedTest: TAST;
+var
+  AToken: TToken;
+begin
+  Eat(T_ASSIGNED_TEST);
+  AToken := TToken.Create(
+    FCurrentToken.PType,
+    FCurrentToken.PValue,
+    FCurrentToken.PLineNo,
+    FCurrentToken.PCharNo,
+    FCurrentToken.PScriptName
+  );
+  Result := TAssignedTest.Create(MethodCall(), AToken);
 end;
 
 function TTParser.NewObject: TAST;
@@ -1431,6 +1447,10 @@ begin
     Eat(TYPE_STRING);
     logtext('PARSER', 'Parser', 'Creating string node');
     Ret := TString.Create(AToken);
+  end
+  else if (AToken.PType = T_ASSIGNED_TEST) then
+  begin
+    Ret := AssignedTest();
   end
   else if (AToken.PType = T_PLUS) then
   begin

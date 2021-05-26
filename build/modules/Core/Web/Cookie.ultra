@@ -1,24 +1,38 @@
 include @Core.DateTime
+include @Core.Helpers
 
 class Cookie
 
 function init(value, params={}) : Cookie
-    if (!(params.hasKey('path')))
-        params['path'] = '/'
+    self.value = Helpers.urlencode(value)
+    self.expires = null
+    self.maxAge = -1
+    self.domain = null
+    self.path = '/'
+    self.secure = false
+    self.sameSite = :None
+    self.httpOnly = false    
+    if ((params.hasKey('expires')))
+        self.expires = params['expires']
     end
-    self.params = params
+    if ((params.hasKey('max-age')))
+        self.maxAge = params['max-age']
+    end
+    if ((params.hasKey('domain')))
+        self.domain = params['domain']
+    end
+    if ((params.hasKey('path')))
+        self.path = params['path']
+    end
+    if ((params.hasKey('secure')))
+        self.domain = params['secure']
+    end
+    if ((params.hasKey('httpOnly')))
+        self.httpOnly = params['httpOnly']
+    end
 end
 
-function expires(y, m=1, d=1, h=0, n=0, s=0, gmt=0) : Cookie
-    strDate = concat(y, '-', m, '-', d, ' ', h, ':', n, ':', s)
-    print(strDate)
-    parsed = DateTime.parse('yyyy-m-d h:n:s', strDate)
-    
-    if (gmt > 0)
-        gmt = '+' + str(gmt)
-    else
-        gmt = str(gmt)
-    end
-    formatted = parsed.format("dd mmm yyyy hh:nn:ss 'GMT'" + gmt)
-    return formatted
+function expire() : Cookie
+    ret = new Cookie('', {'expires': new DateTime(1970, 1, 1, 12)})
+    return ret
 end

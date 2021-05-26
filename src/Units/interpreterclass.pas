@@ -11,7 +11,7 @@ uses
   StackClass,
   ARClass, InstanceofClass,
   StringInstanceClass, ExceptionsClasses,
-  ListInstanceClass, httpdefs, UltraWebHandlersClass;
+  ListInstanceClass, UltraWebHandlersClass;
 
 type
   TInterpreter = class
@@ -31,9 +31,6 @@ type
     FNowNode: TAST;
     FUltraHome: string;
     FModulesPath: TStringList;
-    FResponse: TResponse;
-    FRequest: TRequest;
-    FMimeFile: TStringList;
     FDontDestroyLast: boolean;
     FExceptionThrown: boolean;
 
@@ -51,9 +48,7 @@ type
     property PLive: string read FLiveOutput;
     property PInsertActRec: TActivationRecord read FInsertActRec write FInsertActRec;
     property PModulesPath: TStringList read FModulesPath write FModulesPath;
-    property PResponse: TResponse read FResponse write FResponse;
-    property PRequest: TRequest read FRequest write FRequest;
-    property PMimeFile: TStringList read FMimeFile write FMimeFile;
+    property PUltraHome: string read FUltraHome write FUltraHome;
     procedure RaiseException(AMsg: string; AType: string);
     constructor Create(var ATree: TAST);
     destructor Destroy; override;
@@ -76,7 +71,7 @@ type
 implementation
 
 uses
-  Math, TokenClass, Tokens, CoreFunctionsClass, LexerClass,
+  Math, TokenClass, Tokens, CoreFunctionsClass, LexerClass, DateTimeInstanceClass,
   ServerClass, Dos, TypeLoaderClass, ByteStreamClass, HttpClientInstanceClass, BrookServerClass;
 
 constructor TInterpreter.Create(var ATree: TAST);
@@ -179,15 +174,16 @@ var
 begin
   FDontPush := DontPush;
   FNameSpace := ANameActRec;
-  try
+  Ret := Visit(FTree);
+  {try
     try
       Ret := Visit(FTree);
     except on E: Exception do
-      if not FExceptionThrown then
+      //if not FExceptionThrown then
         RaiseException(E.Message, 'Internal');
     end;
   finally
-  end;
+  end;}
 
   Result := '';
 end;
@@ -203,7 +199,7 @@ begin
     try
       Ret := Visit(FTree);
     except on E: Exception do
-      if not FExceptionThrown then
+      //if not FExceptionThrown then
         RaiseException(E.Message, 'Internal');
     end;
   finally
@@ -211,7 +207,6 @@ begin
 
   Result := '';
 end;
-
 
 function TInterpreter.GetLive: string;
 var
@@ -223,6 +218,19 @@ begin
   i := AActRec.GetMember('__LIVE__');
   Aval := TStringInstance(i);
   Result := AVal.PValue;
+end;
+
+function TInterpreter.VisitAssignedTest(ANode: TAssignedTest): TBooleanInstance;
+var
+  Ret: TBooleanInstance;
+begin
+  try
+    Visit(ANode.PValue);
+    Ret := TBooleanInstance.Create(True)
+  except
+    Ret := TBooleanInstance.Create(False);
+  end;
+  Result := Ret;
 end;
 
 function TInterpreter.VisitExpandArgs(ANode: TExpandArgs): TListInstance;
@@ -577,12 +585,7 @@ begin
       end;
       if ABuilt.PValue = 'TServerInstance' then
       begin
-        if Length(ArgsList) = 2 then
-          Ret := TServerInstance.Create(TIntegerInstance(ArgsList[0]).PValue, TBooleanInstance(ArgsList[1]).PValue)
-        else if Length(ArgsList) = 1 then
-          Ret := TServerInstance.Create(TIntegerInstance(ArgsList[0]).PValue, True)
-        else
-          RaiseException(E_INVALID_ARGS, 'Arguments');
+        Ret := TServerInstance.Create(TIntegerInstance(ArgsList[0]).PValue, TBooleanInstance(ArgsList[1]).PValue);
       end
       else if ABuilt.PValue = 'TBrookServerInstance' then
       begin
@@ -590,16 +593,20 @@ begin
       end
       else if ABuilt.PValue = 'THttpClientInstance' then
       begin
-        if Length(ArgsList) = 1 then
+        if Len = 1 then
         begin
           Ret := THttpClientInstance.Create(TStringInstance(ArgsList[0]).PValue)
         end
         else
           RaiseException(E_INVALID_ARGS, 'Arguments');
       end
+      else if ABuilt.PValue = 'TDateTimeInstance' then
+      begin
+        Ret := TDateTimeInstance.ConstructDateTime(ArgsList);
+      end
       else if ABuilt.PValue = 'TByteStreamInstance' then
       begin
-        if Length(ArgsList) = 0 then
+        if Len = 0 then
           SetLength(ByteArray, 0)
         else
         begin

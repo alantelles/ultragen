@@ -1,0 +1,30 @@
+include @Core.Request
+
+class GhibliClient
+
+
+
+function init() : GhibliClient
+    url = 'https://ghibliapi.herokuapp.com/'
+    self.client = new Request(url)
+    self.client.timeout = 20
+end
+
+function getFilms() : GhibliClient
+    r = self.client.run(:GET, 'films')
+    return JSON.parse(r.text)
+end
+
+function getFilm(id) : GhibliClient
+    r = self.client.run(:GET, 'films/' + str(id))
+    return JSON.parse(r.text)
+end
+
+function getPeopleFromFilm(film) : GhibliClient
+    r = self.client.run(:GET, 'people')
+    parsed = JSON.parse(r.text)    
+    parsed = parsed.filter(function(p)
+        return (p[:films][0]) == ('https://ghibliapi.herokuapp.com/films/' + film)
+    end)
+    return parsed
+end

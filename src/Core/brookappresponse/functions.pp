@@ -1,9 +1,9 @@
-procedure TCoreFunction.ClientRedirect;
+procedure TCoreFunction.BrookClientRedirect;
 var
   RespStr, Refresh, location: string;
   hText: string = '';
   pText: string = '';
-  delayTime: string;
+  delayTime: string = '0';
 begin
 
   FInter.PRedirected := True;
@@ -20,28 +20,28 @@ begin
   if Length(FParams) > 2 then
     hText := '<h1>' + FParams[2].PStrValue + '</h1>';
   if Length(FParams) > 3 then
-    hText := '<p>' + FParams[3].PStrValue + '</p>';
+    pText := '<p>' + FParams[3].PStrValue + '</p>';
 
   Refresh := '<meta http-equiv="refresh" content="' + delayTime + '; URL=''' + location +  '''" />';
   RespStr := '<html><head><meta charset="UTF-8">' + Refresh + '</head><body>' + hText + pText + '</body></html>';
-  TUltraFPWebHandlers(FInter.PWebHandlers).PResponse.Content := RespStr;
-  TUltraFPWebHandlers(FInter.PWebHandlers).PResponse.SendResponse;
+  TUltraBrookHandlers(FInter.PWebHandlers).PResponse.Send(RespStr, 'text/html; charset=utf-8', 200);
 end;
 
-procedure TCoreFunction.ServeStatic;
+procedure TCoreFunction.BrookServeStatic;
 var
   AStream: TMemoryStream;
   FileName: string;
   mimetry, mime, mimeGet, getExt, mimeFileName: string;
   AInst: TInstanceOf;
   AMimeList: TStringList;
+  ABytes: TBytes;
+  i: integer;
 begin
   FileName := TStringInstance(FParams[0]).PValue;
   if FileExists(FileName) then
   begin
     AStream := TMemoryStream.Create;
     AStream.LoadFromFile(FileName);
-    TUltraFPWebHandlers(FInter.PWebHandlers).PResponse.ContentStream := AStream;
     if Length(FParams) = 1 then
     begin
       getExt := Trim(Copy(FileName, RPos('.', FileName) + 1, Length(FileName)));
@@ -76,21 +76,22 @@ begin
 
     if mimeGet = '' then
       mimeGet := 'application/octet-stream';
-    TUltraFPWebHandlers(FInter.PWebHandlers).PResponse.ContentType := mimeGet;
-    TUltraFPWebHandlers(FInter.PWebHandlers).PResponse.ContentLength := TUltraFPWebHandlers(FInter.PWebHandlers).PResponse.ContentStream.Size;
-    TUltraFPWebHandlers(FInter.PWebHandlers).PResponse.SendContent;
-    // TUltraFPWebHandlers(FInter.PWebHandlers).PResponse.ContentStream.Free;
-    AStream.Free;
-    TUltraFPWebHandlers(FInter.PWebHandlers).PResponse.Code := 200;
+
+
+    SetLength(ABytes, AStream.Size);
+    AStream.Position := 0;
+    if AStream.Size > 0 then
+      for i:=0 to AStream.Size-1 do
+        ABytes[i] := AStream.ReadByte;
     FInter.PRedirected := True;
+    TUltraBrookHandlers(FInter.PWebHandlers).PResponse.SendBytes(ABytes, AStream.size, mimeGet, 200);
+    AStream.Free;
   end
   else
   begin
-    TUltraFPWebHandlers(FInter.PWebHandlers).PResponse.Code := 404;
-    TUltraFPWebHandlers(FInter.PWebHandlers).PResponse.CodeText := 'Not found';
-    TUltraFPWebHandlers(FInter.PWebHandlers).PResponse.ContentType := 'text/html; charset=utf-8';
+    TUltraBrookHandlers(FInter.PWebHandlers).PResponse.Send('File ' + FileName + ' not found', 'text/html; charset=utf-8', 404);
     FInter.PRedirected := True;
-    TUltraFPWebHandlers(FInter.PWebHandlers).PResponse.Content := 'File ' + FileName + ' was not found';
-    TUltraFPWebHandlers(FInter.PWebHandlers).PResponse.SendResponse;
   end;
+
+
 end;

@@ -22,10 +22,39 @@ type
     class procedure LoadByteStream(var AActRec: TActivationRecord);
     class procedure LoadMarkdownParser(var AActRec: TActivationrecord);
     class procedure LoadBrookserver(var AActRec: TActivationRecord);
-    // class procedure LoadCookiesHandler(var AActRec: TActivationrecord);
+    class procedure LoadHelpers(var AActRec: TActivationRecord);
+    class procedure LoadBrookUploaded(AActRec: TActivationRecord);
   end;
 
 implementation
+
+class procedure TTypeLoader.LoadHelpers(var AActRec: TActivationRecord);
+var
+  AFunc: TFunctionInstance;
+  AType: TDataType;
+begin
+  Atype := TDataType.Create('THelpersInstance', 'Helpers');
+  AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'THelpersInstance',
+    True, False, False);
+  Atype.PMembers.Add('urlencode', AFunc);
+  Atype.PMembers.Add('urldecode', AFunc);
+  AActRec.AddMember('Helpers', AType);
+end;
+
+class procedure TTypeloader.LoadBrookUploaded(AActRec: TActivationRecord);
+var
+  AFunc: TFunctionInstance;
+  AType: TDataType;
+begin
+  AType := TDataType.Create('TBrookUploadedInstance', 'Uploaded');
+  AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TUploadedInstance' ,
+    True, False, False);
+  AType.PMembers.Add('save', AFunc);
+  AType.PMembers.Add('name', AFunc);
+  AType.PMembers.Add('size', AFunc);
+  AType.PMembers.Add('contentType', AFunc);
+  AActRec.AddMember('Uploaded', AType);
+end;
 
 class procedure TTypeLoader.LoadBrookserver(var AActRec: TActivationRecord);
 var
@@ -105,12 +134,12 @@ begin
   AdataType.PMembers.Add('$cookies', TDictionaryInstance.Create(
     TActivationRecord.Create('AppResponseCookies', AR_DICT, -1)));
   ADataType.PMembers.Add('redirect', AFunc);
-  {ADataType.PMembers.Add('clientRedirect', AFunc);
-  ADataType.PMembers.Add('setStatusCode', AFunc);
+  ADataType.PMembers.Add('clientRedirect', AFunc);
+  {ADataType.PMembers.Add('setStatusCode', AFunc);
   ADataType.PMembers.Add('setStatusText', AFunc);
   ADataType.PMembers.Add('setContentType', AFunc);
-  ADataType.PMembers.Add('setHeader', AFunc);
-  ADataType.PMembers.Add('static', AFunc);}
+  ADataType.PMembers.Add('setHeader', AFunc);}
+  ADataType.PMembers.Add('static', AFunc);
   AActRec.AddMember('AppResponse', ADataType);
 end;
 
@@ -128,10 +157,6 @@ begin
     TActivationRecord.Create('AppResponseCookies', AR_DICT, -1)));
   ADataType.PMembers.Add('redirect', AFunc);
   ADataType.PMembers.Add('clientRedirect', AFunc);
-  ADataType.PMembers.Add('setStatusCode', AFunc);
-  ADataType.PMembers.Add('setStatusText', AFunc);
-  ADataType.PMembers.Add('setContentType', AFunc);
-  ADataType.PMembers.Add('setHeader', AFunc);
   ADataType.PMembers.Add('static', AFunc);
   AActRec.AddMember('AppResponse', ADataType);
 end;
@@ -144,16 +169,9 @@ begin
   AServerType := TDataType.Create('TServerInstance', 'Server');
   AServerFunc := TFunctionInstance.Create('BuiltIn', nil, nil,
     'TServerInstance', True, False, False);
-  AServerType.PMembers.Add('setPort', AServerFunc);
-  AServerType.PMembers.Add('setRootFile', AServerFunc);
   AServerType.PMembers.Add('run', AServerFunc);
-  AServerType.PMembers.Add('init', AServerFunc);
-  AServerType.PMembers.Add('setTitle', AServerFunc);
   AServerType.PMembers.Add('setStaticPath', AServerFunc);
   AServerType.PMembers.Add('setStaticPaths', AServerFunc);
-  AServerType.PMembers.Add('setExceptionHandler', AServerFunc);
-  AServerType.PMembers.Add('setMimeTypesFile', AServerFunc);
-  AServerType.PMembers.Add('setStopRoute', AServerFunc);
   AActRec.AddMember('Server', AServerType);
 end;
 
@@ -245,6 +263,8 @@ begin
     TTypeLoader.LoadOS(AActRec)
   else if AName = 'ByteStream' then
     TTypeLoader.LoadByteStream(AActRec)
+  else if AName = 'Helpers' then
+    TTypeLoader.LoadHelpers(AActRec)
   else if AName = 'DateTime' then
     TTypeLoader.LoadDateTime(AActRec)
   else if AName = 'Server' then
@@ -257,6 +277,8 @@ begin
     TTypeLoader.LoadBrookResponseHandler(AActRec)
   else if AName = 'Markdown' then
     TTypeLoader.LoadMarkdownParser(AActRec)
+  else if AName = 'BrookUploaded' then
+    TTypeLoader.LoadBrookUploaded(AActRec)
   else
     AInter.RaiseException('Type "' + AName + '" does not exist and can''t be loaded',
       'RunTime');

@@ -18,10 +18,47 @@ type TDateTimeInstance = class (TInstanceOf)
     function GetPartOfDate(APart: string): TInstanceOf;
     class function CreateNowDateTime: TDateTimeInstance;
     class function ParseDateFromString(AFormat, ADate:string): TDateTimeInstance;
+    class function ConstructDateTime(AValues: TInstanceList): TDateTimeInstance;
 end;
 
 implementation
-uses DateUtils, StringInstanceClass;
+uses DateUtils, StringInstanceClass, StrUtils;
+
+class function TDateTimeInstance.ConstructDateTime(AValues: TInstanceList): TDateTimeInstance;
+var
+  len, s, i: integer;
+  fmtStr, dateStr, nowStr, nowFmt: string;
+  parts: array of string;
+  last: string = '';
+begin
+  SetLength(parts, 7);
+  parts[0] := 'y';
+  parts[1] := 'm';
+  parts[2] := 'd';
+  parts[3] := 'h';
+  parts[4] := 'n';
+  parts[5] := 's';
+  parts[6] := 'z';
+  fmtStr := '';
+  dateStr := '';
+  len := Length(AValues);
+  if len > 0 then
+  begin
+    for i := 0 to len - 1 do
+    begin
+      nowStr := '';
+      nowFmt := '';
+      nowStr := AValues[i].AsString;
+      s := Length(nowStr);
+      nowFmt := DupeString(parts[i], s);
+      dateStr := dateStr + nowStr + '-';
+      fmtStr := fmtStr + nowFmt + '-';
+    end;
+    Result := TDateTimeInstance.Create(ScanDateTime(fmtStr, dateStr));
+  end
+  else
+    Result := TDateTimeInstance.Create(Now);
+end;
 
 constructor TDateTimeInstance.Create(ADateTime: TDateTime);
 begin

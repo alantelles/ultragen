@@ -32,7 +32,8 @@ type
 implementation
 
 uses
-  StringInstanceClass, UltraGenInterfaceClass, Dos, StrUtils, ARClass, ListInstanceClass, UltraWebHandlersClass;
+  StringInstanceClass, UltraGenInterfaceClass, Dos, StrUtils, ARClass, ListInstanceClass, UltraWebHandlersClass,
+  DateTimeInstanceClass, httpprotocol, BrookHTTPUploads, CoreFunctionsClass, BrookStringMap, BrookHTTPCookies, ByteStreamClass, typeLoaderClass;
 
 function StrToBytes(Astr: string): TBytes;
 var
@@ -58,10 +59,82 @@ begin
       ARequest.Method + ': '+
       ARequest.Path+' -- '+ IntToStr(Status) +
       //' ' + AResponse.s +
-      ', ' + IntToStr(Len) + ' B, Content-Type: text/html', #13);
+      ', ' + IntToStr(Len) + ' B, Content-Type: text/html; charset=utf-8', #13);
   WriteLn(ErrMsg);
   AResponse.Send(htmlErr,
-    'text/html', Status);
+    'text/html; charset=utf-8', Status);
+end;
+
+procedure SetCookie(AKey, AValue:string; AResponse: TBrookHTTPResponse);
+var
+  ACookie: TBrookHTTPCookie;
+begin
+  ACookie := AResponse.Cookies.Add;
+  ACookie.Name := AKey;
+  ACookie.Value := httpencode(AValue);
+  ACookie.Path := '/';
+end;
+
+procedure SetCookie(Akey: string; ACookieObj: TInstanceOf; AResponse: TBrookHTTPResponse);
+var
+  ACookie: TBrookHTTPCookie;
+  CookieStr: string;
+  CookieOpts: TActivationRecord;
+  j: integer;
+  AObj: TObject;
+begin
+  //CookieStr := '';
+  //CookieStr := CookieStr + TInstanceOf(ACookieObj.PMembers.Find('value')).AsString;
+  //CookieOpts := TDictionaryInstance(ACookieObj.PMembers.Find('params')).PValue;
+  //for j:=0 to CookieOpts.PMembers.Count - 1 do
+  //begin
+  //  if CookieOpts.PMembers[j].ClassName = 'TBooleanInstance' then
+  //  begin
+  //    if TBooleanInstance(CookieOpts.PMembers[j]).PValue then
+  //      CookieStr := CookieStr + ';' + CookieOpts.PMembers.NameOfIndex(j)
+  //  end
+  //  else
+  //    CookieStr := CookieStr + ';' + CookieOpts.PMembers.NameOfIndex(j) + '=' + TInstanceOf(CookieOpts.PMembers[j]).AsString;
+  //
+  //end;
+  ACookie := AResponse.Cookies.Add;
+  ACookie.Name := AKey;
+  ACookie.Value := TInstanceOf(ACookieObj.PMembers.Find('value')).AsString;
+  AObj := ACookieObj.PMembers.Find('sameSite');
+  if AObj.ClassNameIs('TStringInstance') then
+  begin
+    CookieStr := lowercase(TStringInstance(AObj).PValue);
+    if CookieStr = 'lax' then
+      ACookie.SameSite := ssLax
+    else if CookieStr = 'strict' then
+      ACookie.SameSite := ssStrict
+    else
+      ACookie.SameSite := ssNone;
+  end;
+  AObj := ACookieObj.PMembers.Find('httpOnly');
+  if AObj.ClassNameIs('TBooleanInstance') then
+    ACookie.HttpOnly := TBooleanInstance(AObj).PValue;
+
+  AObj := ACookieObj.PMembers.Find('expires');
+  if AObj.ClassNameIs('TDateTimeInstance') then
+    ACookie.Expires := TDateTimeInstance(AObj).PValue;
+
+  AObj := ACookieObj.PMembers.Find('maxAge');
+  if AObj.ClassNameIs('TIntegerInstance') then
+    if TIntegerInstance(AObj).PValue > -1 then
+      ACookie.MaxAge := TIntegerInstance(AObj).PValue;
+
+  AObj := ACookieObj.PMembers.Find('domain');
+  if AObj.ClassNameIs('TStringInstance') then
+    ACookie.Domain := TStringInstance(AObj).PValue;
+
+  AObj := ACookieObj.PMembers.Find('path');
+  if AObj.ClassNameIs('TStringInstance') then
+    ACookie.Path := TStringInstance(AObj).PValue;
+
+  AObj := ACookieObj.PMembers.Find('secure');
+  if AObj.ClassNameIs('TBooleanInstance') then
+    ACookie.Secure := TBooleanInstance(AObj).PValue;
 end;
 
 procedure SetCookiesFromUltra(AResponse: TBrookHTTPResponse; ADict: TActivationRecord);
@@ -69,45 +142,26 @@ var
   AListInst: TListInstance;
   Gene: TInstanceOf;
   CookieOpts: TActivationRecord;
-  CookieStr: string;
+  CookieStr, Akey: string;
   i, j, len: integer;
   ACookie: TClassInstance;
 
 begin
   for i:=0 to ADict.PMembers.Count-1 do
   begin
+    AKey := ADict.PMembers.NameOfIndex(i);
     Gene := TInstanceOf(ADict.PMembers[i]);
-    if (Gene.ClassNameIs('TListInstance')) then
-    begin
-      AListInst := TListInstance(Gene);
-      // $cookie['key'] = ['value', {'path': '/', 'max-age': 310000, 'Secure': true}]
-      AResponse.Headers.Add('Set-Cookie', ADict.PMembers.NameOfIndex(i) + '=' + TInstanceOf(ADict.PMembers[i]).AsString);
-    end
-    else if (Gene.ClassNameIs('TClassInstance')) then
+    if (Gene.ClassNameIs('TClassInstance')) then
     begin
       if (TClassInstance(Gene).PValue = 'Cookie') then
       begin
-        ACookie := TClassInstance(Gene);
-        CookieStr := '';
-        CookieStr := CookieStr + TInstanceOf(ACookie.PMembers.Find('value')).AsString;
-        CookieOpts := TDictionaryInstance(ACookie.PMembers.Find('params')).PValue;
-        for j:=0 to CookieOpts.PMembers.Count - 1 do
-        begin
-          if CookieOpts.PMembers[j].ClassName = 'TBooleanInstance' then
-          begin
-            if TBooleanInstance(CookieOpts.PMembers[j]).PValue then
-              CookieStr := CookieStr + ';' + CookieOpts.PMembers.NameOfIndex(j)
-          end
-          else
-            CookieStr := CookieStr + ';' + CookieOpts.PMembers.NameOfIndex(j) + '=' + TInstanceOf(CookieOpts.PMembers[j]).AsString;
-
-        end;
-        AResponse.Headers.Add('Set-Cookie', ADict.PMembers.NameOfIndex(i) + '=' + CookieStr);
-      end;
-    end;
-
-
-    // AResponse.SetCookie(ADict.PMembers.NameOfIndex(i), TInstanceOf(ADict.PMembers[i]).AsString);
+        SetCookie(Akey, Gene, AResponse);
+      end
+      else
+        SetCookie(Akey, Gene.AsString, AResponse);
+    end
+    else
+      SetCookie(Akey, Gene.AsString, AResponse);
   end;
 end;
 
@@ -129,7 +183,230 @@ begin
   AResponse.SendStream(AStream, True, 200);
 end;
 
+procedure SetHeadersFromUltra(AResponse: TBrookHTTPResponse; ADict: TActivationRecord);
+var
+  i: integer;
+begin
+  for i:=0 to ADict.PMembers.Count-1 do
+  begin
+    AResponse.Headers.Add(ADict.PMembers.NameOfIndex(i), TInstanceOf(ADict.PMembers[i]).AsString);
+  end;
+end;
 
+function ProcessAppResponse(AResponse: TBrookHTTPResponse; AppResponse: TDataType): integer;
+var
+  StatusInst: TInstanceOf;
+  ADict: TActivationRecord;
+  Status: integer = 200;
+begin
+  if AppResponse <> nil then
+  begin
+    StatusInst := TInstanceOf(AppResponse.PMembers.Find('status'));
+    if StatusInst <> nil then
+      if StatusInst.ClassNameIs('TIntegerInstance') then
+        Status := TIntegerInstance(StatusInst).PValue;
+    ADict := TDictionaryInstance(AppResponse.PMembers.Find('$headers')).PValue;
+    if ADict.PMembers.Count > 0 then
+    begin
+      SetHeadersFromUltra(AResponse, ADict);
+    end;
+    ADict := TDictionaryInstance(AppResponse.PMembers.Find('$cookies')).PValue;
+    if ADict.PMembers.Count > 0 then
+    begin
+      SetCookiesFromUltra(AResponse, ADict);
+    end;
+    // TODO : process response
+  end;
+  Result := Status
+end;
+
+function SetRequestCookiesToUltra(ARequest: TBrookHTTPRequest): TDictionaryInstance;
+var
+  WebVars: TActivationRecord;
+  K, V: string;
+  First: boolean;
+  Pair: TBrookStringPair;
+  ADict: TDictionaryInstance;
+begin
+  WebVars := TActivationRecord.Create('requestCookies', AR_DICT, -1);
+  First := ARequest.Cookies.First(Pair);
+  if First then
+  begin
+    WebVars.AddMember(Pair.Name, TStringInstance.Create(Pair.Value));
+    while (ARequest.Cookies.Next(Pair)) do
+    begin
+      WebVars.AddMember(Pair.Name, TStringInstance.Create(Pair.Value));
+    end;
+  end;
+  ADict := TDictionaryInstance.Create(WebVars, TStringInstance.Create(''));
+  Result := ADict;
+end;
+
+function SetArgsFromUltra(ARequest: TBrookHTTPRequest): TDictionaryInstance;
+var
+  Args: TActivationRecord;
+  k: string;
+  AInst: TListInstance;
+  Pair: TBrookStringPair;
+begin
+  Args := TActivationRecord.Create('args', AR_DICT, -1);
+  if ARequest.Params.First(Pair) then
+  begin
+    repeat
+      k := Pair.Name;
+      if AnsiEndsStr('[]', k) then
+      begin
+        k := Copy(k, 1, RPos('[', k) - 1);
+        Ainst := TListInstance(Args.PMembers.Find(k));
+        if Ainst = nil then
+        begin
+          AInst := TListInstance.Create();
+          Args.PMembers.Add(k, AInst);
+        end;
+        TListInstance(AInst).Add(TStringInstance.Create(Pair.Value));
+      end
+      else
+        Args.PMembers.Add(k, TStringInstance.Create(Pair.Value));
+    until not ARequest.Params.Next(Pair)
+  end;
+
+  Result := TDictionaryInstance.Create(Args);
+end;
+
+function SetFormPostBodyFromUltra(ARequest: TBrookHTTPRequest): TDictionaryInstance;
+var
+  Args: TActivationRecord;
+  k: string;
+  AInst: TListInstance;
+  Pair: TBrookStringPair;
+begin
+  Args := TActivationRecord.Create('post', AR_DICT, -1);
+  if ARequest.Fields.First(Pair) then
+  begin
+    repeat
+      k := Pair.Name;
+      if AnsiEndsStr('[]', k) then
+      begin
+        k := Copy(k, 1, RPos('[', k) - 1);
+        Ainst := TListInstance(Args.PMembers.Find(k));
+        if Ainst = nil then
+        begin
+          AInst := TListInstance.Create();
+          Args.PMembers.Add(k, AInst);
+        end;
+        TListInstance(AInst).Add(TStringInstance.Create(Pair.Value));
+      end
+      else
+        Args.PMembers.Add(k, TStringInstance.Create(Pair.Value));
+    until not ARequest.Fields.Next(Pair)
+  end;
+
+  Result := TDictionaryInstance.Create(Args);
+end;
+
+function SetRequestHeadersToUltra(ARequest: TBrookHTTPRequest): TDictionaryInstance;
+var
+  WebVars: TActivationRecord;
+  K, V: string;
+  First: boolean;
+  Pair: TBrookStringPair;
+  ADict: TDictionaryInstance;
+begin
+  WebVars := TActivationRecord.Create('requestHeaders', AR_DICT, -1);
+  First := ARequest.Headers.First(Pair);
+  if First then
+  begin
+    WebVars.AddMember(Pair.Name, TStringInstance.Create(Pair.Value));
+    while (ARequest.Headers.Next(Pair)) do
+    begin
+      WebVars.AddMember(Pair.Name, TStringInstance.Create(Pair.Value));
+    end;
+  end;
+  ADict := TDictionaryInstance.Create(WebVars, TStringInstance.Create(''));
+  Result := ADict;
+end;
+
+function SetFilesPostBodyFromUltra(ARequest: TBrookHTTPRequest): TDictionaryInstance;
+var
+  FileData, Args: TActivationRecord;
+  i: integer;
+  k: string;
+  AInst: TInstanceOf;
+  AFile: TBrookHTTPUpload;
+  AUpload: TBrookUploadedInstance;
+begin
+  Args := TActivationRecord.Create('files', AR_DICT, -1);
+  for AFile in ARequest.Files do
+  begin
+    k := AFile.Field;
+    AUpload := TBrookUploadedInstance.Create(AFile);
+    //FileData := TActivationrecord.Create(k, AR_DICT, -1);
+    //FileData.AddMember('name', TStringInstance.Create(AFile.Name));
+    //FileData.AddMember('size', TIntegerInstance.Create(AFile.Size));
+    //FileData.AddMember('contentType', TStringInstance.Create(AFile.Mime));
+    //FileData.AddMember('handler',TBrookUploadedInstance.Create(AFile));
+    if AnsiEndsStr('[]', k) then
+    begin
+      k := Copy(k, 1, RPos('[', k) - 1);
+      Ainst := TListInstance(Args.PMembers.Find(k));
+      if Ainst = nil then
+      begin
+        AInst := TListInstance.Create();
+        Args.PMembers.Add(k, AInst);
+      end;
+      TListInstance(AInst).Add(AUpload);
+    end
+    else
+      Args.PMembers.Add(k, AUpload);
+  end;
+  Result := TDictionaryInstance.Create(Args);
+end;
+
+function SetQueryStringToUltra(ARequest: TBrookHTTPRequest): string;
+var
+  Ret: string;
+begin
+  Ret := ReplaceStr(ARequest.Params.ToString, sLineBreak, '&');
+  Ret := Copy(Ret, 1, Length(Ret) - 1);
+  Result := ret;
+end;
+
+function SetJsonPostBodyFromUltra(ARequest: TBrookHTTPRequest): TInstanceOf;
+var
+  AParser: TCoreFunction;
+  Ret: TInstanceOf;
+begin
+  AParser := TCoreFunction.Create;
+  Ret := AParser.ParseJson(ARequest.Payload.ToString);
+  AParser.Free;
+  Result := Ret;
+end;
+
+function SetRequestDict(ARequest: TBrookHTTPRequest): TUltraAdapter;
+var
+  Adapter: TUltraAdapter;
+begin
+  Adapter := TUltraAdapter.Create('$request');
+  Adapter.AddMember('route', ARequest.Path);
+  Adapter.AddMember('method', ARequest.Method);
+  Adapter.AddMember('server', 'Brook');
+  Adapter.ActRec.AddMember('headers', SetRequestHeadersToUltra(ARequest));
+  Adapter.ActRec.AddMember('cookies', SetRequestCookiesToUltra(ARequest));
+  Adapter.AddMember('query', SetQueryStringToUltra(ARequest));
+  Adapter.ActRec.AddMember('args', SetArgsFromUltra(ARequest));
+  Adapter.AddMember('body', ARequest.Payload.ToString);
+  Adapter.ActRec.AddMember('rawBody', TByteStreamInstance.Create(ARequest.Payload.ToString));
+  if ARequest.ContentType = 'application/x-www-form-urlencoded' then
+    Adapter.ActRec.AddMember('form', SetFormPostBodyFromUltra(ARequest));
+  if ARequest.ContentType = 'application/json' then
+    Adapter.ActRec.AddMember('json', SetJsonPostBodyFromUltra(ARequest));
+  if AnsiStartsStr('multipart/form-data;', ARequest.ContentType) then
+  begin
+    Adapter.ActRec.AddMember('form', SetFormPostBodyFromUltra(ARequest));
+    Adapter.ActRec.AddMember('files', SetFilesPostBodyFromUltra(ARequest));
+  end;
+  Result := Adapter;
+end;
 
 procedure THTTPServer.DoRequest(ASender: TObject; ARequest: TBrookHTTPRequest; AResponse: TBrookHTTPResponse);
 var
@@ -138,15 +415,17 @@ var
   UltraResult: TUltraResult;
   Adapter: TUltraAdapter;
   Prelude: TSTringList;
-  ContentType: string = 'text/html';
+  ContentType: string = '';
   AppResponse: TDataType;
-  IndexHandler, ExceptionHandler: string;
+  IndexHandler, ExceptionHandler,UltraHome: string;
   ADict: TActivationRecord;
   AInst: TInstanceOf;
   StatusInst: TInstanceOf;
   i: integer;
   Redirected: boolean = False;
+  WebHandlers: TUltraBrookHandlers;
 begin
+  WebHandlers := TUltraBrookHandlers.Create(ARequest, Aresponse);
   Status := 0;
   try
   begin
@@ -157,52 +436,28 @@ begin
       Exit;
     end;
 
-    Adapter := TUltraAdapter.Create('$request');
-    Adapter.AddMember('route', ARequest.Path);
-    Adapter.AddMember('method', ARequest.Method);
+    Adapter := SetRequestDict(ARequest);
 
+    UltraHome := ReplaceStr(GetEnv('ULTRAGEN_HOME'), '\', '\\');
     Prelude := TStringList.Create;
-    Prelude.Add('addModulePath(["'+ ReplaceStr(GetEnv('ULTRAGEN_HOME'), '\', '\\') + '", "modules"].path())');
+    Prelude.Add('addModulePath(["'+ UltraHome + '", "modules"].path())');
     Prelude.Add('include @Core');
+    if Adapter.ActRec.PMembers.Find('files') <> nil then
+      Prelude.Add('load BrookUploaded');
     IndexHandler := TStringInstance(FUltraInstance.PMembers.Find('indexHandler')).PValue;
     ExceptionHandler := TStringInstance(FUltraInstance.PMembers.Find('exceptionHandler')).PValue;
-    UltraResult := TUltraInterface.InterpretScriptWithResult(IndexHandler, Prelude, Adapter, TUltraBrookHandlers.Create(ARequest, Aresponse));
+    UltraResult := TUltraInterface.InterpretScriptWithResult(IndexHandler, Prelude, Adapter, UltraHome, WebHandlers);
     AppResponse := TDataType(UltraResult.ActRec.GetMember('AppResponse'));
-    if AppResponse <> nil then
-    begin
-      StatusInst := TInstanceOf(AppResponse.PMembers.Find('status'));
-      if StatusInst <> nil then
-        if StatusInst.ClassNameIs('TIntegerInstance') then
-          Status := TIntegerInstance(StatusInst).PValue;
-      ADict := TDictionaryInstance(AppResponse.PMembers.Find('$headers')).PValue;
-      if ADict.PMembers.Count > 0 then
-      begin
-        for i:=0 to ADict.PMembers.Count-1 do
-          AResponse.Headers.Add( ADict.PMembers.NameOfIndex(i), TInstanceOf(ADict.PMembers[i]).AsString);
-      end;
-      ADict := TDictionaryInstance(AppResponse.PMembers.Find('$cookies')).PValue;
-      if ADict.PMembers.Count > 0 then
-      begin
-        SetCookiesFromUltra(AResponse, ADict);
-      end;// TODO : process response
-      //AInst := TInstanceOf(AppResponse.PMembers.Find('redirect'));
-      //if AInst <> nil then
-      //begin
-      //  if Status = 0 then
-      //    Status := 303;
-      //  Redirected := True;
-      //  AResponse.SendAndRedirect('tekas', AInst.AsString, 'text/html', Status);
-      //end;
-    end;
+    Status := ProcessAppResponse(AResponse, AppResponse);
 
-    Content := StrToBytes(UltraResult.LiveOutput);
-    Len := Length(Content);
+    Len := Length(UltraResult.LiveOutput);
+    ContentType := AResponse.Headers.Get('Content-Type');
+    if ContentType = '' then
+      ContentType := 'text/html; charset=utf-8';
 
-    if Status = 0 then
-      Status := 200;
     LogRequest(ARequest, Status, Len, ContentType);
     if not (Redirected or UltraResult.Redirected) then
-      AResponse.Send(UltraResult.LiveOutput, 'text/html', Status);
+      AResponse.Send(UltraResult.LiveOutput, ContentType, Status);
   end;
   except on E: Exception do
     if TBooleanInstance(FUltraInstance.PMembers.Find('debug')).PValue then
@@ -212,14 +467,20 @@ begin
       Adapter.AddMember('$stacktrace', E.Message);
       try
         WriteLn(E.Message);
-        UltraResult := TUltraInterface.InterpretScriptWithResult(ExceptionHandler, Prelude, Adapter);
-        AResponse.Send(UltraResult.LiveOutput, 'text/html', 500);
+        ContentType := 'text/html; charset=utf-8';
+        UltraResult := TUltraInterface.InterpretScriptWithResult(ExceptionHandler, Prelude, Adapter, UltraHome, WebHandlers);
+        AppResponse := TDataType(UltraResult.ActRec.GetMember('AppResponse'));
+        ProcessAppResponse(AResponse, AppResponse);
+        Len := Length(UltraResult.LiveOutput);
+        Status := 500;
+        LogRequest(ARequest, Status, Len, ContentType);
+        AResponse.Send(UltraResult.LiveOutput, ContentType, Status);
 
       except on F: Exception do
         if True then
         begin
           WriteLn('While running application exception handler, another exception occurred:', #13, #10, #13, #10, F.Message);
-          AResponse.Send('500 Internal Server Error', 'text/html', 500);
+          AResponse.Send('500 Internal Server Error', 'text/html; charset=utf-8', 500);
         end;
       end;
     end;
@@ -239,12 +500,7 @@ begin
     FMembers.Add('indexHandler', TStringInstance.Create('index.ultra'));
     FMembers.Add('exceptionHandler', TStringInstance.Create('exception.ultra'));
     FMembers.Add('debug', TBooleanInstance.Create(ADebug));
-    {len := ThisType.PMembers.Count;
-    for i := 0 to len-1 do
-    begin
-      Inst := TFunctionInstance(ThisType.PMembers[i]);
-      FMembers.Add(Inst.PName, Inst);
-    end;}
+    FMembers.Add('uploadsDir', TStringInstance.Create(GetEnv('ULTRAGEN_HOME') + directorySeparator + 'brook_uploads'));
     Ferror := False;
   except on E: Exception do
     FErrorMsg := E.Message;
@@ -263,13 +519,16 @@ begin
   with THTTPServer.Create(nil) do
   try
     try
+      UploadsDir := TStringInstance(FMembers.Find('uploadsDir')).PValue;
       UltraInstance := Self;
       Port := MPort;
       Open;
       if not Active then
         Exit;
+      ForceDirectories(UploadsDir);
       FError := False;
       WriteLn('Running '+ MTitle +' in '+'Brook High Performance Server at port ' + IntTostr(MPort), #13);
+      Writeln('Press enter to stop server');
       ReadLn;
 
     except on E: Exception do

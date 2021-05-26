@@ -74,6 +74,7 @@ const
   T_NEW_OBJECT = 'T_NEW_OBJECT';
   T_CLASS_DEF = 'T_CLASS_DEF';
   T_MODULE_PATH = 'T_MODULE_PATH';
+  T_ASSIGNED_TEST = 'T_ASSIGNED_TEST';
 
   ESCAPE_SYMBOL = '\';
   ASSIGN_SYMBOL = '=';
@@ -106,6 +107,7 @@ begin
   KW := TStringList.Create;
   KW.Add('function=' +  T_FUNC_DEF);
   KW.Add('decorator=' + T_DECOR_DEF);
+  KW.Add('assigned=' + T_ASSIGNED_TEST);
   KW.Add('if=' +  T_IF_START);
   KW.Add('elsif=' +  T_ELSE_IF);
   KW.Add('else=' +  T_ELSE);

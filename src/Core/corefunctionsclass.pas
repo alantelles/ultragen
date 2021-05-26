@@ -41,6 +41,7 @@ type
       function Range: TListInstance;
       procedure DumpLive;
       function ParseJson: TInstanceOf;
+      function ParseJson(AInput: string): TInstanceOf;
       function ParseJsonFile: TInstanceOf;
 
 
@@ -55,9 +56,10 @@ type
       {$INCLUDE 'dict/declarations.pp'}
       {$INCLUDE 'server/declarations.pp'}
       {$INCLUDE 'appresponse/declarations.pp'}
-      {{$INCLUDE 'cookies/declarations.pp'}}
+      {$INCLUDE 'brookappresponse/declarations.pp'}
       {$INCLUDE 'httpclient/declarations.pp'}
       {$INCLUDE 'brookserver/declarations.pp'}
+      {$INCLUDE 'helpers/declarations.pp' }
 	end;
 
 var
@@ -67,13 +69,14 @@ implementation
 
 uses
   CoreUtils, ExceptionsClasses, Math, ASTClass, crt, LazUTF8, FileUtil, Dos, Tokens, MarkdownProcessor, DateUtils,
-  BrookHTTPResponse, UltraWebHandlersClass;
+  BrookHTTPResponse, UltraWebHandlersClass, HttpProtocol;
 
 function TCoreFunction.Execute(AInter: TInterpreter; Fname:string; var AArgList:TInstanceList; var AObj: TInstanceOf):TInstanceOf;
 var
   AType:string = '';
   AuxStr:string;
   AuxDateTime: TDateTime;
+  AuxBool: boolean;
   DotPos, len, i, j, AuxInt: integer;
   Ret, Aux: TInstanceOf;
   MDProc: TMarkdownProcessor;
@@ -108,11 +111,6 @@ begin
 	    Ret := ConcatValues
     else if FName = 'saveLive' then
       DumpLive
-
-
-
-
-
     else if FName = 'members' then
     begin
       if FParams[0].ClassNameIs('TDataType') then
@@ -199,6 +197,11 @@ begin
 		end
     else if FName = 'urlEncode' then
         Ret := TStringInstance.Create(httpEncode(FParams[0].AsString))
+    else if FName = 'urlDecode' then
+        Ret := TStringInstance.Create(httpDecode(FParams[0].AsString))
+
+    else if FName = 'locals' then
+      Ret := TDictionaryInstance.Create(FInter.PCallStack.Peek)
 
     else if FName = 'dropModulePath' then
     begin
@@ -267,11 +270,12 @@ begin
       Ret := ParseJsonFile
   end
   {$INCLUDE 'string/options.pp'}
-  {{$INCLUDE 'cookies/options.pp'}}
+  {$INCLUDE 'brookuploaded/options.pp'}
   {$INCLUDE 'list/options.pp'}
   {$INCLUDE 'integer/options.pp'}
   {$INCLUDE 'dict/options.pp'}
   {$INCLUDE 'os/options.pp'}
+  {$INCLUDE 'helpers/options.pp'}
   {$INCLUDE 'filesystem/options.pp'}
   {$INCLUDE 'server/options.pp'}
   {$INCLUDE 'appresponse/options.pp'}
@@ -457,6 +461,35 @@ begin
     AInst.PValue.AddMember(ANode.Name, TNullInstance.Create());
 end;
 
+function TCoreFunction.ParseJson(AInput: string): TInstanceOf;
+var
+  AJson: TJsonNode;
+  ADict: TDictionaryInstance;
+  AList: TListInstance;
+begin
+
+
+  AJson := TJsonNode.Create;
+  try
+    AJson.Parse(AInput);
+  except on E: Exception do
+    Raise Exception.Create(E.Message);
+  end;
+	//Traverse(AJson, ADict, AList, AJson.Kind);
+  if AJson.Kind = nkArray then
+  begin
+    AList := TListInstance.Create();
+    TraverseJsonList(AJson, AList);
+    Result := AList;
+	end
+	else
+  begin
+    ADict := TDictionaryInstance.Create(TActivationRecord.Create('json', AR_DICT, 1));
+    TraverseJsonObj(AJson, ADict);
+    Result := ADict;
+  end;
+end;
+
 function TCoreFunction.ParseJson: TInstanceOf;
 var
   AJson: TJsonNode;
@@ -612,6 +645,8 @@ end;
 {$INCLUDE 'dict/functions.pp'}
 {$INCLUDE 'server/functions.pp'}
 {$INCLUDE 'appresponse/functions.pp'}
+{$INCLUDE 'brookappresponse/functions.pp'}
+
 {$INCLUDE 'brookserver/functions.pp'}
 
 {$INCLUDE 'integer/functions.pp'}

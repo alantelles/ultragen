@@ -176,7 +176,7 @@
 			"name": "support.class.ultragen"
 		},
 		{
-			"match": "\\b(print|inline|live|lambda|load)(\\b|(?<=[?!]))(?![?!])",
+			"match": "\\b(print|inline|live|assigned|lambda|load)(\\b|(?<=[?!]))(?![?!])",
 			"name": "support.function.kernel.ultragen"
 		},
 		{

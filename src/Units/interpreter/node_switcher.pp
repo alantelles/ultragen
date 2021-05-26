@@ -26,6 +26,9 @@
   else if ANode.ClassNameIs('TClassDefinition') then
     VisitClassDefinition(TClassDefinition(ANode))
 
+  else if ANode.ClassNameIs('TAssignedTest') then
+    Ret := VisitAssignedTest(TAssignedTest(ANode))
+
 
 
   else if ANode.ClassNameIs('TDictNode') then

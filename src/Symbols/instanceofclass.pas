@@ -5,7 +5,7 @@ unit InstanceOfClass;
 interface
 
 uses
-  Classes, SysUtils, SymbolsClass, SymbolTableClass, ASTClass, ExceptionsClasses,Variants, Contnrs;
+  Classes, SysUtils, SymbolsClass, SymbolTableClass, ASTClass, ExceptionsClasses,Variants, Contnrs, BrookHTTPUploads;
 
 type
 
@@ -112,6 +112,8 @@ type
 
   end;
 
+
+
   TDataType = class(TInstanceOf)
     protected
       FValue: string;
@@ -150,6 +152,16 @@ type
       procedure CopyInstance(var AReceiver: TInstanceOf); override;
   end;
 
+  TBrookUploadedInstance = class(TInstanceOf)
+    protected
+      FValue: TBrookHTTPUpload;
+    public
+      property PValue: TBrookHTTPUpload read FValue;
+      constructor Create(AHandler: TBrookHTTPUpload);
+      function SaveFile(FileName: string): TBooleanInstance;
+      function AsString: string;  override;
+  end;
+
   TClassInstance = class (TInstanceOf)
     protected
       FValue: string;
@@ -165,6 +177,27 @@ type
 implementation
 uses
   Tokens, StringInstanceClass;
+
+constructor TBrookUploadedInstance.Create(AHandler: TBrookHTTPUpload);
+begin
+  inherited Create;
+  FValue := AHandler;
+end;
+
+function TBrookUploadedInstance.SaveFile(FileName: string): TBooleanInstance;
+var
+  e: string;
+  res: boolean;
+begin
+  res := FValue.SaveAs(FileName, e);
+
+  Result := TBooleanInstance.Create(res);
+end;
+
+function TBrookUploadedInstance.AsString: string;
+begin
+  Result := '<Uploaded file ' + FValue.Name + ' in field ' + FValue.Field + '>';
+end;
 
 constructor TInstanceOf.Create;
 begin

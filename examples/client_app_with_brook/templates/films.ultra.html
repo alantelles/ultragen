@@ -1,0 +1,22 @@
+@function Films(data)
+<table class="table table-responsive">
+    <thead>
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Director</th>
+            <th scope="col">Release</th>
+        </tr>
+    </thead>
+    <tbody>
+<!-- you can iterate through data -->
+<!-- use a "@" at the start of the line -->
+@       for (data, film)   
+        <tr>
+            <td scope="row"><a href="{{ $router.urlFor(:film, {'id': film[:id]}) }}">{{ film[:title] }}</a></td>
+            <td>{{ film[:director] }}</td>
+            <td>{{ film[:release_date] }}</td>
+        </tr>
+@       end
+    </tbody>
+</table>
+@end

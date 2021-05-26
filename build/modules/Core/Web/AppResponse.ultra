@@ -1,7 +1,2 @@
 load AppResponse
-
-function setHeaders(pairs) : AppResponse
-    for(pairs.keys(), key)
-        AppResponse.setHeader(key, pairs[key])
-    end
-end
+include @Core.Web.AppResponseInterface
