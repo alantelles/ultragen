@@ -27,6 +27,9 @@ function init(value, params={}) : Cookie
     if ((params.hasKey('secure')))
         self.domain = params['secure']
     end
+    if ((params.hasKey('sameSite')))
+        self.sameSite = params['sameSite']
+    end
     if ((params.hasKey('httpOnly')))
         self.httpOnly = params['httpOnly']
     end

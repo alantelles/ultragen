@@ -1,72 +1,12 @@
+include @Core.Web.AppResponseInterface
 include @Core.Web.Router
-include @Core.Web.AppResponse
-include @Core.Web.Cookies
-include @Core.Web.Session
+include @Core.Web.Cookie
 
-include @Core.FileSystem
-
-include 'base.ultra.html'
-
-# Session.key = 'zikazika'
-# Session.start()
-
-$router = new Router()
-$router.get('/', :index, function(params)
-    
-    logged = Session.get('logged')
-    if (!logged)
-        Session.destroy()
-        AppResponse.redirect('/login')
-    end
-    include 'cookies'
-    live Base(content)
+r = new Router()
+r.get('/', :index, function(params)
+    live 'setting cookies'
+    AppResponse.$cookies['UG_SESSION'] = new Cookie('blahblahblah', {'sameSite': 'Lax'})
 end)
 
-$router.get('/unset_cookie/:key', :unset_cookie, function(params)
-    Cookies.unset(params[:key])
-    AppResponse.redirect('/')
-end)
-
-$router.get('/set_cookie/:key/:value', :set_cookie, function(params)
-    Cookies.set(params[:key], params[:value])
-    AppResponse.redirect('/')
-end)
-
-$router.get('/many', :many, function(params)
-    
-    Cookies.set('other', 'otherValue') 
-    Cookies.set('some', 'someValue')
-    #AppResponse.setHeader('Set-Cookie', Cookies.retrieve())
-end)
-
-$router.get('/login', :login_form, function (params)
-    super = """
-        <form method="post" action='/login'>
-            <input type="text" name="credentials">
-            <button type="submit">Login</button>
-        </form>
-    """
-    live super
-end)
-
-$router.post('/login', :try_login, function(params)
-    pass = $request[:body][:credentials]
-    logged = pass == 'oioioi'
-    if (logged)
-        Session.set('logged', logged)
-        AppResponse.redirect($router.urlFor(:index))
-    else
-        AppResponse.clientRedirect('/login', 3, "Redirecionando", "jaja")
-    end
-    
-end)
-$router.get('/logout', :logout, function(params)
-    Session.destroy()
-    AppResponse.redirect('/')
-end)
-
-
-match = $router.getMatch().localize()
-
+r.getMatch().localize()
 live handler(params)
-#Session.save()
