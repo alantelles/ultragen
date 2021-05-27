@@ -1,4 +1,4 @@
 include @Core.Brook.Server
 
-s = new Server(3500, false)
+s = new Server(3500, true)
 s.run()

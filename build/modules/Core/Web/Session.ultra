@@ -1,21 +1,36 @@
-include @Core.Web.Cookies
+include @Core.Web.Cookie
 include @Core.DateTime
 include @Core.FileSystem
 
 class Session
+
+Session.key = 'UNSET_KEY'
+Session.duration = null
+
 function start() : Session
+    appResponseIsSet = assigned AppResponse    
+    if (!appResponseIsSet)
+        raise("No AppResponse handler is set for this application", 'Session')
+    end
     include @Core.OS    
     include @Core.FileSystem
     Session.path = (OS.getEnv('ULTRAGEN_HOME')) + '/' + 'sessions/' + (Session.key)
     FileSystem.mkdir(Session.path, true)
     Session.erase = false    
     full_key = 'UGAPPSESSID_' + (Session.key)
-    started = Cookies.get(full_key)
+    started = $request[:cookies].get(full_key)
     Session.content = {"__DATA__": {}}
     Session.flashMessages = []
     if(!started)
-        Session.id = str(DateTime.now()).replace(' ', '').replace('-', '').replace(':', '').replace('.', '')        
-        Cookies.set('UGAPPSESSID_' + (Session.key), Session.id)
+        Session.id = str(DateTime.now()).replace(' ', '').replace('-', '').replace(':', '').replace('.', '')
+        if (!(Session.duration))
+            AppResponse.$cookies['UGAPPSESSID_' + (Session.key)] = Session.id
+        else
+            if (typeof(Session.duration) != (Integer.$internal))
+                raise ("Invalid type for session duration", "Session")
+            end
+            AppResponse.$cookies['UGAPPSESSID_' + (Session.key)] = new Cookie(Session.id, {'max-age': Session.duration})
+        end
     else
         Session.id = started
         session_path = (Session.path) + '/' + (Session.id)
@@ -56,8 +71,8 @@ end
 
 function destroy() : Session
     full_key = 'UGAPPSESSID_' + (Session.key)
-    id = Cookies.get(full_key)
-    Cookies.unset(full_key)
+    id = $request['cookies'].get(full_key)
+    AppResponse.$cookies[full_key] = Cookie.expire()
     Session.erase = true
     if (id)
         session_path = (Session.path) + '/' + str(id)

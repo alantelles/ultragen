@@ -1,11 +1,25 @@
 include @Core.Web.AppResponseInterface
 include @Core.Web.Router
-include @Core.Web.Cookie
+include @Core.Web.Session
+
+Session.key = 'jinxjinx'
+Session.duration = 3600
+Session.start()
 
 r = new Router()
 r.get('/', :index, function(params)
     live 'setting cookies'
-    AppResponse.$cookies['UG_SESSION'] = new Cookie('blahblahblah', {'sameSite': 'Lax'})
+    live Session.getFlashMessages()
+    # AppResponse.$cookies['UG_SESSION'] = new Cookie('blahblahblah', {'sameSite': 'Lax'})
+end)
+
+r.get('/flash', :flash, function(params)
+    Session.flash('Alguma mensagem')
+    AppResponse.redirect('/')
+end)
+
+r.get("/destroy", :destroy, function(params)
+    Session.destroy()
 end)
 
 r.getMatch().localize()

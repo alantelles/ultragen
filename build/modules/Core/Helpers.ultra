@@ -3,3 +3,4 @@ load Helpers
 function render(template, context={}) : Helpers
     include template
 end
+
