@@ -1,1 +1,18 @@
-raise('Tá braba a vida')
+include @Core.Helpers
+include @Core.DateTime
+
+decorator getTime(fn)
+    print(DateTime.now())
+    res = fn()
+    print(DateTime.now())
+    return res
+end
+
+optRand = getTime(function()
+    return Helpers.randomToken(256, false, true, false)
+end)
+noOptRand = getTime(function()
+    return Helpers.randomToken(256)
+end)
+print(optRand())
+print(noOptRand())

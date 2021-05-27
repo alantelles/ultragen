@@ -14,6 +14,7 @@ function start() : Session
     end
     include @Core.OS    
     include @Core.FileSystem
+    include @Core.Helpers
     Session.path = (OS.getEnv('ULTRAGEN_HOME')) + '/' + 'sessions/' + (Session.key)
     FileSystem.mkdir(Session.path, true)
     Session.erase = false    
@@ -22,7 +23,7 @@ function start() : Session
     Session.content = {"__DATA__": {}}
     Session.flashMessages = []
     if(!started)
-        Session.id = str(DateTime.now()).replace(' ', '').replace('-', '').replace(':', '').replace('.', '')
+        Session.id = Helpers.randomToken(64, true, true, false)
         if (!(Session.duration))
             AppResponse.$cookies['UGAPPSESSID_' + (Session.key)] = Session.id
         else

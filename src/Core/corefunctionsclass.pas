@@ -640,6 +640,7 @@ end;
 {$INCLUDE 'bytestream/functions.pp'}
 
 {$INCLUDE 'os/functions.pp'}
+{$INCLUDE 'helpers/functions.pp'}
 
 {$INCLUDE 'filesystem/functions.pp'}
 {$INCLUDE 'dict/functions.pp'}

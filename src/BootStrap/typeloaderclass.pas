@@ -38,6 +38,7 @@ begin
     True, False, False);
   Atype.PMembers.Add('urlencode', AFunc);
   Atype.PMembers.Add('urldecode', AFunc);
+  Atype.PMembers.Add('randomToken', AFunc);
   AActRec.AddMember('Helpers', AType);
 end;
 
