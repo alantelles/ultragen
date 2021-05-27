@@ -437,7 +437,7 @@ begin
     end;
 
     Adapter := SetRequestDict(ARequest);
-
+    Adapter.ActRec.AddMember('context', TInstanceOf(FUltraInstance.PMembers.Find('context')));
     UltraHome := ReplaceStr(GetEnv('ULTRAGEN_HOME'), '\', '\\');
     Prelude := TStringList.Create;
     Prelude.Add('addModulePath(["'+ UltraHome + '", "modules"].path())');
@@ -502,6 +502,7 @@ begin
     FMembers.Add('exceptionHandler', TStringInstance.Create('exception.ultra'));
     FMembers.Add('debug', TBooleanInstance.Create(ADebug));
     FMembers.Add('uploadsDir', TStringInstance.Create(GetEnv('ULTRAGEN_HOME') + directorySeparator + 'brook_uploads'));
+    FMembers.Add('context', TNullInstance.Create);
     Ferror := False;
   except on E: Exception do
     FErrorMsg := E.Message;

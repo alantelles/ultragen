@@ -2,5 +2,5 @@ include @Core.Brook.Server
 
 s = new Server(3500, true)
 
-
+s.context = "Zika zka 3d!!"
 s.run()
