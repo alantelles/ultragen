@@ -442,6 +442,7 @@ begin
     Prelude := TStringList.Create;
     Prelude.Add('addModulePath(["'+ UltraHome + '", "modules"].path())');
     Prelude.Add('include @Core');
+    Prelude.Add('$request.lock()');
     if Adapter.ActRec.PMembers.Find('files') <> nil then
       Prelude.Add('load BrookUploaded');
     IndexHandler := TStringInstance(FUltraInstance.PMembers.Find('indexHandler')).PValue;
