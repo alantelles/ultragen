@@ -1,4 +1,1 @@
 x = new ByteStream(["Ã"])
-for(x, i)
-    print(i)
-end

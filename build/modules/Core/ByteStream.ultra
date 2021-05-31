@@ -1,0 +1,15 @@
+function each(fn, args=null) : ByteStream
+    
+    for (self, x)        
+        if ((fn.$paramCount) == 1)
+            fn(x)
+        elsif ((fn.$paramCount) == 2)
+            fn(x, _x)
+        elsif ((fn.$paramCount) == 3)
+            fn(x, _x, args)
+        else
+            raise('Wrong number of arguments for calling argument function', 'Arguments')
+        end
+    end
+    return null
+end
