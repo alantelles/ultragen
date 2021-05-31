@@ -1,4 +1,2 @@
-x = new ByteStream([0x01, 0x02])
-
-print(typeof(x))
+x = byte(0x80 + 0x80)
 print(x)

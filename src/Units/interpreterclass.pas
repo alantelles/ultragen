@@ -1826,8 +1826,8 @@ begin
   AResR := Visit(Anode.PRight);
   LeftClass := AResL.ClassName;
   RightClass := AresR.ClassName;
-  LeftNum := (LeftClass = 'TIntegerInstance') or (LeftClass = 'TFloatInstance');
-  RightNum := (RightClass = 'TIntegerInstance') or (RightClass = 'TFloatInstance');
+  LeftNum := (LeftClass = 'TIntegerInstance') or (LeftClass = 'TFloatInstance') or (LeftClass = 'TByteInstance');
+  RightNum := (RightClass = 'TIntegerInstance') or (RightClass = 'TFloatInstance') or (RightClass = 'TByteInstance');
   Numeric := LeftNum and RightNum;
   StrOper := (LeftClass = 'TStringInstance') and (RightClass = 'TStringInstance');
   Mismatch := ((LeftClass = 'TStringInstance') and (RightClass <> 'TStringInstance')) and
@@ -1846,11 +1846,11 @@ begin
   end
   else if Numeric then
   begin
-    if AResl.ClassNameIs('TIntegerInstance') then
+    if AResl.ClassNameIs('TIntegerInstance') or AResL.ClassNameIs('TByteInstance') then
       LeftExt := TIntegerInstance(AresL).PValue
     else
       LeftExt := TFloatInstance(AResL).PValue;
-    if AResR.ClassNameIs('TIntegerInstance') then
+    if AResR.ClassNameIs('TIntegerInstance') or AResR.ClassNameIs('TByteInstance') then
       RightExt := TIntegerInstance(AresR).PValue
     else
       RightExt := TFloatInstance(AResR).PValue;
