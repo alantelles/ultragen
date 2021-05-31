@@ -1,2 +1,4 @@
-
-print(byte(0x80 + 0x80))
+x = new ByteStream(["Ã"])
+for(x, i)
+    print(i)
+end

@@ -804,7 +804,7 @@ var
   AInt, AIndex: TIntegerInstance;
   AActRec: TActivationRecord;
   len, len2, j, i: integer;
-
+  AByteStream: TByteStreamInput;
   ACandidate: TListInstance;
   AStr: string;
 begin
@@ -812,8 +812,9 @@ begin
   AListRes := Visit(ANode.PList);
   if AListRes.ClassNameIs('TListInstance') then
   begin
-    ACandidate := TListInstance.Create;
-    TListInstance(AListRes).CopyList(ACandidate);
+    //ACandidate := TListInstance.Create;
+    //TListInstance(AListRes).CopyList(ACandidate);
+    ACandidate := TListInstance(AlistRes);
     if ACandidate.Count > 0 then
     begin
       for i := 0 to ACandidate.Count - 1 do
@@ -840,6 +841,37 @@ begin
     end;
     //ACandidate.Free;
   end
+  else if AListRes.ClassNameIs('TByteStreamInstance') then
+  begin
+    AByteStream := TByteStreamInstance(AListRes).PValue;
+    len := Length(AByteStream);
+    if len > 0 then
+    begin
+      for i := 0 to len - 1 do
+      begin
+        AActRec.AddMember(Anode.PVar, TIntegerInstance.Create(AByteStream[i]));
+        AActRec.AddMember('_' + Anode.PVar, TIntegerInstance.Create(i));
+        len2 := Length(ANode.PBlock);
+        if len2 > 0 then
+        begin
+          for j := 0 to len2 - 1 do
+          begin
+            if FBreakSignal or FContinueSignal or FReturnSignal then
+            begin
+              FContinueSignal := False;
+              break;
+            end
+            else
+              Visit(ANode.PBlock[j]);
+          end;
+        end;
+        if FBreakSignal then
+          break;
+      end;
+    end;
+    //ACandidate.Free;
+  end
+
   else if AListRes.ClassNameIs('TStringInstance') then
   begin
     len := Length(AListRes.PStrValue);
