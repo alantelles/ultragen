@@ -8,6 +8,7 @@
 // builtins
 AActRec.AddMember('locals', ACoreFunc);
 AActRec.AddMember('raise', ACoreFunc);
+AActRec.AddMember('byte', ACoreFunc);
 AActRec.AddMember('addModulePath', ACoreFunc);
 AActRec.AddMember('members', ACoreFunc);
 AActRec.AddMember('print', ACoreFunc);

@@ -37,6 +37,7 @@ type
 
       function GetTypeOf:TStringInstance;
       function CastToStr:TStringInstance;
+      function CastToByte:TByteInstance;
       function CastToInt:TIntegerInstance;
       function Range: TListInstance;
       procedure DumpLive;
@@ -174,6 +175,8 @@ begin
       Ret := GetTypeOf
     else if FName = 'str' then
       Ret := CastToStr
+    else if FName = 'byte' then
+      Ret := CastToByte
     else if FName = 'int' then
       Ret := CastToInt
     else if FName = 'addModulePath' then
@@ -605,6 +608,19 @@ end;
 function TCoreFunction.CastToStr:TStringInstance;
 begin
   Result := TStringInstance.Create(FParams[0].AsString);
+end;
+
+function TCoreFunction.CastToByte:TByteInstance;
+begin
+  if FParams[0].ClassNameIs('TIntegerInstance') then
+  begin
+    if (TIntegerInstance(FParams[0]).PValue > -1) and (TIntegerInstance(FParams[0]).PValue < 256) then
+      Result := TByteInstance.Create(TIntegerInstance(FParams[0]).PValue)
+    else
+      FInter.RaiseException('Value out of range for byte casting', 'RunTime');
+  end
+  else
+    FInter.RaiseException('Invalid value for byte casting', 'RunTime');
 end;
 
 function TCoreFunction.CastToInt:TIntegerInstance;
