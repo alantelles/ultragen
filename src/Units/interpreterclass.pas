@@ -1895,9 +1895,9 @@ var
   up1, up0: integer;
   byteHex: string;
 begin
-  byteHex := ANode.PValue;
+  byteHex := uppercase(ANode.PValue);
   try
-    up1 := StrToInt(byteHex[1]);
+    up1 := StrToInt(byteHex[1]) * 16;
   except
     up1 := (ord(byteHex[1]) - 55) * 16;
   end;
@@ -1906,6 +1906,8 @@ begin
   except
     up0 := (ord(byteHex[2])) - 55;
   end;
+  if (up0 + up1) > 255 then
+    RaiseException('Byte value out of range', 'RunTime');
   Result := TByteInstance.Create(up1 + up0);
 end;
 
