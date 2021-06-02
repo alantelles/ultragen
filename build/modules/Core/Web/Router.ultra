@@ -1,7 +1,7 @@
 class Router
 
 
-function init(name_prefix='', url_prefix='') : Router
+function init(name_prefix='', url_prefix='') : Router self
     appResponseIsSet = assigned AppResponse    
     if (!appResponseIsSet)
         raise("No AppResponse handler is set for this application", 'Router')
@@ -18,7 +18,7 @@ function init(name_prefix='', url_prefix='') : Router
     }"""
 end
 
-function HandlerFor404(params) : Router
+function HandlerFor404(params) : Router self
     live 'Page not found<br>'
     live 'Request data:<br>'    
     live $request
@@ -27,7 +27,7 @@ function HandlerFor404(params) : Router
     live '<br>'
 end
 
-function urlFor(name, params={}) : Router
+function urlFor(name, params={}) : Router self
     for (self.routes, match)
         
         if (name == (match[:name]))
@@ -80,7 +80,7 @@ function urlFor(name, params={}) : Router
     raise("The given name '" + name + "' doesn't match any url in this router", 'Router')
 end
 
-function urlText(name) : Router
+function urlText(name) : Router self
     for (self.routes, match)        
         if (name == (match[:name]))            
             return match[:frontName]
@@ -110,7 +110,7 @@ function dropFirstAndLastSlash(route)
     return route
 end
 
-function getMatch(route=null, method=null) : Router
+function getMatch(route=null, method=null) : Router self
     if (!method)
         method = $request[:method]
     end
@@ -183,7 +183,7 @@ function getMatch(route=null, method=null) : Router
     return {:handler: self.HandlerFor404, :params: params}
 end
 
-function addRouter(router) : Router
+function addRouter(router) : Router self
     for(router.routes, route)
         newRoute = {
             :path: (router.url_prefix) + '/' + (route[:path]),
@@ -197,7 +197,7 @@ function addRouter(router) : Router
     
 end
 
-function addRoute(path, name, handler, method, frontName) : Router
+function addRoute(path, name, handler, method, frontName) : Router self
     frontName = str(frontName)
     if (frontName == 'null')
         frontName = name.capital()
@@ -213,29 +213,29 @@ function addRoute(path, name, handler, method, frontName) : Router
     })
 end
 
-function getStatic(path, name) : Router
+function getStatic(path, name) : Router self
     self.get(path, name, function(params)
         include @Core.Web.AppResponse
         AppResponse.static($request[:route].slice(1))
     end)
 end
 
-function get(path, name, handler, frontName=null) : Router
+function get(path, name, handler, frontName=null) : Router self
     self.addRoute(path, name, handler, 'GET', frontName)
 end
 
-function post(path, name, handler, frontName=null) : Router
+function post(path, name, handler, frontName=null) : Router self
     self.addRoute(path, name, handler, 'POST', frontName)
 end
 
-function delete(path, name, handler, frontName=null) : Router
+function delete(path, name, handler, frontName=null) : Router self
     self.addRoute(path, name, handler, 'DELETE', frontName)
 end
 
-function patch(path, name, handler, frontName=null) : Router
+function patch(path, name, handler, frontName=null) : Router self
     self.addRoute(path, name, handler, 'PATCH', frontName)
 end
 
-function put(path, name, handler, frontName=null) : Router
+function put(path, name, handler, frontName=null) : Router self
     self.addRoute(path, name, handler, 'PUT', frontName)
 end

@@ -3,7 +3,7 @@ include @Core.Helpers
 
 class Cookie
 
-function init(value, params={}) : Cookie
+function init(value, params={}) : Cookie self
     self.value = Helpers.urlencode(value)
     self.expires = null
     self.maxAge = -1
