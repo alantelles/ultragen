@@ -169,6 +169,7 @@ type
     FBlock: TASTList;
     FParamList: TASTList;
     FType: string;
+    FIsInstance: boolean;
     FIsDecorator: boolean;
     FAcceptVarargs: boolean;
   public
@@ -178,8 +179,9 @@ type
     property PBlock: TASTList read FBlock;
     property PName: string read FName;
     property PIsDecorator: boolean read FIsDecorator;
+    property PIsInstanceFunction: boolean read FIsInstance;
     constructor Create(AToken: TToken; AName: string; ABlock, AParamList: TASTList;
-      AType: string; IsDecorator: boolean; AcceptVarargs: boolean);
+      AType: string; IsDecorator: boolean; AcceptVarargs: boolean; IsInstance: boolean);
     destructor Destroy; override;
   end;
 
@@ -734,13 +736,14 @@ begin
 end;
 
 constructor TFunctionDefinition.Create(AToken: TToken; AName: string;
-  ABlock, AParamList: TASTList; AType: string; IsDecorator: boolean; AcceptVarargs:boolean);
+  ABlock, AParamList: TASTList; AType: string; IsDecorator: boolean; AcceptVarargs:boolean; IsInstance: boolean);
 begin
   FName := AName;
   FBlock := ABlock;
   FToken := AToken;
   FType := AType;
   FAcceptVarargs := AcceptVarargs;
+  FIsInstance := IsInstance;
   FIsDecorator := IsDecorator;
   logDebug('Creating a function definition named ' + AName, 'AST');
   FParamList := AParamList;

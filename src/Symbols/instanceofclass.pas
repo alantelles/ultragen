@@ -93,6 +93,7 @@ type
       FAccVarargs: boolean;
       FIsDecorator: boolean;
       FDecorParams: TASTList;
+      FIsInstanceFunction: boolean;
     public
       property PAccVarargs:boolean read FAccVarargs write FAccVarargs;
       property PIsDecorator: boolean read FIsDecorator;
@@ -102,8 +103,14 @@ type
       property PParams: TASTList read FParams;
       property PDecorParams: TASTList read FDecorParams write FDecorParams;
       property PBlock: TASTList read FBlock write FBlock;
+      property PIsInstanceFunction: boolean read FIsInstanceFunction;
       function AsString: string;  override;
-      constructor Create(AName: string; AParams, ABlock: TASTList; AType:string; IsBuiltin:boolean; IsDecorator: boolean; AcceptVarargs: boolean);
+      constructor Create(
+        AName: string; AParams, ABlock: TASTList;
+        AType:string; IsBuiltin:boolean;
+        IsDecorator: boolean;
+        AcceptVarargs: boolean;
+        IsInstanceFunction: boolean);
       //procedure AddParam(AName:string);
       //procedure AddBlock(ABlock: TASTList);
 	end;
@@ -282,7 +289,11 @@ begin
   Result := T_LANG_NULL;
 end;
 
-constructor TFunctionInstance.Create(AName: string; AParams, ABlock: TASTList; AType:string; IsBuiltin:boolean; IsDecorator: boolean; AcceptVarargs: boolean);
+constructor TFunctionInstance.Create(
+  AName: string; AParams, ABlock: TASTList;
+  AType:string; IsBuiltin:boolean;
+  IsDecorator: boolean; AcceptVarargs: boolean;
+  IsInstanceFunction: boolean);
 begin
   //Fname := AName;
   //SetLength(FParamsName, 0);
@@ -295,6 +306,7 @@ begin
   FIsBuiltin := IsBuiltin;
   FIsDecorator := IsDecorator;
   FDecorParams := nil;
+  FIsInstanceFunction := IsInstanceFunction;
 end;
 
 

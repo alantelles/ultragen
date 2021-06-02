@@ -1,4 +1,4 @@
-AListFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TListInstance', True, False, False);
+AListFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TListInstance', True, False, False, False);
 AListType := TDataType.Create('TListInstance', 'List');
 AListType.PMembers.Add('length', AListFunc);
 AListType.PMembers.Add('set', AListFunc);

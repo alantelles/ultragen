@@ -1,5 +1,5 @@
 AIntType := TDataType.Create('TIntegerInstance', 'Integer');
-AIntFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TIntegerInstance', True, False, False);
+AIntFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TIntegerInstance', True, False, False, False);
 AIntType.PMembers.Add('fixed', AIntFunc);
 AIntType.PMembers.Add('cycle', AIntFunc);
 AIntType.PMembers.Add('leftZeros', AIntFunc);

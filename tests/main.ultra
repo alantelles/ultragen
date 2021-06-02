@@ -1,1 +1,9 @@
-x = new ByteStream(["Ãƒ"])
+class Object
+
+function zika() : Object self
+    print("eu sou um método estático")
+end
+
+Object.zika()
+m = new Object()
+m.zika()

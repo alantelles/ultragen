@@ -35,7 +35,7 @@ var
 begin
   Atype := TDataType.Create('THelpersInstance', 'Helpers');
   AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'THelpersInstance',
-    True, False, False);
+    True, False, False, False);
   Atype.PMembers.Add('urlencode', AFunc);
   Atype.PMembers.Add('urldecode', AFunc);
   Atype.PMembers.Add('randomToken', AFunc);
@@ -49,7 +49,7 @@ var
 begin
   AType := TDataType.Create('TBrookUploadedInstance', 'Uploaded');
   AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TUploadedInstance' ,
-    True, False, False);
+    True, False, False, False);
   AType.PMembers.Add('save', AFunc);
   AType.PMembers.Add('name', AFunc);
   AType.PMembers.Add('size', AFunc);
@@ -64,7 +64,7 @@ var
 begin
   Atype := TDataType.Create('TBrookServerInstance', 'Server');
   AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBrookServerInstance',
-    True, False, False);
+    True, False, False, False);
   Atype.PMembers.Add('run', AFunc);
   AActrec.AddMember('Server', AType);
 end;
@@ -76,7 +76,7 @@ var
 begin
   Atype := TDataType.Create('TMarkdownParserInstance', 'Markdown');
   AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TMarkdownParserInstance',
-    True, False, False);
+    True, False, False, False);
   AType.PMembers.Add('parse', AFunc);
   AType.PMembers.Add('parseFile', AFunc);
   AActRec.AddMember('Markdown', AType);
@@ -89,7 +89,7 @@ var
 begin
   AType := TDataType.Create('TOSInstance', 'OS');
   AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TOSInstance',
-    True, False, False);
+    True, False, False, False);
   AType.PMembers.Add('getEnv', AFunc);
   AActRec.AddMember('OS', AType);
 end;
@@ -101,7 +101,7 @@ var
 begin
   AType := TDataType.Create('TByteStreamInstance', 'ByteStream');
   AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TByteStreamInstance',
-    True, False, False);
+    True, False, False, False);
   AType.PMembers.Add('save', AFunc);
   AType.PMembers.Add('read', AFunc);
   AType.PMembers.Add('write', AFunc);
@@ -129,7 +129,7 @@ var
 begin
   ADataType := TDataType.Create('TBrookResponseInstance', 'AppResponse');
   AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBrookResponseInstance',
-    True, False, False);
+    True, False, False, False);
   AdataType.PMembers.Add('$headers', TDictionaryInstance.Create(
     TActivationRecord.Create('AppResponseHeaders', AR_DICT, -1)));
   AdataType.PMembers.Add('$cookies', TDictionaryInstance.Create(
@@ -151,7 +151,7 @@ var
 begin
   ADataType := TDataType.Create('TAppResponseInstance', 'AppResponse');
   AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TAppResponseInstance',
-    True, False, False);
+    True, False, False, False);
   AdataType.PMembers.Add('$headers', TDictionaryInstance.Create(
     TActivationRecord.Create('AppResponseHeaders', AR_DICT, -1)));
   AdataType.PMembers.Add('$cookies', TDictionaryInstance.Create(
@@ -169,7 +169,7 @@ var
 begin
   AServerType := TDataType.Create('TServerInstance', 'Server');
   AServerFunc := TFunctionInstance.Create('BuiltIn', nil, nil,
-    'TServerInstance', True, False, False);
+    'TServerInstance', True, False, False, False);
   AServerType.PMembers.Add('run', AServerFunc);
   AServerType.PMembers.Add('setStaticPath', AServerFunc);
   AServerType.PMembers.Add('setStaticPaths', AServerFunc);
@@ -182,7 +182,7 @@ var
   ADateTimeType: TDataType;
 begin
   ADateTimeFunc := TFunctionInstance.Create('BuiltIn', nil, nil,
-    'TDateTimeInstance', True, False, False);
+    'TDateTimeInstance', True, False, False, False);
   ADateTimeType := TDataType.Create('TDateTimeInstance', 'DateTime');
   ADateTimeType.PMembers.Add('now', ADateTimeFunc);
   ADateTimeType.PMembers.Add('year', ADateTimeFunc);
@@ -220,7 +220,7 @@ var
   AHttpClientType, AHttpResponseType: TDataType;
 begin
   AHttpClientFunc := TFunctionInstance.Create('BuiltIn', nil, nil,
-    'THttpClientInstance', True, False, False);
+    'THttpClientInstance', True, False, False, False);
   AHttpClientType := TDataType.Create('THttpClientInstance', 'Request');
   AHttpClientType.PMembers.Add('get', AHttpClientFunc);
   AHttpClientType.PMembers.Add('post', AHttpClientFunc);
@@ -240,7 +240,7 @@ var
 begin
   AFSType := TDataType.Create('TFileSystemInstance', 'FileSystem');
   AFSFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFileSystemInstance',
-    True, False, False);
+    True, False, False, False);
   AFSType.PMembers.Add('loadText', AFSFunc);
   AFSType.PMembers.Add('mkdir', AFSFunc);
   AFSType.PMembers.Add('isFile', AFSFunc);
