@@ -804,7 +804,7 @@ var
   AInt, AIndex: TIntegerInstance;
   AActRec: TActivationRecord;
   len, len2, j, i: integer;
-
+  AByteStream: TByteStreamInput;
   ACandidate: TListInstance;
   AStr: string;
 begin
@@ -812,8 +812,9 @@ begin
   AListRes := Visit(ANode.PList);
   if AListRes.ClassNameIs('TListInstance') then
   begin
-    ACandidate := TListInstance.Create;
-    TListInstance(AListRes).CopyList(ACandidate);
+    //ACandidate := TListInstance.Create;
+    //TListInstance(AListRes).CopyList(ACandidate);
+    ACandidate := TListInstance(AlistRes);
     if ACandidate.Count > 0 then
     begin
       for i := 0 to ACandidate.Count - 1 do
@@ -840,6 +841,37 @@ begin
     end;
     //ACandidate.Free;
   end
+  else if AListRes.ClassNameIs('TByteStreamInstance') then
+  begin
+    AByteStream := TByteStreamInstance(AListRes).PValue;
+    len := Length(AByteStream);
+    if len > 0 then
+    begin
+      for i := 0 to len - 1 do
+      begin
+        AActRec.AddMember(Anode.PVar, TIntegerInstance.Create(AByteStream[i]));
+        AActRec.AddMember('_' + Anode.PVar, TIntegerInstance.Create(i));
+        len2 := Length(ANode.PBlock);
+        if len2 > 0 then
+        begin
+          for j := 0 to len2 - 1 do
+          begin
+            if FBreakSignal or FContinueSignal or FReturnSignal then
+            begin
+              FContinueSignal := False;
+              break;
+            end
+            else
+              Visit(ANode.PBlock[j]);
+          end;
+        end;
+        if FBreakSignal then
+          break;
+      end;
+    end;
+    //ACandidate.Free;
+  end
+
   else if AListRes.ClassNameIs('TStringInstance') then
   begin
     len := Length(AListRes.PStrValue);
@@ -1826,8 +1858,8 @@ begin
   AResR := Visit(Anode.PRight);
   LeftClass := AResL.ClassName;
   RightClass := AresR.ClassName;
-  LeftNum := (LeftClass = 'TIntegerInstance') or (LeftClass = 'TFloatInstance');
-  RightNum := (RightClass = 'TIntegerInstance') or (RightClass = 'TFloatInstance');
+  LeftNum := (LeftClass = 'TIntegerInstance') or (LeftClass = 'TFloatInstance') or (LeftClass = 'TByteInstance');
+  RightNum := (RightClass = 'TIntegerInstance') or (RightClass = 'TFloatInstance') or (RightClass = 'TByteInstance');
   Numeric := LeftNum and RightNum;
   StrOper := (LeftClass = 'TStringInstance') and (RightClass = 'TStringInstance');
   Mismatch := ((LeftClass = 'TStringInstance') and (RightClass <> 'TStringInstance')) and
@@ -1846,11 +1878,11 @@ begin
   end
   else if Numeric then
   begin
-    if AResl.ClassNameIs('TIntegerInstance') then
+    if AResl.ClassNameIs('TIntegerInstance') or AResL.ClassNameIs('TByteInstance') then
       LeftExt := TIntegerInstance(AresL).PValue
     else
       LeftExt := TFloatInstance(AResL).PValue;
-    if AResR.ClassNameIs('TIntegerInstance') then
+    if AResR.ClassNameIs('TIntegerInstance') or AResR.ClassNameIs('TByteInstance') then
       RightExt := TIntegerInstance(AresR).PValue
     else
       RightExt := TFloatInstance(AResR).PValue;
@@ -1895,9 +1927,9 @@ var
   up1, up0: integer;
   byteHex: string;
 begin
-  byteHex := ANode.PValue;
+  byteHex := uppercase(ANode.PValue);
   try
-    up1 := StrToInt(byteHex[1]);
+    up1 := StrToInt(byteHex[1]) * 16;
   except
     up1 := (ord(byteHex[1]) - 55) * 16;
   end;
@@ -1906,6 +1938,8 @@ begin
   except
     up0 := (ord(byteHex[2])) - 55;
   end;
+  if (up0 + up1) > 255 then
+    RaiseException('Byte value out of range', 'RunTime');
   Result := TByteInstance.Create(up1 + up0);
 end;
 
