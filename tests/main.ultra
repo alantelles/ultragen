@@ -1,15 +1,4 @@
-class Object
-
-function zika() : Object self
-    print('zika')
-end
-
-function top()* : Dict self
-    print(*$funcArgs)
-end
-
 x = {'name': "tops", 'sur': "mika", 'age': 90}
-o = new Object()
-
-# Object.zika()
-# Dict.top(9)
+x = 1
+opts = ['opt1', 'opt2', 'opt3']
+print(x.cycle(*opts))

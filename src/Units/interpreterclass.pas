@@ -1226,6 +1226,23 @@ begin
   if FuncDef <> nil then
   begin
     NewEvalParams := ANode.PEvalParams;
+    if ASrcInstance <> nil then
+    begin
+      if ASrcInstance.ClassNameIs('TClassInstance') then
+        DisplayType := ASrcInstance.AsString
+      else
+        DisplayType := ASrcInstance.ClassName;
+      if FuncDef.PIsInstanceFunction then
+      begin
+        if ASrcInstance.ClassNameIs('TDataType') then
+          RaiseException('Method "' + AFuncName + '" only available for "' + ASrcInstance.AsString + '" object instances', 'RunTime');
+      end
+      else
+      begin
+        if not ASrcInstance.ClassNameIs('TDataType') then
+          RaiseException('Method "' + AFuncName + '" is not available for "' + DisplayType + '" object instances', 'RunTime');
+      end;
+    end;
     if FuncDef.ClassNameIs('TDecoratorInstance') then
     begin
       // Decorate execute
@@ -1239,23 +1256,8 @@ begin
           FCallStack.PLevel + 1);
         AActRec.AddMember('__LIVE__', TStringInstance.Create(''));
         if ASrcInstance <> nil then
-        begin
-          if ASrcInstance.ClassNameIs('TClassInstance') then
-            DisplayType := ASrcInstance.AsString
-          else
-            DisplayType := ASrcInstance.ClassName;
           if FuncDef.PIsInstanceFunction then
-          begin
-            if ASrcInstance.ClassNameIs('TDataType') then
-              RaiseException('Method "' + FuncDef.PName + '" only available for "' + ASrcInstance.AsString + '" object instances', 'RunTime');
             AActRec.AddMember('self', ASrcInstance);
-          end
-          else
-          begin
-            if not ASrcInstance.ClassNameIs('TDataType') then
-              RaiseException('Method "' + FuncDef.PName + '" is not available for "' + DisplayType + '" object instances', 'RunTime');
-          end;
-        end;
 
         if FuncDef.PDecorParams <> nil then
         begin
