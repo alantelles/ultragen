@@ -1,4 +1,4 @@
-function each(fn, args=null) : List
+function each(fn, args=null) : List self
     
     for (self, x)        
         if ((fn.$paramCount) == 1)
@@ -14,7 +14,7 @@ function each(fn, args=null) : List
     return null
 end
 
-function every(fn, args=null) : List
+function every(fn, args=null) : List self
     for (self, x)        
         if ((fn.$paramCount) == 1)
             t = fn(x)
@@ -32,7 +32,7 @@ function every(fn, args=null) : List
     return true
 end
 
-function map(fn, args=null) : List
+function map(fn, args=null) : List self
     ret = []
     for (self, x)
         
@@ -50,7 +50,7 @@ function map(fn, args=null) : List
     return ret
 end
 
-function filter(fn, args=null) : List
+function filter(fn, args=null) : List self
     ret = []
     for (self, x)
         if ((fn.$paramCount) == 1)
@@ -69,7 +69,7 @@ function filter(fn, args=null) : List
     return ret
 end
 
-function insert(obj, pos) : List
+function insert(obj, pos) : List self
     empty = []
     len = self.length()
     if (pos > len)
@@ -91,7 +91,7 @@ function insert(obj, pos) : List
     end
 end
 
-function pos(e) : List
+function pos(e) : List self
     for (self, i)
         if (i == e)
             return _i
@@ -101,14 +101,14 @@ function pos(e) : List
 end
 
 
-function combine(other) : List
+function combine(other) : List self
     for (other, i)
         self.append(i)
     end
     return self
 end
 
-function drop(index) : List
+function drop(index) : List self
     a_new = []
     for (self, i)
         if (_i != index)
@@ -121,7 +121,7 @@ function drop(index) : List
     end
 end
 
-function remove(index) : List
+function remove(index) : List self
     a_new = []
     for (self, i)
         if (i != index)
@@ -134,7 +134,7 @@ function remove(index) : List
     end
 end
 
-function slice (sp, ep=null) : List
+function slice (sp, ep=null) : List self
     if (!ep)
         ep = self.length()
     else
