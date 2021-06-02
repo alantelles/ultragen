@@ -1,4 +1,0 @@
-x = {'name': "tops", 'sur': "mika", 'age': 90}
-x = 1
-opts = ['opt1', 'opt2', 'opt3']
-print(x.cycle(*opts))
