@@ -1,4 +1,4 @@
-function reverse() : String
+function reverse() : String self
     len = self.length
     res = ''
     for (len, i)
@@ -8,7 +8,7 @@ function reverse() : String
     return res
 end
 
-function isInt() : String
+function isInt() : String self
     nums = '0123456789'
     ret = true
     for (self, ch)
@@ -22,20 +22,20 @@ function isInt() : String
     return ret
 end
 
-function escape() : String
+function escape() : String self
     return self.replace('<', '&lt;').replace('>', '&gt;')
 end
 
-function writeText(filename) : String
+function writeText(filename) : String self
     self.split('\r\n').writeText(filename)
 end
 
-function tailWith(part) : String
+function endsWith(part) : String self
     cut = self.slice((-1)*(part.length()),0)
     return cut == part
 end
 
-function last() : String
+function last() : String self
     if ((self.length()) > 0)
         return self[(self.length())-1]
     else

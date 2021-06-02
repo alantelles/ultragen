@@ -1,4 +1,3 @@
-x = new ByteStream(["triste"])
-x.each(function(i)
-    print(i)
-end)
+include @Core.Request
+r = Request.get("https://reqres.in/api/users")
+print(Response.getJson())

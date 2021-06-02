@@ -6,6 +6,6 @@ function postJson(url, data, headers={}) : Request
     return req
 end
 
-function getJson() : Response
+function getJson() : Response self
     return JSON.parse(self.text)
 end
