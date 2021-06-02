@@ -109,18 +109,19 @@ var
   ACoreType, AStrType, AIntType, AFloatType, AListType, ABoolType,
   AFuncType, AOSType, ADictType, AServerType, AJsonType: TDataType;
 
-  AStrFunc, AIntFunc, AListFunc, AServerFunc, AOSFunc, ADictFunc, AHttpClientFunc,
+  AStrFunc,
+  AIntFunc, AIntStFunc, AListFunc, AServerFunc, AOSFunc, ADictFunc, AHttpClientFunc,
   ABoolFunc, AFloatFunc, ACoreFunc, AJsonFunc: TFunctionInstance;
   ANameSpace: TDictionaryInstance;
 begin
 
   {AStrType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TStringInstance', True);
   AIntType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TIntegerInstance', True);}
-  AFloatFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFloatInstance', True, False, False);
+  AFloatFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFloatInstance', True, False, False, False);
   {AListType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TListInstance', True);
   AFuncType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFunctionInstance', True);}
-  ABoolFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBooleanInstance', True, False, False);
-  AJsonFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TJsonInstance', True, False, False);
+  ABoolFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBooleanInstance', True, False, False, False);
+  AJsonFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TJsonInstance', True, False, False, False);
   {ADictType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TDictionaryInstance', True);
   AOSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TOSInstance', True);
   AFSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFileSystemInstance', True);
@@ -139,7 +140,7 @@ begin
   AFuncType := TDataType.Create('TFunctionInstance', 'Function');
 
   // ACoreType := TDataType.Create('TCoreInstance', 'Core');
-  ACoreFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TCoreInstance', True, False, False);
+  ACoreFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TCoreInstance', True, False, False, False);
 
   // AActRec.AddMember('parseJson', ACoreFunc);
 
@@ -473,7 +474,7 @@ begin
     if RealType <> nil then
     begin
       AValue := TFunctionInstance.Create(ANode.PName, ANode.PParamList,
-        ANode.PBlock, RealType.PValue, False, ANode.PIsDecorator, ANode.PAcceptVarargs);
+        ANode.PBlock, RealType.PValue, False, ANode.PIsDecorator, ANode.PAcceptVarargs, ANode.PIsInstanceFunction);
       AValue.PMembers.Add('$paramCount', TIntegerInstance.Create(Length(ANode.PParamList)));
       RealType.PMembers.Add(ANode.PName, AValue);
     end
@@ -485,7 +486,7 @@ begin
   else
   begin
     AValue := TFunctionInstance.Create(ANode.PName, ANode.PParamList,
-        ANode.PBlock, 'TCoreFunction', False, ANode.PIsDecorator, ANode.PAcceptVarargs);
+        ANode.PBlock, 'TCoreFunction', False, ANode.PIsDecorator, ANode.PAcceptVarargs, False);
     AValue.PMembers.Add('$paramCount', TIntegerInstance.Create(Length(ANode.PParamList)));
     AActRec.AddMember(ANode.PName, AValue);
     Result := AValue;
@@ -521,7 +522,7 @@ begin
     if RealType <> nil then
     begin
       RealType.PMembers.Add(ANode.PName, TFunctionInstance.Create(ANode.PName, ANode.PParamList,
-        ANode.PBlock, RealType.PValue, False, ANode.PIsDecorator, ANode.PAcceptVarargs));
+        ANode.PBlock, RealType.PValue, False, ANode.PIsDecorator, ANode.PAcceptVarargs, False));
     end
     else
       ERunTimeError.Create('Referenced type ' + ANode.PType +
@@ -531,7 +532,7 @@ begin
   else
   begin
     AValue := TDecoratorInstance.Create(ANode.PName, ANode.PParamList,
-        ANode.PBlock, 'TCoreFunction', False, ANode.PIsDecorator, ANode.PAcceptVarargs);
+        ANode.PBlock, 'TCoreFunction', False, ANode.PIsDecorator, ANode.PAcceptVarargs, False);
     AActRec.AddMember(ANode.PName, AValue);
     Result := AValue;
   end;
@@ -1110,106 +1111,13 @@ begin
   AActRec := TActivationRecord.Create(AFunction.PName, AR_FUNCTION,
           FCallStack.PLevel + 1);
   AActRec.AddMember('__LIVE__', TStringInstance.Create(''));
-  if ASrcInstance <> nil then
+
+  if AFunction.PIsInstanceFunction then
+  begin
+    if ASrcInstance.ClassNameIs('TDataType') then
+      RaiseException('Method "' + AFunction.PName + '" only available for  "' + ASrcInstance.AsString + '"  object instances', 'RunTime');
     AActRec.AddMember('self', ASrcInstance);
-  {SetLength(ArgsList, 0);
-  if not AFunction.PAccVarargs then
-  begin
-
-    lenArgs := Length(Args);
-    lenParams := Length(AFunction.PParams);
-    Len := Max(LenArgs, LenParams);
-    SetLength(ArgsList, Len);
-    if AFunction.PDecorParams <> nil then
-    begin
-      LenArgs := Length(AFunction.PDecorParams);
-      for i:=0 to LenArgs-1 do
-      begin
-        AIter := Visit(TParam(AFunction.PDecorParams[i]).PDefValue);
-        AParamName := TParam(AFunction.PDecorParams[i]).PNode.PValue;
-        AActRec.AddMember(AParamName, AIter);
-      end;
-    end;
-    if Len > 0 then
-    begin
-      for i := 0 to Len - 1 do
-      begin
-        if i > (LenArgs - 1) then
-        begin
-	  if TParam(AFunction.PParams[i]).PDefValue <> nil then
-	    ADef := Visit(TParam(AFunction.PParams[i]).PDefValue)
-	  else
-	    EArgumentsError.Create(
-	      'Wrong number of arguments to call this function',
-	      FTrace,  ANode.PToken);
-        end
-        else if i > (LenParams - 1) then
-        begin
-	  EArgumentsError.Create(
-	    'Wrong number of arguments to call this function',
-	    FTrace,  ANode.PToken);
-        end
-        else
-        begin
-	  ADef := Args[i];
-        end;
-        AParamName := TParam(AFunction.PParams[i]).PNode.PValue;
-        if ADef.ClassNameIs('TFunctionInstance') then
-        begin
-	  Aux := TFunctionInstance(ADef);
-	  if Aux.PIsBuiltin then
-	    ERunTimeError.Create('Can''t assign builtin function "' +
-	      Args[i].AsString + '" as argument',
-	      FTrace, ANode.PToken);
-		    //AParamName := ANode.PEvalParams[i].PToken.PValue;
-          //ADef.CopyInstance(ACopy);
-
-        end;
-        ArgsList[i] := ADef;
-        AActRec.AddMember(AParamName, ADef);
-      end;
-    end;
-  end
-  else
-  begin
-    LenParams := Length(AFunction.PParams);
-    SetLength(ArgsList, LenParams + 1);
-    LenArgs := Length(Args);
-    for i := 0 to LenParams-1 do
-    begin
-      if (i < LenArgs) then
-        AIter := Args[i]
-      else
-      begin
-        if TParam(AFunction.PParams[i]).PDefValue <> nil then
-          AIter := Visit(TParam(AFunction.PParams[i]).PDefValue);
-      end;
-      ArgsList[i] := AIter;
-      AActRec.AddMember(TParam(AFunction.PParams[i]).PNode.PValue, AIter);
-    end;
-    {TODO: varargs}
-    SetLength(VarArgsList, 0);
-
-    if LenArgs > LenParams then
-    begin
-      SetLength(VarArgsList, LenArgs-LenParams);
-      for i:=LenParams to LenArgs-1 do
-      begin
-        AIter := Args[i];
-        VarArgsList[i - LenParams] := AIter;
-      end;
-    end;
-    VarArgsListInstanced := TListInstance.Create(VarArgsList);
-    VarArgsListInstanced.PAddLocked := True;
-    VarArgsListInstanced.PChangeLocked := True;
-    AActRec.AddMember('$varArgs', VarArgsListInstanced);
-    ArgsList[LenParams] := VarArgsListInstanced;
   end;
-  ArgsListInstanced := TListInstance.Create(ArgsList);
-  ArgsListInstanced.PAddLocked := True;
-  ArgsListInstanced.PChangeLocked := True;
-  AActRec.AddMember('$funcArgs', ArgsListInstanced);
-  }
   ProcessFuncArgs(AFunction, AActrec, Args);
   FCallStack.Push(AActRec);
   len := Length(AFunction.PBlock);
@@ -1260,7 +1168,7 @@ begin
     NewParams[i] := TParam.Create(Atoken, AFunctionInstance.PParams[i]);
     TParam(NewParams[i]).PDefValue := ADecorated[i];
   end;
-  Decorated := TFunctionInstance.Create(FormatDateTime('yyyymmddhhnnsszzz', Now), TFunctionInstance(Instanced).PParams, AFunctionInstance.PBlock, 'TCoreFunction', False, AFunctionInstance.PIsDecorator, TFunctionInstance(Instanced).PAccVarargs);
+  Decorated := TFunctionInstance.Create(FormatDateTime('yyyymmddhhnnsszzz', Now), TFunctionInstance(Instanced).PParams, AFunctionInstance.PBlock, 'TCoreFunction', False, AFunctionInstance.PIsDecorator, TFunctionInstance(Instanced).PAccVarargs, False);
   Decorated.PDecorParams := NewParams;
   Result := Decorated;
 end;
@@ -1276,7 +1184,7 @@ var
   ACoreExec: TCoreFunction;
   AFuncName, ASrcName, compl: string;
   AActRec: TActivationRecord;
-  AParamName: string;
+  AParamName, DisplayType: string;
   len, len2, i, j, ri: integer;
   AParamState: TParam;
   FuncDef, Aux: TFunctioninstance;
@@ -1318,6 +1226,23 @@ begin
   if FuncDef <> nil then
   begin
     NewEvalParams := ANode.PEvalParams;
+    if ASrcInstance <> nil then
+    begin
+      if ASrcInstance.ClassNameIs('TClassInstance') then
+        DisplayType := ASrcInstance.AsString
+      else
+        DisplayType := ASrcInstance.ClassName;
+      if FuncDef.PIsInstanceFunction then
+      begin
+        if ASrcInstance.ClassNameIs('TDataType') then
+          RaiseException('Method "' + AFuncName + '" only available for "' + ASrcInstance.AsString + '" object instances', 'RunTime');
+      end
+      else
+      begin
+        if not ASrcInstance.ClassNameIs('TDataType') then
+          RaiseException('Method "' + AFuncName + '" is not available for "' + DisplayType + '" object instances', 'RunTime');
+      end;
+    end;
     if FuncDef.ClassNameIs('TDecoratorInstance') then
     begin
       // Decorate execute
@@ -1331,7 +1256,8 @@ begin
           FCallStack.PLevel + 1);
         AActRec.AddMember('__LIVE__', TStringInstance.Create(''));
         if ASrcInstance <> nil then
-          AActRec.AddMember('self', ASrcInstance);
+          if FuncDef.PIsInstanceFunction then
+            AActRec.AddMember('self', ASrcInstance);
 
         if FuncDef.PDecorParams <> nil then
         begin

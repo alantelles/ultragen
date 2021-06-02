@@ -483,7 +483,7 @@ begin
   {if AType <> '' then
     AStrId := AType + ':' + AStrId;}
   //if not IsDecorator then
-    Result := TFunctionDefinition.Create(AToken, AStrId, InBlock, ParamList, AType, False, AccVar);
+    Result := TFunctionDefinition.Create(AToken, AStrId, InBlock, ParamList, AType, False, AccVar, False);
   {else
     Result := TDecoratorDefinition.Create(AToken, AStrId, InBlock, ParamList, AType, IsDecorator, AccVar);}
 end;
@@ -498,6 +498,7 @@ var
   AName:string;
   OpenType: string;
   AccVar: boolean=False;
+  IsInstance: boolean=False;
 begin
   SetLength(ParamList, 0);
   if FCurrentToken.PType = T_DECOR_DEF then
@@ -537,6 +538,16 @@ begin
     Eat(T_DICT_ASSIGN);
     AType := FCurrentToken.PValue;
     Eat(T_ID);
+    if FCurrentToken.PType = T_ID then
+    begin
+      if FCurrentToken.PValue = 'self' then
+      begin
+        IsInstance := True;
+        Eat(T_ID);
+      end
+      else
+        EParseError('Self object reference keyword must be "self". "' + FCurrentToken.PValue + '" used instead.');
+    end;
   end;
   FInArgsDef := False;
   if FLexer.PExtension <> '.ultra' then
@@ -548,9 +559,9 @@ begin
   {if AType <> '' then
     AStrId := AType + ':' + AStrId;}
   if not IsDecorator then
-    Result := TFunctionDefinition.Create(AToken, AStrId, InBlock, ParamList, AType, IsDecorator, AccVar)
+    Result := TFunctionDefinition.Create(AToken, AStrId, InBlock, ParamList, AType, IsDecorator, AccVar, IsInstance)
   else
-    Result := TDecoratorDefinition.Create(AToken, AStrId, InBlock, ParamList, AType, IsDecorator, AccVar);
+    Result := TDecoratorDefinition.Create(AToken, AStrId, InBlock, ParamList, AType, IsDecorator, AccVar, IsInstance);
 end;
 
 function TTParser.PlainTextEmbed: TAST;
