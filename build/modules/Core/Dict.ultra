@@ -7,7 +7,7 @@ function asAttrs() : Dict
     return ' '.join(l)
 end
 
-function each(fn) : Dict
+function each(fn) : Dict self
     for (self.keys(), key)
         fn(key, self[key], _key)
     end
