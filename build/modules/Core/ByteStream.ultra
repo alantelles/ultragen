@@ -1,4 +1,4 @@
-function each(fn, args=null) : ByteStream
+function each(fn, args=null) : ByteStream self
     
     for (self, x)        
         if ((fn.$paramCount) == 1)

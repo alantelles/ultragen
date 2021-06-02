@@ -1,0 +1,4 @@
+x = new ByteStream(["triste"])
+x.each(function(i)
+    print(i)
+end)
