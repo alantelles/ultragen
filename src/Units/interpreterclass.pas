@@ -109,7 +109,8 @@ var
   ACoreType, AStrType, AIntType, AFloatType, AListType, ABoolType,
   AFuncType, AOSType, ADictType, AServerType, AJsonType: TDataType;
 
-  AStrFunc, AIntFunc, AListFunc, AServerFunc, AOSFunc, ADictFunc, AHttpClientFunc,
+  AStrFunc,
+  AIntFunc, AIntStFunc, AListFunc, AServerFunc, AOSFunc, ADictFunc, AHttpClientFunc,
   ABoolFunc, AFloatFunc, ACoreFunc, AJsonFunc: TFunctionInstance;
   ANameSpace: TDictionaryInstance;
 begin
@@ -473,7 +474,7 @@ begin
     if RealType <> nil then
     begin
       AValue := TFunctionInstance.Create(ANode.PName, ANode.PParamList,
-        ANode.PBlock, RealType.PValue, False, ANode.PIsDecorator, ANode.PAcceptVarargs, False);
+        ANode.PBlock, RealType.PValue, False, ANode.PIsDecorator, ANode.PAcceptVarargs, ANode.PIsInstanceFunction);
       AValue.PMembers.Add('$paramCount', TIntegerInstance.Create(Length(ANode.PParamList)));
       RealType.PMembers.Add(ANode.PName, AValue);
     end
@@ -1110,8 +1111,13 @@ begin
   AActRec := TActivationRecord.Create(AFunction.PName, AR_FUNCTION,
           FCallStack.PLevel + 1);
   AActRec.AddMember('__LIVE__', TStringInstance.Create(''));
-  if ASrcInstance <> nil then
+
+  if AFunction.PIsInstanceFunction then
+  begin
+    if ASrcInstance.ClassNameIs('TDataType') then
+      RaiseException('Method "' + AFunction.PName + '" only available for  "' + ASrcInstance.AsString + '"  object instances', 'RunTime');
     AActRec.AddMember('self', ASrcInstance);
+  end;
   ProcessFuncArgs(AFunction, AActrec, Args);
   FCallStack.Push(AActRec);
   len := Length(AFunction.PBlock);
@@ -1178,7 +1184,7 @@ var
   ACoreExec: TCoreFunction;
   AFuncName, ASrcName, compl: string;
   AActRec: TActivationRecord;
-  AParamName: string;
+  AParamName, DisplayType: string;
   len, len2, i, j, ri: integer;
   AParamState: TParam;
   FuncDef, Aux: TFunctioninstance;
@@ -1233,7 +1239,23 @@ begin
           FCallStack.PLevel + 1);
         AActRec.AddMember('__LIVE__', TStringInstance.Create(''));
         if ASrcInstance <> nil then
-          AActRec.AddMember('self', ASrcInstance);
+        begin
+          if ASrcInstance.ClassNameIs('TClassInstance') then
+            DisplayType := ASrcInstance.AsString
+          else
+            DisplayType := ASrcInstance.ClassName;
+          if FuncDef.PIsInstanceFunction then
+          begin
+            if ASrcInstance.ClassNameIs('TDataType') then
+              RaiseException('Method "' + FuncDef.PName + '" only available for "' + ASrcInstance.AsString + '" object instances', 'RunTime');
+            AActRec.AddMember('self', ASrcInstance);
+          end
+          else
+          begin
+            if not ASrcInstance.ClassNameIs('TDataType') then
+              RaiseException('Method "' + FuncDef.PName + '" is not available for "' + DisplayType + '" object instances', 'RunTime');
+          end;
+        end;
 
         if FuncDef.PDecorParams <> nil then
         begin
