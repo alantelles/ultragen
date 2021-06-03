@@ -122,7 +122,7 @@ function getMatch(route=null, method=null) : Router self
         route = route.slice(0, hasQueryString)
     end
     route = dropFirstAndLastSlash(route)
-    
+    params = {}
     routeSplit = route.split('/')
     lenRoute = routeSplit.length()
     for (self.routes, match)        
