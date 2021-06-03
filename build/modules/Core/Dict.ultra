@@ -1,8 +1,8 @@
-function asAttrs() : Dict
+function asAttrs() : Dict self
     keys = self.keys()
     l = []
     for (keys, k)
-        l.append(k + '="'+ (self[k]) +'"')
+        l.append(k + '="'+ str(self[k]) +'"')
     end
     return ' '.join(l)
 end
