@@ -103,7 +103,7 @@ type
       property PParams: TASTList read FParams;
       property PDecorParams: TASTList read FDecorParams write FDecorParams;
       property PBlock: TASTList read FBlock write FBlock;
-      property PIsInstanceFunction: boolean read FIsInstanceFunction;
+      property PIsInstanceFunction: boolean read FIsInstanceFunction write FIsInstanceFunction;
       function AsString: string;  override;
       constructor Create(
         AName: string; AParams, ABlock: TASTList;

@@ -1,3 +1,21 @@
-include @Core.Web.MimeTypes
+class Tops
 
-print(MimeTypes.JSON)
+function comp1() : Tops self
+    self.shout = function()
+        print("this is the comp1 for shout")
+    end
+end
+
+function comp2() : Tops self
+    self.shout = function()
+        print("this is the comp2 for shout")
+    end
+end
+
+
+
+x = new Tops()
+x.comp1()
+x.shout()
+x.comp2()
+x.shout()

@@ -962,15 +962,17 @@ begin
   AActrec := FCallStack.Peek;
   if ASrc = nil then
   begin
-	  if not AActRec.AddMember(AName, AValue) then
-	    ERunTimeError.Create('Can''t redefine constant value "'+Aname+'"', FTrace, ANode.PVarName);
-	end
+    if not AActRec.AddMember(AName, AValue) then
+      ERunTimeError.Create('Can''t redefine constant value "'+Aname+'"', FTrace, ANode.PVarName);
+  end
   else
   begin
     if AName[1] = '$' then
-	    ERunTimeError.Create('Can''t redefine constant attribute "'+Aname+'" from "' + ASrc.ClassName + '"', FTrace, ANode.PVarName);
+      ERunTimeError.Create('Can''t redefine constant attribute "'+Aname+'" from "' + ASrc.ClassName + '"', FTrace, ANode.PVarName);
+    if AValue.ClassNameIs('TFunctionInstance') and ASrc.ClassNameIs('TClassInstance') then
+      TFunctionInstance(AValue).PIsInstanceFunction := True;
     ASrc.PMembers.Add(AName, AValue);
-	end;
+  end;
 end;
 
 procedure TInterpreter.VisitListAssign(ANode: TListAssign);
