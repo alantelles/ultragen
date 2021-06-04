@@ -596,12 +596,32 @@ end;
 function TCoreFunction.GetTypeOf:TStringInstance;
 var
   Astr: string;
+  AR:TActivationRecord;
+  i, nowLevel: integer;
+  GotType: TInstanceOf = nil;
 begin
+
   AStr := FParams[0].ClassName;
+  writeln(FParams[0].ClassName);
   if FParams[0].ClassNameIs('TDataType') then
-    AStr := TDataType(FParams[0]).AsString
+    AStr := 'DataType'
   else if FParams[0].ClassNameIs('TClassInstance') then
-    AStr := TClassInstance(FParams[0]).PValue;
+    AStr := TClassInstance(FParams[0]).PValue
+  else
+  begin
+    AR := FInter.PCallStack.Peek();
+    for i := AR.PNestingLevel downto 1 do
+    begin
+      GotType := AR.GetTypeByInternalName(AStr);
+      if GotType <> nil then
+        break
+      else
+        if i > 1 then
+          AR := FInter.PCallStack.GetByLevel(i - 1);
+    end;
+    if GotType <> nil then
+      AStr := TDataType(GotType).PFrontName;
+  end;
   Result := TStringInstance.Create(AStr);
 end;
 

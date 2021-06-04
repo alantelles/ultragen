@@ -22,6 +22,8 @@ type
       FFloatValue: extended;
       FCoreType: boolean;
 
+      FTypeRef: TInstanceOf;
+
       //FPtrVal: PtrInst;
 
     public

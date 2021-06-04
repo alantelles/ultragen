@@ -1,6 +1,6 @@
 if (!assigned AppResponse)
     if (assigned $request[:server])
-        if(typeof($request[:server]) == (String.$internal))
+        if(typeof($request[:server]) == 'String')
             poweredBy = $request[:server]
             if (poweredBy == "FPWeb")
                 include @Core.Web.AppResponse

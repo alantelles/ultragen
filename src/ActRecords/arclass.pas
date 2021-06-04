@@ -114,17 +114,17 @@ begin
       AInst := TInstanceOf(FMembers[i]);
       if AInst <> nil then
       begin
-		    if FMembers[i].ClassNameIs('TDataType') then
-		    begin
-		      if TDataType(FMembers[i]).PValue = AName then
-		      begin
-		        Result := TInstanceOf(FMembers[i]);
-		        exit;
-				  end;
-				end;
-			end;
-		end;
-	end;
+	  if FMembers[i].ClassNameIs('TDataType') then
+	  begin
+	    if TDataType(FMembers[i]).PValue = AName then
+	    begin
+	      Result := TInstanceOf(FMembers[i]);
+	      exit;
+	    end;
+         end;
+       end;
+    end;
+  end;
 end;
 
 function TActivationRecord.DropItem(AKey: string): TInstanceOf;

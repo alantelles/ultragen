@@ -7,7 +7,6 @@ r = new Router()
 
 r.get('/', :index, function(params)    
     include 'base.ultra.html'
-    $request[:context] = 'lll'
     live Base('Teste - ' + ($request[:context]))
 end)
 

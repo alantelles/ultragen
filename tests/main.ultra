@@ -1,0 +1,5 @@
+class Zika
+print(typeof(Integer))
+print(typeof(Zika))
+x = new Zika()
+print(typeof(x))

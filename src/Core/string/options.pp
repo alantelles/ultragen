@@ -36,6 +36,8 @@ begin
         Ret := GetFileName(TStringInstance(FObj))
       else if FName = 'indexOf' then
         Ret := TIntegerInstance.Create(UTF8Pos(TStringInstance(FParams[0]).PValue, TStringInstance(FObj).PValue) - 1)
+      else if FName = 'lastIndexOf' then
+        Ret := TIntegerInstance.Create(UTF8RPos(TStringInstance(FParams[0]).PValue, TStringInstance(FObj).PValue) - 1)
       else if FName = 'isInt' then
       begin
         try
