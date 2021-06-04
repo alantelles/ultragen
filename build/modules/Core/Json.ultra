@@ -1,72 +1,74 @@
-
-function create(obj) : JSON
-
-    function dumpObj(data)    
-        ret = '{'
-        x = []
-        for (data.keys(), d)
-            x.append('"' + d + '": ' + dumpVal(data[d]))
-        end
-        ret += ','.join(x)
-        ret += '}'    
-        return ret
+function _dumpObj(data) : JSON
+    ret = '{'
+    x = []
+    for (data.keys(), d)
+        x.append('"' + d + '": ' + JSON._dumpVal(data[d]))
     end
+    ret += ','.join(x)
+    ret += '}'    
+    return ret
+end
 
-    function dumpValList(data)
-        ret = '['
-        x = []
-        for (data, d)
-            x.append(dumpVal(d))
-        end
-        ret += ','.join(x)
-        ret += ']'
-        return ret
+function _dumpValList(data) : JSON
+    ret = '['
+    x = []
+    for (data, d)
+        x.append(JSON._dumpVal(d))
     end
+    ret += ','.join(x)
+    ret += ']'
+    return ret
+end
 
-    function dumpVal(data)
-
-        input_type = typeof(data)
-        tri = ['Integer', 'Boolean', 'Float']
+function _dumpVal(data)  : JSON
+    
+    input_type = typeof(data)
+    tri = [Integer, Boolean, Float]
+    
+    x = tri.pos(input_type)
+    
+    if (x > -1)
+        return str(data).lower()
+    elsif (input_type == (String))
+        return '"' + (data.replace('"', '\\"')) + '"'
+    elsif (input_type == (Dict))
+        kk = JSON._dumpObj(data)
+        return kk
+    elsif (input_type == (List))
+        kk = JSON._dumpValList(data)
+        return kk
+    elsif (input_type == (NullType))
+        return 'null'
+    elsif (input_type)
+        return '"' + (str(input_type).replace('"', '\\"'))  + '"'
+    else 
+        return 'null'
         
-        x = tri.pos(input_type)
-        if (x > -1)
-            return str(data).lower()
-        elsif (input_type == ('String'))
-            return '"' + (data.replace('"', '\\"')) + '"'
-        elsif (input_type == ('Dict'))
-            kk = dumpObj(data)
-            return kk
-        elsif (input_type == ('List'))
-            kk = dumpValList(data)
-            return kk
-        elsif (input_type == ('TNullInstance'))
-            return 'null'
-        elsif (input_type)
-            return '"' + (str(input_type).replace('"', '\\"'))  + '"'
-        else 
-            return 'null'
-        end
+    
     end
+end
 
-    function dumpList(data)
-        ret = '['
-        x = []
-        for (data, d)
-            x.append(dumpObj(d))
-        end
-        ret += ','.join(x)
-        ret += ']'
-        return ret
+function _dumpList(data) : JSON
+    ret = '['
+    x = []
+    for (data, d)
+        x.append(JSON._dumpObj(d))
     end
+    ret += ','.join(x)
+    ret += ']'
+    return ret
+end
 
+function create(obj) : JSON     
     input_type = typeof(obj)
-    if (input_type == ('List'))
-        out = dumpList(obj)
-    elsif (input_type == ('Dict'))
-        out = dumpObj(obj)
+    if (input_type == (List))
+        out = JSON._dumpList(obj)
+    elsif (input_type == (Dict))
+        out = JSON._dumpObj(obj)
     else
         return 'Invalid type for conversion'
     end
+    
     return out
 end
 

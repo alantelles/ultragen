@@ -25,7 +25,7 @@ function saveUploadedFile(params) : Handlers
     for ($request[:files].keys(), fileField)
         FileSystem.mkdir('uploaded\\' + fileField)
         fileEntry = $request[:files][fileField]
-        if (typeof(fileEntry) == 'List')
+        if (typeof(fileEntry) == List)
             for (fileEntry, file)
                 fIn = file[:serverName]                
                 fOut = getPathOut(fileField, file[:fileName])

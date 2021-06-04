@@ -130,11 +130,7 @@ begin
 
   TTypeLoader.LoadType('ByteStream', self, AActrec);
 
-  AJsonType := TDataType.Create('TJsonInstance', 'JSON');
-  AJsonType.PMembers.Add('parse', AJsonFunc);
-  AJsonType.PMembers.Add('parseFile', AJsonFunc);
-  AActRec.AddMember('JSON', AJsonType);
-  AActRec.AddMember('DataType', TDataType.Create('DataType', 'DataType'));
+
 
   ABoolType := TDataType.Create('TBooleanInstance', 'Boolean');
   AFloatType := TDataType.Create('TFloatInstance', 'Float');
@@ -155,9 +151,16 @@ begin
 //AActRec.AddMember('Server', AServerType);
 
   // AActrec.AddMember('Core', ACoreType);
+  AActRec.AddMember('DataType', TDataType.Create('DataType', 'DataType'));
+  AActRec.AddMember('NullType', TDataType.Create('TNullInstance', 'NullType'));
   AActrec.AddMember('Boolean', ABoolType);
   AActrec.AddMember('Function', AFuncType);
   AActrec.AddMember('Float', AFloatType);
+
+  AJsonType := TDataType.Create('TJsonInstance', 'JSON');
+  AJsonType.PMembers.Add('parse', AJsonFunc);
+  AJsonType.PMembers.Add('parseFile', AJsonFunc);
+  AActRec.AddMember('JSON', AJsonType);
 end;
 
 

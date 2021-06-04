@@ -27,7 +27,7 @@ function start() : Session
         if (!(Session.duration))
             AppResponse.$cookies['UGAPPSESSID_' + (Session.key)] = Session.id
         else
-            if (typeof(Session.duration) != ('Integer'))
+            if (typeof(Session.duration) != (Integer))
                 raise ("Invalid type for session duration", "Session")
             end
             AppResponse.$cookies['UGAPPSESSID_' + (Session.key)] = new Cookie(Session.id, {'max-age': Session.duration})
