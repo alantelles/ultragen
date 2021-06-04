@@ -1652,6 +1652,7 @@ var
   LeftExt, RightExt: extended;
   LeftInt, RightInt: integer;
   LeftBool, RightBool: boolean;
+  LeftAddr, RightAddr: ^word;
   LeftStr, RightStr: string;
   LeftClass, RightClass: string;
   AResl, AResR: TInstanceOf;
@@ -1758,7 +1759,30 @@ begin
         exit;
       end
       else
-        RaiseException('Can''t compare instances of type ' + LeftClass, 'Type');
+      begin
+        LeftAddr := addr(AResL);
+        RightAddr := addr(AResR);
+        LeftInt := LeftAddr^;
+        RightInt := RightAddr^;
+        if (ANode.POper.PType = T_GT) then
+          Cmp := LeftInt > RightInt
+        else if (ANode.POper.PType = T_LT) then
+          Cmp := LeftInt < RightInt
+        else if (ANode.POper.PType = T_EQ) then
+          Cmp := LeftInt = RightInt
+        else if (ANode.POper.PType = T_LEQ) then
+          Cmp := LeftInt <= RightInt
+        else if (ANode.POper.PType = T_GEQ) then
+          Cmp := LeftInt >= RightInt
+        else if (ANode.POper.PType = T_NEQ) then
+          Cmp := LeftInt <> RightInt
+        else if (ANode.POper.PType = T_AND) then
+          Cmp := (LeftInt > 0) and (RightInt > 0)
+        else if (ANode.POper.PType = T_OR) then
+          Cmp := (LeftInt > 0) and (RightInt > 0);
+        Result := TBooleanInstance.Create(Cmp);
+        // RaiseException('Can''t compare instances of type ' + LeftClass, 'Type');
+      end;
     end
     else
       ERunTimeError.Create('Can''t compare different types ' +

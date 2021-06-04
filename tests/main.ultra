@@ -1,5 +1,3 @@
-class Zika
-print(typeof(Integer))
-print(typeof(Zika))
-x = new Zika()
-print(typeof(x))
+m = {'a dict': 90}
+n = {'a dict': 90}
+print(typeof(9) == Integer)
