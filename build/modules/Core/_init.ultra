@@ -6,3 +6,9 @@ include @Core.String
 include @Core.Helpers
 include @Core.Json
 
+function $test(cond, ifTrue, ifFalse)
+    if (cond)
+        return ifTrue
+    end
+    return ifFalse
+end
