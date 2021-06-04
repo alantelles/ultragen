@@ -134,6 +134,7 @@ begin
   AJsonType.PMembers.Add('parse', AJsonFunc);
   AJsonType.PMembers.Add('parseFile', AJsonFunc);
   AActRec.AddMember('JSON', AJsonType);
+  AActRec.AddMember('DataType', TDataType.Create('DataType', 'DataType'));
 
   ABoolType := TDataType.Create('TBooleanInstance', 'Boolean');
   AFloatType := TDataType.Create('TFloatInstance', 'Float');

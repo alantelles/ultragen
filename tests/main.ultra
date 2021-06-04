@@ -1,3 +1,0 @@
-m = {'a dict': 90}
-n = {'a dict': 90}
-print(typeof(9) == Integer)

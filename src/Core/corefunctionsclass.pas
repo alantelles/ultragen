@@ -35,7 +35,7 @@ type
 
       // functions
 
-      function GetTypeOf:TStringInstance;
+      function GetTypeOf:TDataType;
       function CastToStr:TStringInstance;
       function CastToByte:TByteInstance;
       function CastToInt:TIntegerInstance;
@@ -593,7 +593,7 @@ begin
   Result := TStringInstance.Create(AFStr);
 end;
 
-function TCoreFunction.GetTypeOf:TStringInstance;
+function TCoreFunction.GetTypeOf:TDataType;
 var
   Astr: string;
   AR:TActivationRecord;
@@ -602,11 +602,39 @@ var
 begin
 
   AStr := FParams[0].ClassName;
-  writeln(FParams[0].ClassName);
   if FParams[0].ClassNameIs('TDataType') then
-    AStr := 'DataType'
+  begin
+    AStr := 'DataType';
+    AR := FInter.PCallStack.Peek();
+    for i := AR.PNestingLevel downto 1 do
+    begin
+      GotType := AR.GetMember(AStr);
+      if GotType <> nil then
+        break
+      else
+        if i > 1 then
+          AR := FInter.PCallStack.GetByLevel(i - 1);
+    end;
+    if GotType <> nil then
+      AStr := TDataType(GotType).PFrontName;
+  end
+
   else if FParams[0].ClassNameIs('TClassInstance') then
-    AStr := TClassInstance(FParams[0]).PValue
+  begin
+    AStr := TClassInstance(FParams[0]).PValue;
+    AR := FInter.PCallStack.Peek();
+    for i := AR.PNestingLevel downto 1 do
+    begin
+      GotType := AR.GetMember(AStr);
+      if GotType <> nil then
+        break
+      else
+        if i > 1 then
+          AR := FInter.PCallStack.GetByLevel(i - 1);
+    end;
+    if GotType <> nil then
+      AStr := TDataType(GotType).PFrontName;
+  end
   else
   begin
     AR := FInter.PCallStack.Peek();
@@ -622,7 +650,7 @@ begin
     if GotType <> nil then
       AStr := TDataType(GotType).PFrontName;
   end;
-  Result := TStringInstance.Create(AStr);
+  Result := TDataType(GotType);
 end;
 
 function TCoreFunction.CastToStr:TStringInstance;
