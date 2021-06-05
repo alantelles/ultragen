@@ -250,9 +250,13 @@ function addRouter(router) : Router self
             :method: route[:method],
             :handler_decorator: route[:handler_decorator]
         }
+        
         self.routes.append(newRoute)
     end
-    
+    for(router.customTypes.keys(), cust)
+        # preName = (router.name_prefix + '_' + cust)
+        self.customTypes[cust] = router.customTypes[cust]
+    end
 end
 
 function addRoute(path, name, handler, method, frontName) : Router self
