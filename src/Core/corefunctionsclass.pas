@@ -39,6 +39,7 @@ type
       function CastToStr:TStringInstance;
       function CastToByte:TByteInstance;
       function CastToInt:TIntegerInstance;
+      function CastToFloat:TFloatInstance;
       function Range: TListInstance;
       procedure DumpLive;
       function ParseJson: TInstanceOf;
@@ -177,6 +178,8 @@ begin
       Ret := CastToStr
     else if FName = 'byte' then
       Ret := CastToByte
+    else if FName = 'float' then
+      Ret := CastToFloat
     else if FName = 'int' then
       Ret := CastToInt
     else if FName = 'addModulePath' then
@@ -695,6 +698,30 @@ begin
   end
   else
     raise ETypeError.Create('Can''t convert value "'+FParams[0].ClassName+'" to integer', '', 1, 1);
+end;
+
+function TCoreFunction.CastToFloat:TFloatInstance;
+var
+  ResInt: extended;
+begin
+  if FParams[0].ClassNameIs('TFloatInstance') then
+    Result := TFloatInstance(FParams[0])
+  else if FParams[0].ClassNameIs('TStringInstance') then
+  begin
+    try
+      ResInt := StrToFloat(TStringInstance(FParams[0]).PValue);
+      Result := TFloatInstance.Create(ResInt);
+    except
+      FInter.RaiseException('Can''t convert value "'+TStringInstance(FParams[0]).PValue+'" to float', 'Type');
+    end;
+  end
+  else if FParams[0].ClassNameIs('TIntegerInstance') then
+  begin
+    Result := TFloatInstance.Create(FParams[0].PIntValue * 1.0);
+
+  end
+  else
+    raise ETypeError.Create('Can''t convert value "'+FParams[0].ClassName+'" to float', '', 1, 1);
 end;
 
 

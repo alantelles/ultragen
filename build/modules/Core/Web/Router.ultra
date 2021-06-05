@@ -10,6 +10,7 @@ function init(name_prefix='', url_prefix='') : Router self
     self.name_prefix = name_prefix
     self.url_prefix = dropFirstAndLastSlash(url_prefix)
     self.routes = []
+    self.customTypes = {null : [false, null]}
     routeModel = """{
         "path": '/some_path',
         "handler": SomeFunctionReference,
@@ -110,6 +111,66 @@ function dropFirstAndLastSlash(route)
     return route
 end
 
+function checkTypedInt(value) : Router
+    if ((value.isInt()))
+        return [true, int(value)]
+    end
+    return [false, null]
+end
+
+function checkTypedBool(value) : Router
+    if (value == 'true')
+        return [true, true]
+    elsif (value == 'false')
+        return [true, false]
+    end
+    return [false, null]
+end
+
+function checkTypedFloat(value) : Router
+    if((value.isFloat()))
+        return [true, float(value)]
+    end
+    return [false, null]
+end
+
+function checkTypedNum(value) : Router
+    Router.checkTypedFloat(value).unpack(:valid, :conv)
+    if (valid)
+        return [valid, conv]
+    end
+    Router.checkTypedInt(value).unpack(:valid, :conv)
+    if (valid)
+        return [valid, conv]
+    end
+    return [false, null]
+end
+
+function checkCustomType(type, value) : Router self
+    handler = self.customTypes[type]
+    evaluated = handler(value)    
+    if (typeof(evaluated) != NullType)
+        return [true, evaluated]
+    end
+    return [false, null]
+end
+
+function checkTypedParam(type, value) : Router self
+    opts = {
+        'int': Router.checkTypedInt,
+        'bool': Router.checkTypedBool,
+        'float': Router.checkTypedFloat,
+        'num': Router.checkTypedNum
+    }
+    checkHandler = opts.get(type)
+    if (checkHandler)
+        check = checkHandler(value)
+    else
+        check = self.checkCustomType(type, value)
+    end
+    return check
+end
+
 function getMatch(route=null, method=null) : Router self
     if (!method)
         method = $request[:method]
@@ -147,16 +208,13 @@ function getMatch(route=null, method=null) : Router self
                         if (dotPos > 0)
                             paramType = paramName.slice(0, dotPos)
                             paramName = paramName.slice(dotPos + 1)
-                            if (paramType == 'int')
-                                if ((paramValue.isInt()))
-                                    paramValue = int(routeSplit[_part])
-                                else
-                                    routeMatch = false
-                                    break
-                                end
-                            else
-                                paramValue = routeSplit[_part]
+                            self.checkTypedParam(paramType, paramValue).unpack(:routeMatch, :paramValue)
+                            
+                            if (!routeMatch)
+                                break
                             end
+
+                            
                         end
                         params[paramName] = paramValue
                     else
