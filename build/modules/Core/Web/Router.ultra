@@ -1,14 +1,15 @@
 class Router
-
+Router.appResponse = null
 
 function init(name_prefix='', url_prefix='') : Router self
-    appResponseIsSet = assigned AppResponse    
-    if (!appResponseIsSet)
-        raise("No AppResponse handler is set for this application", 'Router')
-    end
+    # appResponseIsSet = assigned AppResponse    
+    # if (!appResponseIsSet)
+    #     raise("No AppResponse handler is set for this application", 'Router')
+    # end
+
     self.default_decorator = null
     self.name_prefix = name_prefix
-    self.url_prefix = dropFirstAndLastSlash(url_prefix)
+    self.url_prefix = Router.dropFirstAndLastSlash(url_prefix)
     self.routes = []
     self.customTypes = {null : [false, null]}
     routeModel = """{
@@ -21,11 +22,6 @@ end
 
 function HandlerFor404(params) : Router self
     live 'Page not found<br>'
-    live 'Request data:<br>'    
-    live $request
-    live '<br>Params: '
-    live params
-    live '<br>'
 end
 
 function urlFor(name, params={}) : Router self
@@ -91,7 +87,7 @@ function urlText(name) : Router self
 end
 
 
-function dropFirstAndLastSlash(route)
+function dropFirstAndLastSlash(route) : Router
     if ((route.length()) > 0)
         f = route[0]
     else
@@ -172,17 +168,17 @@ function checkTypedParam(type, value) : Router self
 end
 
 function getMatch(route=null, method=null) : Router self
-    if (!method)
-        method = $request[:method]
-    end
-    if (!route)
-        route = $request[:route]
-    end
+    # if (!method)
+    #     method = $request[:method]
+    # end
+    # if (!route)
+    #     route = $request[:route]
+    # end
     hasQueryString = route.pos("?")
     if (hasQueryString > -1)
         route = route.slice(0, hasQueryString)
     end
-    route = dropFirstAndLastSlash(route)
+    route = Router.dropFirstAndLastSlash(route)
     params = {}
     routeSplit = route.split('/')
     lenRoute = routeSplit.length()
@@ -265,7 +261,7 @@ function addRoute(path, name, handler, method, frontName) : Router self
         frontName = name.capital()
     end
     self.routes.append({
-        :path: dropFirstAndLastSlash(path),
+        :path: Router.dropFirstAndLastSlash(path),
         :name: name,
         :handler: handler,
         :method: method,
@@ -275,12 +271,12 @@ function addRoute(path, name, handler, method, frontName) : Router self
     })
 end
 
-function getStatic(path, name) : Router self
-    self.get(path, name, function(params)
-        include @Core.Web.AppResponse
-        AppResponse.static($request[:route].slice(1))
-    end)
-end
+# function getStatic(path, name) : Router self
+#     self.get(path, name, function(params)
+#         include @Core.Web.AppResponse
+#         AppResponse.static($request[:route].slice(1))
+#     end)
+# end
 
 function get(path, name, handler, frontName=null) : Router self
     self.addRoute(path, name, handler, 'GET', frontName)

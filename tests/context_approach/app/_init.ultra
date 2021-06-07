@@ -1,0 +1,17 @@
+class App
+
+include @Core.Web.Router
+include @Core.Brook.AppResponse
+include @Core.Web.AppResponseInterface
+include @Core.Request
+
+# isto precisa ser automático
+$app = new App()
+$app.Router = Router
+$app.AppResponse = AppResponse
+$app.Request = Request
+$app.routers = new Object()
+
+include 'app/templates/base.ultra.html'
+include 'app/routers'
+$app.routers.main = main

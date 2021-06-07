@@ -1,0 +1,5 @@
+class DocsViews
+
+function index(params) : DocsViews
+    live Base("This is the docs index")
+end

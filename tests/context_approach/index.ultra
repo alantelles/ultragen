@@ -1,0 +1,12 @@
+# necessário automatizar tudo isso
+# ideal seria via prelude
+Router = $app.Router
+Request = $app.Request
+AppResponse = $app.AppResponse
+if (!assigned $app.routers.main)
+    raise('No main router found in $app', 'Application')
+end
+
+main = $app.routers.main
+main.getMatch($request[:route], $request['method']).localize()
+live handler(params)

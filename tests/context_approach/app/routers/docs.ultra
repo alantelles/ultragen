@@ -1,0 +1,3 @@
+include 'app/views/docs.ultra'
+docs = new Router('/docs', :docs)
+docs.get('/', :index, DocsViews.index)
