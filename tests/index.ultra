@@ -1,42 +1,5 @@
-include @Core.Web.AppResponseInterface
-include @Core.Web.Router
-
-function isZika(value)
-    if (!(value.isInt()))
-        return str(value.upper())
-    end
-    return null
-end
-
-function isTop(value)
-    if (value == "33")
-        return int(33)
-    end
-    return null
-end
-
-g = new Router(:docs, '/docs')
-g.get('/:zika.id', :index, function(params)
-    live 'route index from g' + (params[:id])
-end)
-
-r = new Router()
-r.addRouter(g)
-
-r.customTypes['zika'] = isZika
-r.customTypes['top'] = isTop
-
-r.get('/', :index, lambda(params) : live 'index')
-
-r.get('/:top.id', :docs, function(params)
-    print(typeof(params[:id]))
-    live params[:id]
-end)
-
-r.get('/:zika.id', :docs2, function(params)
-    print(typeof(params[:id]))
-    live params[:id]
-end)
-
-r.getMatch().localize()
-live handler(params)
+live $app
+live '<br>'
+live $request
+live '<br>'
+live $context

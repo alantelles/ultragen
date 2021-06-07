@@ -1,4 +1,5 @@
 include @Core.Brook.Server
 
 s = new Server(5000, true)
+s.app = 'tops'
 s.run()

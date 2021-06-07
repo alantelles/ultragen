@@ -413,7 +413,7 @@ var
   Content: TBytes;
   Len, Status: integer;
   UltraResult: TUltraResult;
-  Adapter: TUltraAdapter;
+  Adapter, Context: TUltraAdapter;
   Prelude: TSTringList;
   ContentType: string = '';
   AppResponse: TDataType;
@@ -438,16 +438,20 @@ begin
 
     Adapter := SetRequestDict(ARequest);
     Adapter.ActRec.AddMember('context', TInstanceOf(FUltraInstance.PMembers.Find('context')));
+    Context := TUltraAdapter.Create('$context');
+    Context.ActRec.AddMember('$request', TDictionaryInstance.Create(Adapter.ActRec));
+    Context.ActRec.AddMember('$app', TInstanceOf(FUltraInstance.PMembers.Find('app')));
     UltraHome := ReplaceStr(GetEnv('ULTRAGEN_HOME'), '\', '\\');
     Prelude := TStringList.Create;
     Prelude.Add('addModulePath(["'+ UltraHome + '", "modules"].path())');
     Prelude.Add('include @Core');
+    Prelude.Add('$context.localize()');
     Prelude.Add('$request.lock()');
     if Adapter.ActRec.PMembers.Find('files') <> nil then
       Prelude.Add('load BrookUploaded');
     IndexHandler := TStringInstance(FUltraInstance.PMembers.Find('indexHandler')).PValue;
     ExceptionHandler := TStringInstance(FUltraInstance.PMembers.Find('exceptionHandler')).PValue;
-    UltraResult := TUltraInterface.InterpretScriptWithResult(IndexHandler, Prelude, Adapter, UltraHome, WebHandlers);
+    UltraResult := TUltraInterface.InterpretScriptWithResult(IndexHandler, Prelude, Context, UltraHome, WebHandlers);
     AppResponse := TDataType(UltraResult.ActRec.GetMember('AppResponse'));
     Status := ProcessAppResponse(AResponse, AppResponse);
 
