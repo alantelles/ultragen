@@ -13,7 +13,10 @@ uses
 type
   TBrookServerInstance = class (TInstanceOf)
     public
+      FTriggerReload: boolean;
       procedure RunServer;
+      procedure RunServerReloading;
+      procedure CheckReloader;
       constructor Create(APort: integer; ADebug: boolean);
   end;
 
@@ -544,6 +547,63 @@ begin
     Free;
   end;
 
+end;
+
+function CheckChanges: TDateTime;
+begin
+
+end;
+
+
+
+procedure TBrookServerInstance.RunServerReloading();
+var
+  MPort: integer;
+  MTitle: string;
+begin
+  MTitle := TInstanceOf(FMembers.Find('title')).AsString;
+  MPort := TInstanceOf(FMembers.Find('port')).PIntValue;
+  FError := True;
+  while True do
+  begin
+    with THTTPServer.Create(nil) do
+    try
+      try
+        UploadsDir := TStringInstance(FMembers.Find('uploadsDir')).PValue;
+        UltraInstance := Self;
+        Port := MPort;
+        Open;
+        if not Active then
+          Exit;
+        ForceDirectories(UploadsDir);
+        FError := False;
+        WriteLn('Running '+ MTitle +' in '+'Brook High Performance Server at port ' + IntTostr(MPort), #13);
+        while not FTriggerReload do
+        begin
+          Sleep(100);
+        end;
+        Writeln('Detected change. Reloading server');
+      except on E: Exception do
+        FErrorMsg := E.Message;
+      end;
+    finally
+      Free;
+    end;
+  end;
+end;
+
+procedure TBrookServerInstance.CheckReloader();
+var
+  LastChange, NowChange: TDateTime;
+begin
+  LastChange := Now;
+  while True do
+  begin
+    NowChange := CheckChanges;
+    FTriggerReload := LastChange <> NowChange;
+    LastChange := NowChange;
+    sleep(1500);
+  end;
 end;
 
 
