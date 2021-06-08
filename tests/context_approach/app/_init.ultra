@@ -1,4 +1,4 @@
-class App
+include 'App.ultra'
 
 include @Core.Web.Router
 include @Core.Brook.AppResponse
@@ -7,11 +7,15 @@ include @Core.Request
 
 # isto precisa ser automático
 $app = new App()
-$app.Router = Router
-$app.AppResponse = AppResponse
-$app.Request = Request
-$app.routers = new Object()
+$app.uses.Router = Router
+$app.uses.AppResponse = AppResponse
+$app.uses.Request = Request
 
 include 'app/templates/base.ultra.html'
+$app.templates.Base = Base
+
 include 'app/routers'
+$app.routers.docs = docs
 $app.routers.main = main
+
+# zika

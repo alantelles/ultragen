@@ -35,8 +35,9 @@ type
 implementation
 
 uses
-  StringInstanceClass, UltraGenInterfaceClass, Dos, StrUtils, ARClass, ListInstanceClass, UltraWebHandlersClass,
-  DateTimeInstanceClass, httpprotocol, BrookHTTPUploads, CoreFunctionsClass, BrookStringMap, BrookHTTPCookies, ByteStreamClass, typeLoaderClass;
+  StringInstanceClass, UltraGenInterfaceClass, Dos, StrUtils, ARClass, ListInstanceClass, UltraWebHandlersClass, FileUtil, CRT,
+  DateTimeInstanceClass, httpprotocol, BrookHTTPUploads, CoreFunctionsClass, BrookStringMap, BrookHTTPCookies, ByteStreamClass,
+  typeLoaderClass;
 
 function StrToBytes(Astr: string): TBytes;
 var
@@ -550,8 +551,21 @@ begin
 end;
 
 function CheckChanges: TDateTime;
+var
+  LastTime, FileTime: TDateTime;
+  FileList: TStringList;
+  FN: string;
 begin
-
+  LastTime := 0;
+  FileList := TStringList.Create;
+  FindAllFiles(FileList, '.');
+  for FN in FileList do
+  begin
+    FileTime := FileDateToDateTime(FileAge(FN));
+    if FileTime > LastTime then
+      LastTime := FileTime;
+  end;
+  Result := LastTime;
 end;
 
 
@@ -560,11 +574,18 @@ procedure TBrookServerInstance.RunServerReloading();
 var
   MPort: integer;
   MTitle: string;
+  LastTime, NowCheck: TDateTime;
+  Reload: boolean = False;
+  ReadKey: char;
+  StopServer: boolean = False;
+  ch: char;
 begin
+
+  LastTime := Now;
   MTitle := TInstanceOf(FMembers.Find('title')).AsString;
   MPort := TInstanceOf(FMembers.Find('port')).PIntValue;
   FError := True;
-  while True do
+  while not StopServer do
   begin
     with THTTPServer.Create(nil) do
     try
@@ -578,11 +599,26 @@ begin
         ForceDirectories(UploadsDir);
         FError := False;
         WriteLn('Running '+ MTitle +' in '+'Brook High Performance Server at port ' + IntTostr(MPort), #13);
-        while not FTriggerReload do
+        while not Reload and (not StopServer) do
         begin
-          Sleep(100);
+          if Crt.KeyPressed then
+          begin
+            StopServer := True;
+            Writeln('Stopping server');
+          end;
+          Sleep(1500);
+          NowCheck := CheckChanges;
+          Reload := NowCheck > LastTime;
+          if Reload then
+            LastTime := NowCheck;
         end;
-        Writeln('Detected change. Reloading server');
+        if not StopServer then
+        begin
+          Writeln('Detected change. Reloading server');
+          Reload := False;
+
+        end;
+
       except on E: Exception do
         FErrorMsg := E.Message;
       end;
@@ -590,9 +626,10 @@ begin
       Free;
     end;
   end;
+  Writeln('Server stopped');
 end;
 
-procedure TBrookServerInstance.CheckReloader();
+procedure TBrookServerInstance.CheckReloader;
 var
   LastChange, NowChange: TDateTime;
 begin

@@ -1,0 +1,8 @@
+class App
+
+function init() : App self
+    self.routers = new Object()
+    self.templates = new Object()
+    self.uses = new Object()
+    self.routers = new Object()
+end
