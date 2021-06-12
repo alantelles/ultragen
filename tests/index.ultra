@@ -1,5 +1,9 @@
-live $app
-live '<br>'
-live $request
-live '<br>'
-live $context
+x = 9
+y = 'quit'
+function tops ()
+    print('tops')
+end
+
+m = function(l)
+    print(l)
+end

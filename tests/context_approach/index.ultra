@@ -4,6 +4,12 @@
 Router = $app.uses.Router
 Request = $app.uses.Request
 AppResponse = $app.uses.AppResponse
+Session = $app.uses.Session
+
+
+Session.request = $request
+Session.start()
+
 if (!assigned $app.routers.main)
     raise('No main router found in $app', 'Application')
 end

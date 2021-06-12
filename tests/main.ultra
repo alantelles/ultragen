@@ -1,0 +1,6 @@
+include 'index.ultra' : Index
+print(Index.x)
+print(Index.y)
+Index.tops()
+k = Index.m
+k('opa')

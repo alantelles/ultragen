@@ -4,12 +4,17 @@ include @Core.Web.Router
 include @Core.Brook.AppResponse
 include @Core.Web.AppResponseInterface
 include @Core.Request
+include @Core.Web.Session
 
 # isto precisa ser automático
 $app = new App()
 $app.uses.Router = Router
+$app.uses.Session = Session
 $app.uses.AppResponse = AppResponse
 $app.uses.Request = Request
+
+Session.key = "TEST_APP"
+
 
 include 'app/templates/base.ultra.html'
 $app.templates.Base = Base

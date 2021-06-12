@@ -6,6 +6,7 @@ class Session
 
 Session.key = 'UNSET_KEY'
 Session.duration = null
+Session.request = null
 
 function start() : Session
     appResponseIsSet = assigned AppResponse    
@@ -19,7 +20,7 @@ function start() : Session
     FileSystem.mkdir(Session.path, true)
     Session.erase = false    
     full_key = 'UGAPPSESSID_' + (Session.key)
-    started = $request[:cookies].get(full_key)
+    started = Session.request[:cookies].get(full_key)
     Session.content = {"__DATA__": {}}
     Session.flashMessages = []
     if(!started)
@@ -72,7 +73,7 @@ end
 
 function destroy() : Session
     full_key = 'UGAPPSESSID_' + (Session.key)
-    id = $request['cookies'].get(full_key)
+    id = Session.request['cookies'].get(full_key)
     AppResponse.$cookies[full_key] = Cookie.expire()
     Session.erase = true
     if (id)
