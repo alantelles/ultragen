@@ -13,7 +13,7 @@ $app.uses.Session = Session
 $app.uses.AppResponse = AppResponse
 $app.uses.Request = Request
 
-Session.key = "TEST_APP"
+Session.start("TEST_APP")
 
 
 include 'app/templates/base.ultra.html'

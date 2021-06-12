@@ -13,14 +13,16 @@ main.get('/users', :users, function(params)
 end)
 
 main.get('/flash', :flash, function(params)
-    Session.flash('Esse negócio é zika')
-    Session.save()
+    include @Core.DateTime
+    $session = new Session($request, AppResponse)
+    $session.flash(str(DateTime.now()))
+    $session.save()
 end)
 
 main.get('/get_flash', :get_flash, function(params)
-    content = Session.getFlashMessages()
-    live 'zika'
-    # live $app.templates.Base(content)
+    $session = new Session($request, AppResponse)
+    content = $session.getFlashMessages()
+    live $app.templates.Base(content)
 end)
 
 include 'app/routers/docs.ultra'

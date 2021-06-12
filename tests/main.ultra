@@ -1,6 +1,7 @@
-include 'index.ultra' : Index
-print(Index.x)
-print(Index.y)
-Index.tops()
-k = Index.m
-k('opa')
+class Tops
+
+function init() : Tops
+    print("construiu")
+end
+
+x = new Tops()
