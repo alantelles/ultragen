@@ -116,11 +116,8 @@ var
 begin
   ADataType := TDataType.Create('TBrookResponseInstance', 'AppResponse');
   AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBrookResponseInstance',
-    True, False, False, False);
-  AdataType.PMembers.Add('$headers', TDictionaryInstance.Create(
-    TActivationRecord.Create('AppResponseHeaders', AR_DICT, -1)));
-  AdataType.PMembers.Add('$cookies', TDictionaryInstance.Create(
-    TActivationRecord.Create('AppResponseCookies', AR_DICT, -1)));
+    True, False, False, True);
+
   ADataType.PMembers.Add('redirect', AFunc);
   ADataType.PMembers.Add('clientRedirect', AFunc);
   ADataType.PMembers.Add('static', AFunc);

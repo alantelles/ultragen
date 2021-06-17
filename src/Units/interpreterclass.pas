@@ -592,6 +592,11 @@ begin
       begin
         Ret := TServerInstance.Create(TIntegerInstance(ArgsList[0]).PValue, TBooleanInstance(ArgsList[1]).PValue);
       end
+      //else if ABuilt.PValue = 'TBrookResponseHandlerInstance' then
+      //begin
+      //  Ret := TClassInstance.Create('AppResponse');
+      //
+      //end
       else if ABuilt.PValue = 'TBrookServerInstance' then
       begin
         Ret := TBrookserverInstance.Create(TIntegerInstance(ArgsList[0]).PValue, TBooleanInstance(ArgsList[1]).PValue);
@@ -667,7 +672,6 @@ begin
           for i2:=0 to ABuilt.PMembers.Count-1 do
             Ret.PMembers.Add(Abuilt.PMembers.NameOfIndex(i2), TObject(ABuilt.PMembers[i2]));
         end;
-
         ToCast := TInstanceOf(ABuilt.PMembers.Find('init'));
         if ToCast <> nil then
         begin

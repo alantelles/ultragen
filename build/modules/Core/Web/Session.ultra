@@ -24,12 +24,12 @@ function init(request, response) : Session self
         self.id = Helpers.randomToken(64, true, true, false)
         self.session_path = (Session.path) + '/' + (self.id)
         if (!(Session.duration))
-            AppResponse.$cookies[Session.full_key] = self.id
+            response.cookies[Session.full_key] = self.id
         else
             if (typeof(Session.duration) != (Integer))
                 raise ("Invalid type for session duration", "Session")
             end
-            AppResponse.$cookies[Session.full_key] = new Cookie(Session.id, {'max-age': Session.duration})
+            response.cookies[Session.full_key] = new Cookie(Session.id, {'max-age': Session.duration})
         end
     else
         self.id = started

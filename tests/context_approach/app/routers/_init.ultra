@@ -14,13 +14,13 @@ end)
 
 main.get('/flash', :flash, function(params)
     include @Core.DateTime
-    $session = new Session($request, AppResponse)
+    $session = new Session($request, $response)
     $session.flash(str(DateTime.now()))
     $session.save()
 end)
 
 main.get('/get_flash', :get_flash, function(params)
-    $session = new Session($request, AppResponse)
+    $session = new Session($request, $response)
     content = $session.getFlashMessages()
     live $app.templates.Base(content)
 end)

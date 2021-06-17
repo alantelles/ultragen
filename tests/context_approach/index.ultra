@@ -10,6 +10,8 @@ if (!assigned $app.routers.main)
     raise('No main router found in $app', 'Application')
 end
 
+$response = new AppResponse()
+
 main = $app.routers.main
 docs = $app.routers.docs
 main.getMatch($request[:route], $request['method']).localize()
