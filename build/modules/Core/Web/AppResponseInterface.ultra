@@ -30,5 +30,4 @@ end
 function init() : AppResponse self
     self.headers = {}
     self.cookies = {}
-    print('executei o init')
 end
