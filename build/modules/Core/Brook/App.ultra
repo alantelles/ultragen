@@ -1,0 +1,17 @@
+class App
+
+include @Core.Web.Router
+include @Core.Web.Session
+include @Core.Brook.AppResponse
+include @Core.Web.AppResponseInterface
+
+function init(name) : App self    
+    self.templates = new Object()
+    self.uses = new Object()
+    self.routers = new Object()
+    self.uses.Router = Router
+    self.uses.Session = Session
+    self.uses.AppResponse = AppResponse
+    self.routers = new Object()    
+    Session.start(name.upper())
+end

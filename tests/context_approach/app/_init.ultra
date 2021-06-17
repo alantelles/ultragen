@@ -1,20 +1,10 @@
-include 'App.ultra'
+include @Core.Brook.App
 
-include @Core.Web.Router
-include @Core.Brook.AppResponse
-include @Core.Web.AppResponseInterface
+
 include @Core.Request
-include @Core.Web.Session
 
-# isto precisa ser automático
-$app = new App()
-$app.uses.Router = Router
-$app.uses.Session = Session
-$app.uses.AppResponse = AppResponse
+$app = new App(:TEST_APP)
 $app.uses.Request = Request
-
-Session.start("TEST_APP")
-
 
 include 'app/templates/base.ultra.html'
 $app.templates.Base = Base
@@ -22,5 +12,3 @@ $app.templates.Base = Base
 include 'app/routers'
 $app.routers.docs = docs
 $app.routers.main = main
-
-# zika
