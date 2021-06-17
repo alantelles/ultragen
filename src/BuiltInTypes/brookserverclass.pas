@@ -534,7 +534,7 @@ begin
     FMembers.Add('debug', TBooleanInstance.Create(ADebug));
     FMembers.Add('uploadsDir', TStringInstance.Create(GetEnv('ULTRAGEN_HOME') + directorySeparator + 'brook_uploads'));
     FMembers.Add('context', TNullInstance.Create);
-    FMembers.Add('autoResponse', TBooleanInstance.Create(True));
+    FMembers.Add('app', TNullInstance.Create);
     Ferror := False;
   except on E: Exception do
     FErrorMsg := E.Message;

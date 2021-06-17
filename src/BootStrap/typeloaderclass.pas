@@ -116,7 +116,7 @@ var
 begin
   ADataType := TDataType.Create('TBrookResponseInstance', 'AppResponse');
   AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBrookResponseInstance',
-    True, False, False, True);
+    True, False, False, False);
 
   ADataType.PMembers.Add('redirect', AFunc);
   ADataType.PMembers.Add('clientRedirect', AFunc);
