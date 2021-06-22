@@ -14,7 +14,7 @@ type
   TBrookServerInstance = class (TInstanceOf)
     public
       FTriggerReload: boolean;
-      procedure RunServer;
+      procedure RunServer(Interactive: boolean);
       procedure RunServerReloading;
       procedure CheckReloader;
       constructor Create(APort: integer; ADebug: boolean);
@@ -542,7 +542,7 @@ begin
   end;
 end;
 
-procedure TBrookServerInstance.RunServer();
+procedure TBrookServerInstance.RunServer(Interactive: boolean);
 var
   MPort: integer;
   MTitle: string;
@@ -562,8 +562,19 @@ begin
       ForceDirectories(UploadsDir);
       FError := False;
       WriteLn('Running '+ MTitle +' in '+'Brook High Performance Server at port ' + IntTostr(MPort), #13);
-      Writeln('Press enter to stop server');
-      ReadLn;
+      if Interactive then
+      begin
+        Writeln('Press enter to stop server');
+        ReadLn;
+      end
+      else
+      begin
+        WriteLn('Running in non-interactive mode. Server can''t be stopped');
+        while True do
+        begin
+
+        end;
+      end;
 
     except on E: Exception do
       FErrorMsg := E.Message;
