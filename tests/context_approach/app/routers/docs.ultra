@@ -1,0 +1,4 @@
+include 'app/views/docs.ultra'
+docs = new Router(:docs, '/docs')
+docs.get('/', :index, DocsViews.index)
+docs.get('/tops', :tops, lambda (params) : live 'tops2')

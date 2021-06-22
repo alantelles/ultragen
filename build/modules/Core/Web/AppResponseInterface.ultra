@@ -17,13 +17,17 @@ if (!assigned AppResponse)
     end
 end
 
-function setHeaders(pairs) : AppResponse
+function setHeaders(pairs) : AppResponse self
     for(pairs.keys(), key)
-        AppResponse.$headers[key] = pairs[key]
+        self.headers[key] = pairs[key]
     end
 end
 
 function contentType(type) : AppResponse
-    AppResponse.$headers['Content-Type'] = type
+    self.headers['Content-Type'] = type
 end
 
+function init() : AppResponse self
+    self.headers = {}
+    self.cookies = {}
+end

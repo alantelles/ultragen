@@ -1,0 +1,7 @@
+include @Core.Brook.Server
+include 'app'
+
+
+s = new Server(5000, true)
+s.app = $app
+s.run(false)

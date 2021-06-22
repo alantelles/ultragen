@@ -1,1 +1,7 @@
-print(typeof(null))
+class Tops
+
+function init() : Tops
+    print("construiu")
+end
+
+x = new Tops()

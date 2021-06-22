@@ -1,0 +1,29 @@
+main = new Router()
+main.get('/', :index, function (params)
+    include 'app/templates/base.ultra.html'
+    content = "Parece q está dando certo"
+    live Base(content)
+end)
+
+main.get('/users', :users, function(params)
+    # include 'app/templates/base.ultra.html'
+    include 'app/templates/show_data.ultra.html'
+    resp = Request.get('https://reqres.in/api/users')
+    live ShowData(resp.text)
+end)
+
+main.get('/flash', :flash, function(params)
+    include @Core.DateTime
+    $session = new Session($request, $response)
+    $session.flash(str(DateTime.now()))
+    $session.save()
+end)
+
+main.get('/get_flash', :get_flash, function(params)
+    $session = new Session($request, $response)
+    content = $session.getFlashMessages()
+    live $app.templates.Base(content)
+end)
+
+include 'app/routers/docs.ultra'
+main.addRouter(docs)

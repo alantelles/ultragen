@@ -1,0 +1,13 @@
+include @Core.Brook.App
+
+include @Core.Request
+
+$app = new App(:TEST_APP)
+$app.uses.Request = Request
+
+include 'app/templates/base.ultra.html'
+$app.templates.Base = Base
+
+include 'app/routers'
+$app.routers.docs = docs
+$app.routers.main = main

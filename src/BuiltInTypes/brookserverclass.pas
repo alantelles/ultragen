@@ -13,7 +13,10 @@ uses
 type
   TBrookServerInstance = class (TInstanceOf)
     public
+      FTriggerReload: boolean;
       procedure RunServer;
+      procedure RunServerReloading;
+      procedure CheckReloader;
       constructor Create(APort: integer; ADebug: boolean);
   end;
 
@@ -32,8 +35,9 @@ type
 implementation
 
 uses
-  StringInstanceClass, UltraGenInterfaceClass, Dos, StrUtils, ARClass, ListInstanceClass, UltraWebHandlersClass,
-  DateTimeInstanceClass, httpprotocol, BrookHTTPUploads, CoreFunctionsClass, BrookStringMap, BrookHTTPCookies, ByteStreamClass, typeLoaderClass;
+  StringInstanceClass, UltraGenInterfaceClass, Dos, StrUtils, ARClass, ListInstanceClass, UltraWebHandlersClass, FileUtil, CRT,
+  DateTimeInstanceClass, httpprotocol, BrookHTTPUploads, CoreFunctionsClass, BrookStringMap, BrookHTTPCookies, ByteStreamClass,
+  typeLoaderClass;
 
 function StrToBytes(Astr: string): TBytes;
 var
@@ -193,9 +197,10 @@ begin
   end;
 end;
 
-function ProcessAppResponse(AResponse: TBrookHTTPResponse; AppResponse: TDataType): integer;
+function ProcessAppResponse(AResponse: TBrookHTTPResponse; AppResponse: TClassInstance): integer;
 var
   StatusInst: TInstanceOf;
+  zika: TObject;
   ADict: TActivationRecord;
   Status: integer = 200;
 begin
@@ -205,12 +210,13 @@ begin
     if StatusInst <> nil then
       if StatusInst.ClassNameIs('TIntegerInstance') then
         Status := TIntegerInstance(StatusInst).PValue;
-    ADict := TDictionaryInstance(AppResponse.PMembers.Find('$headers')).PValue;
+    zika := AppResponse.PMembers.Find('headers');
+    ADict := TDictionaryInstance(AppResponse.PMembers.Find('headers')).PValue;
     if ADict.PMembers.Count > 0 then
     begin
       SetHeadersFromUltra(AResponse, ADict);
     end;
-    ADict := TDictionaryInstance(AppResponse.PMembers.Find('$cookies')).PValue;
+    ADict := TDictionaryInstance(AppResponse.PMembers.Find('cookies')).PValue;
     if ADict.PMembers.Count > 0 then
     begin
       SetCookiesFromUltra(AResponse, ADict);
@@ -340,11 +346,6 @@ begin
   begin
     k := AFile.Field;
     AUpload := TBrookUploadedInstance.Create(AFile);
-    //FileData := TActivationrecord.Create(k, AR_DICT, -1);
-    //FileData.AddMember('name', TStringInstance.Create(AFile.Name));
-    //FileData.AddMember('size', TIntegerInstance.Create(AFile.Size));
-    //FileData.AddMember('contentType', TStringInstance.Create(AFile.Mime));
-    //FileData.AddMember('handler',TBrookUploadedInstance.Create(AFile));
     if AnsiEndsStr('[]', k) then
     begin
       k := Copy(k, 1, RPos('[', k) - 1);
@@ -408,15 +409,39 @@ begin
   Result := Adapter;
 end;
 
+function FindFirstAppResponse(ActRec: TActivationRecord): TClassInstance;
+var
+  NowInst: TInstanceOf;
+  Ret: TClassInstance;
+  len, i: integer;
+begin
+  Ret := nil;
+  len := ActRec.PMembers.Count;
+  if len > 0 then
+  begin
+    for i:=0 to len - 1 do
+    begin
+      NowInst := TInstanceOf(ActRec.PMembers[i]);
+      if NowInst.ClassNameIs('TClassInstance') then
+      begin
+        Ret := TClassInstance(NowInst);
+        if Ret.PValue = 'TBrookResponseInstance' then
+          break;
+      end;
+    end;
+  end;
+  Result := Ret;
+end;
+
 procedure THTTPServer.DoRequest(ASender: TObject; ARequest: TBrookHTTPRequest; AResponse: TBrookHTTPResponse);
 var
   Content: TBytes;
   Len, Status: integer;
   UltraResult: TUltraResult;
-  Adapter: TUltraAdapter;
+  Adapter, Context: TUltraAdapter;
   Prelude: TSTringList;
   ContentType: string = '';
-  AppResponse: TDataType;
+  AppResponse: TClassInstance;
   IndexHandler, ExceptionHandler,UltraHome: string;
   ADict: TActivationRecord;
   AInst: TInstanceOf;
@@ -438,17 +463,23 @@ begin
 
     Adapter := SetRequestDict(ARequest);
     Adapter.ActRec.AddMember('context', TInstanceOf(FUltraInstance.PMembers.Find('context')));
+    Context := TUltraAdapter.Create('$context');
+    Context.ActRec.AddMember('$request', TDictionaryInstance.Create(Adapter.ActRec));
+    Context.ActRec.AddMember('$app', TInstanceOf(FUltraInstance.PMembers.Find('app')));
+
     UltraHome := ReplaceStr(GetEnv('ULTRAGEN_HOME'), '\', '\\');
     Prelude := TStringList.Create;
     Prelude.Add('addModulePath(["'+ UltraHome + '", "modules"].path())');
     Prelude.Add('include @Core');
+    Prelude.Add('$context.localize()');
     Prelude.Add('$request.lock()');
     if Adapter.ActRec.PMembers.Find('files') <> nil then
       Prelude.Add('load BrookUploaded');
     IndexHandler := TStringInstance(FUltraInstance.PMembers.Find('indexHandler')).PValue;
     ExceptionHandler := TStringInstance(FUltraInstance.PMembers.Find('exceptionHandler')).PValue;
-    UltraResult := TUltraInterface.InterpretScriptWithResult(IndexHandler, Prelude, Adapter, UltraHome, WebHandlers);
-    AppResponse := TDataType(UltraResult.ActRec.GetMember('AppResponse'));
+    UltraResult := TUltraInterface.InterpretScriptWithResult(IndexHandler, Prelude, Context, UltraHome, WebHandlers);
+
+    AppResponse := FindFirstAppResponse(UltraResult.ActRec);
     Status := ProcessAppResponse(AResponse, AppResponse);
 
     Len := Length(UltraResult.LiveOutput);
@@ -470,7 +501,7 @@ begin
         WriteLn(E.Message);
         ContentType := 'text/html; charset=utf-8';
         UltraResult := TUltraInterface.InterpretScriptWithResult(ExceptionHandler, Prelude, Adapter, UltraHome, WebHandlers);
-        AppResponse := TDataType(UltraResult.ActRec.GetMember('AppResponse'));
+        AppResponse := FindFirstAppResponse(UltraResult.ActRec);
         ProcessAppResponse(AResponse, AppResponse);
         Len := Length(UltraResult.LiveOutput);
         Status := 500;
@@ -503,6 +534,7 @@ begin
     FMembers.Add('debug', TBooleanInstance.Create(ADebug));
     FMembers.Add('uploadsDir', TStringInstance.Create(GetEnv('ULTRAGEN_HOME') + directorySeparator + 'brook_uploads'));
     FMembers.Add('context', TNullInstance.Create);
+    FMembers.Add('app', TNullInstance.Create);
     Ferror := False;
   except on E: Exception do
     FErrorMsg := E.Message;
@@ -540,6 +572,99 @@ begin
     Free;
   end;
 
+end;
+
+function CheckChanges: TDateTime;
+var
+  LastTime, FileTime: TDateTime;
+  FileList: TStringList;
+  FN: string;
+begin
+  LastTime := 0;
+  FileList := TStringList.Create;
+  FindAllFiles(FileList, '.');
+  for FN in FileList do
+  begin
+    FileTime := FileDateToDateTime(FileAge(FN));
+    if FileTime > LastTime then
+      LastTime := FileTime;
+  end;
+  Result := LastTime;
+end;
+
+
+
+procedure TBrookServerInstance.RunServerReloading();
+var
+  MPort: integer;
+  MTitle: string;
+  LastTime, NowCheck: TDateTime;
+  Reload: boolean = False;
+  ReadKey: char;
+  StopServer: boolean = False;
+  ch: char;
+begin
+
+  LastTime := Now;
+  MTitle := TInstanceOf(FMembers.Find('title')).AsString;
+  MPort := TInstanceOf(FMembers.Find('port')).PIntValue;
+  FError := True;
+  while not StopServer do
+  begin
+    with THTTPServer.Create(nil) do
+    try
+      try
+        UploadsDir := TStringInstance(FMembers.Find('uploadsDir')).PValue;
+        UltraInstance := Self;
+        Port := MPort;
+        Open;
+        if not Active then
+          Exit;
+        ForceDirectories(UploadsDir);
+        FError := False;
+        WriteLn('Running '+ MTitle +' in '+'Brook High Performance Server at port ' + IntTostr(MPort), #13);
+        while not Reload and (not StopServer) do
+        begin
+          if Crt.KeyPressed then
+          begin
+            StopServer := True;
+            Writeln('Stopping server');
+          end;
+          Sleep(1500);
+          NowCheck := CheckChanges;
+          Reload := NowCheck > LastTime;
+          if Reload then
+            LastTime := NowCheck;
+        end;
+        if not StopServer then
+        begin
+          Writeln('Detected change. Reloading server');
+          Reload := False;
+
+        end;
+
+      except on E: Exception do
+        FErrorMsg := E.Message;
+      end;
+    finally
+      Free;
+    end;
+  end;
+  Writeln('Server stopped');
+end;
+
+procedure TBrookServerInstance.CheckReloader;
+var
+  LastChange, NowChange: TDateTime;
+begin
+  LastChange := Now;
+  while True do
+  begin
+    NowChange := CheckChanges;
+    FTriggerReload := LastChange <> NowChange;
+    LastChange := NowChange;
+    sleep(1500);
+  end;
 end;
 
 

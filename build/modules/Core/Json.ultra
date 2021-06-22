@@ -2,7 +2,7 @@ function _dumpObj(data) : JSON
     ret = '{'
     x = []
     for (data.keys(), d)
-        x.append('"' + d + '": ' + JSON._dumpVal(data[d]))
+        x.append('"' + d + '": ' + (JSON._dumpVal(data[d])))
     end
     ret += ','.join(x)
     ret += '}'    

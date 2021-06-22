@@ -1,0 +1,5 @@
+class DocsViews
+
+function index(params) : DocsViews
+    live $app.templates.Base("This is the docs index")
+end

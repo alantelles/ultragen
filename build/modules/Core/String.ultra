@@ -22,6 +22,19 @@ function isInt() : String self
     return ret
 end
 
+function isFloat() : String self
+    sp = self.split('.')
+    spLen = sp.length()
+    lenOk = spLen == 2
+    pInt = false
+    pFloat = true
+    if (lenOk)
+        pInt = sp[0].isInt()
+        pFloat = sp[1].isInt()
+    end
+    return pInt && pFloat && lenOk
+end
+
 function escape() : String self
     return self.replace('<', '&lt;').replace('>', '&gt;')
 end
