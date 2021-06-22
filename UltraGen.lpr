@@ -85,7 +85,7 @@ begin
   begin
     WriteLn('UltraGen - Desktop/Web Template engine/Scripting language');
     WriteLn(SizeOf(Pointer) shl 3, '-bit executable');
-    WriteLn('Version: 0.4');
+    WriteLn('Version: 0.6');
     WriteLn('Usage: ultragen [script path] [...params] [(--...OPTIONS)]');
     WriteLn('Created by Alan Telles');
   end;
