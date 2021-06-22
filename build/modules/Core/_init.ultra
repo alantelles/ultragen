@@ -6,7 +6,7 @@ include @Core.String
 include @Core.Helpers
 include @Core.Json
 
-function $test(cond, ifTrue, ifFalse)
+function $test(cond, ifTrue, ifFalse=false)
     if (cond)
         return ifTrue
     end

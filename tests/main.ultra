@@ -1,7 +1,4 @@
-class Tops
+x = 1
 
-function init() : Tops
-    print("construiu")
-end
+print($test(x > 2, "oba"))
 
-x = new Tops()
