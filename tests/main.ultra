@@ -1,4 +1,10 @@
-x = 1
+include @Core.DbConnection
 
-print($test(x > 2, "oba"))
-
+conn = DBConnection.create()
+conn.host = '172.18.0.1'
+conn.name = 'ultragendocs_db'
+conn.username = 'postgres'
+conn.password = 'postgres'
+conn.connect()
+conn.query()
+conn.close()

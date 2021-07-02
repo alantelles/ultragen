@@ -35,7 +35,7 @@
         <PackageName Value="LazUtils"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="48">
+    <Units Count="49">
       <Unit0>
         <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -261,6 +261,11 @@
         <Filename Value="src\Core\helpers\functions.pp"/>
         <IsPartOfProject Value="True"/>
       </Unit47>
+      <Unit48>
+        <Filename Value="src\BuiltInTypes\dbinstanceclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="DBInstanceClass"/>
+      </Unit48>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
