@@ -6,7 +6,7 @@ interface
 
 uses
       Classes, SysUtils, Strutils,
-      InterpreterClass, InstanceOfClass, StringInstanceClass, DateTimeInstanceClass, ByteStreamClass,
+      InterpreterClass, InstanceOfClass, StringInstanceClass, DateTimeInstanceClass, ByteStreamClass, DBInstanceClass,
       ListInstanceClass, ServerClass, ARClass, HttpClientInstanceClass, JsonTools, httpdefs, BrookServerClass;
 
 type
@@ -235,6 +235,27 @@ begin
       raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.', '', 1, 1);
   // procs
 	end
+
+  else if Atype = 'TDBInstance' then
+  begin
+    if FName = 'connect' then
+    begin
+      TDBInstance(FObj).Connect;
+    end
+    else if FName = 'query' then
+    begin
+      TDBInstance(FObj).QueryDb;
+    end
+    else if FName = 'close' then
+    begin
+      TDBInstance(FObj).Disconnect;
+    end
+    else if FName = 'create' then
+    begin
+      Ret := TDBInstance.CreatePgConn;
+    end;
+
+  end
 
   else if AType = 'TMarkdownParserInstance' then
   begin
