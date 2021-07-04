@@ -244,7 +244,7 @@ begin
     end
     else if FName = 'query' then
     begin
-      TDBInstance(FObj).QueryDb;
+      TDBInstance(FObj).QueryDb(FParams[0].PStrValue);
     end
     else if FName = 'close' then
     begin
@@ -252,7 +252,7 @@ begin
     end
     else if FName = 'create' then
     begin
-      Ret := TDBInstance.CreatePgConn;
+      Ret := TDBInstance.CreateConnection(FParams[0].PIntValue);
     end;
 
   end

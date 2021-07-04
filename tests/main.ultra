@@ -1,10 +1,10 @@
 include @Core.DbConnection
 
-conn = DBConnection.create()
-conn.host = '172.18.0.1'
-conn.name = 'ultragendocs_db'
-conn.username = 'postgres'
-conn.password = 'postgres'
+conn = DBConnection.create(DBConnection.SQLITE3)
+conn.host = '127.0.0.1'
+conn.name = 'storagehub_db'
+conn.username = 'storagehub_dbuser'
+conn.password = '10ns5M4dm1Nshdb'
 conn.connect()
-conn.query()
+conn.query("select name, slug from core_application")
 conn.close()
