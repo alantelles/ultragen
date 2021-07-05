@@ -6,27 +6,35 @@ interface
 
 uses
   Classes, SysUtils, InstanceOfClass, StringInstanceClass, DateTimeInstanceClass,
-  sqldb, db, pqconnection, sqlite3conn, ARClass, ListInstanceClass;
+  sqldb, DB, pqconnection, sqlite3conn, ARClass, ListInstanceClass;
 
 type
-  TDBInstance = class (TInstanceOf)
-    protected
-      FPGConn: TSQLConnection;
-
+  TQueryResultInstance = class (TInstanceOf)
     public
-      constructor CreatePgConn;
-      constructor CreateSqLiteConn;
-      procedure Connect;
-      procedure Disconnect;
-      function QueryDb(AQuery: string): TListInstance;
-      class function CreateConnection(Atype: integer): TDBInstance;
+      constructor Create;
   end;
+
+  TDBInstance = class(TInstanceOf)
+  protected
+    FPGConn: TSQLConnection;
+    FTrans: TSQLTransaction;
+
+  public
+    property DBConn: TSQLConnection read FPGConn;
+    constructor CreatePgConn;
+    constructor CreateSqLiteConn;
+    procedure Connect;
+    procedure Disconnect;
+    function QueryDb(AQuery: string; Params: TInstanceOf = nil): TQueryResultInstance;
+    class function CreateConnection(Atype: integer): TDBInstance;
+  end;
+
+
 
 implementation
 
 class function TDBInstance.CreateConnection(AType: integer): TDBInstance;
 var
-  DBConn: TSQLConnection;
   ADBInstance: TDBInstance;
 begin
   if AType = 0 then // postgres
@@ -41,24 +49,51 @@ constructor TDBInstance.CreatePgConn;
 begin
   inherited Create;
   FPGConn := TPQConnection.Create(nil);
+  FTrans := TSQLTransaction.Create(FPGConn);
+  FPGConn.Transaction := FTrans;
+end;
+
+constructor TQueryResultInstance.Create;
+begin
+  inherited Create;
 end;
 
 constructor TDBInstance.CreateSqLiteConn;
 begin
   inherited Create;
   FPGConn := TSQLite3Connection.Create(nil);
+  FTrans := TSQLTransaction.Create(FPGConn);
+  FPGConn.Transaction := FTrans;
 end;
 
 procedure TDBInstance.Connect;
 var
-  host, database, username, password: string;
-  Port: TInstanceOf;
+  host: string = '';
+  database: string = '';
+  username: string = '';
+  password: string = '';
+  Port: integer = 5432;
+  Hold: TObject;
 begin
-  host := TInstanceOf(FMembers.Find('host')).PStrValue;
-  database := TInstanceOf(FMembers.Find('name')).PStrValue;
-  username := TInstanceOf(FMembers.Find('username')).PStrValue;
-  password := TInstanceOf(FMembers.Find('password')).PStrValue;
-  port := TInstanceOf(FMembers.Find('port'));
+  Hold := FMembers.Find('host');
+  if hold <> nil then
+    host := TInstanceOf(Hold).PStrValue;
+
+  Hold := FMembers.Find('name');
+  if hold <> nil then
+    database := TInstanceOf(Hold).PStrValue;
+
+  hold := FMembers.Find('username');
+  if Hold <> nil then
+    username := TInstanceOf(Hold).PStrValue;
+
+  hold := FMembers.Find('password');
+  if hold <> nil then
+    password := TInstanceOf(hold).PStrValue;
+
+  hold := FMembers.Find('port');
+  if hold <> nil then
+    port := TInstanceOf(hold).PIntValue;
 
   FPGConn.Transaction := TSQLTransaction.Create(FPGConn);
   FPGConn.HostName := host;
@@ -67,17 +102,50 @@ begin
   FPGConn.DatabaseName := database;
 end;
 
+{ftUnknown, ftString, ftSmallint, ftInteger, ftWord,
+    ftBoolean, ftFloat, ftCurrency, ftBCD, ftDate,  ftTime, ftDateTime,
+    ftBytes, ftVarBytes, ftAutoInc, ftBlob, ftMemo, ftGraphic, ftFmtMemo,
+    ftParadoxOle, ftDBaseOle, ftTypedBinary, ftCursor, ftFixedChar,
+    ftWideString, ftLargeint, ftADT, ftArray, ftReference,
+    ftDataSet, ftOraBlob, ftOraClob, ftVariant, ftInterface,
+    ftIDispatch, ftGuid, ftTimeStamp, ftFMTBcd, ftFixedWideChar, ftWideMemo}
+
+function IsFloatType(DataType: TfieldType): boolean;
+begin
+  Result := (DataType = ftFloat) or (DataType = ftCurrency) or (DataType = ftBCD);
+end;
+
+function IsTextualType(DataType: TFieldType): boolean;
+begin
+  Result := (DataType = ftString) or (DataType = ftMemo) or
+    (DataType = ftFmtMemo) or (DataType = ftMemo) or
+    (DataType = ftFixedChar) or (DataType = ftFixedWideChar) or
+    (DataType = ftWideMemo);
+end;
+
+function IsIntegerType(DataType: TFieldType): boolean;
+begin
+  Result := (DataType = ftInteger) or (DataType = ftSmallInt) or
+    (DataType = ftWord) or (DataType = ftBytes) or (DataType = ftVarBytes) or
+    (DataType = ftLargeInt) or (DataType = ftTimestamp);
+end;
+
 function TypeSelect(Value: TField): TInstanceOf;
 begin
-  write(Value.DataType, ': ');
   if not Value.IsNull then
   begin
-    if Value.DataType = ftLargeInt then
+    if IsIntegerType(Value.DataType) then
       Result := TIntegerInstance.Create(Value.AsInteger)
-    else if Value.DataType = ftString then
+
+    else if IsTextualType(Value.DataType) then
       Result := TStringInstance.Create(Value.AsString)
-    else if VAlue.DataType = ftDateTime then
+
+    else if IsFloatType(Value.DataType) then
+      Result := TFloatInstance.Create(Value.AsFloat)
+
+    else if Value.DataType = ftDateTime then
       Result := TDateTimeInstance.Create(Value.AsDateTime)
+
     else
       Result := TSTringInstance.Create(Value.AsString);
   end
@@ -85,41 +153,60 @@ begin
     Result := TNullInstance.Create;
 end;
 
-function TDBInstance.QueryDb(Aquery: string): TListInstance;
+function TDBInstance.QueryDb(Aquery: string; Params: TInstanceOf = nil): TQueryResultInstance;
 var
   Query: TSQLQuery;
   F: TField;
   conns: TStringList;
   AResult: TActivationRecord;
   ResultSet: TListInstance;
+  AResInst: TQueryResultInstance;
 begin
-  Conns := TSTringList.Create;
+  Conns := TStringList.Create;
   Conns.Free;
   Query := TSQLQuery.Create(nil);
   Query.DataBase := FPGConn;
   Query.SQL.Text := Aquery;
-  Query.Open;
-  try
-
+  AResInst := TQueryResultInstance.Create;
+  if AQuery.StartsWith('select', True) then
+  begin
+    Query.Open;
     try
-      ResultSet := TListInstance.Create;
-      while not Query.EOF do
-      begin
-        AResult := TActivationRecord.Create('ResultSet', AR_DICT, 0);
-        for F in Query.Fields do
-          AResult.AddMember(F.FieldName, TypeSelect(F));
-        ResultSet.Add(TDictionaryInstance.Create(AResult));
-        Query.Next;
-      end;
+      try
+        ResultSet := TListInstance.Create;
+        while not Query.EOF do
+        begin
+          AResult := TActivationRecord.Create('ResultSet', AR_DICT, 0);
+          for F in Query.Fields do
+            AResult.AddMember(F.FieldName, TypeSelect(F));
 
-    except
-      ResultSet.Free;
+          ResultSet.Add(TDictionaryInstance.Create(AResult));
+          Query.Next;
+        end;
+
+      except
+        ResultSet.Free;
+        AResinst.Free;
+      end;
+      AResInst.FMembers.Add('results', ResultSet);
+
+    finally
+
     end;
-    Result := ResultSet;
-  finally
+    Query.Close;
+  end
+  else
+  begin
+
+    Query.ExecSQL;
+    FPGConn.Transaction.Commit;
+
+    AResInst.FMembers.Add('rowsAffected', TIntegerInstance.Create(Query.RowsAffected));
+    Query.Close;
+    //Result := TListInstance.Create;
 
   end;
-  Query.Close;
+  Result := AResInst;
   Query.Free;
 end;
 
@@ -129,4 +216,12 @@ begin
 end;
 
 end.
+
+
+
+
+
+
+
+
 

@@ -3,6 +3,6 @@ include @Core.DbConnection
 conn = DBConnection.create(DBConnection.SQLITE3)
 conn.name = 'db.sqlite3'
 conn.connect()
-result = conn.query("select * from users where id = 5")
-print(result.results)
+result = conn.query("INSERT INTO users (name, age) VALUES ('Helaine', 46), ('Marina', 4)")
+print(result.rowsAffected)
 conn.close()
