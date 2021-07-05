@@ -11,6 +11,8 @@ conn.connect()
 res = conn.query("""CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
     name VARCHAR(255) NOT NULL,
+    adult BOOLEAN,
+    created_at DATETIME,
     age INT NOT NULL)""")
 print(res.rowsAffected)
 res = conn.query("""CREATE TABLE posts (

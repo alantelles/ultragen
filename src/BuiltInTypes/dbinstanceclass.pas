@@ -58,6 +58,7 @@ begin
   inherited Create;
   FMembers.Add('rowsAffected', TNullInstance.Create);
   FMembers.Add('results', TNullInstance.Create);
+
 end;
 
 constructor TDBInstance.CreateSqLiteConn;
@@ -129,7 +130,7 @@ function IsIntegerType(DataType: TFieldType): boolean;
 begin
   Result := (DataType = ftInteger) or (DataType = ftSmallInt) or
     (DataType = ftWord) or (DataType = ftBytes) or (DataType = ftVarBytes) or
-    (DataType = ftLargeInt) or (DataType = ftTimestamp);
+    (DataType = ftLargeInt) or (DataType = ftTimestamp) or (DAtaType = ftAutoInc);
 end;
 
 function TypeSelect(Value: TField): TInstanceOf;

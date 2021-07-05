@@ -3,11 +3,7 @@ include @Core.DbConnection
 conn = DBConnection.create(DBConnection.SQLITE3)
 conn.name = 'db.sqlite3'
 conn.connect()
-inParam = []
-for (range(10), i)
-    inParam.append("")
-end
-# result = conn.query("select * from users where id = :0", {"0": 3})
-result = conn.query("select * from users")
+query = 'select * from users where id = 2'
+result = conn.query(query)
 print(result.results)
 conn.close()
