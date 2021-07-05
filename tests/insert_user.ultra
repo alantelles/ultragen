@@ -1,8 +1,9 @@
 include @Core.DbConnection
+include @Core.DateTime
 
 conn = DBConnection.create(DBConnection.SQLITE3)
 conn.name = 'db.sqlite3'
 conn.connect()
-result = conn.query("INSERT INTO users (name, age) VALUES ('Helaine', 46), ('Marina', 4)")
+result = conn.query("UPDATE users SET created_at=:d WHERE id=:id", {"d": DateTime.parse('yyyy-mm-dd hh:nn:ss', '2021-07-04 14:00:00'), "id": 2})
 print(result.rowsAffected)
 conn.close()

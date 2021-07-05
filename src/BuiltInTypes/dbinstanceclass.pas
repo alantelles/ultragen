@@ -56,6 +56,8 @@ end;
 constructor TQueryResultInstance.Create;
 begin
   inherited Create;
+  FMembers.Add('rowsAffected', TNullInstance.Create);
+  FMembers.Add('results', TNullInstance.Create);
 end;
 
 constructor TDBInstance.CreateSqLiteConn;
@@ -146,6 +148,9 @@ begin
     else if Value.DataType = ftDateTime then
       Result := TDateTimeInstance.Create(Value.AsDateTime)
 
+    else if Value.DataType = ftBoolean then
+      Result := TBooleanInstance.Create(Value.AsBoolean)
+
     else
       Result := TSTringInstance.Create(Value.AsString);
   end
@@ -153,20 +158,61 @@ begin
     Result := TNullInstance.Create;
 end;
 
+procedure TypeParamAdd(Params: TParams; ParamName: string; AInst: TInstanceOf);
+var
+  AParam: TParam;
+begin
+  AParam := Params.ParamByName(ParamName);
+  if AInst.ClassNameIs('TStringInstance') then
+    AParam.AsString := AInst.PStrValue
+  else if AInst.ClassNameIs('TIntegerInstance') then
+    AParam.AsInteger := AInst.PIntValue
+  else if AInst.ClassNameIs('TFloatInstance') then
+    AParam.AsFloat := AInst.PFloatValue
+  else if AInst.ClassNameIs('TBooleanInstance') then
+    AParam.AsBoolean := AInst.PBoolValue
+  else if AInst.ClassNameIs('TNullInstance') then
+    AParam.AsString := 'NULL'
+  else if AInst.ClassNameIs('TDateTimeInstance') then
+    AParam.AsDateTime := TDateTimeInstance(AInst).PValue
+  else
+    AParam.AsString := AInst.AsString;
+end;
+
 function TDBInstance.QueryDb(Aquery: string; Params: TInstanceOf = nil): TQueryResultInstance;
 var
   Query: TSQLQuery;
   F: TField;
   conns: TStringList;
-  AResult: TActivationRecord;
+  AResult, AParams: TActivationRecord;
   ResultSet: TListInstance;
   AResInst: TQueryResultInstance;
+  AInst: TInstanceOf;
+  AFieldName: string;
+  i, len: integer;
 begin
   Conns := TStringList.Create;
   Conns.Free;
   Query := TSQLQuery.Create(nil);
   Query.DataBase := FPGConn;
   Query.SQL.Text := Aquery;
+  if Params <> nil then
+  begin
+    if PArams.ClassNameIs('TDictionaryInstance') then
+    begin
+      AParams := TDictionaryInstance(Params).PValue;
+      if AParams.PMembers.Count > 0 then
+      begin
+        ;
+        for i:=0 to AParams.PMembers.Count - 1 do
+        begin
+          AInst := TInstanceOf(AParams.PMembers[i]);
+          AFieldName := AParams.PMembers.NameOfIndex(i);
+          TypeParamAdd(Query.Params, AFieldName, AInst);
+        end;
+      end;
+    end;
+  end;
   AResInst := TQueryResultInstance.Create;
   if AQuery.StartsWith('select', True) then
   begin
@@ -203,7 +249,6 @@ begin
 
     AResInst.FMembers.Add('rowsAffected', TIntegerInstance.Create(Query.RowsAffected));
     Query.Close;
-    //Result := TListInstance.Create;
 
   end;
   Result := AResInst;

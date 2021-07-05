@@ -254,6 +254,7 @@ begin
       end
       else if Length(FParams) = 2 then
       begin
+        Ret := TDBInstance(FObj).QueryDb(FPArams[0].PStrValue, FParams[1]);
       end
       else
         FInter.RaiseException(E_INVALID_ARGS, 'Arguments');
