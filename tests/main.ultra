@@ -1,10 +1,11 @@
 include @Core.DbConnection
 
-conn = DBConnection.create(DBConnection.SQLITE3)
+conn = DBConnection.create(DBConnection.POSTGRES)
 conn.host = '127.0.0.1'
 conn.name = 'storagehub_db'
 conn.username = 'storagehub_dbuser'
 conn.password = '10ns5M4dm1Nshdb'
 conn.connect()
-conn.query("select name, slug from core_application")
+result = conn.query("select * from core_application")
 conn.close()
+print(result)

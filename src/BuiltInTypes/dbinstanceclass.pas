@@ -5,8 +5,8 @@ unit DBInstanceClass;
 interface
 
 uses
-  Classes, SysUtils, InstanceOfClass,
-  sqldb, db, pqconnection, sqlite3conn;
+  Classes, SysUtils, InstanceOfClass, StringInstanceClass, DateTimeInstanceClass,
+  sqldb, db, pqconnection, sqlite3conn, ARClass, ListInstanceClass;
 
 type
   TDBInstance = class (TInstanceOf)
@@ -18,7 +18,7 @@ type
       constructor CreateSqLiteConn;
       procedure Connect;
       procedure Disconnect;
-      procedure QueryDb(AQuery: string);
+      function QueryDb(AQuery: string): TListInstance;
       class function CreateConnection(Atype: integer): TDBInstance;
   end;
 
@@ -67,32 +67,57 @@ begin
   FPGConn.DatabaseName := database;
 end;
 
-procedure TDBInstance.QueryDb(Aquery: string);
+function TypeSelect(Value: TField): TInstanceOf;
+begin
+  write(Value.DataType, ': ');
+  if not Value.IsNull then
+  begin
+    if Value.DataType = ftLargeInt then
+      Result := TIntegerInstance.Create(Value.AsInteger)
+    else if Value.DataType = ftString then
+      Result := TStringInstance.Create(Value.AsString)
+    else if VAlue.DataType = ftDateTime then
+      Result := TDateTimeInstance.Create(Value.AsDateTime)
+    else
+      Result := TSTringInstance.Create(Value.AsString);
+  end
+  else
+    Result := TNullInstance.Create;
+end;
+
+function TDBInstance.QueryDb(Aquery: string): TListInstance;
 var
   Query: TSQLQuery;
   F: TField;
   conns: TStringList;
+  AResult: TActivationRecord;
+  ResultSet: TListInstance;
 begin
   Conns := TSTringList.Create;
-  GetConnectionList(Conns);
-  writeln(conns.Text);
   Conns.Free;
   Query := TSQLQuery.Create(nil);
   Query.DataBase := FPGConn;
   Query.SQL.Text := Aquery;
   Query.Open;
-  while not Query.EOF do
-  begin
-    for F in Query.Fields do
-    begin
-      write(F.FieldName, ' = ');
-      if f.IsNull then
-        write('NULL')
-      else
-        write(F.Value);
-      writeln;
+  try
+
+    try
+      ResultSet := TListInstance.Create;
+      while not Query.EOF do
+      begin
+        AResult := TActivationRecord.Create('ResultSet', AR_DICT, 0);
+        for F in Query.Fields do
+          AResult.AddMember(F.FieldName, TypeSelect(F));
+        ResultSet.Add(TDictionaryInstance.Create(AResult));
+        Query.Next;
+      end;
+
+    except
+      ResultSet.Free;
     end;
-    Query.Next;
+    Result := ResultSet;
+  finally
+
   end;
   Query.Close;
   Query.Free;

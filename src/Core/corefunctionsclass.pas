@@ -244,7 +244,11 @@ begin
     end
     else if FName = 'query' then
     begin
-      TDBInstance(FObj).QueryDb(FParams[0].PStrValue);
+      try
+        Ret := TDBInstance(FObj).QueryDb(FParams[0].PStrValue);
+      except on E: Exception do
+        FInter.RaiseException('Error while executing database operation: ' + E.Message, 'UltraDb')
+      end;
     end
     else if FName = 'close' then
     begin
