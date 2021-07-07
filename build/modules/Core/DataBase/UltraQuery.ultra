@@ -1,0 +1,17 @@
+class UltraQuery
+
+function dumpValueList(values) : UltraQuery
+    valDict = {}
+    for (values, i)
+        valDict[str(_i)] = i
+    end
+    return valDict
+end
+
+function dumpInParams(values) : UltraQuery
+    out = ""
+    for(values.length(), i)
+        out += ",:" + str(_i)
+    end
+    return out.slice(1)
+end

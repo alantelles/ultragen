@@ -1,0 +1,6 @@
+load DBConnection
+
+DataBase = new Object()
+DataBase.POSTGRES = 0
+DataBase.SQLITE3 = 1
+
