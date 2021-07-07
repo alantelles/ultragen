@@ -1,4 +1,0 @@
-load DBConnection
-
-DBConnection.POSTGRES = 0
-DBConnection.SQLITE3 = 1
