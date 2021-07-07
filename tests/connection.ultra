@@ -1,0 +1,5 @@
+include @Core.DataBase
+
+conn = DBConnection.create(DataBase.SQLITE3)
+conn.name = 'db.sqlite3'
+conn.connect()

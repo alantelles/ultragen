@@ -25,7 +25,7 @@ type
     constructor CreateSqLiteConn;
     procedure Connect;
     procedure Disconnect;
-    function QueryDb(AQuery: string; Params: TInstanceOf = nil): TQueryResultInstance;
+    function QueryDb(AQuery: string; Values: TInstanceOf = nil): TQueryResultInstance;
     class function CreateConnection(Atype: integer): TDBInstance;
   end;
 
@@ -180,7 +180,32 @@ begin
     AParam.AsString := AInst.AsString;
 end;
 
-function TDBInstance.QueryDb(Aquery: string; Params: TInstanceOf = nil): TQueryResultInstance;
+procedure ListParamsAdd(Params: TParams; AListInst: TListInstance);
+var
+  i: integer;
+begin
+  if Params.Count > 0 then
+  begin
+    if Params.Count = AListInst.Count then
+    begin
+      for i:=0 to Params.Count-1 do
+        TypeParamAdd(Params, Params[i].Name, AListInst.PValue[i]);
+    end
+    else
+      raise Exception.Create('Different count of parameters and values');
+
+  end;
+end;
+
+function ParametrizeQuestionMarks(AQuery: string): string;
+var
+  count, i: integer;
+  output: string = '';
+begin
+
+end;
+
+function TDBInstance.QueryDb(Aquery: string; Values: TInstanceOf = nil): TQueryResultInstance;
 var
   Query: TSQLQuery;
   F: TField;
@@ -197,11 +222,12 @@ begin
   Query := TSQLQuery.Create(nil);
   Query.DataBase := FPGConn;
   Query.SQL.Text := Aquery;
-  if Params <> nil then
+  if Values <> nil then
   begin
-    if PArams.ClassNameIs('TDictionaryInstance') then
+    ListParamsAdd(Query.Params, TListInstance(Values));
+    if Values.ClassNameIs('TDictionaryInstance') then
     begin
-      AParams := TDictionaryInstance(Params).PValue;
+      AParams := TDictionaryInstance(Values).PValue;
       if AParams.PMembers.Count > 0 then
       begin
         ;
@@ -212,6 +238,10 @@ begin
           TypeParamAdd(Query.Params, AFieldName, AInst);
         end;
       end;
+    end
+    else if Values.ClassNameIs('TListInstance') then
+    begin
+      ListParamsAdd(Query.Params, TListInstance(Values));
     end;
   end;
   AResInst := TQueryResultInstance.Create;

@@ -1,9 +1,4 @@
-x = 9
-y = 'quit'
-function tops ()
-    print('tops')
-end
-
-m = function(l)
-    print(l)
-end
+include 'connection.ultra'
+query = "select * from users where id = ? or id = ?"
+result = conn.query(query, [1, 2])
+print(result.results)
