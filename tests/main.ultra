@@ -1,9 +1,14 @@
-include @Core.DbConnection
+include @Core.DataBase
+include @Core.DataBase.UltraQuery
 
-conn = DBConnection.create(DBConnection.SQLITE3)
+conn = DBConnection.create(DataBase.SQLITE3)
 conn.name = 'db.sqlite3'
 conn.connect()
-query = 'select * from users where id = 2'
-result = conn.query(query)
+values = [1, 2]
+wilds = UltraQuery.dumpInParams(values)
+values = UltraQuery.dumpValueList(values)
+query = 'select * from users where id IN (' + wilds + ')'
+print(query) # select * from users where id IN (:0,:1)
+result = conn.query(query, values)
 print(result.results)
 conn.close()
