@@ -24,9 +24,27 @@ type
     class procedure LoadBrookserver(var AActRec: TActivationRecord);
     class procedure LoadHelpers(var AActRec: TActivationRecord);
     class procedure LoadBrookUploaded(AActRec: TActivationRecord);
+    class procedure LoadDBInstance(AActRec: TActivationRecord);
   end;
 
 implementation
+
+class procedure TTypeLoader.LoadDBInstance(AActRec: TActivationRecord);
+var
+  AFunc, AFuncSt: TFunctionInstance;
+  AType: TDataType;
+begin
+  Atype := TDataType.Create('TDBInstance', 'DBConnection');
+  AFuncSt := TFunctionInstance.Create('BuiltIn', nil, nil, 'TDBInstance',
+    True, False, False, False);
+  AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TDBInstance',
+    True, False, False, True);
+  AType.PMembers.Add('connect', AFunc);
+  AType.PMembers.Add('query', AFunc);
+  AType.PMembers.Add('close', AFunc);
+  AType.PMembers.Add('create', AFuncSt);
+  AActRec.AddMember('DBConnection', AType);
+end;
 
 class procedure TTypeLoader.LoadHelpers(var AActRec: TActivationRecord);
 var
@@ -264,6 +282,8 @@ begin
     TTypeLoader.LoadMarkdownParser(AActRec)
   else if AName = 'BrookUploaded' then
     TTypeLoader.LoadBrookUploaded(AActRec)
+  else if AName = 'DBConnection' then
+    TTypeLoader.LoadDBInstance(AActRec)
   else
     AInter.RaiseException('Type "' + AName + '" does not exist and can''t be loaded',
       'RunTime');

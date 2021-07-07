@@ -6,7 +6,7 @@ interface
 
 uses
       Classes, SysUtils, Strutils,
-      InterpreterClass, InstanceOfClass, StringInstanceClass, DateTimeInstanceClass, ByteStreamClass,
+      InterpreterClass, InstanceOfClass, StringInstanceClass, DateTimeInstanceClass, ByteStreamClass, DBInstanceClass,
       ListInstanceClass, ServerClass, ARClass, HttpClientInstanceClass, JsonTools, httpdefs, BrookServerClass;
 
 type
@@ -235,6 +235,40 @@ begin
       raise ERunTimeError.Create('Referenced function "' + FName + '" does not exist.', '', 1, 1);
   // procs
 	end
+
+  else if Atype = 'TDBInstance' then
+  begin
+    if FName = 'connect' then
+    begin
+      TDBInstance(FObj).Connect;
+    end
+    else if FName = 'query' then
+    begin
+      if Length(FParams) = 1 then
+      begin
+        try
+          Ret := TDBInstance(FObj).QueryDb(FParams[0].PStrValue);
+        except on E: Exception do
+          FInter.RaiseException('Error while executing database operation: ' + E.Message, 'UltraDb')
+        end;
+      end
+      else if Length(FParams) = 2 then
+      begin
+        Ret := TDBInstance(FObj).QueryDb(FPArams[0].PStrValue, FParams[1]);
+      end
+      else
+        FInter.RaiseException(E_INVALID_ARGS, 'Arguments');
+    end
+    else if FName = 'close' then
+    begin
+      TDBInstance(FObj).Disconnect;
+    end
+    else if FName = 'create' then
+    begin
+      Ret := TDBInstance.CreateConnection(FParams[0].PIntValue);
+    end;
+
+  end
 
   else if AType = 'TMarkdownParserInstance' then
   begin
@@ -653,6 +687,8 @@ begin
     if GotType <> nil then
       AStr := TDataType(GotType).PFrontName;
   end;
+  if GotType = nil then
+    FInter.RaiseException('Internally named type ' + AStr + ' is not loaded on application', 'Type');
   Result := TDataType(GotType);
 end;
 

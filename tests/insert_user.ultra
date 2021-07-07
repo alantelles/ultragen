@@ -1,0 +1,46 @@
+include @Core.DbConnection
+include @Core.DateTime
+
+function createUser(name, age, adult=true)
+    return {
+        :name: name,
+        :age: age,
+        :adult: adult,
+        :created_at: DateTime.now()
+    }
+end
+users = [
+    createUser('Regina', 63, true),
+    createUser('Marina', 4, false),
+    createUser('Alan', 34)
+]
+
+function createParams(values)
+    many = []
+    for(values.length(), val)
+        many.append("(:name_" + str(_val) + ", :age_" + str(_val) + ", :adult_" + str(_val) + ", :created_at_" + str(_val) + ")")
+    end
+    params = ','.join(many)
+    return params
+end
+
+function createValues(values)
+    valDict = {}
+    for (values, val)
+        d = val
+        for (d.keys(), k)
+            valDict[k + "_" + str(_val)] = d[k]
+        end
+    end
+    return valDict
+end
+
+query = "INSERT INTO users (name, age, adult, created_at) VALUES " + createParams(users)
+values = createValues(users)
+
+conn = DBConnection.create(DBConnection.SQLITE3)
+conn.name = 'db.sqlite3'
+conn.connect()
+result = conn.query(query, values)
+print(result.rowsAffected)
+conn.close()

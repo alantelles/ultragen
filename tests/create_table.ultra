@@ -1,0 +1,23 @@
+include @Core.DbConnection
+
+conn = DBConnection.create(DBConnection.SQLITE3)
+# conn.host = '127.0.0.1'
+# conn.name = 'storagehub_db'
+# conn.username = 'storagehub_dbuser'
+# conn.password = '10ns5M4dm1Nshdb'
+conn.name = 'db.sqlite3'
+conn.connect()
+
+res = conn.query("""CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+    name VARCHAR(255) NOT NULL,
+    adult BOOLEAN,
+    created_at DATETIME,
+    age INT NOT NULL)""")
+print(res.rowsAffected)
+res = conn.query("""CREATE TABLE posts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+    title VARCHAR(255) NOT NULL,
+    body TEXT NOT NULL)""")
+print(res.rowsAffected)
+conn.close()

@@ -1,4 +1,14 @@
-x = 1
+include @Core.DataBase
+include @Core.DataBase.UltraQuery
 
-print($test(x > 2, "oba"))
-
+conn = DBConnection.create(DataBase.SQLITE3)
+conn.name = 'db.sqlite3'
+conn.connect()
+values = [1, 2]
+wilds = UltraQuery.dumpInParams(values)
+values = UltraQuery.dumpValueList(values)
+query = 'select * from users where id IN (' + wilds + ')'
+print(query) # select * from users where id IN (:0,:1)
+result = conn.query(query, values)
+print(result.results)
+conn.close()
