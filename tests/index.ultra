@@ -1,4 +1,4 @@
 include 'connection.ultra'
-query = "select * from users where id = ? or id = ?"
-result = conn.query(query, [1, 2])
+query = "select * from users where name = ?"
+result = conn.query(query, ["?"])
 print(result.results)

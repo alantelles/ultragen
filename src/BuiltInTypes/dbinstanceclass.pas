@@ -199,10 +199,25 @@ end;
 
 function ParametrizeQuestionMarks(AQuery: string): string;
 var
-  count, i: integer;
+  len, count, i: integer;
   output: string = '';
 begin
-
+  count := 0;
+  len := Length(AQuery);
+  if len > 0 then
+  begin
+    for i:=1 to len do
+    begin
+      if AQuery[i] = '?' then
+      begin
+        output := output + ':' + IntToStr(count);
+        count := count + 1;
+      end
+      else
+        output := output + AQuery[i];
+    end;
+  end;
+  Result := output;
 end;
 
 function TDBInstance.QueryDb(Aquery: string; Values: TInstanceOf = nil): TQueryResultInstance;
@@ -221,7 +236,7 @@ begin
   Conns.Free;
   Query := TSQLQuery.Create(nil);
   Query.DataBase := FPGConn;
-  Query.SQL.Text := Aquery;
+  Query.SQL.Text := ParametrizeQuestionMarks(Aquery);
   if Values <> nil then
   begin
     ListParamsAdd(Query.Params, TListInstance(Values));
