@@ -1,0 +1,14 @@
+include @Core.Web.Router
+include 'app/controllers/PostsController.ultra'
+
+decorator baseDec(fn)
+    content = fn(params)
+    nav = $app.templates.Navbar()
+    base = $app.templates.Base(nav, content)
+    live base
+end
+
+mainRouter = new Router()
+mainRouter.defaultDecorator = baseDec
+
+mainRouter.get('/', :index, PostsController.index)

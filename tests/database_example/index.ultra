@@ -1,0 +1,12 @@
+Router = $app.uses.Router
+# Request = $app.uses.Request
+AppResponse = $app.uses.AppResponse
+# Session = $app.uses.Session
+
+# index must set an AppResponse instance
+$response = new AppResponse()
+
+$app.routers.mainRouter.getMatch($request[:route], $request['method']).localize()
+
+output = handler_decorator(handler)
+live output(params)

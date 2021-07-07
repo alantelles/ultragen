@@ -1,0 +1,16 @@
+include @Core.Brook.App
+
+$app = new App(:DATABASE_EXAMPLE)
+
+include 'app/templates/Navbar.ultra.html'
+$app.templates.Navbar = Navbar
+
+include 'app/templates/Base.ultra.html'
+$app.templates.Base = Base
+
+# include 'app/templates/base.ultra.html'
+# $app.templates.Base = Base
+
+include 'app/routers.ultra'
+# $app.routers.docs = docs
+$app.routers.mainRouter = mainRouter

@@ -1,0 +1,5 @@
+class PostsController
+
+function index(params) : PostsController
+    
+end
