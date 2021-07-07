@@ -1,0 +1,15 @@
+@function NewPost()
+<h2>Create a new post</h2>
+<form action="/create" method="post">
+    <div class="col-lg-12">
+        <label class="form-label" for="title">Title</label>
+        <input class="form-control" type="text" name="title" id="title" />
+    </div>
+    <div class="col-lg-12">
+        <label for="body" class="form-label">Body</label>
+        <textarea class="form-control" name="body" id="body" ></textarea>
+    </div>
+    <br>
+    <button class="btn btn-success">Submit</button>
+</form>
+@end

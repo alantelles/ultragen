@@ -12,3 +12,5 @@ mainRouter = new Router()
 mainRouter.defaultDecorator = baseDec
 
 mainRouter.get('/', :index, PostsController.index)
+mainRouter.get('/create', :create, PostsController.create)
+mainRouter.post('/create', :save, PostsController.save)

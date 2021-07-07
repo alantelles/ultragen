@@ -1,0 +1,8 @@
+DataBase = $app.uses.DataBase
+DBConnection = $app.uses.DBConnection
+
+connection = DBConnection.create(DataBase.POSTGRES)
+connection.name = 'ugblogpoc_db'
+connection.username = 'postgres'
+connection.password = 'postgres'
+connection.host = '172.18.0.1'

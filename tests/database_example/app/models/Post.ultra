@@ -1,0 +1,12 @@
+class Post
+
+function init(title, body) : Post self
+end
+
+function save() : Post self
+    include 'app/connection.ultra'
+    query = "INSERT INTO posts (title, body, created_at) VALUES (?, ?, ?)"
+    connection.connect()
+    connection.query(query, [title, body, $app.uses.DateTime.now()])
+    connection.close()
+end
