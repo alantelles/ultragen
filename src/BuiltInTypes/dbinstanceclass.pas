@@ -97,12 +97,13 @@ begin
   hold := FMembers.Find('port');
   if hold <> nil then
     port := TInstanceOf(hold).PIntValue;
-
-  FPGConn.Transaction := TSQLTransaction.Create(FPGConn);
+  if FPGConn.ClassNameIs('TPQConnection') then
+    FPGConn.Params.Add('port=' + IntToStr(Port));
   FPGConn.HostName := host;
   FPGConn.UserName := username;
   FPGConn.Password := password;
   FPGConn.DatabaseName := database;
+  FPGConn.Transaction := TSQLTransaction.Create(FPGConn);
 end;
 
 {ftUnknown, ftString, ftSmallint, ftInteger, ftWord,

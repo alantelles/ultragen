@@ -1,4 +1,4 @@
 include 'connection.ultra'
-query = "select * from users where name = ?"
-result = conn.query(query, ["?"])
-print(result.results)
+query = "select * from users"
+result = conn.query(query)
+JSON.createFile(result.results, 'out.json')

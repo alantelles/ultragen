@@ -1,3 +1,7 @@
+include @Core.DateTime
+JSON.coerceDateTime = true
+JSON.coerceDateTimeFormat = 'yyyy-mm-dd hh:nn:ss.zzz'
+
 function _dumpObj(data) : JSON
     ret = '{'
     x = []
@@ -39,6 +43,9 @@ function _dumpVal(data)  : JSON
         return kk
     elsif (input_type == (NullType))
         return 'null'
+    elsif ((input_type == DateTime) && (JSON.coerceDateTime))
+        coerced = data.format(JSON.coerceDateTimeFormat)
+        return '"' + coerced + '"'
     elsif (input_type)
         return '"' + (str(input_type).replace('"', '\\"'))  + '"'
     else 
@@ -66,7 +73,7 @@ function create(obj) : JSON
     elsif (input_type == (Dict))
         out = JSON._dumpObj(obj)
     else
-        return 'Invalid type for conversion'
+        raise ('Invalid type for conversion')
     end
     
     return out

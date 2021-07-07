@@ -687,6 +687,8 @@ begin
     if GotType <> nil then
       AStr := TDataType(GotType).PFrontName;
   end;
+  if GotType = nil then
+    FInter.RaiseException('Internally named type ' + AStr + ' is not loaded on application', 'Type');
   Result := TDataType(GotType);
 end;
 
