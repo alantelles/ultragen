@@ -1,15 +1,16 @@
 class Post
 
-function init(title, body) : Post self
+function init() : Post self
 end
 
 function save() : Post self
     
     query = "INSERT INTO posts (title, body, created_at) VALUES (?, ?, ?)"
-    $app.uses.connection.query(query, [title, body, $app.uses.DateTime.now()])
+    $app.uses.connection.query(query, [self.title, self.body, $app.uses.DateTime.now()])
 end
 
 function index() : Post self
     query = "SELECT * FROM posts"
-    $app.uses.connection.query(query)
+    result = $app.uses.connection.query(query)
+    return result.rows
 end

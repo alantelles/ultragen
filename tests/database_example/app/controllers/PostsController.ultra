@@ -1,7 +1,7 @@
 class PostsController
 
 function index(params) : PostsController
-    
+    posts = new Post().index()
 end
 
 function create(params) : PostsController    
@@ -9,10 +9,9 @@ function create(params) : PostsController
 end
 
 function save(params) : PostsController
-    title = $request[:form][:title]
-    body = $request[:form][:body]
-    Post = $app.models.Post
-    post = new Post(title, body)
+    post = new Post()
+    post.title = $request[:form][:title]
+    post.body = $request[:form][:body]
     post.save()
     AppResponse.redirect('/')
 end
