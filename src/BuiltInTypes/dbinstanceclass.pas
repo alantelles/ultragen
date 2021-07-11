@@ -89,7 +89,7 @@ constructor TQueryResultInstance.Create;
 begin
   inherited Create;
   FMembers.Add('rowsAffected', TNullInstance.Create);
-  FMembers.Add('results', TNullInstance.Create);
+  FMembers.Add('rows', TNullInstance.Create);
 
 end;
 
@@ -282,7 +282,7 @@ begin
         ResultSet.Free;
         AResinst.Free;
       end;
-      AResInst.FMembers.Add('results', ResultSet);
+      AResInst.FMembers.Add('rows', ResultSet);
 
     finally
 
