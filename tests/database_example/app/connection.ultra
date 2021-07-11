@@ -1,6 +1,4 @@
-DataBase = $app.uses.DataBase
-DBConnection = $app.uses.DBConnection
-
+include @Core.DataBase
 connection = DBConnection.create(DataBase.POSTGRES)
 connection.name = 'ugblogpoc_db'
 connection.username = 'postgres'

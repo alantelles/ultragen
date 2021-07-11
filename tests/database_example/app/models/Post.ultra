@@ -4,9 +4,8 @@ function init(title, body) : Post self
 end
 
 function save() : Post self
-    include 'app/connection.ultra'
+    
     query = "INSERT INTO posts (title, body, created_at) VALUES (?, ?, ?)"
-    connection.connect()
-    connection.query(query, [title, body, $app.uses.DateTime.now()])
-    connection.close()
+    $app.uses.connection.query(query, [title, body, $app.uses.DateTime.now()])
+    $app.uses.connection.query(query, [title + 'replay', body, $app.uses.DateTime.now()])
 end

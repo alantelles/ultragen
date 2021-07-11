@@ -5,9 +5,10 @@ $app = new App(:DATABASE_EXAMPLE)
 include @Core.DateTime
 $app.uses.DateTime = DateTime
 
-include @Core.DataBase
+include 'app/connection.ultra'
 $app.uses.DataBase = DataBase
 $app.uses.DBConnection = DBConnection
+$app.uses.connection = connection
 
 include 'app/templates/Navbar.ultra.html'
 $app.templates.Navbar = Navbar
@@ -18,8 +19,6 @@ $app.templates.Base = Base
 include 'app/templates/NewPost.ultra.html'
 $app.templates.NewPost = NewPost
 
-include 'app/connection.ultra'
-$app.uses.connection = connection
 
 include 'app/routers.ultra'
 # $app.routers.docs = docs

@@ -240,7 +240,7 @@ begin
   begin
     if FName = 'connect' then
     begin
-      TDBInstance(FObj).Connect;
+      TDBInstance(FObj).StartConnection;
     end
     else if FName = 'query' then
     begin
@@ -265,7 +265,7 @@ begin
     end
     else if FName = 'create' then
     begin
-      Ret := TDBInstance.CreateConnection(FParams[0].PIntValue);
+      Ret := TDBInstance.Create(FParams[0].PIntValue);
     end;
 
   end
