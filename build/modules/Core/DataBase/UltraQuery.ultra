@@ -15,3 +15,52 @@ function dumpInParams(values) : UltraQuery
     end
     return out.slice(1)
 end
+
+function init(table) : UltraQuery self
+    self._limit = null
+    self._start = null
+end
+
+function limit(count) : UltraQuery self
+    self._limit = count
+    return self
+end
+
+function offset(count) : UltraQuery self
+    self._start = count
+    return self
+end
+
+function select(fields=null) : UltraQuery self
+    self.type = 'select'
+    if (fields)
+        self.fields = []
+        for (fields, field)
+            self.fields.append(field)
+        end
+    else
+        self.fields = [' * ']
+    end
+    return self
+end
+
+function _eq(a, b) : UltraQuery
+    return str(a) + '=' + str(b)
+end
+
+
+function compile() : UltraQuery self
+    out = ''
+    if ((self.type.lower()) == 'select')
+        out += 'SELECT '
+        out += (', '.join(self.fields))
+        out += ' FROM ' + (self.table)
+        if ((self._limit))
+            out += ' LIMIT ' + str(self._limit)
+        end
+        if ((self._start))
+            out += ' OFFSET ' + str(self._start)
+        end
+    end
+    return out 
+end
