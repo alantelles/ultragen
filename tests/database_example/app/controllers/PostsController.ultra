@@ -1,0 +1,23 @@
+class PostsController
+
+function index(params) : PostsController
+    posts = new Post().index()
+    live $app.templates.PostsIndex(posts)
+end
+
+function create(params) : PostsController    
+    live $app.templates.NewPost()
+end
+
+function save(params) : PostsController
+    post = new Post()
+    post.title = $request[:form][:title]
+    post.body = $request[:form][:body]
+    post.save()
+    AppResponse.redirect('/')
+end
+
+function show(params) : PostsController
+    post = new Post().show(params[:id])
+    live $app.templates.ShowPost(post)
+end

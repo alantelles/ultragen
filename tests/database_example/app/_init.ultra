@@ -1,0 +1,36 @@
+include @Core.Brook.App
+
+$app = new App(:DATABASE_EXAMPLE)
+
+include @Core.DateTime
+$app.uses.DateTime = DateTime
+
+include 'app/connection.ultra'
+$app.uses.DataBase = DataBase
+$app.uses.DBConnection = DBConnection
+$app.uses.connection = connection
+
+include 'app/templates/Navbar.ultra.html'
+$app.templates.Navbar = Navbar
+
+include 'app/templates/Base.ultra.html'
+$app.templates.Base = Base
+
+include 'app/templates/NewPost.ultra.html'
+$app.templates.NewPost = NewPost
+
+include 'app/templates/ShowPostTable.ultra.html'
+$app.templates.ShowPostTable = ShowPostTable
+
+include 'app/templates/ShowPost.ultra.html'
+$app.templates.ShowPost = ShowPost
+
+include 'app/templates/PostsIndex.ultra.html'
+$app.templates.PostsIndex = PostsIndex
+
+include 'app/routers.ultra'
+# $app.routers.docs = docs
+$app.routers.mainRouter = mainRouter
+
+include 'app/models/Post.ultra'
+$app.models.Post = Post

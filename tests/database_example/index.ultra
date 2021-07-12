@@ -1,0 +1,19 @@
+Router = $app.uses.Router
+# Request = $app.uses.Request
+AppResponse = $app.uses.AppResponse
+# Session = $app.uses.Session
+DBConnection =  $app.uses.DBConnection
+# connection = $app.uses.connection
+$app.uses.connection.connect()
+
+# models
+Post = $app.models.Post
+
+# index must set an AppResponse instance
+$response = new AppResponse()
+
+$app.routers.mainRouter.getMatch($request[:route], $request['method']).localize()
+
+output = handler_decorator(handler)
+live output(params)
+$app.uses.connection.close()

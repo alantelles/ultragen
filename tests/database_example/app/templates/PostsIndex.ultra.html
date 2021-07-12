@@ -1,0 +1,6 @@
+@function PostsIndex(posts)
+    <h2>Posts index</h2>
+@   for (posts, post)        
+        {{ $app.templates.ShowPostTable(post) }}
+@   end
+@end

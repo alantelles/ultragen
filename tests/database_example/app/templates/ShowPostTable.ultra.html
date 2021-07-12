@@ -1,0 +1,8 @@
+@function ShowPostTable(post)
+    <div class="card">
+        <div class="card-header">{{ post[:id] }}</div>
+        <div class="card-body">{{ post[:body].slice(0, 100) }}</div>
+        <div class="card-footer"><a href="{{ $app.routers.mainRouter.urlFor(:show, {:id: post[:id]}) }}"><button class="btn btn-primary">See more + </button></a></div>
+    </div>
+    <br>
+@end

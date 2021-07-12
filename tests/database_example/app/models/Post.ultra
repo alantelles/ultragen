@@ -1,0 +1,27 @@
+class Post
+
+function init() : Post self
+end
+
+function save() : Post self
+    
+    query = "INSERT INTO posts (title, body, created_at) VALUES (?, ?, ?)"
+    $app.uses.connection.query(query, [self.title, self.body, $app.uses.DateTime.now()])
+end
+
+function index() : Post self
+    query = "SELECT * FROM posts ORDER BY created_at DESC"
+    result = $app.uses.connection.query(query)
+    return result.rows
+end
+
+function show(id) : Post self
+    query = "SELECT * FROM posts WHERE id=?"
+    result = $app.uses.connection.query(query, [id])
+    if ((result.rows.length()) > 0)
+        ret = result.rows[0]
+    else
+        ret = null
+    end
+    return ret
+end

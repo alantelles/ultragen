@@ -82,10 +82,12 @@ type
   private
     FArgs: TASTList;
     FName: string;
+    FRef: TAST;
   public
     property PArgs: TASTList read FArgs write FArgs;
     property PName: string read Fname write FName;
     constructor Create(AArgs: TASTList; AName: string; AToken: TToken);
+    constructor Create(AArgs: TASTList; ARef: TAST; AToken: TToken);
     destructor Destroy; override;
   end;
 
@@ -495,6 +497,12 @@ constructor TNewObject.Create(AArgs: TASTList; AName: string; AToken: TToken);
 begin
   FArgs := AArgs;
   FName := AName;
+end;
+
+constructor TNewObject.Create(AArgs: TASTList; ARef: TAST; AToken: TToken);
+begin
+  FArgs := AArgs;
+  FRef := Aref;
 end;
 
 destructor TNewObject.Destroy;

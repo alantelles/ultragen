@@ -18,58 +18,35 @@ type
   protected
     FPGConn: TSQLConnection;
     FTrans: TSQLTransaction;
-
+    FDBSystem: integer;
   public
     property DBConn: TSQLConnection read FPGConn;
-    constructor CreatePgConn;
-    constructor CreateSqLiteConn;
-    procedure Connect;
+    procedure StartPgConn;
+    // constructor CreateSqLiteConn;
+    constructor Create(ASystem: integer);
+    procedure StartConnection;
     procedure Disconnect;
     function QueryDb(AQuery: string; Values: TInstanceOf = nil): TQueryResultInstance;
-    class function CreateConnection(Atype: integer): TDBInstance;
   end;
 
 
 
 implementation
 
-class function TDBInstance.CreateConnection(AType: integer): TDBInstance;
+procedure TDBInstance.StartConnection;
 var
   ADBInstance: TDBInstance;
 begin
-  if AType = 0 then // postgres
-    Result := TDBInstance.CreatePgConn
-  else if AType = 1 then // sqlite
-    Result := TDBInstance.CreateSqLiteConn
+  if FDBSystem = 0 then // postgres
+    StartPgConn
   else
     raise Exception.Create('Unknown database driver option');
-end;
-
-constructor TDBInstance.CreatePgConn;
-begin
-  inherited Create;
-  FPGConn := TPQConnection.Create(nil);
-  FTrans := TSQLTransaction.Create(FPGConn);
-  FPGConn.Transaction := FTrans;
-end;
-
-constructor TQueryResultInstance.Create;
-begin
-  inherited Create;
-  FMembers.Add('rowsAffected', TNullInstance.Create);
-  FMembers.Add('results', TNullInstance.Create);
+  //else if FDBSystem = 1 then // sqlite
+  //  Result := TDBInstance.CreateSqLiteConn
 
 end;
 
-constructor TDBInstance.CreateSqLiteConn;
-begin
-  inherited Create;
-  FPGConn := TSQLite3Connection.Create(nil);
-  FTrans := TSQLTransaction.Create(FPGConn);
-  FPGConn.Transaction := FTrans;
-end;
-
-procedure TDBInstance.Connect;
+procedure TDBInstance.StartPgConn;
 var
   host: string = '';
   database: string = '';
@@ -97,13 +74,38 @@ begin
   hold := FMembers.Find('port');
   if hold <> nil then
     port := TInstanceOf(hold).PIntValue;
-  if FPGConn.ClassNameIs('TPQConnection') then
-    FPGConn.Params.Add('port=' + IntToStr(Port));
+  // end
+
+  FPGConn := TPQConnection.Create(nil);
   FPGConn.HostName := host;
   FPGConn.UserName := username;
   FPGConn.Password := password;
   FPGConn.DatabaseName := database;
+  FPGConn.Params.Add('port=' + IntToStr(Port));
   FPGConn.Transaction := TSQLTransaction.Create(FPGConn);
+end;
+
+constructor TQueryResultInstance.Create;
+begin
+  inherited Create;
+  FMembers.Add('rowsAffected', TNullInstance.Create);
+  FMembers.Add('rows', TNullInstance.Create);
+
+end;
+
+//constructor TDBInstance.CreateSqLiteConn;
+//begin
+//  inherited Create;
+//  FPGConn := TSQLite3Connection.Create(nil);
+//  FTrans := TSQLTransaction.Create(FPGConn);
+//  FPGConn.Transaction := FTrans;
+//end;
+
+constructor TDBInstance.Create(ASystem: integer);
+
+begin
+  inherited Create;
+  FDBSystem := ASystem;
 end;
 
 {ftUnknown, ftString, ftSmallint, ftInteger, ftWord,
@@ -233,8 +235,7 @@ var
   AFieldName: string;
   i, len: integer;
 begin
-  Conns := TStringList.Create;
-  Conns.Free;
+
   Query := TSQLQuery.Create(nil);
   Query.DataBase := FPGConn;
   Query.SQL.Text := ParametrizeQuestionMarks(Aquery);
@@ -281,7 +282,7 @@ begin
         ResultSet.Free;
         AResinst.Free;
       end;
-      AResInst.FMembers.Add('results', ResultSet);
+      AResInst.FMembers.Add('rows', ResultSet);
 
     finally
 

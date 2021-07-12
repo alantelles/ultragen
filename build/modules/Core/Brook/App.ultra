@@ -8,6 +8,7 @@ include @Core.Web.AppResponseInterface
 function init(name) : App self    
     self.templates = new Object()
     self.uses = new Object()
+    self.models = new Object()
     self.routers = new Object()
     self.uses.Router = Router
     self.uses.Session = Session
