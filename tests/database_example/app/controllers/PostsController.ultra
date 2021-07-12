@@ -2,6 +2,7 @@ class PostsController
 
 function index(params) : PostsController
     posts = new Post().index()
+    live $app.templates.PostsIndex(posts)
 end
 
 function create(params) : PostsController    
@@ -14,4 +15,9 @@ function save(params) : PostsController
     post.body = $request[:form][:body]
     post.save()
     AppResponse.redirect('/')
+end
+
+function show(params) : PostsController
+    post = new Post().show(params[:id])
+    live $app.templates.ShowPost(post)
 end

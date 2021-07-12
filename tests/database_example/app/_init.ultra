@@ -19,6 +19,14 @@ $app.templates.Base = Base
 include 'app/templates/NewPost.ultra.html'
 $app.templates.NewPost = NewPost
 
+include 'app/templates/ShowPostTable.ultra.html'
+$app.templates.ShowPostTable = ShowPostTable
+
+include 'app/templates/ShowPost.ultra.html'
+$app.templates.ShowPost = ShowPost
+
+include 'app/templates/PostsIndex.ultra.html'
+$app.templates.PostsIndex = PostsIndex
 
 include 'app/routers.ultra'
 # $app.routers.docs = docs
