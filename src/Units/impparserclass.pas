@@ -125,12 +125,13 @@ begin
   Aref := AttrAccess();
   SetLength(ConstArgs, 0);
   logtext('PARSER', 'Parser', 'Creating new object node');
-  if FCurrentToken.PType = T_LPAREN then
-  begin
-    Eat(T_LPAREN);
-    ConstArgs := Args();
-    Eat(T_RPAREN);
-  end;
+  Eat(T_LPAREN);
+  ConstArgs := Args();
+  Eat(T_RPAREN);
+  //if FCurrentToken.PType = T_LPAREN then
+  //begin
+  //
+  //end;
   Result := TNewObject.Create(ConstArgs, ARef, AToken);
 end;
 
