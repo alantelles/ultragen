@@ -1,0 +1,9 @@
+$response  = new $app.uses.AppResponse()
+
+# Router = $app.uses.Router
+# MyClass = $app.uses.MyClass
+localizeAttrs($app.uses)
+
+
+$app.routers.main.getMatch($request[:route], $request[:method]).localize()
+live handler(params)

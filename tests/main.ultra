@@ -1,11 +1,7 @@
-include @Core.Brook.App
-class Baba
+class A
 
-function init(m) : Baba self
+function init() : A self
+    print("zika")
 end
 
-app = new App(:ZIKA)
-app.uses.Baba = Baba
-
-k = new app.uses.Baba(90)
-print(k.m)
+a = new A()

@@ -19,6 +19,11 @@ main.get('/flash', :flash, function(params)
     $session.save()
 end)
 
+main.get('/static', :static, function(params)
+    
+    live new $app.uses.MyClass().instMethod()
+end)
+
 main.get('/get_flash', :get_flash, function(params)
     $session = new Session($request, $response)
     content = $session.getFlashMessages()

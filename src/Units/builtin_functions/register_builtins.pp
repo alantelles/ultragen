@@ -7,6 +7,7 @@
 
 // builtins
 AActRec.AddMember('locals', ACoreFunc);
+AActRec.AddMember('localizeAttrs', ACoreFunc);
 AActRec.AddMember('raise', ACoreFunc);
 AActRec.AddMember('byte', ACoreFunc);
 AActRec.AddMember('float', ACoreFunc);

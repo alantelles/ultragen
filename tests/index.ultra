@@ -1,4 +1,3 @@
-include 'connection.ultra'
-query = "select * from users"
-result = conn.query(query)
-JSON.createFile(result.results, 'out.json')
+include 'main.ultra'
+
+mama = new A()
