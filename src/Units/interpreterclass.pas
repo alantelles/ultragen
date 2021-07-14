@@ -561,15 +561,16 @@ var
 begin
   NowAct := FCallStack.Peek();
   // surgery
-  SearchStart := FCallStack.Peek().PNestingLevel;
-  for i:=SearchStart downto 1 do
-  begin
-    NowAct := FCallStack.GetByLevel(i);
-    Gene := NowAct.GetMember(ANode.PName);
-    if Gene <> nil then
-      break;
-	end;
+ // SearchStart := FCallStack.Peek().PNestingLevel;
+ // for i:=SearchStart downto 1 do
+ // begin
+ //   NowAct := FCallStack.GetByLevel(i);
+ //   Gene := NowAct.GetMember(ANode.PName);
+ //   if Gene <> nil then
+ //     break;
+	//end;
   // end surgery
+  Gene := Visit(ANode.PRef);
   if Gene <> nil then
   begin
     if Gene.ClassNameIs('TDictionaryInstance') then

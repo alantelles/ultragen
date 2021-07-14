@@ -86,6 +86,7 @@ type
   public
     property PArgs: TASTList read FArgs write FArgs;
     property PName: string read Fname write FName;
+    property PRef: TAST read FRef;
     constructor Create(AArgs: TASTList; AName: string; AToken: TToken);
     constructor Create(AArgs: TASTList; ARef: TAST; AToken: TToken);
     destructor Destroy; override;

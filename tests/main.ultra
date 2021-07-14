@@ -1,7 +1,11 @@
-include @Core.DataBase.UltraQuery
-uq = UltraQuery
+include @Core.Brook.App
+class Baba
 
-users = new UltraQuery('users')
-q = users.select(['name', 'address']).limit(9).offset(5)
-res = q.compile()
-print(res)
+function init(m) : Baba self
+end
+
+app = new App(:ZIKA)
+app.uses.Baba = Baba
+
+k = new app.uses.Baba(90)
+print(k.m)
