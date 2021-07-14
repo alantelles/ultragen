@@ -1,7 +1,4 @@
 $response  = new $app.uses.AppResponse()
-
-# Router = $app.uses.Router
-# MyClass = $app.uses.MyClass
 localizeAttrs($app.uses)
 
 

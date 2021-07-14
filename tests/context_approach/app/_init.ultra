@@ -17,7 +17,8 @@ function instMethod() : MyClass self
     return ret
 end
 
-$app.uses.MyClass = MyClass
+# $app.uses.MyClass = MyClass
+$app.use(MyClass)
 
 include 'app/templates/base.ultra.html'
 $app.templates.Base = Base

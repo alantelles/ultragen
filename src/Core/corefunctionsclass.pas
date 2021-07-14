@@ -33,6 +33,7 @@ type
       function InlinePrint:TInstanceOf;
       function ConcatValues: TStringInstance;
       procedure LocalizeAttrs;
+      procedure SetObjAttr;
 
       // functions
 
@@ -116,6 +117,8 @@ begin
       DumpLive
     else if FName = 'localizeAttrs' then
       LocalizeAttrs
+    else if Fname = 'setAttr' then
+      SetObjAttr
     else if FName = 'members' then
     begin
       if FParams[0].ClassNameIs('TDataType') then
@@ -333,6 +336,14 @@ begin
     FInter.RaiseException('Referenced function "' + FName + '" does not exist.', 'Name');
   // functions
   Result := Ret;
+end;
+
+procedure TCoreFunction.SetObjAttr;
+var
+  AName: string;
+begin
+  AName := FParams[1].PStrValue;
+  FParams[0].PMembers.Add(AName, FParams[2]);
 end;
 
 procedure TCoreFunction.DumpLive;

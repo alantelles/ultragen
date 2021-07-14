@@ -5,79 +5,80 @@ unit InstanceOfClass;
 interface
 
 uses
-  Classes, SysUtils, SymbolsClass, SymbolTableClass, ASTClass, ExceptionsClasses,Variants, Contnrs, BrookHTTPUploads;
+  Classes, SysUtils, SymbolsClass, SymbolTableClass, ASTClass,
+  ExceptionsClasses, Variants, Contnrs, BrookHTTPUploads;
 
 type
 
   TInstanceOf = class
-    protected
+  protected
 
-      FMembers: TFPHashObjectList;
-      FSymbol: TSymbol;
-      FError: boolean;
-      FErrorMsg: string;
-      FIntValue: integer;
-      FStrValue: string;
-      FBoolValue: boolean;
-      FFloatValue: extended;
-      FCoreType: boolean;
+    FMembers: TFPHashObjectList;
+    FSymbol: TSymbol;
+    FError: boolean;
+    FErrorMsg: string;
+    FIntValue: integer;
+    FStrValue: string;
+    FBoolValue: boolean;
+    FFloatValue: extended;
+    FCoreType: boolean;
 
-      FTypeRef: TInstanceOf;
+    FTypeRef: TInstanceOf;
 
-      //FPtrVal: PtrInst;
+    //FPtrVal: PtrInst;
 
-    public
-      //property PPtrVal: PtrInst read FPtrVal write FPtrVal;
-      property PError: boolean read FError write FError;
-      property PErrorMsg: string read FErrorMsg write FErrorMsg;
-      property PMembers: TFPHashObjectList read FMembers write FMembers;
-      property PCoreType: boolean read FCoreType write FCoreType;
-      property PSymbol: TSymbol read FSymbol;
-      property PIntValue: integer read FIntValue write FIntValue;
-      property PStrValue: string read FStrValue write FStrValue;
-      property PBoolValue: boolean read FBoolValue write FBoolValue;
-      property PFloatValue: extended read FFloatValue write FFloatValue;
+  public
+    //property PPtrVal: PtrInst read FPtrVal write FPtrVal;
+    property PError: boolean read FError write FError;
+    property PErrorMsg: string read FErrorMsg write FErrorMsg;
+    property PMembers: TFPHashObjectList read FMembers write FMembers;
+    property PCoreType: boolean read FCoreType write FCoreType;
+    property PSymbol: TSymbol read FSymbol;
+    property PIntValue: integer read FIntValue write FIntValue;
+    property PStrValue: string read FStrValue write FStrValue;
+    property PBoolValue: boolean read FBoolValue write FBoolValue;
+    property PFloatValue: extended read FFloatValue write FFloatValue;
 
-      constructor Create;
-      function AsString: string; virtual;
-      procedure ValueBuilder; virtual;
-      procedure CopyInstance(var AReceiver: TInstanceOf); virtual;
+    constructor Create;
+    function AsString: string; virtual;
+    procedure ValueBuilder; virtual;
+    procedure CopyInstance(var AReceiver: TInstanceOf); virtual;
   end;
 
   TInstanceList = array of TInstanceOf;
 
 
 
-  TNullInstance = class (TInstanceOf)
-    protected
-      FValue:string;
-    public
-      property PValue:string read FValue;
-      function AsString: string;  override;
-      constructor Create;
-      procedure CopyInstance(var AReceiver: TInstanceOf); override;
-	end;
-
-  TByteInstance = class (TInstanceOf)
-      protected
-      FValue:byte;
-    public
-      property PValue:byte read FValue write FValue;
-      constructor Create(AValue: byte);
-      constructor Create;
-      function AsString: string;  override;
-      procedure CopyInstance(var AReceiver: TInstanceOf); override;
+  TNullInstance = class(TInstanceOf)
+  protected
+    FValue: string;
+  public
+    property PValue: string read FValue;
+    function AsString: string; override;
+    constructor Create;
+    procedure CopyInstance(var AReceiver: TInstanceOf); override;
   end;
 
-  TIntegerInstance = class (TInstanceOf)
-    protected
-      FValue:integer;
-    public
-      property PValue:integer read FValue write FValue;
-      constructor Create(AValue: integer);
-      constructor Create;
-      function AsString: string;  override;
-      procedure CopyInstance(var AReceiver: TInstanceOf); override;
+  TByteInstance = class(TInstanceOf)
+  protected
+    FValue: byte;
+  public
+    property PValue: byte read FValue write FValue;
+    constructor Create(AValue: byte);
+    constructor Create;
+    function AsString: string; override;
+    procedure CopyInstance(var AReceiver: TInstanceOf); override;
+  end;
+
+  TIntegerInstance = class(TInstanceOf)
+  protected
+    FValue: integer;
+  public
+    property PValue: integer read FValue write FValue;
+    constructor Create(AValue: integer);
+    constructor Create;
+    function AsString: string; override;
+    procedure CopyInstance(var AReceiver: TInstanceOf); override;
   end;
 
 
@@ -85,37 +86,35 @@ type
 
   TParamList = array of string;
 
-  TFunctionInstance = class (TInstanceOf)
-    protected
-      FName:string;
-      FParams: TASTList;
-      FBlock: TASTList;
-      FType: string;
-      FIsBuiltin: boolean;
-      FAccVarargs: boolean;
-      FIsDecorator: boolean;
-      FDecorParams: TASTList;
-      FIsInstanceFunction: boolean;
-    public
-      property PAccVarargs:boolean read FAccVarargs write FAccVarargs;
-      property PIsDecorator: boolean read FIsDecorator;
-      property PName:string read FName write FName;
-      property PType:string read FType;
-      property PIsBuiltin: boolean read FIsBuiltin;
-      property PParams: TASTList read FParams;
-      property PDecorParams: TASTList read FDecorParams write FDecorParams;
-      property PBlock: TASTList read FBlock write FBlock;
-      property PIsInstanceFunction: boolean read FIsInstanceFunction write FIsInstanceFunction;
-      function AsString: string;  override;
-      constructor Create(
-        AName: string; AParams, ABlock: TASTList;
-        AType:string; IsBuiltin:boolean;
-        IsDecorator: boolean;
-        AcceptVarargs: boolean;
-        IsInstanceFunction: boolean);
-      //procedure AddParam(AName:string);
-      //procedure AddBlock(ABlock: TASTList);
-	end;
+  TFunctionInstance = class(TInstanceOf)
+  protected
+    FName: string;
+    FParams: TASTList;
+    FBlock: TASTList;
+    FType: string;
+    FIsBuiltin: boolean;
+    FAccVarargs: boolean;
+    FIsDecorator: boolean;
+    FDecorParams: TASTList;
+    FIsInstanceFunction: boolean;
+  public
+    property PAccVarargs: boolean read FAccVarargs write FAccVarargs;
+    property PIsDecorator: boolean read FIsDecorator;
+    property PName: string read FName write FName;
+    property PType: string read FType;
+    property PIsBuiltin: boolean read FIsBuiltin;
+    property PParams: TASTList read FParams;
+    property PDecorParams: TASTList read FDecorParams write FDecorParams;
+    property PBlock: TASTList read FBlock write FBlock;
+    property PIsInstanceFunction: boolean read FIsInstanceFunction
+      write FIsInstanceFunction;
+    function AsString: string; override;
+    constructor Create(AName: string; AParams, ABlock: TASTList;
+      AType: string; IsBuiltin: boolean; IsDecorator: boolean;
+      AcceptVarargs: boolean; IsInstanceFunction: boolean);
+    //procedure AddParam(AName:string);
+    //procedure AddBlock(ABlock: TASTList);
+  end;
 
   TDecoratorInstance = class(TFunctionInstance)
 
@@ -124,66 +123,67 @@ type
 
 
   TDataType = class(TInstanceOf)
-    protected
-      FValue: string;
-      FFrontName: string;
-      FConst: TFunctionInstance;
-      FuserDef: boolean;
-    public
-      property PUserDef: boolean read FUserDef write FUserDef;
-      property PConst: TFunctionInstance read FConst write FConst;
-      property PFrontName: string read FFrontName write FFrontName;
-      property PValue: string read FValue write FValue;
-      function AsString: string; override;
-      constructor Create(AName, AFront: string; UserDefined: boolean=False);
+  protected
+    FValue: string;
+    FFrontName: string;
+    FConst: TFunctionInstance;
+    FuserDef: boolean;
+  public
+    property PUserDef: boolean read FUserDef write FUserDef;
+    property PConst: TFunctionInstance read FConst write FConst;
+    property PFrontName: string read FFrontName write FFrontName;
+    property PValue: string read FValue write FValue;
+    function AsString: string; override;
+    constructor Create(AName, AFront: string; UserDefined: boolean = False);
   end;
 
 
-  TFloatInstance = class (TInstanceOf)
-    protected
-      FValue:extended;
-      FValueInt: integer;
-    public
-      property PValueInt: integer read FValueInt write FValueInt;
-      property PValue:Extended read FValue write FValue;
-      constructor Create(AValue: extended);
-      function AsString: string;  override;
-      procedure CopyInstance(var AReceiver: TInstanceOf); override;
+  TFloatInstance = class(TInstanceOf)
+  protected
+    FValue: extended;
+    FValueInt: integer;
+  public
+    property PValueInt: integer read FValueInt write FValueInt;
+    property PValue: extended read FValue write FValue;
+    constructor Create(AValue: extended);
+    function AsString: string; override;
+    procedure CopyInstance(var AReceiver: TInstanceOf); override;
   end;
 
-  TBooleanInstance = class (TInstanceOf)
-    protected
-      FValue: boolean;
-    public
-      property PValue: boolean read FValue write FValue;
-      constructor Create(AValue: boolean);
-      function AsString: string;  override;
-      procedure CopyInstance(var AReceiver: TInstanceOf); override;
+  TBooleanInstance = class(TInstanceOf)
+  protected
+    FValue: boolean;
+  public
+    property PValue: boolean read FValue write FValue;
+    constructor Create(AValue: boolean);
+    function AsString: string; override;
+    procedure CopyInstance(var AReceiver: TInstanceOf); override;
   end;
 
   TBrookUploadedInstance = class(TInstanceOf)
-    protected
-      FValue: TBrookHTTPUpload;
-    public
-      property PValue: TBrookHTTPUpload read FValue;
-      constructor Create(AHandler: TBrookHTTPUpload);
-      function SaveFile(FileName: string): TBooleanInstance;
-      function AsString: string;  override;
+  protected
+    FValue: TBrookHTTPUpload;
+  public
+    property PValue: TBrookHTTPUpload read FValue;
+    constructor Create(AHandler: TBrookHTTPUpload);
+    function SaveFile(FileName: string): TBooleanInstance;
+    function AsString: string; override;
   end;
 
-  TClassInstance = class (TInstanceOf)
-    protected
-      FValue: string;
-      FConst: TFunctionInstance;
-    public
-      property PValue: string read FValue;
-      constructor Create(AName: string);
-      function AsString: string;  override;
- //     procedure CopyInstance(var AReceiver: TInstanceOf);
+  TClassInstance = class(TInstanceOf)
+  protected
+    FValue: string;
+    FConst: TFunctionInstance;
+  public
+    property PValue: string read FValue;
+    constructor Create(AName: string);
+    function AsString: string; override;
+    //     procedure CopyInstance(var AReceiver: TInstanceOf);
 
-	end;
+  end;
 
 implementation
+
 uses
   Tokens, StringInstanceClass;
 
@@ -224,7 +224,7 @@ end;
 
 function TClassInstance.AsString: string;
 begin
-  Result := '<Instance of class '+FValue+'>';
+  Result := '<Instance of class ' + FValue + '>';
 end;
 
 {
@@ -235,7 +235,7 @@ begin
 end;
 }
 procedure TInstanceOf.CopyInstance(var AReceiver: TInstanceOf);
-var 
+var
   i: integer;
   Aux: TInstanceOf;
 begin
@@ -249,13 +249,13 @@ begin
     end;
   end;  }
   AReceiver := self;
-  
+
 end;
 
-constructor TDataType.Create(AName: string; AFront: string; UserDefined: boolean=False);
+constructor TDataType.Create(AName: string; AFront: string; UserDefined: boolean = False);
 begin
   inherited Create;
-  Fuserdef:=UserDefined;
+  Fuserdef := UserDefined;
   FMembers.Add('$internal', TStringInstance.Create(Aname));
   FValue := AName;
   FFrontName := AFront;
@@ -263,7 +263,7 @@ end;
 
 function TDataType.AsString: string;
 begin
-  Result := '<DataType: '+FFrontName+', internal name: '+FValue+'>';
+  Result := '<DataType: ' + FFrontName + ', internal name: ' + FValue + '>';
 end;
 
 function TInstanceOf.AsString: string;
@@ -291,10 +291,8 @@ begin
   Result := T_LANG_NULL;
 end;
 
-constructor TFunctionInstance.Create(
-  AName: string; AParams, ABlock: TASTList;
-  AType:string; IsBuiltin:boolean;
-  IsDecorator: boolean; AcceptVarargs: boolean;
+constructor TFunctionInstance.Create(AName: string; AParams, ABlock: TASTList;
+  AType: string; IsBuiltin: boolean; IsDecorator: boolean; AcceptVarargs: boolean;
   IsInstanceFunction: boolean);
 begin
   //Fname := AName;
@@ -347,7 +345,7 @@ begin
   AReceiver := Cast;
 end;
 
-function TByteInstance.AsString:string;
+function TByteInstance.AsString: string;
 begin
   Result := IntToStr(FValue);
 end;
@@ -374,7 +372,7 @@ begin
   AReceiver := Cast;
 end;
 
-function TIntegerInstance.AsString:string;
+function TIntegerInstance.AsString: string;
 begin
   Result := IntToStr(FValue);
 end;
@@ -402,7 +400,9 @@ end;
 
 function TFloatInstance.AsString: string;
 var
-  AFStr :string;
+  AFStr: string;
+
+
 begin
   AFstr := FloatToStrF(FValue, ffFixed, 30, 30);
   while AFStr[Length(AFStr)] = '0' do

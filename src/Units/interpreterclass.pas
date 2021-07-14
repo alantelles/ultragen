@@ -111,7 +111,7 @@ var
 
   AStrFunc,
   AIntFunc, AIntStFunc, AListFunc, AServerFunc, AOSFunc, ADictFunc, AHttpClientFunc,
-  ABoolFunc, AFloatFunc, ACoreFunc, AJsonFunc: TFunctionInstance;
+  ABoolFunc, AFloatFunc, ACoreFunc, AJsonFunc, ADataTypeFunc: TFunctionInstance;
   ANameSpace: TDictionaryInstance;
 begin
 

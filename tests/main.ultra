@@ -5,3 +5,6 @@ function init() : A self
 end
 
 a = new A()
+setAttr(a, 'marrom', 'brown sugar')
+print(a.marrom)
+print(A.$internal)
