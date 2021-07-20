@@ -8,13 +8,15 @@ uses
   cthreads,{$ENDIF}
   Classes, SysUtils,
   { you can add units after this }
-  ASTClass, LexerClass, ImpParserClass, InterpreterClass, StrUtils,
-  LoggingClass, UltraGenInterfaceClass, DateTimeInstanceClass, ServerClass, Dos;
+  ASTClass, LexerClass, ImpParserClass, InterpreterClass, StrUtils, ListInstanceClass,
+  LoggingClass, UltraGenInterfaceClass, DateTimeInstanceClass, ServerClass, Dos, StringInstanceClass, Coreutils;
 var
   BTree: TAST;
-  LiveOut, UHome: string;
+  LiveOut, UHome, Arg, ProgramPath, Option: string;
   i: integer;
-  ParamsNodes: TStringList;
+  ParamsNodes, ArgParse: TStringList;
+  Adapter: TUltraAdapter;
+  ParamsList: TListInstance;
 {$R *.res}
 
 begin
@@ -32,44 +34,64 @@ begin
       else if ParamStr(2) = '--parser' then
         LogLevel := 'PARSER';
     end;}
-    ParamsNodes := TStringList.Create;
+    //for i:=1 to ParamCount do
     UHome := GetEnv('ULTRAGEN_HOME');
     {$IFDEF Windows}
     UHome := ReplaceStr(UHome, DirectorySeparator, '\' + DirectorySeparator);
     {$ENDIF}
-
-    if Trim(UHome) <> '' then
+    i := 1;
+    ParamsList := TListInstance.Create();
+    Option := GetOption(ParamStr(1));
+    if option <> '' then
     begin
-      ParamsNodes.Add('addModulePath(["'+UHome + '", "modules"].path())');
-      ParamsNodes.Add('include @Core');
-		end;
-
-    if FileExists('./_INCLUDE.ultra') then
-      ParamsNodes.Add('include ".\/_INCLUDE.ultra"');
-    ParamsNodes.Add('$params = []');
-    if ParamCount > 1 then
-    begin
-
-      if ParamStr(1) = '--serve' then
+      while i < ParamCount do
       begin
-        // start a server
-      end
-      else
-      begin
-        i := 2;
-        while ((Copy(ParamStr(i), 1, 2) <> '--')) and
-              (i <= ParamCount) do
+        Arg := ParamStr(i);
+        if Arg = '-' then
         begin
-          ParamsNodes.Add('$params.append("' + ParamStr(i) + '")');
           i := i + 1;
+          break;
         end;
-        ParamsNodes.Add('$params.lock()');
+        option := GetOption(Arg);
+        if option <> '' then
+        begin
+          if option = 'home' then
+          begin
+            i := i + 1;
+            UHome := ParamStr(i);
+            i := i + 1;
+          end
+          else if option = 'logparse' then
+          begin
+            LogLevel := 'PARSER';
+            i := i + 1;
+          end;
+        end
+        else
+          i := i + 1;
       end;
-		end;
+
+    end;
+    ProgramPath := ParamStr(i);
+    i := i + 1;
+    while i <= ParamCount do
+    begin
+      ParamsList.Add(TStringInstance.Create(ParamStr(i)));
+      i := i + 1;
+    end;
+    Adapter := TUltraAdapter.Create('params');
+    Adapter.ActRec.AddMember('$params', ParamsList);
+    ParamsNodes := TStringList.Create;
+
+
+    ParamsNodes.Add('params.localize()');
+    ParamsNodes.Add('addModulePath(["'+UHome + '", "modules"].path())');
+    ParamsNodes.Add('include @Core');
     BTree := TUltraInterface.ParseStringList(ParamsNodes);
+
+    LiveOut := TUltraInterface.InterpretScript(ProgramPath, ParamsNodes, Adapter);
     ParamsNodes.Free;
-    LiveOut := ParamStr(1);
-    LiveOut := TUltraInterface.InterpretScript(ParamStr(1), TProgram(BTree), nil, '', nil, nil, nil);
+    ParamsList.Free;
     if Trim(LiveOut) <> '' then
       Writeln(LiveOut);
     {if (ParamStr(2) = '--persist') then
@@ -86,7 +108,7 @@ begin
     WriteLn('UltraGen - Desktop/Web Template engine/Scripting language');
     WriteLn(SizeOf(Pointer) shl 3, '-bit executable');
     WriteLn('Version: 0.7.0');
-    WriteLn('Usage: ultragen [script path] [...params] [(--...OPTIONS)]');
+    WriteLn('Usage: ultragen [(--...OPTIONS)] [- (needed if any options)] [script path] [...params]');
     WriteLn('Created by Alan Telles');
   end;
 end.

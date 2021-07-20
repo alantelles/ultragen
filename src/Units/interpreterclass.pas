@@ -1969,7 +1969,12 @@ begin
       FTrace, ANode.PToken);
   ASrc := Visit(Anode.PList);
   if ASrc.ClassNameIs('TListInstance') then
-    ARet := TListInstance(ASrc).GetItem(AIndexInt)
+  begin
+    if TListInstance(ASrc).Count > AIndexInt.PIntValue then
+      ARet := TListInstance(ASrc).GetItem(AIndexInt)
+    else
+      RaiseException('Array index ' + IntToStr(AIndexInt.PIntValue) + ' queried out of bounds', 'Value');
+  end
   else if ASrc.ClassNameIs('TStringInstance') then
   begin
     if AIndex.ClassNameIs('TIntegerInstance') then

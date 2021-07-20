@@ -10,10 +10,21 @@ uses
 function BooleanToStr(AVal: boolean):string;
 function StrToBoolean(AVal: string):boolean;
 function DecodeUnicodeEscapes(EscapedString: String): String;
+function GetOption(Arg:string):string;
 
 
 implementation
 uses StrUtils, JsonTools;
+
+function GetOption(Arg:string):string;
+var
+  ret:string = '';
+  start:string;
+begin
+  if Arg.StartsWith('--') then
+    Ret := Arg.Substring(2);
+  Result := Ret;
+end;
 
 function BooleanToStr(AVal: boolean):string;
 begin
