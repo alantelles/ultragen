@@ -5,6 +5,21 @@ include @Core.Request
 $app = new App(:TEST_APP)
 $app.uses.Request = Request
 
+
+class MyClass
+
+function staticMethod() : MyClass
+    return "I'm static"
+end
+
+function instMethod() : MyClass self
+    ret = MyClass.staticMethod()
+    return ret
+end
+
+# $app.uses.MyClass = MyClass
+$app.use(MyClass)
+
 include 'app/templates/base.ultra.html'
 $app.templates.Base = Base
 

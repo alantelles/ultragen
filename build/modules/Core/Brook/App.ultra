@@ -10,9 +10,13 @@ function init(name) : App self
     self.uses = new Object()
     self.models = new Object()
     self.routers = new Object()
-    self.uses.Router = Router
+    self.use(Router)
     self.uses.Session = Session
     self.uses.AppResponse = AppResponse
     self.routers = new Object()    
     Session.start(name.upper())
+end
+
+function use(name) : App self
+    setAttr(self.uses, name.$internal, name)
 end

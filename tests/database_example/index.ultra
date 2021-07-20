@@ -7,7 +7,7 @@ DBConnection =  $app.uses.DBConnection
 $app.uses.connection.connect()
 
 # models
-Post = $app.models.Post
+# Post = $app.models.Post
 
 # index must set an AppResponse instance
 $response = new AppResponse()

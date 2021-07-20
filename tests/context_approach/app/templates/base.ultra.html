@@ -9,7 +9,7 @@
 </head>
 <body>
     <h1>This is a test of the context app approach</h1>
-    <a href="{{ main.urlFor(:docs_index) }}">Docs</a>
+    <a href="{{ $app.routers.main.urlFor(:docs_index) }}">Docs</a>
     {{ content }}
 </body>
 </html>

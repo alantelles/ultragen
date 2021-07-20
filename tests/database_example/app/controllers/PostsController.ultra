@@ -1,7 +1,7 @@
 class PostsController
 
 function index(params) : PostsController
-    posts = new Post().index()
+    posts = new $app.models.Post().index()
     live $app.templates.PostsIndex(posts)
 end
 
@@ -10,7 +10,7 @@ function create(params) : PostsController
 end
 
 function save(params) : PostsController
-    post = new Post()
+    post = new $app.models.Post()
     post.title = $request[:form][:title]
     post.body = $request[:form][:body]
     post.save()
@@ -18,6 +18,6 @@ function save(params) : PostsController
 end
 
 function show(params) : PostsController
-    post = new Post().show(params[:id])
+    post = new $app.models.Post().show(params[:id])
     live $app.templates.ShowPost(post)
 end

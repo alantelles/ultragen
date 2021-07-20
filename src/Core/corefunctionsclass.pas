@@ -32,6 +32,8 @@ type
       function Print:TInstanceOf;
       function InlinePrint:TInstanceOf;
       function ConcatValues: TStringInstance;
+      procedure LocalizeAttrs;
+      procedure SetObjAttr;
 
       // functions
 
@@ -113,6 +115,10 @@ begin
 	    Ret := ConcatValues
     else if FName = 'saveLive' then
       DumpLive
+    else if FName = 'localizeAttrs' then
+      LocalizeAttrs
+    else if Fname = 'setAttr' then
+      SetObjAttr
     else if FName = 'members' then
     begin
       if FParams[0].ClassNameIs('TDataType') then
@@ -332,6 +338,14 @@ begin
   Result := Ret;
 end;
 
+procedure TCoreFunction.SetObjAttr;
+var
+  AName: string;
+begin
+  AName := FParams[1].PStrValue;
+  FParams[0].PMembers.Add(AName, FParams[2]);
+end;
+
 procedure TCoreFunction.DumpLive;
 var
   AFile: TStringList;
@@ -355,7 +369,23 @@ begin
   end;
 end;
 
-
+procedure TCoreFunction.LocalizeAttrs;
+var
+  AInst, AMember: TInstanceOf;
+  AActRec: TActivationRecord;
+  i: integer;
+begin
+  AActRec := FInter.PCallStack.Peek;
+  AInst := FParams[0];
+  if AInst.PMembers.Count > 0 then
+  begin
+    for i:=0 to AInst.PMembers.Count - 1 do
+    begin
+      AMember := TInstanceOf(AInst.PMembers[i]);
+      AActRec.AddMember(AInst.PMembers.NameOfIndex(i), AMember);
+    end;
+  end;
+end;
 
 function TCoreFunction.Range: TListInstance;
 var

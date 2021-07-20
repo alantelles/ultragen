@@ -1,0 +1,6 @@
+$response  = new $app.uses.AppResponse()
+localizeAttrs($app.uses)
+
+
+$app.routers.main.getMatch($request[:route], $request[:method]).localize()
+live handler(params)

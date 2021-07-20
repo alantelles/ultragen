@@ -16,12 +16,12 @@ function index() : Post self
 end
 
 function show(id) : Post self
+    ret = null
     query = "SELECT * FROM posts WHERE id=?"
     result = $app.uses.connection.query(query, [id])
+    pause(10)
     if ((result.rows.length()) > 0)
         ret = result.rows[0]
-    else
-        ret = null
     end
     return ret
 end

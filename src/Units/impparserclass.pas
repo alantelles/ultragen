@@ -39,6 +39,7 @@ type
     function FunctionBlock(Anony, IsDecorator:boolean): TAST;
     function LambdaDef: TAST;
     function AssignedTest: TAST;
+    function AttrAccess: TAST;
 
     function ExpandArgs: TAST;
     function DefParams: TASTList;
@@ -109,8 +110,8 @@ var
   ConstArgs: TASTList;
   AName:string;
   AToken: TToken;
+  ARef: TAST;
 begin
-  eat(T_NEW_OBJECT);
   AToken := TToken.Create(
     FCurrentToken.PType,
     FCurrentToken.PValue,
@@ -118,17 +119,20 @@ begin
     FCurrentToken.PCharNo,
     FCurrentToken.PScriptName
   );
-  AName := AToken.PValue;
-  Eat(T_ID);
+  eat(T_NEW_OBJECT);
+  // AName := AToken.PValue;
+  // Eat(T_ID);
+  Aref := AttrAccess();
   SetLength(ConstArgs, 0);
   logtext('PARSER', 'Parser', 'Creating new object node');
-  if FCurrentToken.PType = T_LPAREN then
-  begin
-    Eat(T_LPAREN);
-    ConstArgs := Args();
-    Eat(T_RPAREN);
-  end;
-  Result := TNewObject.Create(ConstArgs, AName, AToken);
+  Eat(T_LPAREN);
+  ConstArgs := Args();
+  Eat(T_RPAREN);
+  //if FCurrentToken.PType = T_LPAREN then
+  //begin
+  //
+  //end;
+  Result := TNewObject.Create(ConstArgs, ARef, AToken);
 end;
 
 function TTParser.ExpandArgs: TAST;
@@ -1018,6 +1022,38 @@ begin
           ret := FunctionCallByInstance(Ret, AToken);
       end;
     end
+  end;
+  Result := Ret;
+end;
+
+function TTParser.AttrAccess: TAST;
+var
+  Ret: TAST;
+  AToken: ttoken;
+begin
+  // Eat(T_ATTR_ACCESSOR);
+  AToken := TToken.Create(
+    FCurrentToken.PType,
+    FCurrentToken.PValue,
+    FCurrentToken.PLineNo,
+    FCurrentToken.PCharNo,
+    FCurrentToken.PScriptName
+  );
+  Eat(T_ID);
+  Ret := Variable(AToken);
+  logtext('PARSER', 'Parser', 'Creating method call node');
+  while (FCurrentToken.PType = T_ATTR_ACCESSOR) do
+  begin
+    Eat(T_ATTR_ACCESSOR);
+    AToken := TToken.Create(
+      FCurrentToken.PType,
+      FCurrentToken.PValue,
+      FCurrentToken.PLineNo,
+      FCurrentToken.PCharNo,
+      FCurrentToken.PScriptName
+    );
+    Eat(T_ID);
+    Ret := TMethodCall.Create(Ret, Variable(AToken), AToken);
   end;
   Result := Ret;
 end;
