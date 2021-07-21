@@ -1,0 +1,11 @@
+# Using this alpine image due to dependency of glibc
+FROM frolvlad/alpine-glibc:alpine-3.14_glibc-2.33
+RUN apk update && apk add openssl
+WORKDIR /opt/ultragen
+COPY ./build .
+RUN mkdir /application
+WORKDIR /application
+ENV ULTRAGEN_HOME="/opt/ultragen"
+ENV PATH=$PATH:$ULTRAGEN_HOME/bin
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ULTRAGEN_HOME/unix/libsagui-3.3.2/lib64
+CMD ["ultragen"]
