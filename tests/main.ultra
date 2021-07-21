@@ -1,14 +1,8 @@
-class A
-class B
+include @Core.Request
+$url = 'https://reqres.in/api/'
 
-function init() : B self
-    print('created B')
-end
-
-function init() : A self
-    print("created A")
-    self.b = B
-end
-
-m = new A()
-n = new m.b()
+req = new Request($url)
+req.timeout = 30
+req.body = JSON.create({'name': 'Zika'})
+r = req.run(:POST, 'users')
+print(r.text)

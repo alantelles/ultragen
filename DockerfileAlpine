@@ -1,6 +1,10 @@
 # Using this alpine image due to dependency of glibc
 FROM frolvlad/alpine-glibc:alpine-3.14_glibc-2.33
-RUN apk update && apk add openssl
+RUN apk update && \
+	apk add openssl && \
+	apk add libpq && \
+	apk add sqlite && \
+	apk add mysql mysql-client
 WORKDIR /opt/ultragen
 COPY ./build .
 RUN mkdir /application
