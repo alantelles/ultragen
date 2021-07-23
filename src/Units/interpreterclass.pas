@@ -617,6 +617,8 @@ begin
       begin
         Ret := TDateTimeInstance.ConstructDateTime(ArgsList);
       end
+      else if ABuilt.PValue = 'TRegexInstance' then
+        Ret := TRegexInstance.Create
       else if ABuilt.PValue = 'TByteStreamInstance' then
       begin
         if Len = 0 then
