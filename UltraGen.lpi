@@ -35,7 +35,7 @@
         <PackageName Value="LazUtils"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="49">
+    <Units Count="51">
       <Unit0>
         <Filename Value="UltraGen.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -266,6 +266,15 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="DBInstanceClass"/>
       </Unit48>
+      <Unit49>
+        <Filename Value="src\BuiltInTypes\regexinstanceclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="RegexInstanceClass"/>
+      </Unit49>
+      <Unit50>
+        <Filename Value="src\Core\regex\options.pp"/>
+        <IsPartOfProject Value="True"/>
+      </Unit50>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -276,7 +285,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="src\Units;src\ASTs;src\Symbols;src\Exceptions;src\ActRecords;src\Core;src\BuiltInTypes;src\Utils\JsonTools;src\BootStrap;src\Utils;src\Core\bytestream;src\Utils\MarkdownParser;src\Core\brookserver;src\Core\brookappresponse;src\Core\helpers;src\Core\brookuploaded"/>
+      <OtherUnitFiles Value="src\Units;src\ASTs;src\Symbols;src\Exceptions;src\ActRecords;src\Core;src\BuiltInTypes;src\Utils\JsonTools;src\BootStrap;src\Utils;src\Core\bytestream;src\Utils\MarkdownParser;src\Core\brookserver;src\Core\brookappresponse;src\Core\helpers;src\Core\brookuploaded;src\Core\regex"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <CodeGeneration>

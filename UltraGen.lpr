@@ -8,8 +8,9 @@ uses
   cthreads,{$ENDIF}
   Classes, SysUtils,
   { you can add units after this }
-  ASTClass, LexerClass, ImpParserClass, InterpreterClass, StrUtils, ListInstanceClass,
-  LoggingClass, UltraGenInterfaceClass, DateTimeInstanceClass, ServerClass, Dos, StringInstanceClass, Coreutils;
+  ASTClass, LexerClass, ImpParserClass, InterpreterClass, StrUtils,
+  ListInstanceClass, LoggingClass, UltraGenInterfaceClass,
+  DateTimeInstanceClass, ServerClass, Dos, StringInstanceClass, Coreutils;
 var
   BTree: TAST;
   LiveOut, UHome, Arg, ProgramPath, Option: string;
