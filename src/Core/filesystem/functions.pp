@@ -4,8 +4,16 @@ var
 begin
   FileIn := TStringInstance(FParams[0]).Pvalue;
   FileOut := TStringInstance(FParams[1]).Pvalue;
+
   if Length(FParams) = 2 then
-    CopyFile(FileIn, FileOut, [cffPreserveTime, cffOverwriteFile], True);
+    CopyFile(FileIn, FileOut, [cffPreserveTime, cffOverwriteFile], True)
+  else if Length(FParams) = 3 then
+  begin
+    if FParams[2].PBoolValue then
+      CopyFile(FileIn, FileOut, [cffPreserveTime, cffOverwriteFile, cffCreateDestDirectory], True)
+    else
+      CopyFile(FileIn, FileOut, [cffPreserveTime, cffOverwriteFile], True);
+  end;
 end;
 
 

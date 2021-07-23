@@ -1,8 +1,2 @@
-include @Core.Regex
-
-re = new Regex()
-re.expr = "hello (.+)"
-m = re.match("hello pascal")
-print(m)
-m = re.match("hellopascal")
-print(m)
+x = range(5)
+print(x.slice(3))
