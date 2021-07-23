@@ -287,6 +287,8 @@ begin
     TTypeLoader.LoadServerInstance(AActRec)
   else if AName = 'AppResponse' then
     TTypeLoader.LoadResponseHandler(AActRec)
+  else if AName = 'Regex' then
+    TTypeLoader.LoadRegex(AActRec)
   else if AName = 'BrookServer' then
     TTypeLoader.LoadBrookserver(AActRec)
   else if AName = 'BrookAppResponse' then

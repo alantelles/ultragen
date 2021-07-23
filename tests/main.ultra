@@ -1,8 +1,8 @@
-include @Core.Request
-$url = 'https://reqres.in/api/'
+include @Core.Regex
 
-req = new Request($url)
-req.timeout = 30
-req.body = JSON.create({'name': 'Zika'})
-r = req.run(:POST, 'users')
-print(r.text)
+re = new Regex()
+re.expr = "hello (.+)"
+m = re.match("hello pascal")
+print(m)
+m = re.match("hellopascal")
+print(m)
