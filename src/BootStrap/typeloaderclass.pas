@@ -25,10 +25,23 @@ type
     class procedure LoadHelpers(var AActRec: TActivationRecord);
     class procedure LoadBrookUploaded(AActRec: TActivationRecord);
     class procedure LoadDBInstance(AActRec: TActivationRecord);
+    class procedure LoadRegex(AActRec: TActivationRecord);
   end;
 
 implementation
 
+class procedure TTypeLoader.LoadRegex(AActRec: TActivationRecord);
+var
+  AFunc: TFunctionInstance;
+  AType: TDataType;
+begin
+  AFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TRegexInstance', True, False, False, True);
+  AType := TDataType.Create('TRegexInstance', 'Regex');
+  AType.PMembers.Add('match', AFunc);
+  AActRec.AddMember('Regex', AType);
+end;
+
+//  ARegexFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TRegexInstance', True, False, False, True);
 class procedure TTypeLoader.LoadDBInstance(AActRec: TActivationRecord);
 var
   AFunc, AFuncSt: TFunctionInstance;

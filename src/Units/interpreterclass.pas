@@ -71,7 +71,7 @@ type
 implementation
 
 uses
-  Math, TokenClass, Tokens, CoreFunctionsClass, LexerClass, DateTimeInstanceClass,
+  Math, TokenClass, Tokens, CoreFunctionsClass, LexerClass, DateTimeInstanceClass, RegexInstanceClass,
   ServerClass, Dos, TypeLoaderClass, ByteStreamClass, HttpClientInstanceClass, BrookServerClass;
 
 constructor TInterpreter.Create(var ATree: TAST);
@@ -107,17 +107,18 @@ var
   AActRec: TActivationRecord;
   FileExplorer: TActivationRecord;
   ACoreType, AStrType, AIntType, AFloatType, AListType, ABoolType,
-  AFuncType, AOSType, ADictType, AServerType, AJsonType: TDataType;
+  AFuncType, AOSType, ADictType, AServerType, AJsonType, ARegexType: TDataType;
 
   AStrFunc,
   AIntFunc, AIntStFunc, AListFunc, AServerFunc, AOSFunc, ADictFunc, AHttpClientFunc,
-  ABoolFunc, AFloatFunc, ACoreFunc, AJsonFunc, ADataTypeFunc: TFunctionInstance;
+  ABoolFunc, AFloatFunc, ACoreFunc, AJsonFunc, ADataTypeFunc, ARegexFunc: TFunctionInstance;
   ANameSpace: TDictionaryInstance;
 begin
 
   {AStrType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TStringInstance', True);
   AIntType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TIntegerInstance', True);}
   AFloatFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFloatInstance', True, False, False, False);
+
   {AListType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TListInstance', True);
   AFuncType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFunctionInstance', True);}
   ABoolFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TBooleanInstance', True, False, False, False);
@@ -126,6 +127,7 @@ begin
   AOSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TOSInstance', True);
   AFSType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TFileSystemInstance', True);
   AServerType := TFunctionInstance.Create('BuiltIn', nil, nil, 'TServerInstance', True);}
+
   AActRec := FCallStack.GetFirst();
 
   TTypeLoader.LoadType('ByteStream', self, AActrec);

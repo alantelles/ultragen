@@ -6,7 +6,7 @@ interface
 
 uses
       Classes, SysUtils, Strutils,
-      InterpreterClass, InstanceOfClass, StringInstanceClass, DateTimeInstanceClass, ByteStreamClass, DBInstanceClass,
+      InterpreterClass, InstanceOfClass, StringInstanceClass, RegexInstanceClass, DateTimeInstanceClass, ByteStreamClass, DBInstanceClass,
       ListInstanceClass, ServerClass, ARClass, HttpClientInstanceClass, JsonTools, httpdefs, BrookServerClass;
 
 type
@@ -318,6 +318,7 @@ begin
   {$INCLUDE 'string/options.pp'}
   {$INCLUDE 'brookuploaded/options.pp'}
   {$INCLUDE 'list/options.pp'}
+  {$INCLUDE 'regex/options.pp'}
   {$INCLUDE 'integer/options.pp'}
   {$INCLUDE 'dict/options.pp'}
   {$INCLUDE 'os/options.pp'}
