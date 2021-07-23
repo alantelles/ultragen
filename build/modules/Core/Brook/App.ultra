@@ -10,10 +10,11 @@ function init(name) : App self
     self.uses = new Object()
     self.models = new Object()
     self.routers = new Object()
+    self.vars = new Object()
     self.use(Router)
     self.uses.Session = Session
     self.uses.AppResponse = AppResponse
-    self.routers = new Object()    
+    self.routers = new Object()
     Session.start(name.upper())
 end
 

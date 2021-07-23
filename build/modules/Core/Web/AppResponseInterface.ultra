@@ -23,7 +23,7 @@ function setHeaders(pairs) : AppResponse self
     end
 end
 
-function contentType(type) : AppResponse
+function contentType(type) : AppResponse self
     self.headers['Content-Type'] = type
 end
 
