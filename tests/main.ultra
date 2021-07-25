@@ -1,2 +1,4 @@
-j = ['mahao', 'val', 'zika']
-print(','.join(*j))
+print($ULTRAGEN_HOME)
+print($scriptName)
+s = "0123456789"
+print(s.slice(true))

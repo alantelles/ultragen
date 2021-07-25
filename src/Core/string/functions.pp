@@ -1,5 +1,7 @@
 procedure TCoreFunction.InitString(AObj: TStringInstance);
 begin
+  checkArgCount([1]);
+  checkArgTypes(['TStringInstance']);
   AObj.PValue := TStringInstance(FParams[0]).PValue;
 end;
 
@@ -8,7 +10,8 @@ var
   AStream: TStringStream;
   FOut: string;
 begin
-
+  checkArgCount([1]);
+  checkArgTypes(['TStringInstance']);
   AStream := TStringStream.Create(AObj.PValue);
   FOut := TStringInstance(FParams[0]).PValue;
   AStream.SaveToFile(FOut);
@@ -21,6 +24,8 @@ var
   Astr: string;
   StrStart, StrEnd: integer;
 begin
+  checkArgCount([1, 2]);
+  checkArgTypes(['TIntegerInstance', 'TIntegerInstance']);
   Return := '';
   if (Length(FParams) > 2) or (Length(FParams) < 1) then
     FInter.RaiseException(E_INVALID_ARGS, 'Arguments');
