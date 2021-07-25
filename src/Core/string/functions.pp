@@ -8,6 +8,7 @@ var
   AStream: TStringStream;
   FOut: string;
 begin
+
   AStream := TStringStream.Create(AObj.PValue);
   FOut := TStringInstance(FParams[0]).PValue;
   AStream.SaveToFile(FOut);
@@ -51,6 +52,7 @@ var
   AStr: TStringInstance;
 
 begin
+  CheckArgCount([1]);
   CheckArgTypes(['TListInstance']);
   AList := TListInstance(FParams[0]);
   len := AList.Count;

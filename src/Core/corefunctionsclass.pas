@@ -11,6 +11,7 @@ uses
 
 type
   TParamList = array of string;
+  TParamCountList = array of integer;
 
   TCoreFunction = class
     private
@@ -23,6 +24,7 @@ type
       procedure JsonValAssign(ANode: TJsonNode; var AInst: TDictionaryInstance);
       procedure JsonValAssign(ANode: TJsonNode; var AInst: TListInstance);
       function checkArgTypes(TypesAllowed: TParamList): string;
+      procedure checkArgCount(CountsAllowed: TParamCountList);
 
     public
       function Execute(AInter: TInterpreter; Fname:string; var AArgList:TInstanceList;var  AObj: TInstanceOf):TInstanceOf;
@@ -77,6 +79,19 @@ uses
   CoreUtils, ExceptionsClasses, Math, ASTClass, crt, LazUTF8, FileUtil, Dos, Tokens, MarkdownProcessor, DateUtils,
   BrookHTTPResponse, UltraWebHandlersClass, HttpProtocol;
 
+procedure TCoreFunction.checkArgCount(CountsAllowed: TParamCountList);
+var
+  i, lenArgs: integer;
+begin
+  lenArgs := Length(FParams);
+  for i in CountsAllowed do
+  begin
+    if lenArgs = i then
+      Exit;
+  end;
+  FInter.RaiseException(E_INVALID_ARGS, 'Arguments');
+end;
+
 function TCoreFunction.checkArgTypes(TypesAllowed: TParamList): string;
 var
   i, lenArgs, lenTypes, len: integer;
@@ -84,7 +99,7 @@ var
 begin
   lenTypes := Length(TypesAllowed);
   lenArgs := Length(FParams);
-  len := max(lenTypes, lenArgs);
+  len := min(lenTypes, lenArgs);
   if len > 0 then
   begin
     for i:=0 to len - 1 do
