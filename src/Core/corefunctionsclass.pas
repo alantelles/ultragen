@@ -22,6 +22,7 @@ type
       procedure TraverseJsonList(ANode: TJsonNode; var AHostList: TListInstance);
       procedure JsonValAssign(ANode: TJsonNode; var AInst: TDictionaryInstance);
       procedure JsonValAssign(ANode: TJsonNode; var AInst: TListInstance);
+      function checkArgTypes(TypesAllowed: TParamList): string;
 
     public
       function Execute(AInter: TInterpreter; Fname:string; var AArgList:TInstanceList;var  AObj: TInstanceOf):TInstanceOf;
@@ -49,6 +50,7 @@ type
       function ParseJsonFile: TInstanceOf;
 
 
+
        //functions
 
       {$INCLUDE 'bytestream/declarations.pp'}
@@ -74,6 +76,29 @@ implementation
 uses
   CoreUtils, ExceptionsClasses, Math, ASTClass, crt, LazUTF8, FileUtil, Dos, Tokens, MarkdownProcessor, DateUtils,
   BrookHTTPResponse, UltraWebHandlersClass, HttpProtocol;
+
+function TCoreFunction.checkArgTypes(TypesAllowed: TParamList): string;
+var
+  i, lenArgs, lenTypes, len: integer;
+  Ret: string = '';
+begin
+  lenTypes := Length(TypesAllowed);
+  lenArgs := Length(FParams);
+  len := max(lenTypes, lenArgs);
+  if len > 0 then
+  begin
+    for i:=0 to len - 1 do
+    begin
+      if FParams[i].PTypeFrontName <> TypesAllowed[i] then
+      begin
+         Ret := 'Wrong type for argument ' + IntToStr(i) + '. Expected "' + TypesAllowed[i] + '", got "' + FParams[i].PtypeFrontName + '"';
+         FInter.RaiseException(Ret, 'Arguments');
+         Break;
+      end;
+    end;
+  end;
+  Result := Ret;
+end;
 
 function TCoreFunction.Execute(AInter: TInterpreter; Fname:string; var AArgList:TInstanceList; var AObj: TInstanceOf):TInstanceOf;
 var

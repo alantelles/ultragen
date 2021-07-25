@@ -46,10 +46,12 @@ end;
 function TCoreFunction.JoinString(AObj: TStringInstance):TStringInstance;
 var
   len, i: integer;
-  joiner, part: string;
+  valid, joiner, part: string;
   AList: TListInstance;
   AStr: TStringInstance;
+
 begin
+  CheckArgTypes(['TListInstance']);
   AList := TListInstance(FParams[0]);
   len := AList.Count;
   // joiner := TStringInstance(FParams[0]).PValue;

@@ -22,7 +22,7 @@ type
     FBoolValue: boolean;
     FFloatValue: extended;
     FCoreType: boolean;
-
+    FTypeFrontName: string;
     FTypeRef: TInstanceOf;
 
     //FPtrVal: PtrInst;
@@ -38,6 +38,7 @@ type
     property PStrValue: string read FStrValue write FStrValue;
     property PBoolValue: boolean read FBoolValue write FBoolValue;
     property PFloatValue: extended read FFloatValue write FFloatValue;
+    property PTypeFrontName: string read FTypeFrontName;
 
     constructor Create;
     function AsString: string; virtual;
@@ -214,12 +215,14 @@ begin
   FMembers := TFPHashObjectList.Create(True);
   FError := False;
   FErrorMsg := '';
+  FTypeFrontName := ClassName;
 end;
 
 constructor TClassInstance.Create(AName: string);
 begin
   inherited Create;
   FValue := AName;
+  FTypeFrontNAme := AName;
 end;
 
 function TClassInstance.AsString: string;

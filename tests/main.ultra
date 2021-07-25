@@ -1,2 +1,2 @@
-x = range(5)
-print(x.slice(3))
+j = ['mahao', 'val', 'zika']
+print(','.join(*j))
