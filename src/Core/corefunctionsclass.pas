@@ -260,8 +260,10 @@ begin
     end
 
     else if FName = 'locals' then
+    begin
       checkArgCount([0]);
       Ret := TDictionaryInstance.Create(FInter.PCallStack.Peek)
+    end
     else if FName = 'dropModulePath' then
     begin
       checkArgCount([1]);
@@ -281,10 +283,13 @@ begin
   begin
     if FName = 'connect' then
     begin
+      checkArgCount([0]);
       TDBInstance(FObj).StartConnection;
     end
     else if FName = 'query' then
     begin
+      checkArgCount([1, 2]);
+      checkArgTypes(['TStringInstance']);
       if Length(FParams) = 1 then
       begin
         try
@@ -306,6 +311,8 @@ begin
     end
     else if FName = 'create' then
     begin
+      checkArgCount([1]);
+      checkArgTypes(['TIntegerInstance']);
       Ret := TDBInstance.Create(FParams[0].PIntValue);
     end;
 
@@ -315,6 +322,8 @@ begin
   begin
     if Fname = 'parse' then
     begin
+      checkArgCount([1, 2]);
+      checkArgTypes(['TStringInstance', 'TBooleanInstance']);
       if Length(FParams) = 2 then
       begin
         MdProc := TMarkdownProcessor.CreateDialect(mdDaringFireball);
@@ -322,11 +331,13 @@ begin
       end
       else
         MdProc := TMarkdownProcessor.CreateDialect(mdCommonMark);
-      Ret := TStringInstance.Create(MdProc.process(TStringInstance(FParams[0]).PValue));
+      Ret := TStringInstance.Create(MdProc.process(FParams[0].PStrValue));
       MdProc.Free;
     end
     else if FName = 'parseFile' then
     begin
+      checkArgCount([1, 2]);
+      checkArgTypes(['TStringInstance', 'TBooleanInstance']);
       AuxStrList := TStringList.Create;
       AuxStrList.SkipLastLineBreak := True;
       AuxStrList.LoadFromFile(TStringInstance(FParams[0]).PValue);
@@ -580,12 +591,11 @@ var
   AList: TListInstance;
 begin
 
-
   AJson := TJsonNode.Create;
   try
     AJson.Parse(AInput);
   except on E: Exception do
-    Raise Exception.Create(E.Message);
+    FInter.RaiseException(E.Message, 'JSON');
   end;
 	//Traverse(AJson, ADict, AList, AJson.Kind);
   if AJson.Kind = nkArray then
@@ -608,28 +618,28 @@ var
   ADict: TDictionaryInstance;
   AList: TListInstance;
 begin
-
-
+  checkArgCount([1]);
+  checkArgTypes(['TStringInstance']);
   AJson := TJsonNode.Create;
   try
     AJson.Parse(TStringInstance(FParams[0]).PValue);
 
-	except on E: Exception do
+  except on E: Exception do
     FInter.RaiseException(E.Message, Copy(e.ClassName, 2, Length(E.ClassName)));
-	end;
+  end;
 	//Traverse(AJson, ADict, AList, AJson.Kind);
   if AJson.Kind = nkArray then
   begin
     AList := TListInstance.Create();
     TraverseJsonList(AJson, AList);
     Result := AList;
-	end
-	else
+  end
+  else
   begin
     ADict := TDictionaryInstance.Create(TActivationRecord.Create('json', AR_DICT, 1));
     TraverseJsonObj(AJson, ADict);
     Result := ADict;
-	end;
+  end;
 end;
 
 function TCoreFunction.ParseJsonFile: TInstanceOf;
@@ -640,8 +650,8 @@ var
   AStrList: TStringList;
   AStr: string;
 begin
-
-
+  checkArgCount([1]);
+  checkArgTypes(['TStringInstance']);
   AJson := TJsonNode.Create;
   try
     AStrList := TStringList.Create;
