@@ -24,7 +24,7 @@ type
       FMembers: TFPHashObjectList;
       FReturnValue: TInstanceOf;
     public
-      property PName:string read FName;
+      property PName:string read FName write FName;
       property PType:string read FType;
       property PNestingLevel:integer read FNestingLevel;
       property PReturnValue: TInstanceOf read FReturnValue write FReturnValue;

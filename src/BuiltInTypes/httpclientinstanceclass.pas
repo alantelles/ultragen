@@ -129,8 +129,8 @@ begin
   InitSSLInterface;
   Requirer := TFPHttpClient.Create(nil);
   Requirer.AddHeader('User-Agent','Mozilla/5.0 (compatible; fpweb/UltraGen)');
-  Requirer.IOTimeout := 15000;
-  Requirer.ConnectTimeout := 15000;
+  Requirer.IOTimeout := 60000;
+  Requirer.ConnectTimeout := 60000;
   if AHeaders <> nil then
   begin
     if AHeaders.PValue.PMembers.Count > 0 then
