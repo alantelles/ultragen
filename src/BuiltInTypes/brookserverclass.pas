@@ -449,6 +449,8 @@ var
   i: integer;
   Redirected: boolean = False;
   WebHandlers: TUltraBrookHandlers;
+  IndexScript: TInstanceOf;
+  IndexScriptSL: TStringList;
 begin
   WebHandlers := TUltraBrookHandlers.Create(ARequest, Aresponse);
   Status := 0;
@@ -477,8 +479,16 @@ begin
       Prelude.Add('load BrookUploaded');
     IndexHandler := TStringInstance(FUltraInstance.PMembers.Find('indexHandler')).PValue;
     ExceptionHandler := TStringInstance(FUltraInstance.PMembers.Find('exceptionHandler')).PValue;
-    UltraResult := TUltraInterface.InterpretScriptWithResult(IndexHandler, Prelude, Context, UltraHome, WebHandlers);
-
+    IndexScript := TInstanceOf(FUltraInstance.PMembers.Find('indexScript'));
+    if IndexScript = nil then
+      UltraResult := TUltraInterface.InterpretScriptWithResult(IndexHandler, Prelude, Context, UltraHome, WebHandlers)
+    else
+    begin
+      IndexScriptSL := TStringList.Create;
+      IndexScriptSl.Text := IndexScript.PStrValue;
+      UltraResult := TUltraInterface.InterpretScriptWithResult(IndexScriptSL, Prelude, Context, UltraHome, WebHandlers);
+      IndexScriptSl.Free;
+    end;
     AppResponse := FindFirstAppResponse(UltraResult.ActRec);
     Status := ProcessAppResponse(AResponse, AppResponse);
 

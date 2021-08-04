@@ -20,7 +20,7 @@ type
     private
       FActRec: TActivationRecord;
     public
-      property ActRec: TActivationRecord read FActRec;
+      property ActRec: TActivationRecord read FActRec write FActRec;
       constructor Create(AName:string);
       function AddMember(AName: string; AValue:string):boolean;
       function AddMember(AName: string; AValue:integer):boolean;
@@ -43,6 +43,12 @@ type
         AnAdapter: TUltraAdapter): string;
       class function InterpretScriptWithResult(
         AFilePath: string;
+        APreludeList: TStringList;
+        AnAdapter: TUltraAdapter;
+        UltraHome: string;
+        WebHandlers: TUltraWebHandlers = nil): TUltraResult;
+      class function InterpretScriptWithResult(
+        AStringScript: TStringList;
         APreludeList: TStringList;
         AnAdapter: TUltraAdapter;
         UltraHome: string;
@@ -97,6 +103,46 @@ var
 begin
   APreludes := TProgram(TUltraInterface.ParseStringList(APreludeList));
   ALexer := TLexer.Create(AFilePath);
+  AParser := TTParser.Create(ALexer);
+  ATree := AParser.ParseCode();
+  if APreludes <> nil then
+  begin
+    len := Length(APreludes.PChildren);
+    if len > 0 then
+    begin
+      for i:=0 to len-1 do
+	TProgram(ATree).AddPrelude(APreludes.PChildren[i]);
+    end;
+  end;
+  AParser.Free;
+  AInter := TInterpreter.Create(ATree);
+  AInter.PWebHandlers := WebHandlers;
+  AInter.PUltraHome := UltraHome;
+  AInter.Interpret(AnAdapter.ActRec, AnAdapter.ActRec.PName, True);
+  LiveOut := AInter.PLive;
+  Result.Redirected := AInter.PRedirected;
+  AInter.Free;
+  Result.LiveOutput := LiveOut;
+  Result.ActRec := AInter.PCallStack.Peek;
+end;
+
+class function TUltraInterface.InterpretScriptWithResult(
+  AStringScript: TStringList;
+  APreludeList: TStringList;
+  AnAdapter: TUltraAdapter;
+  UltraHome: string;
+  WebHandlers: TUltraWebHandlers = nil): TUltraResult;
+var
+  len, i: integer;
+  AParser: TTParser;
+  ALexer: TLexer;
+  APreludes: TProgram;
+  ATree: TAST;
+  AInter: TInterpreter;
+  LiveOut: string;
+begin
+  APreludes := TProgram(TUltraInterface.ParseStringList(APreludeList));
+  ALexer := TLexer.Create(AStringScript.Text, False);
   AParser := TTParser.Create(ALexer);
   ATree := AParser.ParseCode();
   if APreludes <> nil then
