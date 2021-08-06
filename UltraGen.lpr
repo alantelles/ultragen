@@ -37,9 +37,7 @@ begin
     end;}
     //for i:=1 to ParamCount do
     UHome := GetEnv('ULTRAGEN_HOME');
-    {$IFDEF Windows}
-    UHome := ReplaceStr(UHome, DirectorySeparator, '\' + DirectorySeparator);
-    {$ENDIF}
+
     i := 1;
     ParamsList := TListInstance.Create();
     Option := GetOption(ParamStr(1));
@@ -82,11 +80,16 @@ begin
     end;
     Adapter := TUltraAdapter.Create('params');
     Adapter.ActRec.AddMember('$params', ParamsList);
+    Adapter.ActRec.AddMember('$scriptName', TStringInstance.Create(ProgramPath));
+    Adapter.ActRec.AddMember('$ULTRAGEN_HOME', TStringInstance.Create(UHome));
     ParamsNodes := TStringList.Create;
+    //{$IFDEF Windows}
+    //UHome := ReplaceStr(UHome, DirectorySeparator, '\' + DirectorySeparator);
+    //{$ENDIF}
 
 
     ParamsNodes.Add('params.localize()');
-    ParamsNodes.Add('addModulePath(["'+UHome + '", "modules"].path())');
+    ParamsNodes.Add('addModulePath([$ULTRAGEN_HOME, "modules"].path())');
     ParamsNodes.Add('include @Core');
     BTree := TUltraInterface.ParseStringList(ParamsNodes);
 

@@ -1,2 +1,4 @@
-x = range(5)
-print(x.slice(3))
+print($ULTRAGEN_HOME)
+print($scriptName)
+s = "0123456789"
+print(s.slice(true))

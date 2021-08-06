@@ -1,5 +1,7 @@
 procedure TCoreFunction.InitString(AObj: TStringInstance);
 begin
+  checkArgCount([1]);
+  checkArgTypes(['TStringInstance']);
   AObj.PValue := TStringInstance(FParams[0]).PValue;
 end;
 
@@ -8,6 +10,8 @@ var
   AStream: TStringStream;
   FOut: string;
 begin
+  checkArgCount([1]);
+  checkArgTypes(['TStringInstance']);
   AStream := TStringStream.Create(AObj.PValue);
   FOut := TStringInstance(FParams[0]).PValue;
   AStream.SaveToFile(FOut);
@@ -20,6 +24,8 @@ var
   Astr: string;
   StrStart, StrEnd: integer;
 begin
+  checkArgCount([1, 2]);
+  checkArgTypes(['TIntegerInstance', 'TIntegerInstance']);
   Return := '';
   if (Length(FParams) > 2) or (Length(FParams) < 1) then
     FInter.RaiseException(E_INVALID_ARGS, 'Arguments');
@@ -46,10 +52,13 @@ end;
 function TCoreFunction.JoinString(AObj: TStringInstance):TStringInstance;
 var
   len, i: integer;
-  joiner, part: string;
+  valid, joiner, part: string;
   AList: TListInstance;
   AStr: TStringInstance;
+
 begin
+  CheckArgCount([1]);
+  CheckArgTypes(['TListInstance']);
   AList := TListInstance(FParams[0]);
   len := AList.Count;
   // joiner := TStringInstance(FParams[0]).PValue;
@@ -75,35 +84,29 @@ end;
 
 function TCoreFunction.GetFileName(AObj: TStringInstance):TStringInstance;
 var
-  AFile, Ares: string;
+  Ares: string;
   WithExt: boolean = True;
-  dotpos, len: integer;
+  dotpos: integer;
 
 begin
-  len := Length(FParams);
-  AFile := AObj.PValue;
-  if (len > 1) then
-    raise EArgumentsError.Create(E_INVALID_ARGS);
-  if (len = 1) then
+  checkArgCount([0, 1]);
+  checkArgTypes(['TBooleanInstance']);
+  Ares := ExtractFileName(AObj.PStrValue);
+  if Length(FPArams) = 1 then
   begin
-    if FParams[0].ClassNameIs('TBooleanInstance') then
-      WithExt := TBooleanInstance(FParams[0]).PValue
-    else
-      raise EArgumentsError.Create(E_INVALID_ARGS_TYPE);
+    WithExt := FParams[0].PBoolValue;
+    if not WithExt then
+    begin
+      dotpos := RPos('.', Ares);
+      if dotpos > 0 then
+        Ares := Copy(ARes, 1, dotpos);
+    end;
   end;
-  ARes := Copy(AFile, RPos(DirectorySeparator, AFile) + 1, Length(AFile));
-  if not WithExt then
-  begin
-    dotpos := Pos('.', ARes);
-    if dotpos > 0 then
-      ARes := Copy(ARes, 1, dotpos-1);
-  end;
-  Result := TStringInstance.Create(ARes);
+  Result := TStringInstance.Create(Ares);
 end;
 
 function TCoreFunction.CapitalString(AObj: TStringInstance):TStringInstance;
 var
-
   s,last, part: string;
   i: integer;
   AStr: string;

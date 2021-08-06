@@ -22,7 +22,7 @@ type
   public
     property DBConn: TSQLConnection read FPGConn;
     procedure StartPgConn;
-    // constructor CreateSqLiteConn;
+    procedure StartSqLiteConn;
     constructor Create(ASystem: integer);
     procedure StartConnection;
     procedure Disconnect;
@@ -39,10 +39,10 @@ var
 begin
   if FDBSystem = 0 then // postgres
     StartPgConn
+  else if FDBSystem = 1 then
+    StartSqLiteConn
   else
     raise Exception.Create('Unknown database driver option');
-  //else if FDBSystem = 1 then // sqlite
-  //  Result := TDBInstance.CreateSqLiteConn
 
 end;
 
@@ -93,16 +93,20 @@ begin
 
 end;
 
-//constructor TDBInstance.CreateSqLiteConn;
-//begin
-//  inherited Create;
-//  FPGConn := TSQLite3Connection.Create(nil);
-//  FTrans := TSQLTransaction.Create(FPGConn);
-//  FPGConn.Transaction := FTrans;
-//end;
+procedure TDBInstance.StartSqLiteConn;
+var
+  database: string = '';
+  Hold: TObject;
+begin
+  Hold := FMembers.Find('name');
+  if hold <> nil then
+    database := TInstanceOf(Hold).PStrValue;
+  FPGConn := TSQLite3Connection.Create(nil);
+  FPGConn.DatabaseName := database;
+  FPGConn.Transaction := TSQLTransaction.Create(FPGConn);
+end;
 
 constructor TDBInstance.Create(ASystem: integer);
-
 begin
   inherited Create;
   FDBSystem := ASystem;
@@ -259,7 +263,9 @@ begin
     else if Values.ClassNameIs('TListInstance') then
     begin
       ListParamsAdd(Query.Params, TListInstance(Values));
-    end;
+    end
+    else
+      raise Exception.Create('Invalid type for query values');
   end;
   AResInst := TQueryResultInstance.Create;
   if AQuery.StartsWith('select', True) then
