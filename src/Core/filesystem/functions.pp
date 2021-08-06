@@ -2,6 +2,8 @@ procedure TCoreFunction.FSCopyFile;
 var
   FileIn, FileOut: string;
 begin
+  checkArgCount([2,3]);
+  checkArgTypes(['TStringInstance', 'TStringInstance', 'TBooleanInstance']);
   FileIn := TStringInstance(FParams[0]).Pvalue;
   FileOut := TStringInstance(FParams[1]).Pvalue;
 
