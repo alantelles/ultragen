@@ -1111,13 +1111,17 @@ function TTParser.DefParam: TAST;
 var
   Ret, ADef: TAST;
   AToken: TToken;
-  AVarAssign: TAST;
+  AVarAssign, ArgType: TAST;
 begin
   AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue, FLexer.PScriptLine, FLexer.PLineChar, FLexer.PFileName);
+  // the param name candidate
   ADef := nil;
+  ArgType := nil;
   Eat(T_ID);
   if FCurrentToken.PType = T_ID then
   begin
+    ArgType := Variable(AToken);
+    AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue, FLexer.PScriptLine, FLexer.PLineChar, FLexer.PFileName);
     Eat(T_ID);
     // mark it's typed
   end;
@@ -1126,7 +1130,7 @@ begin
     Eat(T_ASSIGN);
     ADef := MethodCall();
   end;
-  Ret := TParam.Create(AToken, ADef);
+  Ret := TParam.Create(AToken, ADef, ArgType);
   logtext('PARSER', 'Parser', 'Creating param node');
   Result := Ret;
 end;

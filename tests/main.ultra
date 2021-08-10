@@ -4,3 +4,4 @@ function myTyped(String zika, Integer times)
     end
 end
 
+myTyped("malala", 5)

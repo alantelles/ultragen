@@ -258,10 +258,12 @@ type
   protected
     FNode: TToken;
     FDefValue: TAST;
+    FArgType: TAST;
   public
     property PNode: TToken read FNode write FNode;
     property PDefValue: TAST read FDefValue write FDefValue;
-    constructor Create(ANode: TToken; ADefValue: TAST = nil);
+    property PArgType: TAST read FArgType write FArgType;
+    constructor Create(ANode: TToken; ADefValue: TAST; ATyped: TAST = nil);
     destructor Destroy; override;
 
   end;
@@ -595,11 +597,12 @@ begin
   inherited;
 end;
 
-constructor TParam.Create(ANode: TToken; ADefValue: TAST = nil);
+constructor TParam.Create(ANode: TToken; ADefValue: TAST; ATyped: TAST = nil);
 begin
   FToken := ANode;
   FNode := ANode;
   FDefValue := ADefValue;
+  FArgType := ATyped;
   logDebug('Creating a parameter node', 'AST');
 end;
 
