@@ -37,6 +37,7 @@ type
     FWebHandlers: TUltraWebHandlers;
     FRedirected: boolean;
     procedure BootStrapRegister;
+    function checkArgType(Arg: TInstanceOf; Expected: TVariableReference): boolean;
 
 
   public
@@ -312,6 +313,28 @@ begin
   Result := TDictionaryInstance.Create(AActRec, ADef);
 end;
 
+function TInterpreter.checkArgType(Arg: TInstanceOf; Expected: TVariableReference): boolean;
+var
+  TypeVisited: TInstanceOf;
+  ArgTypeStr, TypeVisitedStr: string;
+  isClass, isDataType: boolean;
+begin
+  isClass := Arg.ClassNameIs('TClassInstance');
+  isDataType := Arg.ClassNameIs('TDataType');
+  if isClass {or isDataType} then
+    ArgTypeStr := TInstanceOf(Arg.PMembers.Find('$internal')).AsString
+  else if isDataType then
+    ArgTypeStr := 'DataType'
+  else
+    ArgTypeStr := Arg.ClassName;
+
+  TypeVisited := Visit(Expected);
+  isDataType := TypeVisited.ClassNameIs('TDataType');
+  TypeVisitedStr := TInstanceOf(TypeVisited.PMembers.Find('$internal')).AsString;
+
+  Result := TypeVisitedStr = ArgTypeStr;
+end;
+
 function TInterpreter.ProcessFuncArgs(var AFunction: TFunctionInstance; var AActRec: TActivationRecord; AEvalParams: TASTList): TInstanceList;
 var
   len, detour, ups, i, j, lenArgs, lenParams: integer;
@@ -361,14 +384,26 @@ begin
       RaiseException(E_INVALID_ARGS, 'Arguments');
     for i:=0 to LenParams - 1 do
     begin
-      writeln(TInstanceOf(ArgsList[i].PMembers.Find('$internal')).AsString);
+
       if i < LenArgs then
+      begin
+        if (TParam(AFunction.PParams[i]).PArgType <> nil) then
+        begin
+          if not (checkArgType(ArgsList[i], TVariableReference(TParam(AFunction.PParams[i]).PArgType))) then
+            RaiseException(E_INVALID_ARGS_TYPE, 'Arguments');
+        end;
         AActRec.AddMember(TParam(AFunction.PParams[i]).PNode.PValue, ArgsList[i])
+      end
       else
       begin
         if TParam(AFunction.PParams[i]).PDefValue <> nil then
         begin
           AVal := Visit(TParam(AFunction.PParams[i]).PDefValue);
+          if (TParam(AFunction.PParams[i]).PArgType <> nil) then
+          begin
+            if not (checkArgType(AVal, TVariableReference(TParam(AFunction.PParams[i]).PArgType))) then
+              RaiseException(E_INVALID_ARGS_TYPE, 'Arguments');
+          end;
           ups := Length(ArgsList);
           SetLength(ArgsList, ups + 1);
           ArgsList[ups] := AVal;

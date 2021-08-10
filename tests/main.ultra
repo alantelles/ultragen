@@ -1,7 +1,24 @@
-function myTyped(String zika, Integer times)
+class Tops
+
+Tops.ret = function()
+    return false
+end
+
+function myTyped(zika, times, show=Tops.ret())
+    if (show)
+        print("got to show")
+    else
+        print("no show")
+    end
     for(times, i)
         print(_i, ': ', zika)
     end
 end
 
-myTyped("malala", 5)
+function superJoin(List l)
+    ret = ' super '.join(l)
+    return ret
+end
+
+m = ["ui", "ai", "ei", "oi"]
+print(superJoin("zika"))
