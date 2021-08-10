@@ -1,4 +1,6 @@
-print($ULTRAGEN_HOME)
-print($scriptName)
-s = "0123456789"
-print(s.slice(true))
+function myTyped(String zika, Integer times)
+    for(times, i)
+        print(_i, ': ', zika)
+    end
+end
+

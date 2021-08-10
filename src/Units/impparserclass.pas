@@ -1116,6 +1116,11 @@ begin
   AToken := TToken.Create(FCurrentToken.PType, FCurrentToken.PValue, FLexer.PScriptLine, FLexer.PLineChar, FLexer.PFileName);
   ADef := nil;
   Eat(T_ID);
+  if FCurrentToken.PType = T_ID then
+  begin
+    Eat(T_ID);
+    // mark it's typed
+  end;
   if FCurrentToken.PType = T_ASSIGN then
   begin
     Eat(T_ASSIGN);
