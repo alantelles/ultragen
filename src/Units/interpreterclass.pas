@@ -343,7 +343,7 @@ begin
           detour := detour - 1;
         end
         else
-          ERunTimeError.Create('Only lists can be expanded', FTrace, nil);
+          RaiseException('Only lists can be expanded', 'Arguments');
       end
       else
       begin
@@ -358,9 +358,10 @@ begin
     LenArgs := length(ArgsList);
     LenParams := length(Afunction.PParams);
     if not AFunction.PAccVarargs and (LenArgs > LenParams) then
-      EArgumentsError.Create(E_INVALID_ARGS, FTrace, nil, 'Arguments');
+      RaiseException(E_INVALID_ARGS, 'Arguments');
     for i:=0 to LenParams - 1 do
     begin
+      writeln(TInstanceOf(ArgsList[i].PMembers.Find('$internal')).AsString);
       if i < LenArgs then
         AActRec.AddMember(TParam(AFunction.PParams[i]).PNode.PValue, ArgsList[i])
       else
