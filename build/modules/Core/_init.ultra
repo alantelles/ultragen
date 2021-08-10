@@ -13,7 +13,27 @@ function $test(cond, ifTrue, ifFalse=false)
     return ifFalse
 end
 
-function checkTypes(allowed, args)
+function checkArgsCount(allowed, args)
+    # allLen = allowed.length()
+    argsLen = args.length()
+    for(allowed, c)
+        if (argsLen == c)
+            return true
+        end
+    end
+    msg = "Invalid number of arguments for this function"
+    raise(msg, "Arguments")
+end
+
+function checkMinArgsCount(allowed, args)
+    if ((args.length()) < allowed)
+        msg = "Invalid number of arguments for this function"
+        raise(msg, "Arguments")
+    end
+    return true
+end
+
+function checkArgsTypes(allowed, args)
     allLen = allowed.length()
     argsLen = args.length()
     limit = allLen
