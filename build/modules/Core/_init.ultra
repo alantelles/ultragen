@@ -12,3 +12,40 @@ function $test(cond, ifTrue, ifFalse=false)
     end
     return ifFalse
 end
+
+function checkArgsCount(allowed, args)
+    # allLen = allowed.length()
+    argsLen = args.length()
+    for(allowed, c)
+        if (argsLen == c)
+            return true
+        end
+    end
+    msg = "Invalid number of arguments for this function"
+    raise(msg, "Arguments")
+end
+
+function checkMinArgsCount(allowed, args)
+    if ((args.length()) < allowed)
+        msg = "Invalid number of arguments for this function"
+        raise(msg, "Arguments")
+    end
+    return true
+end
+
+function checkArgsTypes(allowed, args)
+    allLen = allowed.length()
+    argsLen = args.length()
+    limit = allLen
+    if (argsLen < allLen)
+        limit = argsLen
+    end
+    for (limit, item)
+        if (typeof(args[_item]) != (allowed[_item]))
+            msg = "Wrong type for argument " + str(_item) + ". "
+            msg += "Expected " + str(allowed[_item]) + ", got " + str(typeof(args[_item]))
+            raise(msg, "Arguments")
+        end
+    end
+    return true
+end

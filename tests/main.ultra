@@ -1,4 +1,1 @@
-print($ULTRAGEN_HOME)
-print($scriptName)
-s = "0123456789"
-print(s.slice(true))
+checkTypes([String, Integer], ["lola", true])
