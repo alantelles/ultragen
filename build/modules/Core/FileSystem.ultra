@@ -1,1 +1,6 @@
 load FileSystem
+
+function getAllFilesSub(path, filter='*') : FileSystem
+    res = FileSystem.getAllFiles(path, true, filter)
+    return res
+end
