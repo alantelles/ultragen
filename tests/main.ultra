@@ -1,24 +1,11 @@
-class Tops
-
-Tops.ret = function()
-    return false
+decorator wrapper(String arg, fn)
+    print(arg)
+    fn()
 end
 
-function myTyped(zika, times, show=Tops.ret())
-    if (show)
-        print("got to show")
-    else
-        print("no show")
-    end
-    for(times, i)
-        print(_i, ': ', zika)
-    end
+function xosa()
+    print("zosa")
 end
 
-function superJoin(List l)
-    ret = ' super '.join(l)
-    return ret
-end
-
-m = ["ui", "ai", "ei", "oi"]
-print(superJoin("zika"))
+k = wrapper(5, xosa)
+k()
