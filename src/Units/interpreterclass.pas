@@ -137,7 +137,7 @@ begin
 
   ABoolType := TDataType.Create('TBooleanInstance', 'Boolean');
   AFloatType := TDataType.Create('TFloatInstance', 'Float');
-  AFuncType := TDataType.Create('TFunctionInstance', 'Function');
+  AFuncType := TDataType.Create('TFunctionInstance', 'FunctionType');
 
   // ACoreType := TDataType.Create('TCoreInstance', 'Core');
   ACoreFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TCoreInstance', True, False, False, False);
@@ -157,7 +157,7 @@ begin
   AActRec.AddMember('DataType', TDataType.Create('DataType', 'DataType'));
   AActRec.AddMember('NullType', TDataType.Create('TNullInstance', 'NullType'));
   AActrec.AddMember('Boolean', ABoolType);
-  AActrec.AddMember('Function', AFuncType);
+  AActrec.AddMember('FunctionType', AFuncType);
   AActrec.AddMember('Float', AFloatType);
 
   AJsonType := TDataType.Create('TJsonInstance', 'JSON');
