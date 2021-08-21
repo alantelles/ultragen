@@ -1213,10 +1213,11 @@ begin
   SetLength(NewParams, len);
   for i:=0 to len-1 do
   begin
+
     AToken := TToken.Create;
     AToken.PValue := AFunctionInstance.PParams[i].PToken.PValue;
     AToken.PType := AFunctionInstance.PParams[i].PToken.PType;
-    NewParams[i] := TParam.Create(Atoken, AFunctionInstance.PParams[i]);
+    NewParams[i] := TParam.Create(Atoken, AFunctionInstance.PParams[i], TParam(AfunctionInstance.PParams[i]).PArgType);
     TParam(NewParams[i]).PDefValue := ADecorated[i];
   end;
   Decorated := TFunctionInstance.Create(FormatDateTime('yyyymmddhhnnsszzz', Now), TFunctionInstance(Instanced).PParams, AFunctionInstance.PBlock, 'TCoreFunction', False, AFunctionInstance.PIsDecorator, TFunctionInstance(Instanced).PAccVarargs, False);
@@ -1316,6 +1317,12 @@ begin
           for i:=0 to LenArgs-1 do
           begin
             AIter := Visit(TParam(Funcdef.PDecorParams[i]).PDefValue);
+            if (TParam(FuncDef.PDecorParams[i]).PArgType <> nil) then
+            begin
+
+              if not (checkArgType(AIter, TVariableReference(TParam(Funcdef.PDecorParams[i]).PArgType))) then
+                RaiseException(E_INVALID_ARGS_TYPE, 'Arguments');
+            end;
             AParamName := TParam(Funcdef.PDecorParams[i]).PNode.PValue;
             AActRec.AddMember(AParamName, AIter);
           end;

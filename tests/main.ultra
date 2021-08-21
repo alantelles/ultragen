@@ -1,11 +1,10 @@
-decorator wrapper(String arg, fn)
-    print(arg)
+decorator wrapper(String moe, fn)
+    print(moe)
     fn()
 end
 
-function xosa()
-    print("zosa")
-end
+myFunc = wrapper(9, function()
+    print("this is my function")
+end)
 
-k = wrapper(5, xosa)
-k()
+myFunc()
