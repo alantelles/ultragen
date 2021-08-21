@@ -3,8 +3,14 @@ decorator wrapper(String moe, fn)
     fn()
 end
 
-myFunc = wrapper(9, function()
+decorator rewrapper(Integer tops, fn)
+    print(tops)
+    fn()
+end
+
+myFunc = rewrapper(100, wrapper("zika", 
+function()
     print("this is my function")
-end)
+end))
 
 myFunc()
