@@ -1,0 +1,43 @@
+include @Core.Request
+
+class RequestBuilder
+
+function init(String url, Dict defaultHeaders={}) : RequestBuilder self
+    self.defaultHeaders = defaultHeaders
+    self.headers = defaultHeaders
+    self.timeout = 60
+    self._method = 'GET'
+    self._body = ""
+end
+
+function setTimeout(Integer time) : RequestBuilder self
+    self.timeout = time
+    return self
+end
+
+function jsonDict(Dict body) : RequestBuilder self
+    self._body = JSON.create(body)
+    self._contentType = 'application/json'
+    return self
+end
+
+function addHeader(String key, value) : RequestBuilder self
+    self.headers[key] = str(value)
+    return self
+end
+
+function method(String met) : RequestBuilder self
+    self._method = met.upper()
+    return self
+end
+
+function run(String endpoint) : RequestBuilder self
+    if (assigned self._contentType)
+        self.headers['Content-Type'] = self._contentType
+    end
+    req = new Request(self.url)
+    req.headers = self.headers
+    req.timeout = self.timeout
+    resp = req.run(self._method, endpoint)
+    return resp
+end

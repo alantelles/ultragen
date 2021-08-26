@@ -1,0 +1,11 @@
+load Request
+function postJson(url, data, headers={}) : Request
+    
+    headers['Content-Type'] = 'application/json'
+    req = Request.post(url, JSON.create(data), headers)
+    return req
+end
+
+function getJson() : Response self
+    return JSON.parse(self.text)
+end
