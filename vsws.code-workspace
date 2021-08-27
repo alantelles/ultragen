@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "build/modules"
+		},
+		{
+			"path": "../../playground"
 		}
 	],
 	"settings": {}
