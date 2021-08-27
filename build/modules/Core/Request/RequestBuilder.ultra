@@ -4,13 +4,13 @@ class RequestBuilder
 
 function init(String url, Dict defaultHeaders={}) : RequestBuilder self
     self.defaultHeaders = defaultHeaders
-    self.headers = defaultHeaders
-    self.timeout = 60
+    self._headers = defaultHeaders
+    self._timeout = 60
     self._method = 'GET'
     self._body = ""
 end
 
-function setTimeout(Integer time) : RequestBuilder self
+function timeout(Integer time) : RequestBuilder self
     self.timeout = time
     return self
 end
@@ -21,8 +21,8 @@ function jsonDict(Dict body) : RequestBuilder self
     return self
 end
 
-function addHeader(String key, value) : RequestBuilder self
-    self.headers[key] = str(value)
+function header(String key, value) : RequestBuilder self
+    self._headers[key] = str(value)
     return self
 end
 
@@ -33,11 +33,11 @@ end
 
 function run(String endpoint) : RequestBuilder self
     if (assigned self._contentType)
-        self.headers['Content-Type'] = self._contentType
+        self._headers['Content-Type'] = self._contentType
     end
     req = new Request(self.url)
-    req.headers = self.headers
-    req.timeout = self.timeout
+    req.headers = self._headers
+    req.timeout = self._timeout
     resp = req.run(self._method, endpoint)
     return resp
 end
