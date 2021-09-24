@@ -244,7 +244,7 @@ function addRouter(router) : Router self
             :name: (router.name_prefix) + '_' + (route[:name]),
             :handler: route[:handler],
             :method: route[:method],
-            :handler_decorator: route[:handler_decorator]
+            :handler_decorator: router.defaultDecorator
         }
         
         self.routes.append(newRoute)

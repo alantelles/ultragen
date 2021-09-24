@@ -770,7 +770,7 @@ begin
   if ANode.PCondition <> nil then
   begin
     AEval := TBooleanInstance(Visit(ANode.PCondition));
-    if AEval.PValue or (ANode.PCondition = nil) then
+    if AEval.PValue then
     begin
       len := Length(ANode.PBlock);
       if len > 0 then

@@ -159,7 +159,7 @@ end;
 
 constructor TListInstance.Create;
 begin
-
+  inherited Create;
 end;
 
 destructor TListInstance.Destroy;
