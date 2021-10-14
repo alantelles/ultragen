@@ -1574,6 +1574,11 @@ begin
     Ret := List();
 
   end
+  else if (ATOken.PType = T_INCLUDE) then
+  begin
+    Logtext('PARSER', 'Parser', 'Creating include node');
+    Ret := IncludeScript();
+  end
   else if (AToken.PType = T_ID) then
   begin
     Eat(T_ID);

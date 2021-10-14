@@ -1478,7 +1478,7 @@ begin
 
 end;
 
-procedure TInterpreter.VisitIncludeScript(ANode: TIncludeScript);
+function TInterpreter.VisitIncludeScript(ANode: TIncludeScript): TInstanceOf;
 var
   AFileName: string;
   AParser: TTParser;
@@ -1487,11 +1487,14 @@ var
   AInter: TInterpreter;
   ANameSp: TActivationRecord;
   AName, AModPath: string;
+  Ret: TInstanceOf;
+  IncClassName: string;
 begin
   if ANode.PIsModule then
   begin
     for AmodPath in FModulesPath do
     begin
+      IncClassName := Copy(ANode.PModulePath, Rpos('.', ANode.PModulePath) + 1, Length(ANode.PModulePath));
       AFileName := AmodPath +
                 DirectorySeparator +
                 ReplaceStr(ANode.PModulePath, '.', DirectorySeparator);
@@ -1509,8 +1512,13 @@ begin
 	else
   begin
     AFileName := TStringInstance(Visit(ANode.PFilename)).PValue;
+    IncClassName := ExtractFileName(AFileName);
+    if (Pos('.', IncClassName) > 0) then
+      IncClassName := Copy(IncClassName, 1, Pos('.', IncClassName) - 1);
     if DirectoryExists(AFileName) then
+    begin
       AFileName := AFileName + DirectorySeparator + '_init.ultra';
+    end;
 
   end;
   ALexer := TLexer.Create(AFileName);
@@ -1539,6 +1547,12 @@ begin
   end;
   //ATree.Free;
   //AInter.Free;
+
+  ANameSp := FCallStack.Peek;
+  Ret := ANameSp.GetMember(IncClassName);
+  if (ret = nil) then
+    Ret := TNullInstance.Create;
+  Result := ret;
 end;
 
 function TInterpreter.VisitNameSpaceGet(Anode: TNamespaceGet): TInstanceOf;

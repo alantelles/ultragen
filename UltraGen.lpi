@@ -288,16 +288,6 @@
       <OtherUnitFiles Value="src\Units;src\ASTs;src\Symbols;src\Exceptions;src\ActRecords;src\Core;src\BuiltInTypes;src\Utils\JsonTools;src\BootStrap;src\Utils;src\Core\bytestream;src\Utils\MarkdownParser;src\Core\brookserver;src\Core\brookappresponse;src\Core\helpers;src\Core\brookuploaded;src\Core\regex"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
-    <CodeGeneration>
-      <Optimizations>
-        <OptimizationLevel Value="3"/>
-      </Optimizations>
-    </CodeGeneration>
-    <Linking>
-      <Debugging>
-        <GenerateDebugInfo Value="False"/>
-      </Debugging>
-    </Linking>
     <Other>
       <Verbosity>
         <ShowNotes Value="False"/>
