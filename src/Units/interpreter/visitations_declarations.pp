@@ -1,6 +1,6 @@
 procedure VisitProgram(ANode: TProgram);
 procedure VisitNoOp(ANode: TNoOp);
-procedure VisitIncludeScript(ANode: TIncludeScript);
+function VisitIncludeScript(ANode: TIncludeScript): TInstanceOf;
 
 procedure VisitLiveOutput(Anode: TLiveOutput);
 function VisitLivePrint(ANode: TLivePrint):TStringInstance;
