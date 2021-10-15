@@ -50,8 +50,9 @@ begin
   InitSSLInterface;
   AClient := TFPHttpClient.Create(nil);
   AClient.AddHeader('User-Agent','Mozilla/5.0 (compatible; fpweb/UltraGen)');
-  AUrl := TStringInstance(FMembers.Find('$baseUrl')).PValue + Endpoint;
+  AUrl := TStringInstance(FMembers.Find('$baseUrl')).PValue + '/' + Endpoint;
   Method := lowercase(Method);
+  AClient.AllowRedirect := TInstanceOf(FMembers.Find('allowRedirects')).PBoolValue;
   AClient.RequestBody := TStringStream.Create(TInstanceOf(FMembers.Find('body')).AsString);
   if FMembers.Find('headers').ClassName = 'TDictionaryInstance' then
   begin
@@ -61,11 +62,13 @@ begin
     begin
       for i:=0 to len - 1 do
         AClient.AddHeader(AHeaders.PValue.PMembers.NameOfIndex(i), TInstanceOf(AHeaders.PValue.PMembers[i]).AsString);
+
     end;
 
   end;
   AClient.ConnectTimeout := TIntegerInstance(FMembers.Find('timeout')).PValue * 1000;
   // TODO: handle form files send
+
   try
     if Method = 'get' then
       AResponse := AClient.Get(AUrl)
@@ -102,12 +105,12 @@ begin
       head := Copy(AClient.ResponseHeaders[i], 1, Pos(':', AClient.ResponseHeaders[i])-1);
       val := Copy(AClient.ResponseHeaders[i], Pos(':', AClient.ResponseHeaders[i])+2, Length(AClient.ResponseHeaders[i]));
       if lowercase(head) = 'content-type' then
-        FMembers.Add('content_type', TStringInstance.Create(Copy(val, 1, pos(';', val)-1)));
+        FMembers.Add('contentType', TStringInstance.Create(Copy(val, 1, pos(';', val)-1)));
       AHeaders.PValue.AddMember(head, TStringInstance.Create(val));
 		end;
 	end;
 	//len := AHeaders.PValue.AddMember(Ahead);
-  FMembers.Add('status_text', TStringInstance.Create(AClient.ResponseStatusText));
+  FMembers.Add('statusText', TStringInstance.Create(AClient.ResponseStatusText));
   FMembers.Add('status', TIntegerInstance.Create(AClient.ResponseStatusCode));
   FMembers.Add('headers', AHeaders);
   FMembers.Add('text', TStringInstance.Create(AResponse));

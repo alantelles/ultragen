@@ -67,7 +67,7 @@ begin
     if TBooleanInstance(FParams[1]).PValue then
       Result := TBooleanInstance.Create(ForceDirectories(FParams[0].PStrValue))
     else
-      Result := TBooleanInstance.Create(CreateDir(FParams[0]).PStrValue);
+      Result := TBooleanInstance.Create(CreateDir(FParams[0].PStrValue));
   end
   else
     Result := TBooleanInstance.Create(CreateDir(FParams[0].PStrValue));

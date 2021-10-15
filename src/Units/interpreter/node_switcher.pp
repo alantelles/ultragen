@@ -18,7 +18,7 @@
     Ret := VisitVariableReference(TVariableReference(ANode), ASrcInstance)
 
   else if ANode.ClassNameIs('TIncludeScript') then
-    VisitIncludeScript(TIncludeScript(ANode))
+    Ret := VisitIncludeScript(TIncludeScript(ANode))
 
   else if ANode.ClassNameIs('TNamespaceGet') then
     Ret := VisitNamespaceGet(TNamespaceGet(Anode))

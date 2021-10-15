@@ -242,10 +242,11 @@ begin
 
   Query := TSQLQuery.Create(nil);
   Query.DataBase := FPGConn;
+  Query.Close;
   Query.SQL.Text := ParametrizeQuestionMarks(Aquery);
   if Values <> nil then
   begin
-    ListParamsAdd(Query.Params, TListInstance(Values));
+
     if Values.ClassNameIs('TDictionaryInstance') then
     begin
       AParams := TDictionaryInstance(Values).PValue;

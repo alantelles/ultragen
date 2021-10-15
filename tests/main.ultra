@@ -1,1 +1,16 @@
-checkTypes([String, Integer], ["lola", true])
+decorator wrapper(String moe, fn)
+    print(moe)
+    fn()
+end
+
+decorator rewrapper(Integer tops, fn)
+    print(tops)
+    fn()
+end
+
+myFunc = rewrapper(100, wrapper("zika", 
+function()
+    print("this is my function")
+end))
+
+myFunc()

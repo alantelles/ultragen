@@ -37,6 +37,7 @@ type
     FWebHandlers: TUltraWebHandlers;
     FRedirected: boolean;
     procedure BootStrapRegister;
+    function checkArgType(Arg: TInstanceOf; Expected: TVariableReference): boolean;
 
 
   public
@@ -136,7 +137,7 @@ begin
 
   ABoolType := TDataType.Create('TBooleanInstance', 'Boolean');
   AFloatType := TDataType.Create('TFloatInstance', 'Float');
-  AFuncType := TDataType.Create('TFunctionInstance', 'Function');
+  AFuncType := TDataType.Create('TFunctionInstance', 'FunctionType');
 
   // ACoreType := TDataType.Create('TCoreInstance', 'Core');
   ACoreFunc := TFunctionInstance.Create('BuiltIn', nil, nil, 'TCoreInstance', True, False, False, False);
@@ -156,7 +157,7 @@ begin
   AActRec.AddMember('DataType', TDataType.Create('DataType', 'DataType'));
   AActRec.AddMember('NullType', TDataType.Create('TNullInstance', 'NullType'));
   AActrec.AddMember('Boolean', ABoolType);
-  AActrec.AddMember('Function', AFuncType);
+  AActrec.AddMember('FunctionType', AFuncType);
   AActrec.AddMember('Float', AFloatType);
 
   AJsonType := TDataType.Create('TJsonInstance', 'JSON');
@@ -312,6 +313,28 @@ begin
   Result := TDictionaryInstance.Create(AActRec, ADef);
 end;
 
+function TInterpreter.checkArgType(Arg: TInstanceOf; Expected: TVariableReference): boolean;
+var
+  TypeVisited: TInstanceOf;
+  ArgTypeStr, TypeVisitedStr: string;
+  isClass, isDataType: boolean;
+begin
+  isClass := Arg.ClassNameIs('TClassInstance');
+  isDataType := Arg.ClassNameIs('TDataType');
+  if isClass {or isDataType} then
+    ArgTypeStr := TInstanceOf(Arg.PMembers.Find('$internal')).AsString
+  else if isDataType then
+    ArgTypeStr := 'DataType'
+  else
+    ArgTypeStr := Arg.ClassName;
+
+  TypeVisited := Visit(Expected);
+  isDataType := TypeVisited.ClassNameIs('TDataType');
+  TypeVisitedStr := TInstanceOf(TypeVisited.PMembers.Find('$internal')).AsString;
+
+  Result := TypeVisitedStr = ArgTypeStr;
+end;
+
 function TInterpreter.ProcessFuncArgs(var AFunction: TFunctionInstance; var AActRec: TActivationRecord; AEvalParams: TASTList): TInstanceList;
 var
   len, detour, ups, i, j, lenArgs, lenParams: integer;
@@ -343,7 +366,7 @@ begin
           detour := detour - 1;
         end
         else
-          ERunTimeError.Create('Only lists can be expanded', FTrace, nil);
+          RaiseException('Only lists can be expanded', 'Arguments');
       end
       else
       begin
@@ -358,16 +381,29 @@ begin
     LenArgs := length(ArgsList);
     LenParams := length(Afunction.PParams);
     if not AFunction.PAccVarargs and (LenArgs > LenParams) then
-      EArgumentsError.Create(E_INVALID_ARGS, FTrace, nil, 'Arguments');
+      RaiseException(E_INVALID_ARGS, 'Arguments');
     for i:=0 to LenParams - 1 do
     begin
+
       if i < LenArgs then
+      begin
+        if (TParam(AFunction.PParams[i]).PArgType <> nil) then
+        begin
+          if not (checkArgType(ArgsList[i], TVariableReference(TParam(AFunction.PParams[i]).PArgType))) then
+            RaiseException(E_INVALID_ARGS_TYPE, 'Arguments');
+        end;
         AActRec.AddMember(TParam(AFunction.PParams[i]).PNode.PValue, ArgsList[i])
+      end
       else
       begin
         if TParam(AFunction.PParams[i]).PDefValue <> nil then
         begin
           AVal := Visit(TParam(AFunction.PParams[i]).PDefValue);
+          if (TParam(AFunction.PParams[i]).PArgType <> nil) then
+          begin
+            if not (checkArgType(AVal, TVariableReference(TParam(AFunction.PParams[i]).PArgType))) then
+              RaiseException(E_INVALID_ARGS_TYPE, 'Arguments');
+          end;
           ups := Length(ArgsList);
           SetLength(ArgsList, ups + 1);
           ArgsList[ups] := AVal;
@@ -734,7 +770,7 @@ begin
   if ANode.PCondition <> nil then
   begin
     AEval := TBooleanInstance(Visit(ANode.PCondition));
-    if AEval.PValue or (ANode.PCondition = nil) then
+    if AEval.PValue then
     begin
       len := Length(ANode.PBlock);
       if len > 0 then
@@ -1177,10 +1213,11 @@ begin
   SetLength(NewParams, len);
   for i:=0 to len-1 do
   begin
+
     AToken := TToken.Create;
     AToken.PValue := AFunctionInstance.PParams[i].PToken.PValue;
     AToken.PType := AFunctionInstance.PParams[i].PToken.PType;
-    NewParams[i] := TParam.Create(Atoken, AFunctionInstance.PParams[i]);
+    NewParams[i] := TParam.Create(Atoken, AFunctionInstance.PParams[i], TParam(AfunctionInstance.PParams[i]).PArgType);
     TParam(NewParams[i]).PDefValue := ADecorated[i];
   end;
   Decorated := TFunctionInstance.Create(FormatDateTime('yyyymmddhhnnsszzz', Now), TFunctionInstance(Instanced).PParams, AFunctionInstance.PBlock, 'TCoreFunction', False, AFunctionInstance.PIsDecorator, TFunctionInstance(Instanced).PAccVarargs, False);
@@ -1280,6 +1317,12 @@ begin
           for i:=0 to LenArgs-1 do
           begin
             AIter := Visit(TParam(Funcdef.PDecorParams[i]).PDefValue);
+            if (TParam(FuncDef.PDecorParams[i]).PArgType <> nil) then
+            begin
+
+              if not (checkArgType(AIter, TVariableReference(TParam(Funcdef.PDecorParams[i]).PArgType))) then
+                RaiseException(E_INVALID_ARGS_TYPE, 'Arguments');
+            end;
             AParamName := TParam(Funcdef.PDecorParams[i]).PNode.PValue;
             AActRec.AddMember(AParamName, AIter);
           end;
@@ -1435,7 +1478,7 @@ begin
 
 end;
 
-procedure TInterpreter.VisitIncludeScript(ANode: TIncludeScript);
+function TInterpreter.VisitIncludeScript(ANode: TIncludeScript): TInstanceOf;
 var
   AFileName: string;
   AParser: TTParser;
@@ -1444,11 +1487,14 @@ var
   AInter: TInterpreter;
   ANameSp: TActivationRecord;
   AName, AModPath: string;
+  Ret: TInstanceOf;
+  IncClassName: string;
 begin
   if ANode.PIsModule then
   begin
     for AmodPath in FModulesPath do
     begin
+      IncClassName := Copy(ANode.PModulePath, Rpos('.', ANode.PModulePath) + 1, Length(ANode.PModulePath));
       AFileName := AmodPath +
                 DirectorySeparator +
                 ReplaceStr(ANode.PModulePath, '.', DirectorySeparator);
@@ -1466,8 +1512,13 @@ begin
 	else
   begin
     AFileName := TStringInstance(Visit(ANode.PFilename)).PValue;
+    IncClassName := ExtractFileName(AFileName);
+    if (Pos('.', IncClassName) > 0) then
+      IncClassName := Copy(IncClassName, 1, Pos('.', IncClassName) - 1);
     if DirectoryExists(AFileName) then
+    begin
       AFileName := AFileName + DirectorySeparator + '_init.ultra';
+    end;
 
   end;
   ALexer := TLexer.Create(AFileName);
@@ -1496,6 +1547,12 @@ begin
   end;
   //ATree.Free;
   //AInter.Free;
+
+  ANameSp := FCallStack.Peek;
+  Ret := ANameSp.GetMember(IncClassName);
+  if (ret = nil) then
+    Ret := TNullInstance.Create;
+  Result := ret;
 end;
 
 function TInterpreter.VisitNameSpaceGet(Anode: TNamespaceGet): TInstanceOf;
