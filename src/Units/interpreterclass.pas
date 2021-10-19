@@ -1018,9 +1018,16 @@ begin
   begin
     if AName[1] = '$' then
       ERunTimeError.Create('Can''t redefine constant attribute "'+Aname+'" from "' + ASrc.ClassName + '"', FTrace, ANode.PVarName);
-    if AValue.ClassNameIs('TFunctionInstance') and ASrc.ClassNameIs('TClassInstance') then
-      TFunctionInstance(AValue).PIsInstanceFunction := True;
-    ASrc.PMembers.Add(AName, AValue);
+    if ASrc.ClassNameIs('TDictionaryInstance') then
+    begin
+      TDictionaryInstance(ASrc).PValue.AddMember(AName, AValue);
+    end
+    else
+    begin
+      if AValue.ClassNameIs('TFunctionInstance') and ASrc.ClassNameIs('TClassInstance') then
+        TFunctionInstance(AValue).PIsInstanceFunction := True;
+      ASrc.PMembers.Add(AName, AValue);
+    end;
   end;
 end;
 
@@ -1095,7 +1102,19 @@ begin
   else
   begin
     //try
-      Ret := TInstanceOf(ASrc.PMembers.Find(Aname));
+      if (ASrc.ClassNameIs('TDictionaryInstance')) then
+      begin
+        Ret := TDictionaryInstance(ASrc).PValue.GetMember(AName);
+        if Ret = nil then
+        begin
+          Ret := TDictionaryInstance(ASrc).PDefault;
+          if (ret = nil) then
+            RaiseException('The referenced key "' + AName +
+          '" does not exist at given Dict/List and this dictionary does not have a default fallback value.', 'RunTime');
+        end
+      end
+      else
+        Ret := TInstanceOf(ASrc.PMembers.Find(Aname));
       if (Ret <> nil) then
       begin
         if Ret.ClassNameIs('TIntegerInstance') then
@@ -2075,9 +2094,8 @@ begin
         ERunTimeError.Create('This dictionary does not have a default value',
           FTrace, ANode.PToken)
       else
-        ERunTimeError.Create('The referenced key "' + AIndex.AsString +
-          '" does not exist at given Dict/List and this dictionary does not have a default fallback value.',
-          FTrace, ANode.PToken);
+        RaiseException('The referenced key "' + AIndex.AsString +
+          '" does not exist at given Dict/List and this dictionary does not have a default fallback value.', 'RunTime');
 
     end;
   end;
