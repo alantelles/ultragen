@@ -1018,9 +1018,16 @@ begin
   begin
     if AName[1] = '$' then
       ERunTimeError.Create('Can''t redefine constant attribute "'+Aname+'" from "' + ASrc.ClassName + '"', FTrace, ANode.PVarName);
-    if AValue.ClassNameIs('TFunctionInstance') and ASrc.ClassNameIs('TClassInstance') then
-      TFunctionInstance(AValue).PIsInstanceFunction := True;
-    ASrc.PMembers.Add(AName, AValue);
+    if ASrc.ClassNameIs('TDictionaryInstance') then
+    begin
+      TDictionaryInstance(ASrc).PValue.AddMember(AName, AValue);
+    end
+    else
+    begin
+      if AValue.ClassNameIs('TFunctionInstance') and ASrc.ClassNameIs('TClassInstance') then
+        TFunctionInstance(AValue).PIsInstanceFunction := True;
+      ASrc.PMembers.Add(AName, AValue);
+    end;
   end;
 end;
 
