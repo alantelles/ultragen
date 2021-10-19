@@ -1095,7 +1095,10 @@ begin
   else
   begin
     //try
-      Ret := TInstanceOf(ASrc.PMembers.Find(Aname));
+      if (ASrc.ClassNameIs('TDictionaryInstance')) then
+        Ret := TDictionaryInstance(ASrc).PValue.GetMember(AName)
+      else
+        Ret := TInstanceOf(ASrc.PMembers.Find(Aname));
       if (Ret <> nil) then
       begin
         if Ret.ClassNameIs('TIntegerInstance') then
