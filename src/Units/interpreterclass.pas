@@ -1103,7 +1103,16 @@ begin
   begin
     //try
       if (ASrc.ClassNameIs('TDictionaryInstance')) then
-        Ret := TDictionaryInstance(ASrc).PValue.GetMember(AName)
+      begin
+        Ret := TDictionaryInstance(ASrc).PValue.GetMember(AName);
+        if Ret = nil then
+        begin
+          Ret := TDictionaryInstance(ASrc).PDefault;
+          if (ret = nil) then
+            RaiseException('The referenced key "' + AName +
+          '" does not exist at given Dict/List and this dictionary does not have a default fallback value.', 'RunTime');
+        end
+      end
       else
         Ret := TInstanceOf(ASrc.PMembers.Find(Aname));
       if (Ret <> nil) then
@@ -2085,9 +2094,8 @@ begin
         ERunTimeError.Create('This dictionary does not have a default value',
           FTrace, ANode.PToken)
       else
-        ERunTimeError.Create('The referenced key "' + AIndex.AsString +
-          '" does not exist at given Dict/List and this dictionary does not have a default fallback value.',
-          FTrace, ANode.PToken);
+        RaiseException('The referenced key "' + AIndex.AsString +
+          '" does not exist at given Dict/List and this dictionary does not have a default fallback value.', 'RunTime');
 
     end;
   end;
