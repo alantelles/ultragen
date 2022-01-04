@@ -1,0 +1,23 @@
+class UltraTest
+
+function init() : UltraTest self
+    self.tests = []
+end
+
+function addTest(String name, fn) : UltraTest self
+    self.tests.append([name, fn])
+end
+
+function run(String fileName) : UltraTest self
+    print("Running tests for: ", fileName)
+    total = self.tests.length()
+    print("Tests to run: ", total)
+    passed = 0
+    for(self.tests, test)
+        print("Running ", test[0])
+        test[1]()
+        passed += 1
+    end
+    print("passed")
+    self.tests = []
+end

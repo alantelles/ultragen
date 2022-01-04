@@ -11,6 +11,9 @@
 		},
 		{
 			"path": "../../playground"
+		},
+		{
+			"path": "../../ultragen/try_tests"
 		}
 	],
 	"settings": {}

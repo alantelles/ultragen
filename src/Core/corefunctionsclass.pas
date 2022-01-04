@@ -132,6 +132,7 @@ var
   Ret, Aux: TInstanceOf;
   MDProc: TMarkdownProcessor;
   AuxStrList: TStringList;
+  MembersDict: TActivationRecord;
 begin
   FInter := AInter;
   Ret := TNullInstance.create;
@@ -168,16 +169,17 @@ begin
       SetObjAttr
     else if FName = 'members' then
     begin
+      MembersDict := TActivationRecord.Create('MEMBERS', AR_DICT, -1);
       checkArgCount([1]);
       if FParams[0].ClassNameIs('TDataType') then
       begin
         len := FParams[0].PMembers.Count;
         if len > 0 then
         begin
-	  for i:=0 to len-1 do
-	  begin
-	    writeln(FParams[0].PMembers.NameOfIndex(i),': ', TInstanceOf(FParams[0].PMembers[i]).AsString);
-	  end;
+	        for i:=0 to len-1 do
+	        begin
+            MembersDict.AddMember(FParams[0].PMembers.NameOfIndex(i), TInstanceOf(FParams[0].PMembers[i]));
+	        end;
         end;
       end
       else
@@ -188,10 +190,11 @@ begin
         begin
           for i:=0 to len-1 do
           begin
-            writeln(FPArams[0].PMembers.NameOfIndex(i),': ', TinstanceOf(FPArams[0].PMembers[i]).AsString);
-	  end;
-	end;
+            MembersDict.AddMember(FParams[0].PMembers.NameOfIndex(i), TInstanceOf(FParams[0].PMembers[i]));
+	        end;
+	      end;
       end;
+      Ret := TDictionaryInstance.Create(MembersDict);
     end
 
     //system

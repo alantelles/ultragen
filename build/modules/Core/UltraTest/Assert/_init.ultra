@@ -1,0 +1,8 @@
+class Assert
+
+function equals(expected, actual) : Assert
+    test = expected == actual
+    if(!test)
+        raise("Test failed", "UltraTest")
+    end
+end
