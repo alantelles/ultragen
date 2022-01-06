@@ -2,6 +2,23 @@
 
 Changes will be described from version 0.8.0
 
+## 0.9.0
+Release date: NONE
+
+## Changes
+
+- New optional JS-like style for setting and accessing dictionary values. All other methods still working
+```ruby
+x = {'myKey': 500}
+# access
+print(x.myKey) # prints 500, only valid names allowed
+print(x['myKey']) # still works, prints 500
+print(x[:myKey]) # also still works, prints 500
+# set
+x.myKey = "I changed value"
+print(x.myKey) # prints I changed value
+```
+
 ## 0.8.0
 Release date: *2021/10/14*
 
