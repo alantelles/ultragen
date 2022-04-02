@@ -1,1 +1,0 @@
-ultragen server.ultra

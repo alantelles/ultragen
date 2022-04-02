@@ -30,6 +30,7 @@ lib/
 *.app/
 
 
+
+build/sessions
+build/brook_uploads
 build/bin/ultragen
-build/bin/sessions/*
-!build/bin/sessions/.keepvsws.code-workspace
